@@ -1,11 +1,16 @@
 package com.daedong.zipmap.domain;
 
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 @Data
-public class User {
+public class User implements UserDetails {
     private long id;
     private String login_id;
     private String password;
@@ -20,5 +25,38 @@ public class User {
     private Date updated_at;
 
 
+    //모든 사용자에게 "ROLE_WRITER" 권한 부여
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_WRITER"));
+    }
 
+    @Override
+    public String getUsername() {
+        return this.login_id;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        // 계정이 만료되지 않았는지 여부 반환 (true : 만료되지 않음)
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        //계정이 잠기지 않았는지 여부 반환 (true : 잠기지 않음)
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        //비밀번호가 만료되지 않았는지 여부 반환 (true : 만료되지 않음)
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        //계정이 활성화되었는지 여부 반환 (true : 활성화됨)
+        return true;
+    }
 }

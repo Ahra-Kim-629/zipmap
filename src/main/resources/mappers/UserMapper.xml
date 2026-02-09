@@ -10,4 +10,9 @@
     WHERE login_id = #{login_id}
 </select>
 
+<insert id="save">
+    INSERT INTO user (login_id, password, name, gender, phone, email, address)
+    VALUES (#{login_id}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
+</insert>
+
 </mapper>

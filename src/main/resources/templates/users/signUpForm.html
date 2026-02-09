@@ -5,14 +5,14 @@
     <title>회원 가입</title>
 </head>
 <body>
-<form th:action="@{/users/signUp}" method="post">
+<form th:action="@{/signUp}" method="post">
     <div>
         <label for="login_id">아이디</label>
         <input type="text" id="login_id" name="login_id" required>
     </div>
     <div>
         <label for="password">비밀번호</label>
-        <input type="text" id="password" name="password" required>
+        <input type="password" id="password" name="password" required>
     </div>
     <div>
         <label for="name">이름</label>
