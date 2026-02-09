@@ -4,5 +4,10 @@
 
 <mapper namespace="com.daedong.zipmap.repository.UserMapper">
 
+<select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
+    SELECT login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+    FROM user
+    WHERE login_id = #{login_id}
+</select>
 
 </mapper>
