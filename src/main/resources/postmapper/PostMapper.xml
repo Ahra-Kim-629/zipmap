@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 속성 : 이 XML 파일과 매핑될 자바 인터페이스의 전체 경로 지정
+    id : 인터페이스 메서드명과 동일하게 작성(즉, 재정의)
+    parameterType : 매개변수의 자료형
+    resultType : 반환값의 자료형
+-->
+<mapper namespace="com.site.mapper.PostMapper">
+
+    <select id="findAll" parameterType="java.lang.String" resultType="com.site.domain.Post">
+        SELECT *
+        FROM Post
+        <where>
+        <if test="searchType == 'title' and keyword != null and keyword != ''">
+            AND title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="searchType == 'content' and keyword != null and keyword != ''">
+            AND content LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </where>
+    ORDER BY id DESC
+    </select>
+</mapper>
