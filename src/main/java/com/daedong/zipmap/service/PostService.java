@@ -13,9 +13,8 @@ import java.util.List;
 public class PostService {
     private final PostMapper postMapper;
 
-    public List<Post> findAll() {
-
-        return postMapper.findAll();
+    public List<Post> findAll(String searchType, String key) {
+        return postMapper.findAll(searchType, key);
     }
 
     public PostDTO getPostDetail(Long id) {
