@@ -36,4 +36,8 @@ public class ReviewService {
     public void save(Review review) {
 
     }
+
+    public String findWriterById(Long id) {
+        return null;
+    }
 }

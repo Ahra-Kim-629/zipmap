@@ -48,12 +48,16 @@ public class ReviewController {
         Review review = reviewService.findById(id);
         model.addAttribute("id", id);
 
+        // 리뷰 작성자 가져오기
+        String writer = reviewService.findWriterById(id);
+        model.addAttribute("writer", writer);
+
         // 이 리뷰의 댓글 목록 가져오기
         List<ReviewReply> replies = reviewService.findReplyById(id);
         model.addAttribute("replies", replies);
 
         // 이 리뷰에 첨부된 파일 목록 가져오기
-        List<ReviewFile> attachedFiles = fileService.findFilesById(id);
+        List<ReviewFile> attachedFiles = fileService.findFilesByReviewId(id);
         model.addAttribute("attachedFiles", attachedFiles);
 
         return "review/detail";
@@ -72,6 +76,7 @@ public class ReviewController {
         review.setUserId(user.getId());
         reviewService.save(review);
 
+        // 파일저장
         if (!file.isEmpty()) {
             fileService.saveFile(review.getId(), file);
         }
@@ -107,7 +112,7 @@ public class ReviewController {
             fileService.saveFile(id, file);
         }
 
-        return "redirect:/review/list/" + id;
+        return "redirect:/review/detail/" + id;
     }
 
 }
