@@ -7,19 +7,10 @@
     parameterType : 매개변수의 자료형
     resultType : 반환값의 자료형
 -->
-<mapper namespace="com.site.mapper.PostMapper">
-
-    <select id="findAll" parameterType="java.lang.String" resultType="com.site.domain.Post">
+<mapper namespace="com.daedong.zipmap.postmapper.PostMapper">
+    <select id="findAll"  resultType="com.daedong.zipmap.postdomain.Post">
         SELECT *
         FROM Post
-        <where>
-        <if test="searchType == 'title' and keyword != null and keyword != ''">
-            AND title LIKE CONCAT('%', #{keyword}, '%')
-        </if>
-        <if test="searchType == 'content' and keyword != null and keyword != ''">
-            AND content LIKE CONCAT('%', #{keyword}, '%')
-        </if>
-    </where>
-    ORDER BY id DESC
+        ORDER BY id DESC
     </select>
 </mapper>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>대동여집도-Community</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row-md-3">
+            <!-- 검색 폼 -->
+            <div class="col-md-8">
+                <form th:action="@{/}" th:method="get" class="d-flex">
+                    <select name="searchType" class="form-select me-2">
+                        <option value="category" th:selected="${searchType == 'category'}">나눔</option>
+                        <option value="category" th:selected="${searchType == 'category'}">공구</option>
+                        <option value="category" th:selected="${searchType == 'category'}">모임</option>
+                    </select>
+                    <select name="searchType" class="form-select me-3">
+                        <option value="location" th:selected="${searchType == 'location'}">강남</option>
+                        <option value="location" th:selected="${searchType == 'location'}">강동</option>
+                        <option value="location" th:selected="${searchType == 'location'}">강북</option>
+                        <option value="location" th:selected="${searchType == 'location'}">강서</option>
+                    </select>
+                    <input type="text" th:value="${key}" name="key" class="form-control me-2" placeholder="검색어를 입력하세요.">
+                    <button type="submit" class="btn btn-primary">검색</button>
+                </form>
+            </div>
+            <!-- 글등록 버튼 -->
+            <div class="col-md-4 text-end">
+                <a th:href="@{/boards/write}" class="btn btn-primary">글등록</a>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td>글번호</td>
+                    <td>글제목</td>
+                    <td>작성자</td>
+                    <td>작성일</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts}">
+                    <td th:text="${post.id}"></td>
+                    <td><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
+                    <td th:text="${post.userId}"></td>
+                    <td th:text="${post.createdAt}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</body>
+</html>

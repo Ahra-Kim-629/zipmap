@@ -12,7 +12,7 @@ public class Post {
     private String location;
     public int likeConunt;
     public int dislikeCount;
-    public int postStatus;
+    public String postStatus;
     private String createdAt;
     private String updatedAt;
 

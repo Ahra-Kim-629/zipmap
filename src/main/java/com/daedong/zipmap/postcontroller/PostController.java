@@ -17,12 +17,14 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public String list(Model model){
+    public String list(Model model,
+                       @RequestParam(value = "searchType", required = false) String searchType,
+                       @RequestParam(value = "key", required = false) String key){
         // 전체 게시판 게시글 리스트
-        List<Post> posts = postService.findAll();
+        List<Post> posts = postService.findAll(searchType, key);
         model.addAttribute("posts", posts);
 
-        return "post/list";
+        return "list";
     }
 
 }
