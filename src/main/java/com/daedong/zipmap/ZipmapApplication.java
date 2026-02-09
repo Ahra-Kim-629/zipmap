@@ -4,7 +4,6 @@ import org.mybatis.spring.annotation.MapperScan;import org.springframework.boot.
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan(basePackages = "com.daedong.zipmap.repository")
 public class ZipmapApplication {
 
     public static void main(String[] args) {
