@@ -2,13 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- namespace 속성 : 이 XML 파일과 매핑될 자바 인터페이스의 전체 경로 지정
-    id : 인터페이스 메서드명과 동일하게 작성(즉, 재정의)
-    parameterType : 매개변수의 자료형
-    resultType : 반환값의 자료형
--->
 <mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
-    <!-- 글 갯수 조회 -->
     <select id="countTotal" resultType="int">
         SELECT COUNT(id)
         FROM review
@@ -47,7 +41,7 @@
                 </choose>
             </if>
         </where>
-        ORDER BY bno DESC
+        ORDER BY id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
