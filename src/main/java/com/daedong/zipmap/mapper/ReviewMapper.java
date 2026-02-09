@@ -1,6 +1,5 @@
 package com.daedong.zipmap.mapper;
 
-<<<<<<< HEAD
 import com.daedong.zipmap.domain.Review;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +12,4 @@ public interface ReviewMapper {
     List<Review> findAll(String searchType, String keyword, Pageable pageable);
 
     int countTotal(String searchType, String keyword);
-=======
-public interface ReviewMapper {
->>>>>>> feature/ahra
 }

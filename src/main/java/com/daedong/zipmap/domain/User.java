@@ -2,12 +2,12 @@ package com.daedong.zipmap.domain;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class User {
     private long id;
-    private String lonin_id;
+    private String loginId;
     private String password;
     private String name;
     private char gender;
@@ -15,10 +15,9 @@ public class User {
     private String email;
     private String address;
     private String role;
-    private String account_status;
-    private Date created_at;
-    private Date updated_at;
-
+    private String accountStatus;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
 }

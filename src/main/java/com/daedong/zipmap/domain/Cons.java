@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 @Data
 public class Cons {
     private long id;
-    private long review_id;
+    private long reviewId;
     private String attribute;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

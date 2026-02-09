@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 @Data
 public class ReviewLike {
     private long id;
-    private long user_id;
-    private long review_id;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private long userId;
+    private long reviewId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }
