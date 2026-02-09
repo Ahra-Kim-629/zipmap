@@ -1,6 +1,6 @@
 package com.daedong.zipmap.postservice;
 
-import com.daedong.zipmap.postdomain.Post;
+import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.postmapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

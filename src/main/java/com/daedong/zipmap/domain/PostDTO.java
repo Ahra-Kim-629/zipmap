@@ -1,6 +1,5 @@
 package com.daedong.zipmap.domain;
 
-import com.daedong.zipmap.postdomain.PostFile;
 import lombok.Data;
 
 import java.time.LocalDateTime;

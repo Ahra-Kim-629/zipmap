@@ -1,4 +1,4 @@
-package com.daedong.zipmap.postdomain;
+package com.daedong.zipmap.domain;
 
 import lombok.Data;
 
