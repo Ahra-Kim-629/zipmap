@@ -1,10 +1,11 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.ReviewFile;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Service
 public class FileService {
     public List<ReviewFile> findFilesById(Long id) {
 

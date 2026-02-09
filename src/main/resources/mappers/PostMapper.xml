@@ -54,17 +54,17 @@
                 p.id = #{id}
     </select>
 
-    <select id="findAll" parameterType="java.lang.String" resultType="com.site.domain.Post">
-        SELECT *
-        FROM Post
-        <where>
-            <if test="searchType == 'title' and keyword != null and keyword != ''">
-                AND title LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-            <if test="searchType == 'content' and keyword != null and keyword != ''">
-                AND content LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-        </where>
-        ORDER BY id DESC
-    </select>
+<!--    <select id="findAll" parameterType="java.lang.String" resultType="com.site.domain.Post">-->
+<!--        SELECT *-->
+<!--        FROM Post-->
+<!--        <where>-->
+<!--            <if test="searchType == 'title' and keyword != null and keyword != ''">-->
+<!--                AND title LIKE CONCAT('%', #{keyword}, '%')-->
+<!--            </if>-->
+<!--            <if test="searchType == 'content' and keyword != null and keyword != ''">-->
+<!--                AND content LIKE CONCAT('%', #{keyword}, '%')-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY id DESC-->
+<!--    </select>-->
 </mapper>
