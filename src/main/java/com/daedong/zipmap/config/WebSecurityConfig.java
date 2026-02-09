@@ -24,7 +24,7 @@ public class WebSecurityConfig {
         http
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/", "/signup", "/css/**", "/js/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .formLogin((form) -> form
                 .loginPage("/login")
