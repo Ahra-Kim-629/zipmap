@@ -21,7 +21,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login_id) throws UsernameNotFoundException {
         User user = userMapper.findByLoginId(login_id);
-        if(user != null){
+        if(user == null){
            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + login_id);
         }
         return user;
@@ -40,6 +40,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("이미 존재하는 회원입니다.");
         }
     }
+
 
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
