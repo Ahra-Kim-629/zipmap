@@ -34,7 +34,7 @@ public class UserController {
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
-            return "redirect:/users/loginForm";
+            return "redirect:/login";
         }
         return "redirect:/";
     }
