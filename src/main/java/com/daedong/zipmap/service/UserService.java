@@ -3,8 +3,6 @@ package com.daedong.zipmap.service;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,8 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
