@@ -5,11 +5,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ReviewLike {
-    private long id;
-    private long userId;
-    private long reviewId;
+public class PostFile {
+    private Long id;
+    private Long postId;
+    private String filePath;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }
