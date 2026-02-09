@@ -1,21 +1,26 @@
-package com.daedong.zipmap.postdomain;
+package com.daedong.zipmap.domain;
 
+import com.daedong.zipmap.postdomain.PostFile;
 import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class PostDTO {
     private Long id;
     private String title;
     private String content;
-    public Long userId;
+    private Long userId;
     private String category;
     private String location;
-    public int likeConunt;
-    public int dislikeCount;
-    public int postStatus;
-    private String createdAt;
-    private String updatedAt;
-    private Long postId;
-    private int type;
+    private int likeCount;
+    private int dislikeCount;
+    private String postStatus;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
+    private List<PostReaction> reactionList;
+    private List<PostFile> fileList;
+    private List<PostReply> replyList;
 }
