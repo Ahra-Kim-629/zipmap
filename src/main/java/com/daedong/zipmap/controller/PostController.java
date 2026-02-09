@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PostController {
     private final PostService postService;
 
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/board";
-    }
-
     @GetMapping("/board")
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,

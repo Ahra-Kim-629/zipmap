@@ -47,7 +47,7 @@ public class UserController {
     @PostMapping("/login")
     public String login(User user, RedirectAttributes rttr) {
         try {
-            User findUser = userService.findByLoginId(user.getLogin_id());
+            User findUser = userService.findByLoginId(user.getLoginId());
             if (findUser.getPassword().equals(user.getPassword())) {
                 return "redirect:/";
             } else {
