@@ -38,7 +38,7 @@
         </collection>
     </resultMap>
 
-    <select id="findById" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findById" resultMap="postResultMap">
             SELECT
                 p.id, p.title, p.content, p.user_id, p.category, p.location,
                 p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
@@ -47,9 +47,9 @@
                 c.id as reply_id, c.content as reply_content, c.created_at as reply_created_at, c.updated_at as reply_updated_at
             FROM
                 post p
-            JOIN post_reaction r ON p.id = r.post_id
-            JOIN post_file f on p.id = f.post_id
-            JOIN post_reply c on p.id = c.post_id
+            LEFT JOIN post_reaction r ON p.id = r.post_id
+            LEFT JOIN post_file f on p.id = f.post_id
+            LEFT JOIN post_reply c on p.id = c.post_id
             WHERE
                 p.id = #{id}
     </select>

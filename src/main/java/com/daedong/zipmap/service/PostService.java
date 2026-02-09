@@ -11,7 +11,6 @@ public class PostService {
     private final PostMapper postMapper;
 
     public PostDTO getPostDetail(Long id) {
-        postMapper.findById(id);
-        return null;
+        return postMapper.findById(id);
     }
 }
