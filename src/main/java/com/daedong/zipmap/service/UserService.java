@@ -57,6 +57,11 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public boolean login(User user) {
+        User findUser = userMapper.findByLoginId(user.getLoginId());
+        return passwordEncoder.matches(user.getPassword(), findUser.getPassword());
+    }
+
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
     }

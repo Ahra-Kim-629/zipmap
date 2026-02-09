@@ -10,6 +10,7 @@ public interface UserMapper {
     Optional<User> findByNameAndEmail(String name, String email);
 
     Optional<User> findById(long id);
+
     User findByLoginId(String loginId);
 
     void save(User user);
