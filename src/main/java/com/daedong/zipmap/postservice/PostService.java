@@ -15,6 +15,7 @@ public class PostService {
     private final PostMapper postMapper;
 
     public List<Post> findAll() {
+
         return postMapper.findAll();
     }
 }
