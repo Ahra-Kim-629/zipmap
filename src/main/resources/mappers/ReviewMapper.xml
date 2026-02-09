@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daedong.zipmap.repository.BoardMapper">
+
+    <!-- 리뷰 id로 리뷰 찾기 -->
+    <select id="findById" resultType="com.daedong.zipmap.domain.Review">
+        select id, title, content, address, user_id, point, review_status, created_at, updated_at
+        from review
+        where id = #{id}
+    </select>
+
+    <!-- 리뷰 id로 댓글 찾기 -->
+    <select id="findReplyById" resultType="com.daedong.zipmap.domain.ReviewReply">
+        select id, review_id, user_id, content, created_at, updated_at
+        from review_reply
+        where review_id = #{id}
+    </select>
+
+    <!-- 리뷰 id로 작성자 찾기 -->
+    <select id="findWriterById" resultType="java.lang.String">
+        select login_id
+        from user
+        where id = (select user_id from review where id = #{id})
+    </select>
+
+</mapper>

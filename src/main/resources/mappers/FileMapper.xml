@@ -4,6 +4,16 @@
 
 <mapper namespace="com.daedong.zipmap.repository.FileMapper">
 
+    <!-- 파일을 DB에 저장 -->
+    <insert id="saveFile">
+        INSERT INTO review_file (id, review_id, file_path, created_at, updated_at)
+        VALUES (#{id}, #{review_id}, #{file_path}, #{created_at}, #{updated_at})
+    </insert>
 
+    <!-- 리뷰id로 파일찾기 -->
+    <select id="findFilesByReviewId">
+        SELECT id, review_id, file_path, created_at, updated_at
+        FROM review_file WHERE review_id = #{id}
+    </select>
 
 </mapper>
