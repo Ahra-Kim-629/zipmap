@@ -10,7 +10,7 @@ import java.util.List;
 public interface PostMapper {
     PostDTO findById(long id);
 
-    List<Post> findAll();
+    List<Post> findAll(String searchType, String key);
 
     void save(Post post);
 

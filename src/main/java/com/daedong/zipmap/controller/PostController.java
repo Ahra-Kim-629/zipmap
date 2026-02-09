@@ -2,9 +2,10 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
-import com.daedong.zipmap.postservice.PostService;
+import com.daedong.zipmap.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/board")
 public class PostController {
-
     private final PostService postService;
-
 
     @GetMapping
     public String list(Model model) {
@@ -41,16 +40,15 @@ public class PostController {
 
 
     @GetMapping
-    public String list(@Pageable(size = 3, sort = "id", direction = Sort.Direction.DESC)
-                       @RequestParam(required = false)String searchType,
-                       @RequestParam(required = false) String keyword, Model model){
-        List<Post> posts = postService.findAll(searchType,keyword);
-        model.addAttribute("posts",posts);
-        model.addAttribute("searchType",searchType);
-        model.addAttribute("keyword",keyword);
+    public String list(@PageableDefault(size = 3, sort = "id", direction = Sort.Direction.DESC)
+                       @RequestParam(required = false) String searchType,
+                       @RequestParam(required = false) String keyword, Model model) {
+        List<Post> posts = postService.findAll(searchType, keyword);
+        model.addAttribute("posts", posts);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
         return "posts/list";
     }
-
 
 
 }

@@ -23,11 +23,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((requests) -> requests
-<<<<<<< HEAD
                 .requestMatchers("/", "/signup", "/css/**", "/js/**").permitAll()
-=======
-                .requestMatchers("/", "/home", "/css/**", "/js/**").permitAll()
->>>>>>> origin/feature/sh
                 .anyRequest().permitAll()
             )
             .formLogin((form) -> form
