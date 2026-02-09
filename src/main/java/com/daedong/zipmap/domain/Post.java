@@ -10,7 +10,7 @@ public class Post {
     public Long userId;
     private String category;
     private String location;
-    public int likeConunt;
+    public int likeCount;
     public int dislikeCount;
     public String postStatus;
     private String createdAt;
