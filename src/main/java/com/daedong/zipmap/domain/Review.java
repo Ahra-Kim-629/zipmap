@@ -1,6 +1,9 @@
 package com.daedong.zipmap.domain;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature/ahra
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,7 +11,10 @@ import java.time.LocalDateTime;
 @Data
 public class Review {
     private long id;
+<<<<<<< HEAD
     private String title;
+=======
+>>>>>>> feature/ahra
     private String content;
     private String address;
     private long user_id;

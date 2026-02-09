@@ -1,5 +1,6 @@
 package com.daedong.zipmap.service;
 
+<<<<<<< HEAD
 
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.mapper.ReviewMapper;
@@ -22,4 +23,7 @@ public class ReviewService {
         return new PageImpl<>(list, pageable, total);
 
     }
+=======
+public class ReviewService {
+>>>>>>> feature/ahra
 }
