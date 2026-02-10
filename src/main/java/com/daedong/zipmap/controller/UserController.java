@@ -104,7 +104,8 @@ public class UserController {
     public String mypage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-            model.addAttribute("user", userService.findById(user.getId()));
+            model.addAttribute("user",
+                    ));
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/";
