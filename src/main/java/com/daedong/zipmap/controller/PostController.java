@@ -2,22 +2,29 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/board")
 public class PostController {
     private final PostService postService;
+    private final UserService userService;
 
     @GetMapping
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -47,13 +54,13 @@ public class PostController {
         return "board/write_form";
     }
 
-    @PostMapping("/wirte")
-    public String write(Post post, @RequestParam("file") MultipartFile file, Model model) {
+    @PostMapping("/write")
+    public String write(@AuthenticationPrincipal UserDetails userDetails, Post post, @RequestParam("file") List<MultipartFile> files, Model model) {
         try {
-            postService.write(post, file);
+            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+            post.setUserId(user.getId());
+            postService.write(post, files);
             model.addAttribute("message", "글 작성이 완료되었습니다.");
-            model.addAttribute("searchType", "");
-            model.addAttribute("keyword", "");
             return "redirect:/board";
         } catch (Exception e) {
             model.addAttribute("error", "글 작성 중 오류가 발생했습니다.");

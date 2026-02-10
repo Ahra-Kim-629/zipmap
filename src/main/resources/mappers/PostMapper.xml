@@ -87,7 +87,8 @@
         </where>
     </select>
 
-    <insert id="write" parameterType="com.daedong.zipmap.domain.Post">
+    <insert id="insertPost" parameterType="com.daedong.zipmap.domain.Post"
+            useGeneratedKeys="true" keyProperty="id">
         INSERT INTO post (
             title, content, user_id, category, location, 
             like_count, dislike_count, post_status, created_at, updated_at
@@ -96,5 +97,10 @@
             #{title}, #{content}, #{userId}, #{category}, #{location}, 
             0, 0, 'ACTIVE', NOW(), NOW()
         )
+    </insert>
+
+    <insert id="insertFile" parameterType="com.daedong.zipmap.domain.PostFile">
+        INSERT INTO post_file (post_id, file_path)
+        VALUES (#{postId}, #{filePath})
     </insert>
 </mapper>

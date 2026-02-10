@@ -12,9 +12,9 @@
     </select>
 
     <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
-        SELECT login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        SELECT id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
         FROM user
-        WHERE login_id = #{login_id}
+        WHERE login_id = #{loginId}
     </select>
 
     <insert id="save">
