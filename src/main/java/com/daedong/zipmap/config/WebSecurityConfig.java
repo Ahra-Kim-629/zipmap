@@ -34,7 +34,12 @@ public class WebSecurityConfig {
                 .failureHandler(loginFailureHandler)
 
             )
-            .logout((logout) -> logout.permitAll());
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+            );
+
 
         return http.build();
     }
