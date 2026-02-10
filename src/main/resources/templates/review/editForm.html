@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 수정 페이지</title>
+</head>
+<body>
+    <div class="container">
+        <h2>리뷰 수정</h2>
+        <form th:action="@{/review/edit/${review.id}}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" class="form-control" id="title" name="title" th:value="${review.title}">
+            </div>
+
+            <div class="form-group">
+                <label for="address">주소</label>
+                <input type="text" class="form-control" id="address" name="address" th:value="${review.address}">
+            </div>
+
+            <div class="form-group">
+                <p class="pros">장점</p>
+                <input type="checkbox" id="lighting" name="pros">
+                <label for="lighting">채광</label>
+                <input type="checkbox" id="drainage" name="pros">
+                <label for="drainage">배수</label>
+                <input type="checkbox" id="hot_water" name="pros">
+                <label for="hot_water">온수</label>
+                <input type="checkbox" id="water_pressure" name="pros">
+                <label for="water_pressure">수압</label>
+                <input type="checkbox" id="mold" name="pros">
+                <label for="mold">곰팡이</label>
+                <input type="checkbox" id="insect" name="pros">
+                <label for="insect">해충</label>
+                <input type="checkbox" id="noise" name="pros">
+                <label for="noise">소음</label>
+                <input type="checkbox" id="safety" name="pros">
+                <label for="safety">치안</label>
+                <input type="checkbox" id="landlord" name="pros">
+                <label for="landlord">집주인</label>
+
+                <p class="cons">단점</p>
+                <input type="checkbox" id="c_lighting" name="pros">
+                <label for="c_lighting">채광</label>
+                <input type="checkbox" id="c_drainage" name="pros">
+                <label for="c_drainage">배수</label>
+                <input type="checkbox" id="c_hot_water" name="pros">
+                <label for="c_hot_water">온수</label>
+                <input type="checkbox" id="c_water_pressure" name="pros">
+                <label for="c_water_pressure">수압</label>
+                <input type="checkbox" id="c_mold" name="pros">
+                <label for="c_mold">곰팡이</label>
+                <input type="checkbox" id="c_insect" name="pros">
+                <label for="c_insect">해충</label>
+                <input type="checkbox" id="c_noise" name="pros">
+                <label for="c_noise">소음</label>
+                <input type="checkbox" id="c_safety" name="pros">
+                <label for="c_safety">치안</label>
+                <input type="checkbox" id="c_landlord" name="pros">
+                <label for="c_landlord">집주인</label>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea class="form-control" id="content" name="content" th:text="${review.content}" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <p class="file-label">현재 첨부된 파일</p>
+                <!-- 기존 파일 없는 경우 -->
+                <div th:if="${#lists.isEmpty(attachedFiles)}" class="attached-files">
+                    <p class="form-text">첨부된 파일이 없습니다.</p>
+                </div>
+                <!-- 기존 파일 있는 경우 -->
+                <div th:each="attachedFile : ${attachedFiles}">
+                    <!-- 이미지 파일인 경우 미리보기 -->
+                    <div th:if="$strings.endsWith(attachedFile.original_name,'.jpg')
+                    or $strings.endsWith(attachedFile.original_name,'.png')
+                    or $strings.endsWith(attachedFile.original_name,'.gif')">
+                        <img width="20%" th:src="@{/images/${fileId}(fileId=${attachedFile.id})}">
+                    </div>
+                    <!-- 이미지 파일이 아닌 경우 -->
+                    <div th:unless="${#strings.endsWith(attachedFile.original_name,'.jpg')
+                    or #strings.endsWith(attachedFile.original_name,'.png')
+                    or #strings.endsWith(attachedFile.original_name,'.gif')}">
+                        <p th:text="${attachedFile.original_name}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">리뷰 수정</button>
+            <a th:href="@{/review/detail/${review.id}}" class="btn btn-secondary">취소</a>
+        </form>
+    </div>
+</body>
+</html>
