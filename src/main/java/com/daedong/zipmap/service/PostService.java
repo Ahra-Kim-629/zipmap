@@ -16,9 +16,11 @@ import java.util.List;
 public class PostService {
     private final PostMapper postMapper;
 
-    public Page<Post> findAll(String searchType, String keyword, Pageable pageable) {
-        int totalCount = postMapper.countAll(searchType, keyword);
-        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
+    public Page<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
+        int totalCount = postMapper.countAll(searchType, keyword, category, location);
+//        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
+//        return new PageImpl<>(posts, pageable, totalCount);
+        List<Post> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
         return new PageImpl<>(posts, pageable, totalCount);
     }
 

@@ -25,12 +25,16 @@ public class PostController {
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String category,
+                       @RequestParam(required = false) String location,
                        Model model) {
        // 전체 게시판 게시글 리스트
-        Page<Post> posts = postService.findAll(searchType, keyword, pageable);
+        Page<Post> posts = postService.findAll(searchType, keyword, category, location, pageable);
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("category", category);
+        model.addAttribute("location", location);
 
         return "board/list";
     }
