@@ -61,6 +61,25 @@
             <if test="keyword != null and keyword != ''">
                 AND title LIKE CONCAT('%', #{keyword}, '%')
             </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="location != null and location != ''">
+                AND location = #{location}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+            </if>
         </where>
         ORDER BY id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
@@ -69,6 +88,15 @@
     <select id="countAll" resultType="int">
         SELECT COUNT(*) FROM POST
         <where>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="location != null and location != ''">
+                AND location = #{location}
+            </if>
             <if test="keyword != null and keyword != ''">
                 AND title LIKE CONCAT('%', #{keyword}, '%')
             </if>
@@ -104,4 +132,19 @@
         INSERT INTO post_file (post_id, file_path)
         VALUES (#{postId}, #{filePath})
     </insert>
+    <!-- 게시글 댓글 기능 관련 추가 쿼리 -->
+    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.PostReply">
+        INSERT INTO post_reply (post_id, user_id, content, created_at)
+        VALUES (#{postId}, #{userId}, #{content}, NOW())
+    </insert>
+    <delete id="deleteReply">
+        DELETE FROM post_reply WHERE id = #{id}
+    </delete>
+
+    <update id="updateReply">
+        UPDATE post_reply
+        SET content = #{content},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
 </mapper>

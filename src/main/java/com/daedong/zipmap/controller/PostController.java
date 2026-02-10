@@ -30,21 +30,26 @@ public class PostController {
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String category,
+                       @RequestParam(required = false) String location,
                        Model model) {
-        // 전체 게시판 게시글 리스트
-        Page<Post> posts = postService.findAll(searchType, keyword, pageable);
-
+       // 전체 게시판 게시글 리스트
+        Page<Post> posts = postService.findAll(searchType, keyword, category, location, pageable);
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("category", category);
+        model.addAttribute("location", location);
 
         return "board/list";
     }
 
     @GetMapping("/detail/{id}")
-    public String boardDetail(@PathVariable Long id, Model model) {
+    public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         PostDTO boardDTO = postService.getPostDetail(id);
         model.addAttribute("board", boardDTO);
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+        model.addAttribute("currentUserId", user.getId());
 
         return "board/detail";
     }
@@ -67,4 +72,6 @@ public class PostController {
             return "board/write_form";
         }
     }
+
+
 }
