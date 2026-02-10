@@ -1,4 +1,4 @@
-package com.daedong.zipmap.postmapper;
+package com.daedong.zipmap.mapper;
 
 import com.daedong.zipmap.domain.Post;
 import org.apache.ibatis.annotations.Mapper;

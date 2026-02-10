@@ -1,7 +1,7 @@
-package com.daedong.zipmap.postservice;
+package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.postmapper.PostMapper;
+import com.daedong.zipmap.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
