@@ -86,4 +86,15 @@
             </if>
         </where>
     </select>
+
+    <insert id="write" parameterType="com.daedong.zipmap.domain.Post">
+        INSERT INTO post (
+            title, content, user_id, category, location, 
+            like_count, dislike_count, post_status, created_at, updated_at
+        )
+        VALUES (
+            #{title}, #{content}, #{userId}, #{category}, #{location}, 
+            0, 0, 'ACTIVE', NOW(), NOW()
+        )
+    </insert>
 </mapper>

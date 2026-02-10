@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,5 +25,9 @@ public class PostService {
 
     public PostDTO getPostDetail(Long id) {
         return postMapper.findById(id);
+    }
+
+    public void write(Post post, MultipartFile file) {
+        postMapper.write(post, file);
     }
 }

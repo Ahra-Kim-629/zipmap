@@ -5,6 +5,7 @@ import com.daedong.zipmap.domain.PostDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,4 +21,5 @@ public interface PostMapper {
 
     int countAll(@Param("searchType") String searchType, @Param("keyword") String keyword);
 
+    void write(Post post, MultipartFile file);
 }

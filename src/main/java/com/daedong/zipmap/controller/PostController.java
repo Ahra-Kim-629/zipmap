@@ -10,10 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequiredArgsConstructor
@@ -42,5 +40,24 @@ public class PostController {
         model.addAttribute("board", boardDTO);
 
         return "board/detail";
+    }
+
+    @GetMapping("/write")
+    public String write() {
+        return "board/write_form";
+    }
+
+    @PostMapping("/wirte")
+    public String write(Post post, @RequestParam("file") MultipartFile file, Model model) {
+        try {
+            postService.write(post, file);
+            model.addAttribute("message", "글 작성이 완료되었습니다.");
+            model.addAttribute("searchType", "");
+            model.addAttribute("keyword", "");
+            return "redirect:/board";
+        } catch (Exception e) {
+            model.addAttribute("error", "글 작성 중 오류가 발생했습니다.");
+            return "board/write_form";
+        }
     }
 }
