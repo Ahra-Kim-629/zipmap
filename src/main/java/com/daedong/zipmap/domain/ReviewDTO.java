@@ -1,7 +1,9 @@
 package com.daedong.zipmap.domain;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ReviewDTO {
@@ -17,7 +19,9 @@ public class ReviewDTO {
 
     private String loginId;
 
-    // ✅ 장점 / 단점 필드 추가
-    private String pros;
-    private String cons;
+    private List<String> prosList;
+    private List<String> consList;
+    private List<ReviewFile> fileList;
+    private List<ReviewReply> replyList;
+
 }

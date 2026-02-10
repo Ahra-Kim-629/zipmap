@@ -12,4 +12,6 @@ public interface FileMapper {
     List<ReviewFile> findFilesByReviewId(Long id);
 
     void insertPostFile(PostFile postFile);
+
+    List<ReviewFile> findByReviewId(Long id);
 }

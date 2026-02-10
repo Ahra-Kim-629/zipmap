@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,9 +22,10 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final FileService fileService;
 
     @GetMapping
-    public String list(@PageableDefault(size = 3, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String list(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) List<String> pros,
@@ -50,5 +52,69 @@ public class ReviewController {
         model.addAttribute("consList", consList);
 
         return "review/list"; // templates/review/list.html
+        return "review/list";
     }
+
+    // 리뷰 열람 (상세페이지)
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        model.addAttribute("reviewDTO", reviewDTO);
+
+        return "review/detail";
+    }
+
+    // 리뷰 작성
+    @GetMapping("/write")
+    @PreAuthorize("isAuthenticated()")
+    public String write() {
+        return "review/writeForm";
+    }
+
+    @PostMapping("/write")
+    @PreAuthorize("isAuthenticated()")
+    public String write(ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        reviewDTO.setUserId(user.getId());
+        long savedId = reviewService.save(reviewDTO);
+
+        // 파일저장
+        if (file != null && !file.isEmpty()) {
+            fileService.saveFile(savedId, file);
+        }
+        return "redirect:/review/detail/" + savedId;
+    }
+
+    // 리뷰 수정
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        if (reviewDTO.getUserId() != user.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+        }
+        model.addAttribute("reviewDTO", reviewDTO);
+        return "review/editForm";
+    }
+
+    @PostMapping("/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        ReviewDTO original = reviewService.findById(id);
+        if (original.getUserId() != user.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+        }
+
+        reviewDTO.setId(id);
+        reviewDTO.setUserId(user.getId());
+        reviewService.edit(reviewDTO);
+
+        // 파일 처리
+        if(file != null && !file.isEmpty()){
+            fileService.saveFile(id, file);
+        }
+
+        return "redirect:/review/detail/" + id;
+    }
+
+
 }

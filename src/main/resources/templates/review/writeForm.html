@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 작성 페이지</title>
+</head>
+<body>
+<div class="container">
+    <h2>리뷰 작성</h2>
+    <form th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="address">주소</label>
+            <input type="text" class="form-control" id="address" name="address" required>
+        </div>
+
+        <div class="form-group">
+            <p class="pros">장점</p>
+            <label><input type="checkbox" id="lighting" name="prosList" value="채광">채광</label>
+            <label><input type="checkbox" id="heating" name="prosList" value="난방">난방</label>
+            <label><input type="checkbox" id="drainage" name="prosList" value="배수">배수</label>
+            <label><input type="checkbox" id="hot_water" name="prosList" value="온수">온수</label>
+            <label><input type="checkbox" id="water_pressure" name="prosList" value="수압">수압</label>
+            <label><input type="checkbox" id="mold" name="prosList" value="곰팡이">곰팡이</label>
+            <label><input type="checkbox" id="insect" name="prosList" value="해충">해충</label>
+            <label><input type="checkbox" id="noise" name="prosList" value="소음">소음</label>
+            <label><input type="checkbox" id="safety" name="prosList" value="치안">치안</label>
+            <label><input type="checkbox" id="landlord" name="prosList" value="집주인">집주인</label>
+
+            <p class="cons">단점</p>
+            <label><input type="checkbox" id="c_lighting" name="consList" value="채광">채광</label>
+            <label><input type="checkbox" id="c_heating" name="consList" value="난방">난방</label>
+            <label><input type="checkbox" id="c_drainage" name="consList" value="배수">배수</label>
+            <label><input type="checkbox" id="c_hot_water" name="consList" value="온수">온수</label>
+            <label><input type="checkbox" id="c_water_pressure" name="consList" value="수압">수압</label>
+            <label><input type="checkbox" id="c_mold" name="consList" value="곰팡이">곰팡이</label>
+            <label><input type="checkbox" id="c_insect" name="consList" value="해충">해충</label>
+            <label><input type="checkbox" id="c_noise" name="consList" value="소음">소음</label>
+            <label><input type="checkbox" id="c_safety" name="consList" value="치안">치안</label>
+            <label><input type="checkbox" id="c_landlord" name="consList" value="집주인">집주인</label>
+
+        </div>
+
+
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea class="form-control" id="content" name="content" rows="20" cols="40" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="file">파일</label>
+            <input type="file" class="form-control-file" id="file" name="file">
+        </div>
+
+        <button type="submit" class="btn btn-primary">작성</button>
+
+    </form>
+
+    <a th:href="@{/review/list}">작성취소/ 리뷰목록으로 이동</a>
+
+</div>
+
+</body>
+</html>
