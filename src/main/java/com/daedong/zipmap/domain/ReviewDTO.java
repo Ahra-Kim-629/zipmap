@@ -1,9 +1,6 @@
 package com.daedong.zipmap.domain;
 
-
-import jakarta.persistence.Column;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -12,13 +9,15 @@ public class ReviewDTO {
     private String title;
     private String content;
     private String address;
-    private long user_id;
+    private long userId;
     private int point;
-    private String review_status;
-    @Column(name = "created_at")
+    private String reviewStatus;
     private LocalDateTime createdAt;
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
-    private String loginId; // login_id -> loginId 로 변경 (CamelCase 매핑 대응)
+    private String loginId;
 
+    // ✅ 장점 / 단점 필드 추가
+    private String pros;
+    private String cons;
 }

@@ -4,101 +4,249 @@
     <meta charset="UTF-8">
     <title>리뷰 목록</title>
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .pagination , .pagination strong {
-            margin: 0 5px;
-            text-decoration: none;
-            color: black;
-        }
-        .pagination strong {
-            font-weight: bold;
-            color: red;
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a, .pagination strong { margin: 0 5px; text-decoration: none; color: black; }
+        .pagination strong { font-weight: bold; color: red; }
+        .search-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+        .checkbox-group { margin: 5px 0; }
+        .checkbox-group label { margin-right: 10px; }
+        #map { width: 100%; height: 400px; margin-bottom: 20px; border: 1px solid #ddd; }
     </style>
+
+    <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
 </head>
 <body>
 
-    <h1>리뷰 목록</h1>
+<h1>리뷰 목록</h1>
 
-    <div style="margin-bottom: 10px;">
-        <a th:href="@{/review/write}">[리뷰 등록]</a>
-    </div>
+<div style="margin-bottom: 10px;">
+    <a th:href="@{/review/write}">[리뷰 등록]</a>
+    <button type="button" onclick="handleMapClick()">[지도로 검색하기]</button>
+</div>
 
-    <!-- 검색 폼 -->
-    <form th:action="@{/review}" th:method="get" style="margin-bottom: 20px;">
-        <select name="searchType">
-            <option value="title" th:selected="${searchType == 'title'}">제목</option>
+<div id="map" style="display: none;"></div>
+
+<form id="searchForm" th:action="@{/review}" th:method="get" class="search-container">
+    <div>
+        <select name="searchType" id="searchType">
+            <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소</option>
             <option value="content" th:selected="${searchType == 'content'}">내용</option>
-            <option value="writer" th:selected="${searchType == 'writer'}">작성자</option>
         </select>
-        <input type="text" th:value="${keyword}" name="keyword" placeholder="검색어 입력">
+        <input type="text" th:value="${keyword}" name="keyword" id="keyword" placeholder="검색어 입력">
         <button type="submit">검색</button>
-    </form>
-
-    <!-- 리뷰 테이블 -->
-    <table>
-        <colgroup>
-            <col style="width: 40%">
-            <col style="width: 20%">
-            <col style="width: 15%">
-            <col style="width: 10%">
-            <col style="width: 15%">
-        </colgroup>
-        <thead>
-        <tr>
-            <th>제목</th>
-            <th>주소</th>
-            <th>작성자 ID</th>
-            <th>평점</th>
-            <th>작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="review : ${reviews.content}">
-            <td style="text-align: left;">
-                <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
-            </td>
-            <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-            <td th:text="${review.loginId}"></td>
-            <td th:text="${review.point}"></td>
-            <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 페이징 -->
-    <div class="pagination" th:if="${reviews.totalPages > 0}">
-        <!-- 이전 페이지 -->
-        <a th:if="${!reviews.first}" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword})}">&laquo; 이전</a>
-        <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
-
-        <!-- 페이지 번호 -->
-        <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
-            <a th:if="${page != reviews.number}"
-               th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword})}"
-               th:text="${page+1}"></a>
-            <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
-        </span>
-
-        <!-- 다음 페이지 -->
-        <a th:if="${!reviews.last}" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword})}">다음 &raquo;</a>
-        <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
     </div>
+
+    <!-- 장점 체크박스 -->
+    <div class="checkbox-group">
+        <span>장점:</span>
+        <label th:each="p : ${prosList}">
+            <input type="checkbox" name="pros" th:value="${p}" th:checked="${pros != null && pros.contains(p)}" />
+            <span th:text="${p}"></span>
+        </label>
+    </div>
+
+    <!-- 단점 체크박스 -->
+    <div class="checkbox-group">
+        <span>단점:</span>
+        <label th:each="c : ${consList}">
+            <input type="checkbox" name="cons" th:value="${c}" th:checked="${cons != null && cons.contains(c)}" />
+            <span th:text="${c}"></span>
+        </label>
+    </div>
+</form>
+
+<table>
+    <colgroup>
+        <col style="width: 40%">
+        <col style="width: 20%">
+        <col style="width: 15%">
+        <col style="width: 10%">
+        <col style="width: 15%">
+    </colgroup>
+    <thead>
+    <tr>
+        <th>제목</th>
+        <th>주소</th>
+        <th>작성자 ID</th>
+        <th>평점</th>
+        <th>작성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="review : ${reviews.content}" class="review-item"
+        th:data-address="${review.address}" th:data-title="${review.title}"
+        th:data-pros="${review.pros}" th:data-cons="${review.cons}">
+        <td style="text-align: left;">
+            <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
+        </td>
+        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+        <td th:text="${review.loginId}"></td>
+        <td th:text="${review.point}"></td>
+        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="pagination" th:if="${reviews.totalPages > 0}">
+    <a th:if="${!reviews.first}" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword},
+        pros=${pros}, cons=${cons})}">&laquo; 이전</a>
+    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
+
+    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
+        <a th:if="${page != reviews.number}" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword},
+            pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+        <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
+    </span>
+
+    <a th:if="${!reviews.last}" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword},
+        pros=${pros}, cons=${cons})}">다음 &raquo;</a>
+    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.allReviews = /*[[${allReviews}]]*/ [];
+    /*]]>*/
+</script>
+
+<script>
+    let map, geocoder, markers = [];
+
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showMap') === 'true') {
+            toggleMap();
+        }
+    });
+
+    function handleMapClick() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSearching = urlParams.get('keyword') || urlParams.get('pros') || urlParams.get('cons');
+
+        if (isSearching) {
+            window.location.href = '/review?showMap=true';
+        } else {
+            toggleMap();
+        }
+    }
+
+    function toggleMap() {
+        const mapContainer = document.getElementById('map');
+
+        if (mapContainer.style.display === 'none' || mapContainer.style.display === '') {
+            mapContainer.style.display = 'block';
+
+            setTimeout(function() {
+                if (!map) {
+                    geocoder = new kakao.maps.services.Geocoder();
+                    map = new kakao.maps.Map(mapContainer, {
+                        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+                        level: 7
+                    });
+
+                    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                        geocoder.coord2Address(mouseEvent.latLng.getLng(), mouseEvent.latLng.getLat(),
+                            function(result, status) {
+                                if (status === kakao.maps.services.Status.OK) {
+                                    let address = result[0].road_address
+                                        ? result[0].road_address.address_name
+                                        : result[0].address.address_name;
+                                    const guMatch = address.match(/([가-힣]+구)/);
+                                    if (guMatch) address = guMatch[1];
+
+                                    document.getElementById('searchType').value = 'titleAddress';
+                                    document.getElementById('keyword').value = address;
+                                    document.getElementById('searchForm').submit();
+                                }
+                            }
+                        );
+                    });
+                } else {
+                    const currentCenter = map.getCenter();
+                    map.relayout();
+                    map.setCenter(currentCenter);
+                }
+
+                displayMarkers();
+            }, 100);
+
+        } else {
+            mapContainer.style.display = 'none';
+        }
+    }
+
+    function displayMarkers() {
+        if (!map || !geocoder) return;
+
+        markers.forEach(m => m.setMap(null));
+        markers = [];
+
+        const selectedPros = Array.from(document.querySelectorAll('input[name="pros"]:checked')).map(i => i.value);
+        const selectedCons = Array.from(document.querySelectorAll('input[name="cons"]:checked')).map(i => i.value);
+
+        const reviewsByGu = {};
+        const reviews = window.allReviews || [];
+
+        reviews.forEach(review => {
+            const address = review.address;
+            const pros = review.pros ? review.pros.split(',') : [];
+            const cons = review.cons ? review.cons.split(',') : [];
+
+            if (!selectedPros.every(p => pros.includes(p)) || !selectedCons.every(c => cons.includes(c))) return;
+            if (!address) return;
+
+            const guMatch = address.match(/([가-힣]+구)/);
+            if (!guMatch) return;
+            const gu = guMatch[1];
+
+            if (!reviewsByGu[gu]) reviewsByGu[gu] = [];
+            reviewsByGu[gu].push(address);
+        });
+
+        const bounds = new kakao.maps.LatLngBounds();
+        const guKeys = Object.keys(reviewsByGu);
+
+        if (guKeys.length === 0) return;
+
+        guKeys.forEach(gu => {
+            const firstAddress = reviewsByGu[gu][0];
+            geocoder.addressSearch(firstAddress, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    const content = document.createElement('div');
+                    content.style.padding = '5px 10px';
+                    content.style.background = '#FF5A5F';
+                    content.style.color = 'white';
+                    content.style.borderRadius = '20px';
+                    content.style.fontWeight = 'bold';
+                    content.style.cursor = 'pointer';
+                    content.innerHTML = reviewsByGu[gu].length;
+
+                    content.onclick = function() {
+                        document.getElementById('searchType').value = 'titleAddress';
+                        document.getElementById('keyword').value = gu;
+                        document.getElementById('searchForm').submit();
+                    };
+
+                    const overlay = new kakao.maps.CustomOverlay({
+                        map: map,
+                        position: coords,
+                        content: content,
+                        yAnchor: 1
+                    });
+
+                    markers.push(overlay);
+                    bounds.extend(coords);
+                    map.setBounds(bounds);
+                }
+            });
+        });
+    }
+</script>
 
 </body>
 </html>

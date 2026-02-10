@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface ReviewMapper {
 
-    List<ReviewDTO> findAll(String searchType, String keyword, Pageable pageable);
+    List<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable);
 
-    int countTotal(String searchType, String keyword);
+    int countTotal(String searchType, String keyword, List<String> pros, List<String> cons);
 }
