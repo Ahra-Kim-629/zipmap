@@ -119,31 +119,48 @@ public class UserController {
     }
 
     @PostMapping("/users/mypage")
+    // 혼자서 해보려다가 AI 도움 받았어요. 공부 조금더 필요합니다!!!
     public String mypage(User user,
-                         @RequestParam String password,
-                         @RequestParam String new_password,
-                         @RequestParam String password_confirm,
+                         @RequestParam(required = false) String new_password,
+                         @RequestParam(required = false) String password_confirm,
                          RedirectAttributes rttr) {
+        try {
+            User findUser = userService.findByLoginId(user.getLoginId());
 
-            try {
-                User findUser = userService.findByLoginId(user.getLoginId());
-                boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
-                if (isMatch) {
-//                    userService.update(user);
-                    System.out.println("성공");
-
-                    rttr.addFlashAttribute("message", "회원 정보 수정이 완료되었습니다.");
-                    return "redirect:/";
-                } else {
-                    System.out.println("실패");
-                    rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
+                    rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "redirect:/";
+            } else {
+                // 기존 비밀번호를 공란으로 했을경우
+            }
+            if (new_password != null && !new_password.isEmpty()) {
+                if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                     rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
+                     return "redirect:/users/mypage";
+                }
+
+                if (!new_password.equals(password_confirm)) {
+                    rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
+                }
+                user.setPassword(passwordEncoder.encode(new_password));
+            } else {
+                user.setPassword(null);
             }
 
-        return "redirect:/users/mypage";
+            user.setId(findUser.getId());
+            userService.update(user);
+
+            rttr.addFlashAttribute("message", "회원 정보 수정이 완료되었습니다.");
+            return "redirect:/";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "회원 정보 수정 중 오류가 발생했습니다.");
+            return "redirect:/users/mypage";
+        }
     }
 
 
