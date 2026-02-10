@@ -19,6 +19,6 @@ public class ReviewDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updated_at;
 
-    private String login_id;
+    private String loginId; // login_id -> loginId 로 변경 (CamelCase 매핑 대응)
 
 }

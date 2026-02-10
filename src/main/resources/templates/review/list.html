@@ -20,7 +20,7 @@
             margin-top: 20px;
             text-align: center;
         }
-        .pagination a, .pagination strong {
+        .pagination , .pagination strong {
             margin: 0 5px;
             text-decoration: none;
             color: black;
@@ -44,6 +44,7 @@
         <select name="searchType">
             <option value="title" th:selected="${searchType == 'title'}">제목</option>
             <option value="content" th:selected="${searchType == 'content'}">내용</option>
+            <option value="writer" th:selected="${searchType == 'writer'}">작성자</option>
         </select>
         <input type="text" th:value="${keyword}" name="keyword" placeholder="검색어 입력">
         <button type="submit">검색</button>
@@ -73,9 +74,9 @@
                 <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
             </td>
             <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-            <td th:text="${review.login_id}"></td>
+            <td th:text="${review.loginId}"></td>
             <td th:text="${review.point}"></td>
-            <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
         </tr>
         </tbody>
     </table>

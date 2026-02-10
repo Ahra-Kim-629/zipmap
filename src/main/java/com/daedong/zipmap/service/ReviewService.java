@@ -1,14 +1,14 @@
 package com.daedong.zipmap.service;
 
-
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.ReviewReply;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 
@@ -23,4 +23,6 @@ public class ReviewService {
         return new PageImpl<>(list, pageable, total);
 
     }
+
+
 }
