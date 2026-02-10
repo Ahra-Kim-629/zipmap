@@ -14,4 +14,9 @@ public interface UserMapper {
     User findByLoginId(String loginId);
 
     void save(User user);
+
+    void delete(User user);
+
+
+    void update(User user);
 }

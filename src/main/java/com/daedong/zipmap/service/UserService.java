@@ -61,4 +61,14 @@ public class UserService implements UserDetailsService {
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
     }
+
+    @Transactional
+    public void unregister(User user) {
+        userMapper.delete(user);
+    }
+
+    @Transactional
+    public void update(User user) {
+        userMapper.update(user);
+    }
 }
