@@ -69,4 +69,14 @@ public class UserService implements UserDetailsService {
         String resetLink = "http://localhost:8080/users/reset-password?token=" + token;
         mailService.sendPasswordResetMail(email, resetLink);
     }
+
+    @Transactional
+    public void unregister(User user) {
+        userMapper.delete(user);
+    }
+
+    @Transactional
+    public void update(User user) {
+        userMapper.update(user);
+    }
 }

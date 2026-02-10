@@ -3,6 +3,7 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.MailService;
 import com.daedong.zipmap.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -112,4 +113,79 @@ public class UserController {
         }
         return "/users/mypage";
     }
+
+    @PostMapping("/users/mypage")
+    // 혼자서 해보려다가 AI 도움 받았어요. 공부 조금더 필요합니다!!!
+    public String mypage(User user,
+                         @RequestParam(required = false) String new_password,
+                         @RequestParam(required = false) String password_confirm,
+                         RedirectAttributes rttr) {
+        try {
+            User findUser = userService.findByLoginId(user.getLoginId());
+
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
+                    rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
+                }
+            } else {
+                // 기존 비밀번호를 공란으로 했을경우
+            }
+            if (new_password != null && !new_password.isEmpty()) {
+                if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                     rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
+                     return "redirect:/users/mypage";
+                }
+
+                if (!new_password.equals(password_confirm)) {
+                    rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
+                }
+                user.setPassword(passwordEncoder.encode(new_password));
+            } else {
+                user.setPassword(null);
+            }
+
+            user.setId(findUser.getId());
+            userService.update(user);
+
+            rttr.addFlashAttribute("message", "회원 정보 수정이 완료되었습니다.");
+            return "redirect:/";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "회원 정보 수정 중 오류가 발생했습니다.");
+            return "redirect:/users/mypage";
+        }
+    }
+
+
+    @GetMapping("/users/unregister")
+    public String unregister(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = userService.findByLoginId(userDetails.getUsername());
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/";
+        }
+        return "/users/unregister";
+    }
+
+    @PostMapping("/users/unregister")
+    public String unregister(User user, RedirectAttributes rttr, HttpSession session) {
+        try {
+            userService.unregister(user);
+            rttr.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+            session.invalidate();
+            return "redirect:/";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/users/unregister";
+        }
+    }
+
+
+
+
 }
