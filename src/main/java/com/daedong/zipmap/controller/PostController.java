@@ -26,9 +26,8 @@ public class PostController {
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        Model model) {
-        // 전체 게시판 게시글 리스트
+       // 전체 게시판 게시글 리스트
         Page<Post> posts = postService.findAll(searchType, keyword, pageable);
-
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);

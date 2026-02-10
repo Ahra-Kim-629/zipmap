@@ -22,6 +22,7 @@ public class PostService {
         return new PageImpl<>(posts, pageable, totalCount);
     }
 
+
     public PostDTO getPostDetail(Long id) {
         return postMapper.findById(id);
     }

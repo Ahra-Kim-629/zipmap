@@ -16,8 +16,15 @@ public interface PostMapper {
 
     void save(Post post);
 
-    List<Post> findAll(@Param("searchType") String searchType, @Param("keyword") String keyword, @Param("pageable") Pageable pageable);
+    List<Post> findAll(@Param("searchType") String searchType,
+                       @Param("keyword") String keyword,
+                       @Param("pageable") Pageable pageable);
 
-    int countAll(@Param("searchType") String searchType, @Param("keyword") String keyword);
+
+    int countAll(@Param("searchType") String searchType,
+                 @Param("keyword") String keyword);
+
+
+
 
 }

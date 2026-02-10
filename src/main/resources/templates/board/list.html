@@ -20,20 +20,30 @@
 
 <!-- 검색 폼 -->
 <form action="/board" method="get" style="margin-bottom: 10px; text-align: right;">
-    <select name="searchType">
-        <option value="title" th:selected="${searchType == 'category'}">카테고리 전체</option>
-        <option value="title" th:selected="${searchType == 'category'}">공구</option>
-        <option value="title" th:selected="${searchType == 'category'}">나눔</option>
-        <option value="title" th:selected="${searchType == 'category'}">자유</option>
+    <!-- 카테고리 선택 -->
+    <select name="category">
+        <option value="" th:selected="${searchType == 'category'}">카테고리 전체</option>
+        <option value="공구" th:selected="${searchType == 'category'}">공구</option>
+        <option value="나눔" th:selected="${searchType == 'category'}">나눔</option>
+        <option value="자유" th:selected="${searchType == 'category'}">자유</option>
     </select>
-    <select name="searchType">
-        <option value="title" th:selected="${searchType == 'location'}">지역 전체</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 서부(강서,양천,구로,영등포,금천</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 남부(강남,서초,관악,동작)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 동부(강동,송파,등등)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 북부(강동,송파,등등)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 중앙(종로,용산,서울역 등등)</option>
+
+    <!-- 지역 선택 -->
+    <select name="location">
+        <option value="">지역 전체</option>
+        <option value="SEOUL_WEST" th:selected="${searchType == 'SEOUL_WEST'}">서울 서부(강서,양천,구로,영등포,금천</option>
+        <option value="SEOUL_SOUTH" th:selected="${searchType == 'SEOUL_SOUTH'}">서울 남부(강남,서초,관악,동작)</option>
+        <option value="SEOUL_EAST" th:selected="${searchType == 'SEOUL_EAST'}">서울 동부(강동,송파,등등)</option>
+        <option value="SEOUL_NORTH" th:selected="${searchType == 'SEOUL_NORTH'}">서울 북부(강동,송파,등등)</option>
+        <option value="SEOUL_CENTER" th:selected="${searchType == 'SEOUL_CENTER'}">서울 중앙(종로,용산,서울역 등등)</option>
     </select>
+
+    <!-- 키워드 검색 -->
+    <select name="searchType">
+        <option value="title" th:selected="${searchType == 'title'}">제목</option>
+        <option value="content" th:selected="${searchType == 'content'}">내용</option>
+    </select>
+
     <input type="text" name="keyword" th:value="${keyword}" placeholder="검색어 입력">
     <button type="submit">검색</button>
 </form>
