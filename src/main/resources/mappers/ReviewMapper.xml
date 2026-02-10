@@ -45,4 +45,11 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
+    <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        id, title, content, address, user_id, point, review_status, created_at, updated_at, user, pros_list, cons_list, file_list, reply_list
+        FROM review
+        WHERE id = #{id}
+    </select>
+
 </mapper>

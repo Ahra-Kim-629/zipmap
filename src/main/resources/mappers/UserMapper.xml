@@ -19,7 +19,7 @@
 
     <insert id="save">
         INSERT INTO user (login_id, password, name, gender, phone, email, address)
-        VALUES (#{login_id}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
     </insert>
 
     <select id="findById" resultType="com.daedong.zipmap.domain.User">

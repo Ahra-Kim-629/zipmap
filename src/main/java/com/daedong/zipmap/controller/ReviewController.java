@@ -1,9 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewFile;
-import com.daedong.zipmap.domain.ReviewReply;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -45,20 +42,8 @@ public class ReviewController {
     // 리뷰 열람 (상세페이지)
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        Review review = reviewService.findById(id);
-        model.addAttribute("id", id);
-
-        // 리뷰 작성자 가져오기
-        String writer = reviewService.findWriterById(id);
-        model.addAttribute("writer", writer);
-
-        // 이 리뷰의 댓글 목록 가져오기
-        List<ReviewReply> replies = reviewService.findReplyById(id);
-        model.addAttribute("replies", replies);
-
-        // 이 리뷰에 첨부된 파일 목록 가져오기
-        List<ReviewFile> attachedFiles = fileService.findFilesByReviewId(id);
-        model.addAttribute("attachedFiles", attachedFiles);
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
     }
@@ -87,21 +72,18 @@ public class ReviewController {
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
-        Review review = reviewService.findById(id);
-        if (review.getUserId() != user.getId()) {
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        if (reviewDTO.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
-        model.addAttribute("review", review);
-        List<ReviewFile> attachedFiles = fileService.findFilesByReviewId(id);
-        model.addAttribute("attachedFiles", attachedFiles);
-
+        model.addAttribute("reviewDTO", reviewDTO);
         return "review/editForm";
     }
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, Review review, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
-        Review originalReview = reviewService.findById(id);
+        ReviewDTO originalReview = reviewService.findById(id);
         if (originalReview.getUserId() != (user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
@@ -114,5 +96,6 @@ public class ReviewController {
 
         return "redirect:/review/detail/" + id;
     }
+
 
 }

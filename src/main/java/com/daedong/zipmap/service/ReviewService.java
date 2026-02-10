@@ -1,6 +1,7 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Review;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.ReviewReply;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,8 @@ public class ReviewService {
 
     }
 
-    public Review findById(Long id) {
-
-        return null;
+    public ReviewDTO findById(Long id) {
+        return reviewMapper.findById(id);
     }
 
     public List<ReviewReply> findReplyById(Long id) {
