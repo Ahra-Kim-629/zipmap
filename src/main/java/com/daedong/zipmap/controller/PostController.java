@@ -38,8 +38,8 @@ public class PostController {
 
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model) {
-        PostDTO postDTO = postService.getPostDetail(id);
-        model.addAttribute("board", postDTO);
+        PostDTO boardDTO = postService.getPostDetail(id);
+        model.addAttribute("board", boardDTO);
 
         return "board/detail";
     }
