@@ -12,14 +12,14 @@
     </select>
 
     <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
-        SELECT login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        SELECT id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
         FROM user
-        WHERE login_id = #{login_id}
+        WHERE login_id = #{loginId}
     </select>
 
     <insert id="save">
-        INSERT INTO user (login_id, password, name, gender, phone, email, address)
-        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
+        INSERT INTO user (login_id, password, name, gender, phone, email, address, role)
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address}, "WRITER")
     </insert>
 
     <select id="findById" resultType="com.daedong.zipmap.domain.User">

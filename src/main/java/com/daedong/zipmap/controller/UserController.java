@@ -34,6 +34,7 @@ public class UserController {
         try {
             userService.signUp(user);
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
+            user.setRole("ROLE_WRITER");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
             return "redirect:/login";
@@ -50,7 +51,7 @@ public class UserController {
     public String login(User user, RedirectAttributes rttr) {
         try {
 
-            User findUser = userService.findByLoginId(user.getLogin_id());
+            User findUser = userService.findByLoginId(user.getLoginId());
             boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
             if(isMatch){
                 return "redirect:/";

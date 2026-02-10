@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>글쓰기 - Zipmap</title>
+</head>
+<body>
+    <h1>게시글 작성</h1>
+    <form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="category">카테고리</label>
+            <select id="category" name="category" required>
+                <option value="">카테고리 선택</option>
+                <option value="GROUP">공구</option>
+                <option value="SHARE">나눔</option>
+                <option value="FREE">자유</option>
+            </select>
+        </div>
+        <div>
+            <label for="location">지역</label>
+            <select id="location" name="location" required>
+                <option value="">지역 선택</option>
+                <option value="CENTER">서울 중앙</option>
+                <option value="EAST">강동</option>
+                <option value="SOUTH">강남</option>
+                <option value="WEST">강서</option>
+                <option value="NORTH">강북</option>
+            </select>
+        </div>
+        <div>
+            <label for="title">제목</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="content">내용</label>
+            <textarea id="content" name="content" rows="10" required></textarea>
+        </div>
+        <div>
+            <label for="file">첨부파일</label>
+            <input type="file" id="file" name="file">
+        </div>
+        <div>
+            <button type="submit">등록</button>
+            <a th:href="@{/board}">취소</a>
+        </div>
+    </form>
+</body>
+</html>

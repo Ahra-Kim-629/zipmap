@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 상세 페이지</title>
+</head>
+<body>
+ <div class="container">
+     <!-- 리뷰글 내용 -->
+     <h2 th:text="${review.title}"></h2>
+     <p><b>작성자 : </b><span th:text="${writer}"></span></p>
+     <p><b>작성일 : </b><span th:text="${#temporals.format(review.created_at, 'yyyy-MM-dd')}"></span></p>
+     <p th:if="${review.updated_at != null}">
+         <b>수정일 : </b><span th:text="${#temporals.format(review.updated_at, 'yyyy-MM-dd')}"></span>
+     </p>
+
+     <hr>
+     <div th:if="${not #lists.isEmpty(attachedFiles)}" class="attached-files">
+         <b>첨부 파일 : </b>
+         <ul>
+             <li th:each="file : attachedFiles">
+                <div th:text="${#strings.endsWith(attachedFile.original_name,'.jpg')
+                    or #strings.endsWith(attachedFile.original_name,'.png')
+                    or #strings.endsWith(attachedFile.original_name,'.gif')}">
+                    <img width="20%" th:src="@{/images/${fileId}(fileId=${file.id})}" class="img-fluid rounded mb-3" alt="첨부된 파일">
+                </div>
+             </li>
+         </ul>
+     </div>
+
+     <hr>
+     <p th:text="${review.content}"></p>
+
+     <hr>
+     <a th:href="@{/review/list}">리뷰목록으로 이동</a>
+
+     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == writer}">
+        <a th:href="@{/review/edit/${review.id}}" class="btn btn-primary">수정</a>
+         <form th:action="@{/review/delete/${review.id}}" method="post"
+         onsubmit="return confirm('정말 삭제하시겠습니까?')" style="display: inline">
+             <button type="submit" class="btn btn-danger">삭제</button>
+         </form>
+     </th:block>
+
+ </div>
+</body>
+</html>
