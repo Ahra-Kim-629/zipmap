@@ -4,8 +4,7 @@ import com.daedong.zipmap.domain.PostReply;
 import com.daedong.zipmap.service.PostReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,6 +18,19 @@ public class PostReplyController {
         postReplyService.saveReply(reply);
 
         // 2. 저장이 끝나면 다시 보던 게시글 상세 페이지로 돌아갑니다 (Redirect)
+        return "redirect:/board/detail/" + reply.getPostId();
+    }
+    // 댓글 삭제 요청
+    @GetMapping("/delete/{id}")
+    public String deleteReply(@PathVariable Long id, @RequestParam Long postId) {
+        postReplyService.deleteReply(id);
+        return "redirect:/board/detail/" + postId; // 삭제 후 다시 상세 페이지로
+    }
+
+    // 댓글 수정 요청
+    @PostMapping("/edit")
+    public String editReply(PostReply reply) {
+        postReplyService.updateReply(reply);
         return "redirect:/board/detail/" + reply.getPostId();
     }
 }

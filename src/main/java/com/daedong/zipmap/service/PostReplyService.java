@@ -11,7 +11,13 @@ public class PostReplyService {
     private final PostMapper postMapper;
 
     public void saveReply(PostReply reply) {
-        // 매퍼의 insertReply 쿼리를 실행합니다.
         postMapper.insertReply(reply);
+    }
+    public void deleteReply(Long id) {
+        postMapper.deleteReply(id);
+    }
+
+    public void updateReply(PostReply reply) {
+        postMapper.updateReply(reply);
     }
 }

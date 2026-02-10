@@ -41,4 +41,8 @@ public interface PostMapper {
 
     // 개시글 댓글 기능 관련 추가
     void insertReply(PostReply reply);
+    // 개시글 삭제 기능 추가
+    void deleteReply(Long id);
+    // 개시글 수정 기능 추가
+    void updateReply(PostReply reply);
 }

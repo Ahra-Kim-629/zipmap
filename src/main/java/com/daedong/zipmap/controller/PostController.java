@@ -45,9 +45,11 @@ public class PostController {
     }
 
     @GetMapping("/detail/{id}")
-    public String boardDetail(@PathVariable Long id, Model model) {
+    public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         PostDTO boardDTO = postService.getPostDetail(id);
         model.addAttribute("board", boardDTO);
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+        model.addAttribute("currentUserId", user.getId());
 
         return "board/detail";
     }
@@ -70,4 +72,6 @@ public class PostController {
             return "board/write_form";
         }
     }
+
+
 }
