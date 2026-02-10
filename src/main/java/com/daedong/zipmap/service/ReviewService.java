@@ -1,12 +1,9 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewReply;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,30 +11,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
+
     private final ReviewMapper reviewMapper;
 
-    public Page<Review> findAll(String searchType, String keyword, Pageable pageable) {
-        int total = reviewMapper.countTotal(searchType, keyword);
-        List<Review> list = reviewMapper.findAll(searchType, keyword, pageable);
-        return new PageImpl<>(list, pageable, total);
-
+    // 페이징 조회
+    public Page<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable) {
+        List<ReviewDTO> content = reviewMapper.findAll(searchType, keyword, pros, cons, pageable);
+        int total = reviewMapper.countTotal(searchType, keyword, pros, cons);
+        return new PageImpl<>(content, pageable, total);
     }
 
-    public Review findById(Long id) {
-
-        return null;
-    }
-
-    public List<ReviewReply> findReplyById(Long id) {
-
-        return null;
-    }
-
-    public void save(Review review) {
-
-    }
-
-    public String findWriterById(Long id) {
-        return null;
+    // 전체 조회 (지도용)
+    public List<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons) {
+        return reviewMapper.findAll(searchType, keyword, pros, cons, null);
     }
 }

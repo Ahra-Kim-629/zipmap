@@ -1,13 +1,10 @@
 package com.daedong.zipmap.domain;
 
-
-import jakarta.persistence.Column;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data
-public class Review {
+public class ReviewDTO {
     private long id;
     private String title;
     private String content;
@@ -18,4 +15,9 @@ public class Review {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String loginId;
+
+    // ✅ 장점 / 단점 필드 추가
+    private String pros;
+    private String cons;
 }

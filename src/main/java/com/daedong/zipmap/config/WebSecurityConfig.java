@@ -35,8 +35,8 @@ public class WebSecurityConfig {
             )
             .formLogin((formLogin) -> formLogin
                 .loginPage("/login")
-                .usernameParameter("login_id")
-                .usernameParameter("password")
+                .usernameParameter("loginId")
+                .passwordParameter("password")
                 .defaultSuccessUrl("/")
                 .failureHandler(loginFailureHandler)
 
