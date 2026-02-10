@@ -35,7 +35,7 @@ public class ReviewReplyController {
 
     // 리뷰 댓글 삭제
     @PostMapping("/delete")
-    public String delete(@RequestParam("reviewId") Long reviewId, @RequestParam("replyId") Long replyId){
+    public String delete(@RequestParam("replyId") Long replyId, @RequestParam("reviewId") Long reviewId){
         reviewReplyService.deleteReply(replyId);
 
         return "redirect:/review/detail/" + reviewId;

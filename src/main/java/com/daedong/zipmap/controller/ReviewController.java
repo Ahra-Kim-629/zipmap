@@ -83,6 +83,11 @@ public class ReviewController {
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        ReviewDTO original = reviewService.findById(id);
+        if (original.getUserId() != user.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+        }
+
         reviewDTO.setId(id);
         reviewDTO.setUserId(user.getId());
         reviewService.edit(reviewDTO);

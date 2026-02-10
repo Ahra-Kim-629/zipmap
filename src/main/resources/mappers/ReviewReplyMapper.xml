@@ -27,7 +27,7 @@
     </update>
 
     <!-- 리뷰의 댓글 삭제 -->
-    <delete id="deleteReply" parameterType="com.daedong.zipmap.domain.ReviewReply">
+    <delete id="deleteReply" parameterType="long">
         DELETE FROM review_reply
         WHERE id = #{id}
     </delete>

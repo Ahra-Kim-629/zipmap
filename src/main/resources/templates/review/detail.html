@@ -10,7 +10,7 @@
      <p><b>제목 : </b><span th:text="${reviewDTO.title}"></span></p>
      <p><b>작성자 : </b><span th:text="${reviewDTO.user.loginId}"></span></p>
      <p><b>작성일 : </b><span th:text="${#temporals.format(reviewDTO.createdAt, 'yyyy-MM-dd')}"></span></p>
-     <p th:if="${review.updated_at != null}">
+     <p th:if="${review.updatedAt != null}">
          <b>수정일 : </b><span th:text="${#temporals.format(reviewDTO.updatedAt, 'yyyy-MM-dd')}"></span>
      </p>
      <p><b>주소 : </b><span th:text="${reviewDTO.address}"></span></p>
@@ -18,13 +18,13 @@
      <p><b>장점 : </b></p>
      <ul>
          <li th:each="pros : ${reviewDTO.prosList}">
-             <span th:text="${pros.attribute}"></span>
+             <span th:text="${pros}"></span>
          </li>
      </ul>
      <p><b>단점 : </b></p>
      <ul>
          <li th:each="cons : ${reviewDTO.consList}">
-             <span th:text="${cons.attribute}"></span>
+             <span th:text="${cons}"></span>
              </li>
      </ul>
 
@@ -50,13 +50,13 @@
      <p>댓글</p>
      <ul>
          <li th:each="reply : ${reviewDTO.replyList}">
-             <div th:id="|display-${reply.id}">
+             <div th:id="|display-${reply.id}|">
                  <p><span th:text="${reply.content}"></span></p>
                  <p><b>작성자 : </b><span th:text="${reply.userId}"></span></p>
 
                  <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.userId}">
                      <button type="button" th:onclick="|showEditForm(${reply.id})|">수정</button>
-                     <form th:action="@{/review/reply/delete}" method="post" style="diaplay:inline;">
+                     <form th:action="@{/review/reply/delete}" method="post" style="display:inline;">
                          <input type="hidden" name="replyId" th:value="${reply.id}">
                          <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
                          <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
@@ -79,7 +79,7 @@
      <!-- 댓글 작성하기 -->
      <hr>
      <div sec:authorize="isAuthenticated()">
-         <form th:action="@{/review/reply}" method="post">
+         <form th:action="@{/review/reply/write}" method="post">
              <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
              <p>
                  <textarea name="content" rows="2" style="width: 100%;" placeholder="따뜻한 댓글을 남겨주세요."></textarea>
