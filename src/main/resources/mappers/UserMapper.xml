@@ -6,14 +6,25 @@
 
     <select id="findByNameAndEmail" resultType="com.daedong.zipmap.domain.User">
         SELECT
-            id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE name = #{name} AND email = #{email}
     </select>
 
+    <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
+        SELECT login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        FROM user
+        WHERE login_id = #{login_id}
+    </select>
+
+    <insert id="save">
+        INSERT INTO user (login_id, password, name, gender, phone, email, address)
+        VALUES (#{login_id}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
+    </insert>
+
     <select id="findById" resultType="com.daedong.zipmap.domain.User">
         SELECT
-            id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE id = #{id}
     </select>

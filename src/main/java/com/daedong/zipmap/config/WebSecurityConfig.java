@@ -17,20 +17,29 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    //private final AuthenticationFailureHandler loginFailureHandler;
+    private final AuthenticationFailureHandler loginFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/signup", "/css/**", "/js/**").permitAll()
+            .authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm", "/css/**", "/js/**").permitAll()
                 .anyRequest().permitAll()
             )
-            .formLogin((form) -> form
+            .formLogin((formLogin) -> formLogin
                 .loginPage("/login")
-                .permitAll()
+                .usernameParameter("login_id")
+                .usernameParameter("password")
+                .defaultSuccessUrl("/")
+                .failureHandler(loginFailureHandler)
+
             )
-            .logout((logout) -> logout.permitAll());
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+            );
+
 
         return http.build();
     }

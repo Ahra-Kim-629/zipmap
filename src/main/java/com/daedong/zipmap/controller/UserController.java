@@ -5,6 +5,7 @@ import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
+    @GetMapping("/")
+    public String index() {
+        return "index";
+    }
 
     @GetMapping("/signUp")
     public String signUp() {
-        return "/signUpForm";
+        return "/users/signUpForm";
     }
 
     @PostMapping("/signUp")
@@ -29,9 +36,32 @@ public class UserController {
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
-            return "redirect:/signUp";
+            return "redirect:/login";
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "/users/loginForm";
+    }
+
+    @PostMapping("/login")
+    public String login(User user, RedirectAttributes rttr) {
+        try {
+
+            User findUser = userService.findByLoginId(user.getLogin_id());
+            boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
+            if(isMatch){
+                return "redirect:/";
+            } else {
+                rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+                return "redirect:/login";
+            }
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/login";
     }
 
     @GetMapping("/users/find/id")
