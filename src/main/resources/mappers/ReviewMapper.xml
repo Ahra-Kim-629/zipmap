@@ -4,44 +4,52 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
     <select id="countTotal" resultType="int">
-        SELECT COUNT(id)
-        FROM review
+        SELECT COUNT(r.id)
+        FROM review r
+        JOIN user u ON r.user_id = u.id
         <where>
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'title'">
-                        AND title LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                        AND r.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'content'">
-                        AND content LIKE LOWER(CONCAT('%', #{keyword}, '%'))
-                    </when>
-                    <when test="searchType == 'writer'">
-                        AND writer LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                        AND r.content LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                 </choose>
             </if>
         </where>
     </select>
 
-    <select id="findAll" resultType="com.daedong.zipmap.domain.Review">
-        SELECT id, title, content, address, user_id, point, review_status, created_at
-        FROM review
+    <select id="findAll" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id,
+        r.title,
+        r.content,
+        r.address,
+        r.user_id,
+        u.login_id AS loginId,
+        r.point,
+        r.review_status,
+        r.created_at
+        FROM review r
+        JOIN user u ON r.user_id = u.id
         <where>
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'title'">
-                        AND title LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                        AND r.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'content'">
-                        AND content LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                        AND r.content LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'writer'">
-                        AND writer LIKE LOWER(CONCAT('%', #{keyword}, '%'))
+                        AND u.login_id LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                 </choose>
             </if>
         </where>
-        ORDER BY id DESC
+        ORDER BY r.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 

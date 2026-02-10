@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Review;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,11 +22,11 @@ public class ReviewController {
 
 
     @GetMapping
-    public String list(@PageableDefault(size= 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String list(@PageableDefault(size= 3, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        Model model) {
-        Page<Review> reviews = reviewService.findAll(searchType, keyword, pageable);
+        Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pageable);
         model.addAttribute("reviews", reviews);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
