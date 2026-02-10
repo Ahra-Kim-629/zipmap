@@ -57,15 +57,15 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(Review review, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
-        review.setUserId(user.getId());
-        reviewService.save(review);
+    public String write(ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        reviewDTO.setUserId(user.getId());
+        long savedId = reviewService.save(reviewDTO);
 
         // 파일저장
-        if (!file.isEmpty()) {
-            fileService.saveFile(review.getId(), file);
+        if (file != null && !file.isEmpty()) {
+            fileService.saveFile(savedId, file);
         }
-        return "redirect:/review/detail/" + review.getId();
+        return "redirect:/review/detail/" + savedId;
     }
 
     // 리뷰 수정
@@ -82,15 +82,13 @@ public class ReviewController {
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, Review review, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
-        ReviewDTO originalReview = reviewService.findById(id);
-        if (originalReview.getUserId() != (user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
-        }
-        review.setId(id);
-        reviewService.save(review);
+    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        reviewDTO.setId(id);
+        reviewDTO.setUserId(user.getId());
+        reviewService.edit(reviewDTO);
 
-        if (!file.isEmpty()) {
+        // 파일 처리
+        if(file != null && !file.isEmpty()){
             fileService.saveFile(id, file);
         }
 

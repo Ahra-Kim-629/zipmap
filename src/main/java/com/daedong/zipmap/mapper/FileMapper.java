@@ -9,4 +9,6 @@ public interface FileMapper {
     void saveFile(long id, MultipartFile file);
 
     List<ReviewFile> findFilesByReviewId(Long id);
+
+    List<ReviewFile> findByReviewId(Long id);
 }

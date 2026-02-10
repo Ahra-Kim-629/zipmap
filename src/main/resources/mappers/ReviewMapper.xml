@@ -45,11 +45,31 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
+    <!-- 리뷰 작성 -->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO review
+        (title, content, address, user_id, point, review_status)
+        VALUES
+        (#{title}, #{content}, #{address}, #{userId}, #{point}, #{reviewStatus})
+    </insert>
+
+    <!-- 리뷰글 아이디로 찾기 -->
     <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
         id, title, content, address, user_id, point, review_status, created_at, updated_at, user, pros_list, cons_list, file_list, reply_list
         FROM review
         WHERE id = #{id}
     </select>
+
+    <!-- 리뷰 수정 -->
+    <update id="edit" parameterType="com.daedong.zipmap.domain.Review">
+        UPDATE review
+        SET title = #{title},
+            content = #{content},
+            address = #{address},
+            point = #{point},
+            review_status = #{reviewStatus}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

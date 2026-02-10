@@ -9,21 +9,21 @@
      <!-- 리뷰글 내용 -->
      <p><b>제목 : </b><span th:text="${reviewDTO.title}"></span></p>
      <p><b>작성자 : </b><span th:text="${reviewDTO.user.loginId}"></span></p>
-     <p><b>작성일 : </b><span th:text="${#temporals.format(reviewDTO.created_at, 'yyyy-MM-dd')}"></span></p>
+     <p><b>작성일 : </b><span th:text="${#temporals.format(reviewDTO.createdAt, 'yyyy-MM-dd')}"></span></p>
      <p th:if="${review.updated_at != null}">
-         <b>수정일 : </b><span th:text="${#temporals.format(reviewDTO.updated_at, 'yyyy-MM-dd')}"></span>
+         <b>수정일 : </b><span th:text="${#temporals.format(reviewDTO.updatedAt, 'yyyy-MM-dd')}"></span>
      </p>
      <p><b>주소 : </b><span th:text="${reviewDTO.address}"></span></p>
      <p><b>별점 : </b><span th:text="${reviewDTO.point}"></span></p>
      <p><b>장점 : </b></p>
      <ul>
-         <li th:each="${pros : reviewDTO.prosList}">
+         <li th:each="pros : ${reviewDTO.prosList}">
              <span th:text="${pros.attribute}"></span>
          </li>
      </ul>
      <p><b>단점 : </b></p>
      <ul>
-         <li th:each="${cons : reviewDTO.consList}">
+         <li th:each="cons : ${reviewDTO.consList}">
              <span th:text="${cons.attribute}"></span>
              </li>
      </ul>
@@ -32,11 +32,11 @@
      <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}" class="attachedFiles">
          <b>첨부 파일 : </b>
          <ul>
-             <li th:each="${file : reviewDTO.fileList}">
+             <li th:each="file : ${reviewDTO.fileList}">
                 <div th:text="${#strings.endsWith(file.original_name,'.jpg')
                     or #strings.endsWith(file.original_name,'.png')
                     or #strings.endsWith(file.original_name,'.gif')}">
-                    <img width="20%" th:src="@{/images/${fileId}(fileId=${file.id})}" class="img-fluid rounded mb-3" alt="첨부된 파일">
+                    <img width="20%" th:src="@{|/images/${file.id}|}" class="img-fluid rounded mb-3" alt="첨부된 파일">
                 </div>
              </li>
          </ul>
@@ -49,9 +49,30 @@
      <hr>
      <p>댓글</p>
      <ul>
-         <li th:each="${reply : reviewDTO.replyList}">
-             <p><span th:text="${reply.content}"></span></p>
-             <p><b>작성자 : </b><span th:text="${reply.userId}"></span></p>
+         <li th:each="reply : ${reviewDTO.replyList}">
+             <div th:id="|display-${reply.id}">
+                 <p><span th:text="${reply.content}"></span></p>
+                 <p><b>작성자 : </b><span th:text="${reply.userId}"></span></p>
+
+                 <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.userId}">
+                     <button type="button" th:onclick="|showEditForm(${reply.id})|">수정</button>
+                     <form th:action="@{/review/reply/delete}" method="post" style="diaplay:inline;">
+                         <input type="hidden" name="replyId" th:value="${reply.id}">
+                         <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
+                         <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                         </form>
+                 </th:block>
+             </div>
+
+             <div th:id="|editForm-${reply.id}|" style="display: none;">
+                 <form th:action="@{/review/reply/edit}" method="post">
+                     <input type="hidden" name="id" th:value="${reply.id}">
+                     <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
+                     <textarea name="content" th:text="${reply.content}" rows="2" style="width:80%"></textarea>
+                     <button type="submit" class="btn btn-primary">저장</button>
+                     <button type="button" th:onclick="|hideEditForm(${reply.id})|">취소</button>
+                 </form>
+             </div>
          </li>
      </ul>
 
@@ -73,7 +94,7 @@
      <a th:href="@{/review/list}">리뷰목록으로 이동</a>
 
      <!-- 작성자일 경우 리뷰 수정, 삭제 버튼 보여주기 -->
-     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.role == reviewDTO.user.loginId}">
+     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reviewDTO.userId}">
         <a th:href="@{/review/edit/${review.id}}" class="btn btn-primary">수정</a>
          <form th:action="@{/review/delete/${review.id}}" method="post"
          onsubmit="return confirm('정말 삭제하시겠습니까?')" style="display: inline">
@@ -82,5 +103,17 @@
      </th:block>
 
  </div>
+
+
+ <script>
+     function showEditForm(id) {
+         document.getElementById('display-' + id).style.display = 'none';
+         document.getElementById('editForm-' + id).style.display = 'block';
+     }
+     function hideEditForm(id) {
+         document.getElementById('display-' + id).style.display = 'block';
+         document.getElementById('editForm-' + id).style.display = 'none';
+     }
+ </script>
 </body>
 </html>

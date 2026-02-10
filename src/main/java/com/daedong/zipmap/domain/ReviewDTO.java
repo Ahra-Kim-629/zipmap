@@ -17,9 +17,8 @@ public class ReviewDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private User user;
-    private List<Pros> prosList;
-    private List<Cons> consList;
+    private List<String> prosList;
+    private List<String> consList;
     private List<ReviewFile> fileList;
     private List<ReviewReply> replyList;
 }

@@ -11,13 +11,17 @@ import java.util.List;
 
 @Mapper
 public interface ReviewMapper {
-    ReviewDTO findById(Long id);
-
-    List<ReviewReply> findReplyById(Long id);
-
-    String findWriterById(Long id);
-
     List<Review> findAll(String searchType, String keyword, Pageable pageable);
 
     int countTotal(String searchType, String keyword);
+
+    // 리뷰 아이디로 찾기
+    Review findById(Long id);
+
+    // 리뷰 작성
+    void save(Review review);
+
+    // 리뷰 수정
+    void edit(Review review);
+
 }
