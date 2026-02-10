@@ -50,7 +50,7 @@ public class UserController {
     public String login(User user, RedirectAttributes rttr) {
         try {
 
-            User findUser = userService.findByLoginId(user.getLogin_id());
+            User findUser = userService.findByLoginId(user.getLoginId());
             boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
             if(isMatch){
                 return "redirect:/";
