@@ -29,4 +29,10 @@
         WHERE id = #{id}
     </select>
 
+    <select id="findByLoginIdNameEmail" resultType="com.daedong.zipmap.domain.User">
+        SELECT
+        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        FROM user
+        WHERE login_id = #{loginId} AND name = #{name} AND email = #{email}
+    </select>
 </mapper>

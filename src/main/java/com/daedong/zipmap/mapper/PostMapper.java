@@ -23,6 +23,4 @@ public interface PostMapper {
     int countAll(@Param("searchType") String searchType, @Param("keyword") String keyword);
 
     long insertPost(Post post);
-
-    void insertFile(PostFile postFile);
 }

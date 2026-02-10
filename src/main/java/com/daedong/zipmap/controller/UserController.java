@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.service.MailService;
 import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @GetMapping("/")
     public String index() {
@@ -52,7 +54,7 @@ public class UserController {
 
             User findUser = userService.findByLoginId(user.getLoginId());
             boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
-            if(isMatch){
+            if (isMatch) {
                 return "redirect:/";
             } else {
                 rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
@@ -89,8 +91,8 @@ public class UserController {
     @PostMapping("/users/find/password")
     public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr) {
         try {
-            User user = userService.findPassword(name, email);
-            rttr.addFlashAttribute("message", "찾으시는 비밀번호는 " + user.getPassword() + " 입니다.");
+            userService.passwordReset(loginId, name, email);
+            rttr.addFlashAttribute("message", "비밀번호 재설정 메일을 발송했습니다.");
             return "redirect:/login";
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -100,15 +102,9 @@ public class UserController {
 
     @GetMapping("/users/mypage")
     public String mypage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-//        if (userDetails != null) {
-        // Usually UserService would have a findByLoginId method
-        // For now, we assume the user data is available or fetched
-        // Adding a placeholder for the logic requested by the comment
-//             model.addAttribute("user", userService.findByLoginId(userDetails.getUsername()));
-//        }
-
         try {
-            model.addAttribute("user", userService.findById(2));
+            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+            model.addAttribute("user", userService.findById(user.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/";
