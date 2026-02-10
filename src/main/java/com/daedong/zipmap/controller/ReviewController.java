@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -8,11 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -52,7 +56,6 @@ public class ReviewController {
         model.addAttribute("consList", consList);
 
         return "review/list"; // templates/review/list.html
-        return "review/list";
     }
 
     // 리뷰 열람 (상세페이지)
@@ -109,7 +112,7 @@ public class ReviewController {
         reviewService.edit(reviewDTO);
 
         // 파일 처리
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             fileService.saveFile(id, file);
         }
 

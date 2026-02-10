@@ -1,7 +1,10 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.Cons;
+import com.daedong.zipmap.domain.Pros;
+import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.mapper.ReviewMapper;
+import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,12 +31,6 @@ public class ReviewService {
         int total = reviewMapper.countTotal(searchType, keyword, pros, cons);
         return new PageImpl<>(content, pageable, total);
     }
-    public Page<Review> findAll(String searchType, String keyword, Pageable pageable) {
-        int total = reviewMapper.countTotal(searchType, keyword);
-        List<Review> list = reviewMapper.findAll(searchType, keyword, pageable);
-        return new PageImpl<>(list, pageable, total);
-
-    }
 
     // 리뷰 작성
     @Transactional
@@ -48,8 +45,8 @@ public class ReviewService {
         reviewMapper.save(review);
 
         long savedId = review.getId();
-        if(reviewDTO.getProsList() != null){
-            for(String attr : reviewDTO.getProsList()){
+        if (reviewDTO.getProsList() != null) {
+            for (String attr : reviewDTO.getProsList()) {
                 Pros pros = new Pros();
                 pros.setReviewId(savedId);
                 pros.setAttribute(attr);
@@ -80,14 +77,11 @@ public class ReviewService {
         List<Pros> prosEntities = prosMapper.findByReviewId(id);
         List<String> prosStrings = new ArrayList<>();
 
-        for (Pros p : prosEntities){
+        for (Pros p : prosEntities) {
             prosStrings.add(p.getAttribute());
         }
         reviewDTO.setProsList(prosStrings);
 
-    // 전체 조회 (지도용)
-    public List<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons) {
-        return reviewMapper.findAll(searchType, keyword, pros, cons, null);
         // 단점 처리
         List<Cons> consEntities = consMapper.findByReviewId(id);
         List<String> consStrings = new ArrayList<>();
@@ -103,12 +97,17 @@ public class ReviewService {
         return reviewDTO;
     }
 
+    // 전체 조회 (지도용)
+    public List<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons) {
+        return reviewMapper.findAll(searchType, keyword, pros, cons, null);
+    }
+
     // 리뷰 수정
     @Transactional
     public void edit(ReviewDTO reviewDTO) {
         Review review = reviewMapper.findById(reviewDTO.getId());
 
-        if(review.getUserId() != reviewDTO.getUserId()){
+        if (review.getUserId() != reviewDTO.getUserId()) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
@@ -123,8 +122,8 @@ public class ReviewService {
         // 기존 장점 지우기
         prosMapper.deleteByReviewId(reviewDTO.getId());
         // 새로 받은 장점 추가
-        if(reviewDTO.getProsList() != null){
-            for(String attr : reviewDTO.getProsList()){
+        if (reviewDTO.getProsList() != null) {
+            for (String attr : reviewDTO.getProsList()) {
                 Pros pros = new Pros();
                 pros.setReviewId(reviewDTO.getId());
                 pros.setAttribute(attr);
@@ -135,8 +134,8 @@ public class ReviewService {
         // 기존 단점 지우기
         consMapper.deleteByReviewId(reviewDTO.getId());
         // 새로 받은 단점 추가
-        if(reviewDTO.getConsList() != null){
-            for(String attr : reviewDTO.getConsList()) {
+        if (reviewDTO.getConsList() != null) {
+            for (String attr : reviewDTO.getConsList()) {
                 Cons cons = new Cons();
                 cons.setReviewId(reviewDTO.getId());
                 cons.setAttribute(attr);

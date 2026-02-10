@@ -18,4 +18,6 @@ public interface ReviewReplyMapper {
 
     // 댓글 삭제
     void deleteReply(Long reviewReplyId);
+
+    List<ReviewReply> findByReviewId(Long id);
 }

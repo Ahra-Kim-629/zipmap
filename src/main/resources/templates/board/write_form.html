@@ -6,6 +6,12 @@
 </head>
 <body>
     <h1>게시글 작성</h1>
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
+    <div th:if="${message}" style="color: red;">
+        <p th:text="${message}"></p>
+    </div>
     <form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
         <div>
             <label for="category">카테고리</label>

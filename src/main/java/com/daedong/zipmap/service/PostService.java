@@ -39,6 +39,7 @@ public class PostService {
     @Transactional
     public void write(Post post, List<MultipartFile> files) throws IOException {
         postMapper.insertPost(post);
+
         fileService.saveFiles(post.getId(), files);
     }
 }
