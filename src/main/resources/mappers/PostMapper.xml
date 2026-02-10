@@ -131,4 +131,9 @@
         INSERT INTO post_file (post_id, file_path)
         VALUES (#{postId}, #{filePath})
     </insert>
+    <!-- 게시글 댓글 기능 관련 추가 쿼리 -->
+    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.PostReply">
+        INSERT INTO post_reply (post_id, user_id, content, created_at)
+        VALUES (#{postId}, #{userId}, #{content}, NOW())
+    </insert>
 </mapper>

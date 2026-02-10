@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.PostFile;
+import com.daedong.zipmap.domain.PostReply;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,7 @@ public interface PostMapper {
     long insertPost(Post post);
 
     void insertFile(PostFile postFile);
+
+    // 개시글 댓글 기능 관련 추가
+    void insertReply(PostReply reply);
 }
