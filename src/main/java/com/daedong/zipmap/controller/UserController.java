@@ -34,6 +34,7 @@ public class UserController {
         try {
             userService.signUp(user);
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
+            user.setRole("ROLE_WRITER");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
             return "redirect:/login";
