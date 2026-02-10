@@ -2,18 +2,19 @@ package com.daedong.zipmap.domain;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class Post {
     private Long id;
     private String title;
     private String content;
-    public Long userId;
+    private Long userId;
     private String category;
     private String location;
-    public int likeCount;
-    public int dislikeCount;
-    public String postStatus;
-    private String createdAt;
-    private String updatedAt;
-
+    private int likeCount;
+    private int dislikeCount;
+    private String postStatus;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

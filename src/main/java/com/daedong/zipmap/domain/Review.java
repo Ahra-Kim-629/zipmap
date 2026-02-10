@@ -5,11 +5,15 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class PostReply {
-    private Long id;
-    private Long postId;
-    private Long userId;
+public class Review {
+    private long id;
+    private String title;
     private String content;
+    private String address;
+    private long userId;
+    private int point;
+    private String reviewStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
 }

@@ -9,24 +9,37 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final AuthenticationFailureHandler loginFailureHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/home", "/css/**", "/js/**").permitAll()
+            .authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm", "/css/**", "/js/**").permitAll()
                 .anyRequest().permitAll()
             )
-            .formLogin((form) -> form
+            .formLogin((formLogin) -> formLogin
                 .loginPage("/login")
-                .permitAll()
+                .usernameParameter("login_id")
+                .usernameParameter("password")
+                .defaultSuccessUrl("/")
+                .failureHandler(loginFailureHandler)
+
             )
-            .logout((logout) -> logout.permitAll());
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+            );
+
 
         return http.build();
     }
