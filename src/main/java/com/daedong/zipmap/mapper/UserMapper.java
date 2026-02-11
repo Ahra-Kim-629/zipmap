@@ -1,5 +1,6 @@
 package com.daedong.zipmap.mapper;
 
+import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -29,4 +30,10 @@ public interface UserMapper {
     // 2026.02.11 종빈 생성
     void updateUserStatusAndRole(User user);
 
+
+    void insertToken(Token token);
+
+    Token selectValidToken(String token);
+
+    void updateToken(Token tokenData);
 }

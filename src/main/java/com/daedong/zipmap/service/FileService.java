@@ -6,6 +6,7 @@ import com.daedong.zipmap.mapper.FileMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -35,6 +36,11 @@ public class FileService {
         return null;
     }
 
+    public List<PostFile> findPostFileByPostId(Long id) {
+        return fileMapper.findByPostId(id);
+    }
+
+    @Transactional
     public void saveFiles(Long id, List<MultipartFile> files) throws IOException {
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
@@ -50,5 +56,28 @@ public class FileService {
                 }
             }
         }
+    }
+
+    @Transactional
+    public void deleteFilesByPostId(Long id) {
+        List<PostFile> fileList = findPostFileByPostId(id);
+        for (PostFile file : fileList) {
+            File deleteFile = new File(uploadDir, file.getFilePath());
+            if (deleteFile.exists()) {
+                deleteFile.delete();
+            }
+        }
+        fileMapper.deleteFilesByPostId(id);
+    }
+
+    public String saveNoticeImage(Long id, MultipartFile imageFile) throws IOException {
+        File folder = new File(uploadDir + "/notice");
+        if (!folder.exists()) folder.mkdirs(); // 폴더가 없으면 생성
+
+        String fileName = "NOTICE_" + id + "_" + imageFile.getOriginalFilename();
+        File saveFile = new File(uploadDir + "/notice", fileName);
+        imageFile.transferTo(saveFile);
+
+        return fileName;
     }
 }

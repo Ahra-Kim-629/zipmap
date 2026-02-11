@@ -90,4 +90,22 @@
         WHERE id = #{id}
     </update>
 
+    <insert id="insertToken" parameterType="com.daedong.zipmap.domain.Token">
+        INSERT INTO token (user_id, token, created_at, expired_at, requested_ip)
+        VALUES (#{userId}, #{token}, #{createdAt}, #{expiredAt}, #{requestedIp})
+    </insert>
+
+    <select id="selectValidToken" resultType="com.daedong.zipmap.domain.Token">
+        SELECT
+        id, user_id, token, created_at, expired_at, used_yn, requested_ip, used_ip
+        FROM token
+        WHERE token = #{token} AND used_yn = 'N' AND expired_at > NOW()
+    </select>
+
+    <update id="updateToken" parameterType="com.daedong.zipmap.domain.Token">
+        UPDATE token
+        SET used_yn = #{usedYn},
+        used_ip = #{usedIp}
+        WHERE id = #{id}
+    </update>
 </mapper>

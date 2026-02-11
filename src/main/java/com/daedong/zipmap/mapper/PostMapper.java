@@ -45,4 +45,8 @@ public interface PostMapper {
     void deleteReply(Long id);
     // 개시글 수정 기능 추가
     void updateReply(PostReply reply);
+
+    void updatePost(Post post);
+
+    void deletePost(Long id);
 }

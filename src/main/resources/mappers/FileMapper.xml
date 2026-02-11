@@ -10,8 +10,20 @@
         WHERE review_id = #{id}
     </select>
 
+    <select id="findByPostId" resultType="com.daedong.zipmap.domain.PostFile">
+        SELECT
+        id, post_id, file_path, created_at, updated_at
+        FROM post_file
+        WHERE post_id = #{id}
+    </select>
+
     <insert id="insertPostFile">
-            INSERT INTO post_file (post_id, file_path)
-            VALUES (#{postId}, #{filePath})
+        INSERT INTO post_file (post_id, file_path)
+        VALUES (#{postId}, #{filePath})
     </insert>
+
+    <delete id="deleteFilesByPostId">
+        DELETE FROM post_file
+        WHERE post_id = #{id}
+    </delete>
 </mapper>

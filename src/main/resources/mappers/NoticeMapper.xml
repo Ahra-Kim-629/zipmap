@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daedong.zipmap.mapper.NoticeMapper">
+
+    <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.Notice">
+        SELECT
+        id, title, image_path, link_url, status, start_date, end_date, pos_top, pos_left, priority, created_at,
+        updated_at
+        FROM notice
+        WHERE status='Y' AND NOW() BETWEEN start_date AND end_date
+        ORDER BY priority DESC, id DESC
+    </select>
+
+    <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.Notice"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notice
+        (title, image_path, link_url, status, start_date, end_date, pos_top, pos_left, priority, created_at, updated_at)
+        VALUES
+        (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{posTop}, #{posLeft}, #{priority}, NOW(),
+        NOW())
+    </insert>
+
+    <update id="updateNoticeImagePath" parameterType="com.daedong.zipmap.domain.Notice">
+        UPDATE notice
+        SET image_path = #{imagePath}
+        WHERE id = #{id}
+    </update>
+</mapper>

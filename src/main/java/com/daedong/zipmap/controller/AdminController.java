@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -31,10 +36,13 @@ public class AdminController {
     }
 
     @PostMapping("/notice")
-    public String writeNotice(String title, String content, String startDate, String endDate) {
-//        public String writeNotice(Notice notice) {
-//        Notice 객체를 만들어서 전달하는게 좋을 듯 함.
-        adminService.insertNotice(title, content, startDate, endDate);
+    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
+        try {
+            adminService.insertNotice(notice, imageFile);
+            rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
+        } catch (IOException e) {
+            rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
+        }
 
         return "redirect:/admin";
     }
