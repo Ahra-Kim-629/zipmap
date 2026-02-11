@@ -43,7 +43,8 @@
      </div>
 
      <hr>
-     <p><b>리뷰 내용 : </b><textarea th:text="${reviewDTO.content}"></textarea></p>
+     <p><b>리뷰 내용 : </b></p>
+     <div th:utext="${reviewDTO.content}" class="review-content"></div>
 
      <!-- 댓글 보여주기 -->
      <hr>

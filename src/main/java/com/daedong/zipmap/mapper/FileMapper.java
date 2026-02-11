@@ -15,4 +15,9 @@ public interface FileMapper {
 
     void insertPostFile(PostFile postFile);
 
+    // 리뷰 파일 조회
+    ReviewFile getFileById(Long fileId);
+
+    // 리뷰 파일 삭제
+    void deleteFileById(Long fileId);
 }

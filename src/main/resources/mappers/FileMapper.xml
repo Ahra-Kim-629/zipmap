@@ -19,6 +19,19 @@
             (#{reviewId}, #{filePath})
     </insert>
 
+    <!--  REVIEW 파일 조회 -->
+    <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">
+            SELECT id, review_id, file_path, created_at, updated
+            FROM review_file
+            WHERE id = #{fileId}
+    </select>
+
+    <!--  REVIEW 파일 삭제 -->
+    <delete id="deleteFileById">
+            DELETE FROM review_file
+            WHERE id = #{fileId}
+    </delete>
+
 
     <insert id="insertPostFile">
             INSERT INTO post_file (post_id, file_path)
