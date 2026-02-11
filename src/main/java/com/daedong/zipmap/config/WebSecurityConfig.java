@@ -1,5 +1,6 @@
 package com.daedong.zipmap.config;
 
+import com.daedong.zipmap.service.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,13 +19,14 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 public class WebSecurityConfig {
 
     private final AuthenticationFailureHandler loginFailureHandler;
+    private final CustomOauth2UserService customOauth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm","/review","/board/**"
-                ,"/users/find/id", "/users/find/password", "/users/reset-password").permitAll()
+                ,"/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/files/notice/**").permitAll()
 
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -34,18 +36,27 @@ public class WebSecurityConfig {
 
                 .anyRequest().authenticated()
             )
-            .formLogin((formLogin) -> formLogin
-                .loginPage("/login")
-                .usernameParameter("loginId")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/")
-                .failureHandler(loginFailureHandler)
+                .formLogin((formLogin) -> formLogin
+                    .loginPage("/login")
+                    .usernameParameter("loginId")
+                    .passwordParameter("password")
+                    .defaultSuccessUrl("/")
+                    .failureHandler(loginFailureHandler)
 
             )
+            .oauth2Login(oauth2 -> oauth2
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/")
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(customOauth2UserService)
+                 )
+            )
+
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
             );
 
         return http.build();

@@ -47,23 +47,6 @@ public class UserController {
         return "/users/loginForm";
     }
 
-    @PostMapping("/login")
-    public String login(User user, RedirectAttributes rttr) {
-        try {
-
-            User findUser = userService.findByLoginId(user.getLoginId());
-            boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
-            if (isMatch) {
-                return "redirect:/";
-            } else {
-                rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
-                return "redirect:/login";
-            }
-        } catch (Exception e) {
-            rttr.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/login";
-    }
 
     @GetMapping("/users/find/id")
     public String findId() {

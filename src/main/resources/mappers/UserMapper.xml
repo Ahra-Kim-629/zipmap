@@ -40,13 +40,13 @@
         UPDATE user
         <set>
             <if test="password != null and password != ''">
-                password = #{password},
+                password = #{password}
             </if>
             <if test="phone != null and phone != ''">
-                phone = #{phone},
+                phone = #{phone}
             </if>
             <if test="email != null and email != ''">
-                email = #{email},
+                email = #{email}
             </if>
             <if test="address != null and address != ''">
                 address = #{address}
@@ -55,6 +55,7 @@
         WHERE id = #{id}
 
     </update>
+
 
     <delete id="delete">
         DELETE FROM user

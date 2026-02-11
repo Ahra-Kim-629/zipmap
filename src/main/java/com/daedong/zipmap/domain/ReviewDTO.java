@@ -19,13 +19,14 @@ public class ReviewDTO {
 
     private String loginId;
 
-    private String pros;
-    private String cons;
-
     private List<String> prosList;
     private List<String> consList;
     private List<ReviewFile> fileList;
     private List<ReviewReply> replyList;
+
+    private String pros;
+    private String cons;
+
 
 
 
