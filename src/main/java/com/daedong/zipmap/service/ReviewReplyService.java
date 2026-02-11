@@ -5,6 +5,8 @@ import com.daedong.zipmap.mapper.ReviewReplyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewReplyService {
@@ -23,7 +25,6 @@ public class ReviewReplyService {
         reviewReplyMapper.deleteReply(reviewReplyId);
     }
 
-    public ReviewReply findReplyById(Long reviewId) {
-        return reviewReplyMapper.findReplyById(reviewId);
-    }
+    public List<ReviewReply> findByReviewId(Long id) {
+        return reviewReplyMapper.findByReviewId(id); }
 }

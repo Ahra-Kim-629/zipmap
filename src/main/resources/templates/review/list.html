@@ -141,7 +141,7 @@
         th:data-coneview.consList, ',')}">
 
         <td style="text-align: left;">
-            <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
+            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
         </td>
 
         <!-- 주소: '동' 단위까지만 표시 -->

@@ -11,5 +11,5 @@ public interface ConsMapper {
 
     void deleteByReviewId(long id);
 
-    void add(Cons cons);
+    void save(Cons cons);
 }
