@@ -1,0 +1,20 @@
+.main-popup {
+    position: absolute;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    width: auto; /* 이미지 크기에 맞춤 */
+}
+.popup-content img {
+    display: block;
+    max-width: 500px; /* 최대 너비 제한 */
+}
+.popup-footer {
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}

@@ -69,4 +69,15 @@ public class FileService {
         }
         fileMapper.deleteFilesByPostId(id);
     }
+
+    public String saveNoticeImage(Long id, MultipartFile imageFile) throws IOException {
+        File folder = new File(uploadDir + "/notice");
+        if (!folder.exists()) folder.mkdirs(); // 폴더가 없으면 생성
+
+        String fileName = "NOTICE_" + id + "_" + imageFile.getOriginalFilename();
+        File saveFile = new File(uploadDir + "/notice", fileName);
+        imageFile.transferTo(saveFile);
+
+        return fileName;
+    }
 }

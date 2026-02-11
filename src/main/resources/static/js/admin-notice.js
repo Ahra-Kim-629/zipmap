@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enableTime: false,
         dateFormat: "Y-m-d",
         locale: "ko",
-        minDate: "today" // 기본적으로 오늘부터 선택 가능
+        minDate: "today", // 기본적으로 오늘부터 선택 가능
         onChange: function(selectedDates, dateStr) {
             // 종료 날짜가 선택되면 시작 날짜의 최대일을 선택된 종료 날짜로 제한
             startPicker.set('maxDate', dateStr);
