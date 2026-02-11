@@ -14,6 +14,7 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
 
+        // 사용할 캐시 이름들을 미리 등록해두면 좋대요.
         cacheManager.setCacheNames(List.of("mainNotices"));
 
         return cacheManager;

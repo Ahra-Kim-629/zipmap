@@ -10,5 +10,7 @@ public interface NoticeMapper {
 
     List<Notice> findCurrentNoticeList();
 
-    Long insertNotice(Notice notice);
+    void insertNotice(Notice notice);
+
+    void updateNoticeImagePath(Notice notice);
 }

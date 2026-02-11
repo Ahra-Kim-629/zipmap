@@ -19,11 +19,14 @@ public class AdminService {
     private final FileService fileService;
 
     @Transactional
-    @CacheEvict(value = "mainNotice", allEntries = true)
+    @CacheEvict(value = "mainNotices", allEntries = true)
     public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
-        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
-        notice.setImagePath(fileName);
         noticeMapper.insertNotice(notice);
+
+        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
+
+        notice.setImagePath(fileName);
+        noticeMapper.updateNoticeImagePath(notice);
     }
 
     @Cacheable(value = "mainNotices")

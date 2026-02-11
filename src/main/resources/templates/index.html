@@ -11,7 +11,7 @@
     <div th:each="notice : ${noticeList}"
          th:id="'popup_' + ${notice.id}"
          class="main-popup"
-         th:style="'top:' + ${notice.posTop} + 'px; left:' + ${notice.posLeft} + 'px;'">
+         th:style="'top:' + ${notice.posTop} + 'px; left:' + ${notice.posLeft} + 'px; z-index:' + ${notice.priority}">
 
         <div class="popup-content">
             <a th:href="${notice.linkUrl}" target="_blank">
@@ -27,7 +27,6 @@
             <button type="button" th:onclick="'closePopup(' + ${notice.id} + ', false)'">닫기</button>
         </div>
     </div>
-
 </th:block>
 
 <h1>웰컴페이지</h1>
