@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org/"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns="http://www.w3.org/1999/html">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>홈</title>
@@ -12,9 +12,6 @@
   <p>안녕하세요, <span sec:authentication="name">사용자</span>님! 환영합니다.</p>
   <form th:action="@{/logout}" method="post">
     <button type="submit">로그아웃</button>
-    <a th:href="@{/users/mypage}">마이 페이지 </a>
-    <a th:href="@{/review}">리뷰페이지</a>
-    <a th:href="@{/board}">커뮤니티</a>
   </form>
 </div>
 

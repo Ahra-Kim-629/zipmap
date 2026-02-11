@@ -10,24 +10,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService implements UserDetailsService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     public User findId(String name, String email) {
         return userMapper.findByNameAndEmail(name, email)
                 .orElseThrow(() -> new RuntimeException("해당 정보로 가입된 회원을 찾을 수 없습니다."));
-    }
-
-    public User findPassword(String name, String email) {
-//        계정이 없으면 없다는 메세지를 반송하고
-//        계정이 있으면 입력한 이메일로 비밀번호를 재설정할 수 있는 링크가 담긴 메일을 발송하기
-//        공부할 내용이 있어서 .... 시간 두고 하겠습니다.
-//        내용 : JavaMailSender
-        return null;
     }
 
     public User findById(long id) {
@@ -38,8 +33,8 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String login_id) throws UsernameNotFoundException {
         User user = userMapper.findByLoginId(login_id);
-        if(user == null){
-           throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + login_id);
+        if (user == null) {
+            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + login_id);
         }
         return user;
     }
@@ -60,5 +55,28 @@ public class UserService implements UserDetailsService {
 
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
+    }
+
+    public void passwordReset(String loginId, String name, String email) throws Exception {
+        User user = userMapper.findByLoginIdNameEmail(loginId, name, email);
+        if (user == null) {
+            throw new RuntimeException("해당 정보로 가입된 회원을 찾을 수 없습니다.");
+        }
+
+        String token = UUID.randomUUID().toString();
+//        tokenService.saveToken(user.getId(), token);
+
+        String resetLink = "http://localhost:8080/users/reset-password?token=" + token;
+        mailService.sendPasswordResetMail(email, resetLink);
+    }
+
+    @Transactional
+    public void unregister(User user) {
+        userMapper.delete(user);
+    }
+
+    @Transactional
+    public void update(User user) {
+        userMapper.update(user);
     }
 }

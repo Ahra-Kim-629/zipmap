@@ -12,14 +12,14 @@
     </select>
 
     <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
-        SELECT login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        SELECT id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
         FROM user
-        WHERE login_id = #{login_id}
+        WHERE login_id = #{loginId}
     </select>
 
     <insert id="save">
-        INSERT INTO user (login_id, password, name, gender, phone, email, address)
-        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address})
+        INSERT INTO user (login_id, password, name, gender, phone, email, address, role)
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address}, "WRITER")
     </insert>
 
     <select id="findById" resultType="com.daedong.zipmap.domain.User">
@@ -28,5 +28,37 @@
         FROM user
         WHERE id = #{id}
     </select>
+
+    <select id="findByLoginIdNameEmail" resultType="com.daedong.zipmap.domain.User">
+        SELECT
+        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        FROM user
+        WHERE login_id = #{loginId} AND name = #{name} AND email = #{email}
+    </select>
+
+    <update id="update">
+        UPDATE user
+        <set>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address}
+            </if>
+        </set>
+        WHERE id = #{id}
+
+    </update>
+
+    <delete id="delete">
+        DELETE FROM user
+        WHERE id = #{id}
+    </delete>
 
 </mapper>

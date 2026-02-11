@@ -1,7 +1,9 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.service.MailService;
 import com.daedong.zipmap.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @GetMapping("/")
     public String index() {
@@ -34,6 +37,7 @@ public class UserController {
         try {
             userService.signUp(user);
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
+            user.setRole("ROLE_WRITER");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
             return "redirect:/login";
@@ -52,7 +56,7 @@ public class UserController {
 
             User findUser = userService.findByLoginId(user.getLoginId());
             boolean isMatch = passwordEncoder.matches(user.getPassword(), findUser.getPassword());
-            if(isMatch){
+            if (isMatch) {
                 return "redirect:/";
             } else {
                 rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
@@ -89,8 +93,8 @@ public class UserController {
     @PostMapping("/users/find/password")
     public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr) {
         try {
-            User user = userService.findPassword(name, email);
-            rttr.addFlashAttribute("message", "찾으시는 비밀번호는 " + user.getPassword() + " 입니다.");
+            userService.passwordReset(loginId, name, email);
+            rttr.addFlashAttribute("message", "비밀번호 재설정 메일을 발송했습니다.");
             return "redirect:/login";
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -100,19 +104,88 @@ public class UserController {
 
     @GetMapping("/users/mypage")
     public String mypage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-//        if (userDetails != null) {
-        // Usually UserService would have a findByLoginId method
-        // For now, we assume the user data is available or fetched
-        // Adding a placeholder for the logic requested by the comment
-//             model.addAttribute("user", userService.findByLoginId(userDetails.getUsername()));
-//        }
-
         try {
-            model.addAttribute("user", userService.findById(2));
+            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+            model.addAttribute("user", user);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/";
         }
         return "/users/mypage";
     }
+
+    @PostMapping("/users/mypage")
+    // 혼자서 해보려다가 AI 도움 받았어요. 공부 조금더 필요합니다!!!
+    public String mypage(User user,
+                         @RequestParam(required = false) String new_password,
+                         @RequestParam(required = false) String password_confirm,
+                         RedirectAttributes rttr) {
+        try {
+            User findUser = userService.findByLoginId(user.getLoginId());
+
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
+                    rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
+                }
+            } else {
+                // 기존 비밀번호를 공란으로 했을경우
+            }
+            if (new_password != null && !new_password.isEmpty()) {
+                if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                     rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
+                     return "redirect:/users/mypage";
+                }
+
+                if (!new_password.equals(password_confirm)) {
+                    rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
+                    return "redirect:/users/mypage";
+                }
+                user.setPassword(passwordEncoder.encode(new_password));
+            } else {
+                user.setPassword(null);
+            }
+
+            user.setId(findUser.getId());
+            userService.update(user);
+
+            rttr.addFlashAttribute("message", "회원 정보 수정이 완료되었습니다.");
+            return "redirect:/";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "회원 정보 수정 중 오류가 발생했습니다.");
+            return "redirect:/users/mypage";
+        }
+    }
+
+
+    @GetMapping("/users/unregister")
+    public String unregister(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = userService.findByLoginId(userDetails.getUsername());
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/";
+        }
+        return "/users/unregister";
+    }
+
+    @PostMapping("/users/unregister")
+    public String unregister(User user, RedirectAttributes rttr, HttpSession session) {
+        try {
+            userService.unregister(user);
+            rttr.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+            session.invalidate();
+            return "redirect:/";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/users/unregister";
+        }
+    }
+
+
+
+
 }

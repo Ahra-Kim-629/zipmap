@@ -14,19 +14,19 @@
         </div>
         <div>
             <label for="password">기존 비밀번호</label>
-            <input type="text" id="password" name="password" placeholder="기존 비밀번호"/>
+            <input type="text" id="password" name="password" placeholder="기존 비밀번호" required/>
         </div>
         <div>
             <label for="newPassword">새 비밀번호</label>
-            <input type="text" id="newPassword" name="new_password" placeholder="새 비밀번호"/>
+            <input type="text" id="newPassword" name="new_password" placeholder="새 비밀번호" required />
         </div>
         <div>
             <label for="passwordConfirm">새 비밀번호 확인</label>
-            <input type="text" id="passwordConfirm" name="password_confirm" placeholder="새 비밀번호 확인"/>
+            <input type="text" id="passwordConfirm" name="password_confirm" placeholder="새 비밀번호 확인" required />
         </div>
         <div>
             <label for="name">이름:</label>
-            <input type="text" id="name" th:field="*{name}" readonly />
+            <input type="text" id="name" th:field="*{name}" />
         </div>
         <div>
             <label for="email">이메일:</label>
@@ -44,7 +44,7 @@
         <a th:href="@{/}">취소</a>
     </form>
     <a th:href="@{/}">실거주 주소 수정</a>
-    <a th:href="@{/users/unregister}">회원 탈퇴</a>
+    <a th:href="@{/users/delete}">회원 탈퇴</a>
 
 </body>
 </html>

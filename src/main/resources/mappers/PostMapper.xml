@@ -32,6 +32,7 @@
 
         <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReply">
             <result property="id" column="reply_id"/>
+            <result property="userId" column="reply_user_id"/>
             <result property="content" column="reply_content"/>
             <result property="createdAt" column="reply_created_at"/>
             <result property="updatedAt" column="reply_updated_at"/>
@@ -44,7 +45,8 @@
         p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
         r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
         f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
-        c.id as reply_id, c.content as reply_content, c.created_at as reply_created_at, c.updated_at as reply_updated_at
+        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
+        c.updated_at as reply_updated_at
         FROM
         post p
         LEFT JOIN post_reaction r ON p.id = r.post_id
@@ -60,6 +62,25 @@
             <if test="keyword != null and keyword != ''">
                 AND title LIKE CONCAT('%', #{keyword}, '%')
             </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="location != null and location != ''">
+                AND location = #{location}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+            </if>
         </where>
         ORDER BY id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
@@ -68,6 +89,15 @@
     <select id="countAll" resultType="int">
         SELECT COUNT(*) FROM POST
         <where>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="location != null and location != ''">
+                AND location = #{location}
+            </if>
             <if test="keyword != null and keyword != ''">
                 AND title LIKE CONCAT('%', #{keyword}, '%')
             </if>
@@ -86,4 +116,36 @@
             </if>
         </where>
     </select>
+
+    <insert id="insertPost" parameterType="com.daedong.zipmap.domain.Post"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO post (
+        title, content, user_id, category, location,
+        like_count, dislike_count, post_status, created_at, updated_at
+        )
+        VALUES (
+        #{title}, #{content}, #{userId}, #{category}, #{location},
+        0, 0, 'ACTIVE', NOW(), NOW()
+        )
+    </insert>
+
+    <insert id="insertFile" parameterType="com.daedong.zipmap.domain.PostFile">
+        INSERT INTO post_file (post_id, file_path)
+        VALUES (#{postId}, #{filePath})
+    </insert>
+    <!-- 게시글 댓글 기능 관련 추가 쿼리 -->
+    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.PostReply">
+        INSERT INTO post_reply (post_id, user_id, content, created_at)
+        VALUES (#{postId}, #{userId}, #{content}, NOW())
+    </insert>
+    <delete id="deleteReply">
+        DELETE FROM post_reply WHERE id = #{id}
+    </delete>
+
+    <update id="updateReply">
+        UPDATE post_reply
+        SET content = #{content},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
 </mapper>

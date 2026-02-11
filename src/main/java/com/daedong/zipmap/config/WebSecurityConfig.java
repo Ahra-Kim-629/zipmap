@@ -23,8 +23,15 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm", "/css/**", "/js/**").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm","/review","/board/**").permitAll()
+                .requestMatchers("/css/**", "/js/**").permitAll()
+
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                .requestMatchers("/find/**","/users/**",
+                        "/review/**").hasRole("WRITER")
+
+                .anyRequest().authenticated()
             )
             .formLogin((formLogin) -> formLogin
                 .loginPage("/login")
@@ -39,7 +46,6 @@ public class WebSecurityConfig {
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
             );
-
 
         return http.build();
     }

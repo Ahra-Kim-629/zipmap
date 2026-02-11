@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 수정 페이지</title>
+</head>
+<body>
+    <div class="container">
+        <h2>리뷰 수정</h2>
+        <form th:action="@{|/review/edit/${reviewDTO.id}}|" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" class="form-control" id="title" name="title" th:value="${reviewDTO.title}">
+            </div>
+
+            <div class="form-group">
+                <label for="address">주소</label>
+                <input type="text" class="form-control" id="address" name="address" th:value="${reviewDTO.address}">
+            </div>
+
+            <div class="form-group">
+                <p class="pros"><b>장점 (기존 선택한 항목들이 표시됩니다.)</b></p>
+                <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
+                    <label>
+                        <input type="checkbox" name="prosList" th:value="${item}"
+                            th:checked="${#lists.contains(reviewDTO.prosList, item)}">[[${item}]]
+                    </label>
+                </th:block>
+
+                <p class="cons"><b>단점 (기존 선택한 항목들이 표시됩니다.)</b></p>
+                <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
+                    <label>
+                        <input type="checkbox" name="consList" th:value="${item}"
+                            th:checked="${#lists.contains(reviewDTO.consList, item)}">[[${item}]]
+                    </label>
+                </th:block>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea class="form-control" id="content" name="content" rows="10" th:text="${reviewDTO.content}" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <p><b>첨부 파일 관리</b></p>
+                <!-- 기존 파일 없는 경우 -->
+                <div th:if="${#lists.isEmpty(reviewDTO.fileList)}">
+                    <p>첨부된 파일이 없습니다.</p>
+                </div>
+                <!-- 기존 파일 있는 경우 -->
+                <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}">
+                <div th:each="file : ${reviewDTO.fileList}" style="margin-bottom: 10px; border: 1px solid #ddd; padding: 10px;">
+                    <!-- 이미지 파일인 경우 미리보기 -->
+                    <div th:if="${#strings.endsWith(file.original_name,'.jpg')
+                    or $strings.endsWith(file.original_name,'.png')
+                    or $strings.endsWith(file.original_name,'.gif')">
+                        <img width="100" th:src="@{|/images/${file.id}|}" class="img-thumbnail">
+                    </div>
+                    <!-- 이미지 파일이 아닌 경우 -->
+                    <p th:text="${file.original_name}"></p>
+                </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="newFile">새 파일 추가/교체 : </label>
+                    <input type="file" class="form-control-file" id="newFile" name="file">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">수정 완료</button>
+            <a th:href="@{|/review/detail/${review.id}|}" class="btn btn-secondary">수정 취소</a>
+        </form>
+    </div>
+</body>
+</html>
