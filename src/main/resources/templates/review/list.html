@@ -13,9 +13,11 @@
         .search-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
         .checkbox-group { margin: 5px 0; }
         .checkbox-group label { margin-right: 10px; }
-        #map { width: 100%; height: 400px; margin-bottom: 20px; border: 1px solid #ddd; }
+
+         #map { width: 100%; height: 400px; margin-bottom: 20px; border: 1px solid #ddd; }
     </style>
 
+    <!-- 카카오 지도 SDK 로드 services 라이브러리: 주소 <-> 좌표 변환(Geocoder) -->
     <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
 </head>
 <body>
@@ -24,17 +26,25 @@
 
 <div style="margin-bottom: 10px;">
     <a th:href="@{/review/write}">[리뷰 등록]</a>
+
+    <!-- 지도 검색 버튼 -->
     <button type="button" onclick="handleMapClick()">[지도로 검색하기]</button>
 </div>
 
+<!-- 카카오 지도 (기본 숨김) -->
 <div id="map" style="display: none;"></div>
 
+<!-- 검색 폼 -->
 <form id="searchForm" th:action="@{/review}" th:method="get" class="search-container">
     <div>
+        <!-- 검색 타입 + 키워드 -->
         <select name="searchType" id="searchType">
+            <!-- 제목 + 주소 검색 -->
             <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소</option>
+            <!-- 내용 검색 -->
             <option value="content" th:selected="${searchType == 'content'}">내용</option>
         </select>
+        <!-- 검색어 입력 -->
         <input type="text" th:value="${keyword}" name="keyword" id="keyword" placeholder="검색어 입력">
         <button type="submit">검색</button>
     </div>
@@ -76,12 +86,17 @@
     </tr>
     </thead>
     <tbody>
+    <!-- 현재 페이지의 리뷰 목록 반복 -->
     <tr th:each="review : ${reviews.content}" class="review-item"
         th:data-address="${review.address}" th:data-title="${review.title}"
         th:data-pros="${review.pros}" th:data-cons="${review.cons}">
+
+        <!-- 제목 (상세 페이지 링크) -->
         <td style="text-align: left;">
             <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
         </td>
+
+        <!-- 주소: '동' 단위까지만 표시 -->
         <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
         <td th:text="${review.loginId}"></td>
         <td th:text="${review.point}"></td>
