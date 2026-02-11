@@ -17,5 +17,10 @@ public interface ReviewReplyMapper {
     void updateReply(ReviewReply reviewReply);
 
     // 댓글 삭제
+<<<<<<< HEAD
     void deleteReply(long reviewReplyId);
+=======
+
+    List<ReviewReply> findByReviewId(Long id);
+>>>>>>> c02d284fa9e2e837ae11e15673c3f14a7cd75889
 }

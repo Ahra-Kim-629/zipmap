@@ -29,4 +29,36 @@
         WHERE id = #{id}
     </select>
 
+    <select id="findByLoginIdNameEmail" resultType="com.daedong.zipmap.domain.User">
+        SELECT
+        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        FROM user
+        WHERE login_id = #{loginId} AND name = #{name} AND email = #{email}
+    </select>
+
+    <update id="update">
+        UPDATE user
+        <set>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address}
+            </if>
+        </set>
+        WHERE id = #{id}
+
+    </update>
+
+    <delete id="delete">
+        DELETE FROM user
+        WHERE id = #{id}
+    </delete>
+
 </mapper>

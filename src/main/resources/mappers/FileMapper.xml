@@ -2,7 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
+<mapper namespace="com.daedong.zipmap.mapper.FileMapper">
+    <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">
+        SELECT
+        id, review_id, file_path, created_at, updated_at
+        FROM review_file
+        WHERE review_id = #{id}
+    </select>
 
-
+    <insert id="insertPostFile">
+            INSERT INTO post_file (post_id, file_path)
+            VALUES (#{postId}, #{filePath})
+    </insert>
 </mapper>

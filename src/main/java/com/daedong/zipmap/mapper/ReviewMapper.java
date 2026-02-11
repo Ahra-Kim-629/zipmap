@@ -11,9 +11,10 @@ import java.util.List;
 
 @Mapper
 public interface ReviewMapper {
-    List<Review> findAll(String searchType, String keyword, Pageable pageable);
 
-    int countTotal(String searchType, String keyword);
+    List<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable);
+
+    int countTotal(String searchType, String keyword, List<String> pros, List<String> cons);
 
     // 리뷰 아이디로 찾기
     Review findById(Long id);

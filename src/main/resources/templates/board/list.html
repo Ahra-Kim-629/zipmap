@@ -20,22 +20,34 @@
 
 <!-- 검색 폼 -->
 <form action="/board" method="get" style="margin-bottom: 10px; text-align: right;">
-    <select name="searchType">
-        <option value="title" th:selected="${searchType == 'category'}">카테고리 전체</option>
-        <option value="title" th:selected="${searchType == 'category'}">공구</option>
-        <option value="title" th:selected="${searchType == 'category'}">나눔</option>
-        <option value="title" th:selected="${searchType == 'category'}">자유</option>
+    <!-- 카테고리 선택 -->
+    <select name="category">
+        <option value="" th:selected="${category == null or category == ''}">카테고리 전체</option>
+        <option value="GROUP" th:selected="${category == 'GROUP'}">공구</option>
+        <option value="SHARE" th:selected="${category == 'SHARE'}">나눔</option>
+        <option value="FREE" th:selected="${category == 'FREE'}">자유</option>
     </select>
-    <select name="searchType">
-        <option value="title" th:selected="${searchType == 'location'}">지역 전체</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 서부(강서,양천,구로,영등포,금천</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 남부(강남,서초,관악,동작)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 동부(강동,송파,등등)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 북부(강동,송파,등등)</option>
-        <option value="title" th:selected="${searchType == 'location'}">서울 중앙(종로,용산,서울역 등등)</option>
+
+    <!-- 지역 선택 -->
+    <select name="location">
+        <option value="">지역 전체</option>
+        <option value="SEOUL_WEST" th:selected="${location == 'SEOUL_WEST'}">서울 서부(강서,양천,구로,영등포,금천)</option>
+        <option value="SEOUL_SOUTH" th:selected="${location == 'SEOUL_SOUTH'}">서울 남부(강남,서초,관악,동작)</option>
+        <option value="SEOUL_EAST" th:selected="${location == 'SEOUL_EAST'}">서울 동부(강동,송파,등등)</option>
+        <option value="SEOUL_NORTH" th:selected="${location == 'SEOUL_NORTH'}">서울 북부(강북,성북,등등)</option>
+        <option value="SEOUL_CENTER" th:selected="${location == 'SEOUL_CENTER'}">서울 중앙(종로,용산,서울역 등등)</option>
     </select>
+
+    <!-- 키워드 검색 -->
+    <select name="searchType">
+        <option value="title" th:selected="${searchType == 'title'}">제목</option>
+        <option value="content" th:selected="${searchType == 'content'}">내용</option>
+    </select>
+
     <input type="text" name="keyword" th:value="${keyword}" placeholder="검색어 입력">
     <button type="submit">검색</button>
+
+    <a th:href="@{/board/write}" style="margin-left: 10px;">글쓰기</a>
 </form>
 
 <!-- 게시글 리스트 -->
@@ -54,7 +66,7 @@
         <td th:text="${post.id}"></td>
         <td><a th:href="@{/board/detail/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
         <td th:text="${post.userId}"></td>
-        <td th:text="${post.createdAt}"></td>
+        <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
         <td th:text="${post.likeCount}"></td>
     </tr>
     <tr th:if="${posts.empty}">

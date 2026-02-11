@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>회원 탈퇴</h1>
+    <form th:action="@{/users/unregister}" th:method="post" th:object="${user}">
+        <input type="hidden" th:field="*{id}"/>
+        <div>
+            <label for="loginId">아이디:</label>
+             <input type="text" id="loginId" th:field="*{loginId}" readonly/>
+        </div>
+        <div>
+        <label for="password">비밀번호</label>
+        <input type="text" id="password" name="password" required/>
+        </div>
+        <button type="submit"> 삭제하기 </button>
+        <a th:href="@{/}">취소하기</a>
+    </form>
+    </body>
+</html>

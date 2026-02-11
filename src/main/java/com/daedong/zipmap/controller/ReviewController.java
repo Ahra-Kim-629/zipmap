@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -23,20 +24,38 @@ import java.util.List;
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
+
     private final ReviewService reviewService;
     private final FileService fileService;
 
-    // 리뷰 전체 리스트
     @GetMapping
     public String list(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) List<String> pros,
+                       @RequestParam(required = false) List<String> cons,
                        Model model) {
-        Page<Review> reviews = reviewService.findAll(searchType, keyword, pageable);
+
+        // 페이징 리뷰
+        Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
+
+        // 지도 표시용 전체 리뷰
+        List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
+
+        // 장점/단점 체크박스 항목
+        List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
+        List<String> consList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
+
         model.addAttribute("reviews", reviews);
+        model.addAttribute("allReviews", allReviews);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
-        return "review/list";
+        model.addAttribute("pros", pros);
+        model.addAttribute("cons", cons);
+        model.addAttribute("prosList", prosList);
+        model.addAttribute("consList", consList);
+
+        return "review/list"; // templates/review/list.html
     }
 
     // 리뷰 열람 (상세페이지)
@@ -93,7 +112,7 @@ public class ReviewController {
         reviewService.edit(reviewDTO);
 
         // 파일 처리
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             fileService.saveFile(id, file);
         }
 
