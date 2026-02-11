@@ -80,7 +80,7 @@
         th:data-address="${review.address}" th:data-title="${review.title}"
         th:data-pros="${review.pros}" th:data-cons="${review.cons}">
         <td style="text-align: left;">
-            <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
+            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
         </td>
         <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
         <td th:text="${review.loginId}"></td>

@@ -26,7 +26,21 @@ public class FileService {
         return null;
     }
 
-    public void saveFile(long id, MultipartFile file) {
+    public void saveReviewFile(Long id, List<MultipartFile> files) throws IOException {
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    File saveFile = new File(uploadDir, fileName);
+                    file.transferTo(saveFile);
+
+                    ReviewFile reviewFile = new ReviewFile();
+                    reviewFile.setReviewId(id);
+                    reviewFile.setFilePath(fileName);
+                    fileMapper.saveReviewFile(reviewFile);
+                }
+            }
+        }
 
     }
 

@@ -19,6 +19,17 @@
             </div>
 
             <div class="form-group">
+                <label for="point">별점</label>
+                <select class="form-control" id="point" name="point" th:value="${reviewDTO.point}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <p class="pros"><b>장점 (기존 선택한 항목들이 표시됩니다.)</b></p>
                 <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
                     <label>
@@ -51,24 +62,24 @@
                 <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}">
                 <div th:each="file : ${reviewDTO.fileList}" style="margin-bottom: 10px; border: 1px solid #ddd; padding: 10px;">
                     <!-- 이미지 파일인 경우 미리보기 -->
-                    <div th:if="${#strings.endsWith(file.original_name,'.jpg')
-                    or $strings.endsWith(file.original_name,'.png')
-                    or $strings.endsWith(file.original_name,'.gif')">
-                        <img width="100" th:src="@{|/images/${file.id}|}" class="img-thumbnail">
+                    <div th:if="${#strings.endsWith(file.filePath,'.jpg')
+                    or #strings.endsWith(file.filePath,'.png')
+                    or #strings.endsWith(file.filePath,'.gif')}">
+                        <img width="100" th:src="@{/display(fileId=${file.filePath})}" class="img-thumbnail" alt="첨부된 파일">
                     </div>
                     <!-- 이미지 파일이 아닌 경우 -->
-                    <p th:text="${file.original_name}"></p>
+                    <p th:text="${file.id}"></p>
                 </div>
                 </div>
 
                 <div class="form-group">
                     <label for="newFile">새 파일 추가/교체 : </label>
-                    <input type="file" class="form-control-file" id="newFile" name="file">
+                    <input type="file" class="form-control-file" id="newFile" name="files" multiple>
                 </div>
             </div>
 
             <button type="submit" class="btn btn-primary">수정 완료</button>
-            <a th:href="@{|/review/detail/${review.id}|}" class="btn btn-secondary">수정 취소</a>
+            <a th:href="@{|/review/detail/${reviewDTO.id}|}" class="btn btn-secondary">수정 취소</a>
         </form>
     </div>
 </body>

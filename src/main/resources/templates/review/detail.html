@@ -8,9 +8,9 @@
  <div class="container">
      <!-- 리뷰글 내용 -->
      <p><b>제목 : </b><span th:text="${reviewDTO.title}"></span></p>
-     <p><b>작성자 : </b><span th:text="${reviewDTO.user.loginId}"></span></p>
+     <p><b>작성자 : </b><span th:text="${reviewDTO.loginId}"></span></p>
      <p><b>작성일 : </b><span th:text="${#temporals.format(reviewDTO.createdAt, 'yyyy-MM-dd')}"></span></p>
-     <p th:if="${review.updatedAt != null}">
+     <p th:if="${reviewDTO.updatedAt != null}">
          <b>수정일 : </b><span th:text="${#temporals.format(reviewDTO.updatedAt, 'yyyy-MM-dd')}"></span>
      </p>
      <p><b>주소 : </b><span th:text="${reviewDTO.address}"></span></p>
@@ -33,10 +33,10 @@
          <b>첨부 파일 : </b>
          <ul>
              <li th:each="file : ${reviewDTO.fileList}">
-                <div th:text="${#strings.endsWith(file.original_name,'.jpg')
-                    or #strings.endsWith(file.original_name,'.png')
-                    or #strings.endsWith(file.original_name,'.gif')}">
-                    <img width="20%" th:src="@{|/images/${file.id}|}" class="img-fluid rounded mb-3" alt="첨부된 파일">
+                <div th:if="${#strings.endsWith(file.filePath,'.jpg')
+                    or #strings.endsWith(file.filePath,'.png')
+                    or #strings.endsWith(file.filePath,'.gif')}">
+                    <img width="20%" th:src="@{/display(fileId=${file.filePath})}" class="img-fluid rounded mb-3" alt="첨부된 파일">
                 </div>
              </li>
          </ul>
@@ -52,9 +52,9 @@
          <li th:each="reply : ${reviewDTO.replyList}">
              <div th:id="|display-${reply.id}|">
                  <p><span th:text="${reply.content}"></span></p>
-                 <p><b>작성자 : </b><span th:text="${reply.userId}"></span></p>
+                 <p><b>작성자 : </b><span th:text="${reply.loginId}"></span></p>
 
-                 <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.userId}">
+                 <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}">
                      <button type="button" th:onclick="|showEditForm(${reply.id})|">수정</button>
                      <form th:action="@{/review/reply/delete}" method="post" style="display:inline;">
                          <input type="hidden" name="replyId" th:value="${reply.id}">
@@ -91,12 +91,12 @@
     <div sec:authorize="isAnonymous()"><p><a th:href="@{/user/login}">로그인</a>을 하시면 댓글을 남길 수 있습니다.</p>
     </div>
      <hr>
-     <a th:href="@{/review/list}">리뷰목록으로 이동</a>
+     <a th:href="@{/review}">리뷰목록으로 이동</a>
 
      <!-- 작성자일 경우 리뷰 수정, 삭제 버튼 보여주기 -->
-     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reviewDTO.userId}">
-        <a th:href="@{/review/edit/${review.id}}" class="btn btn-primary">수정</a>
-         <form th:action="@{/review/delete/${review.id}}" method="post"
+     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reviewDTO.loginId}">
+        <a th:href="@{|/review/edit/${reviewDTO.id}|}" class="btn btn-primary">수정</a>
+         <form th:action="@{/review/delete/${reviewDTO.id}}" method="post"
          onsubmit="return confirm('정말 삭제하시겠습니까?')" style="display: inline">
              <button type="submit" class="btn btn-danger">삭제</button>
          </form>

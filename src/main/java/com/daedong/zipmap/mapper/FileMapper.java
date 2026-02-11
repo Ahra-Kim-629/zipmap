@@ -11,7 +11,8 @@ import java.util.List;
 public interface FileMapper {
     List<ReviewFile> findFilesByReviewId(Long id);
 
+    void saveReviewFile(ReviewFile reviewFile);
+
     void insertPostFile(PostFile postFile);
 
-    List<ReviewFile> findByReviewId(Long id);
 }

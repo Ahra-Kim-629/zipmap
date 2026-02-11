@@ -11,5 +11,5 @@ public interface ProsMapper {
 
     void deleteByReviewId(long id);
 
-    void add(Pros pros);
+    void save(Pros pros);
 }

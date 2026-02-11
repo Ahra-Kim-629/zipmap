@@ -19,6 +19,17 @@
         </div>
 
         <div class="form-group">
+            <label for="point">별점</label>
+            <select class="form-control" id="point" name="point" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <p class="pros">장점</p>
             <label><input type="checkbox" id="lighting" name="prosList" value="채광">채광</label>
             <label><input type="checkbox" id="heating" name="prosList" value="난방">난방</label>
@@ -52,8 +63,8 @@
         </div>
 
         <div class="form-group">
-            <label for="file">파일</label>
-            <input type="file" class="form-control-file" id="file" name="file">
+            <label for="files">파일</label>
+            <input type="file" class="form-control-file" id="files" name="files" multiple>
         </div>
 
         <button type="submit" class="btn btn-primary">작성</button>

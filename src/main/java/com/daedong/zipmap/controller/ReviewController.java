@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.ReviewFile;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -76,14 +79,15 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+    public String write(ReviewDTO reviewDTO, @RequestParam("files") List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
         reviewDTO.setUserId(user.getId());
-        long savedId = reviewService.save(reviewDTO);
+        Long savedId = reviewService.save(reviewDTO);
 
         // 파일저장
-        if (file != null && !file.isEmpty()) {
-            fileService.saveFile(savedId, file);
+        if (files != null && !files.isEmpty()) {
+            fileService.saveReviewFile(savedId, files);
         }
+
         return "redirect:/review/detail/" + savedId;
     }
 
@@ -101,7 +105,7 @@ public class ReviewController {
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam(value="files", required = false) List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
         ReviewDTO original = reviewService.findById(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
@@ -111,9 +115,10 @@ public class ReviewController {
         reviewDTO.setUserId(user.getId());
         reviewService.edit(reviewDTO);
 
+
         // 파일 처리
-        if (file != null && !file.isEmpty()) {
-            fileService.saveFile(id, file);
+        if (files != null && !files.isEmpty()) {
+            fileService.saveReviewFile(id, files);
         }
 
         return "redirect:/review/detail/" + id;

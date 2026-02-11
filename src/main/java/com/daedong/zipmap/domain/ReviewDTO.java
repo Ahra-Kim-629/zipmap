@@ -24,4 +24,7 @@ public class ReviewDTO {
     private List<ReviewFile> fileList;
     private List<ReviewReply> replyList;
 
+    private String pros;
+    private String cons;
+
 }
