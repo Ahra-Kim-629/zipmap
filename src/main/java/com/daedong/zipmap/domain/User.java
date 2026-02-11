@@ -28,7 +28,7 @@ public class User implements UserDetails {
     //모든 사용자에게 "ROLE_WRITER" 권한 부여
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_WRITER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+this.role));
     }
 
     @Override

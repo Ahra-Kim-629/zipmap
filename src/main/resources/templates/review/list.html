@@ -212,7 +212,7 @@
         if (guKeys.length === 0) return;
 
         guKeys.forEach(gu => {
-            const firstAddress = reviewsByGu[gu][0];
+            const firstAddress = gu;
             geocoder.addressSearch(firstAddress, function(result, status) {
                 if (status === kakao.maps.services.Status.OK) {
                     const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
