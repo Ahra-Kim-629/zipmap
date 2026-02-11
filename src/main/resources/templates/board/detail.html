@@ -12,6 +12,17 @@
         <p><strong>Location:</strong> <span th:text="${board.location}">Location</span></p>
         <p><strong>Date:</strong> <span th:text="${board.createdAt}">Date</span></p>
         <hr>
+        <div th:if="${currentUserId == board.userId}" style="margin-bottom: 10px;">
+            <a th:href="@{/board/edit/{id}(id=${board.id})}"
+               style="padding: 5px 15px; font-size: 14px; background-color: #f8f9fa; border: 1px solid #ddd; color: #333; text-decoration: none; border-radius: 4px;">수정</a>
+            <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" style="display:inline;">
+                <button type="submit"
+                        onclick="return confirm('정말 삭제하시겠습니까?')"
+                        style="padding: 5px 15px; font-size: 14px; background-color: #fff; border: 1px solid #d9534f; color: #d9534f; border-radius: 4px; cursor:pointer;">
+                    삭제
+                </button>
+            </form>
+        </div>
         <div>
             <p th:text="${board.content}">Content</p>
         </div>

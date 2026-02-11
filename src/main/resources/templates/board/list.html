@@ -18,6 +18,9 @@
 
 <h1>게시글 목록</h1>
 
+<div th:if="${message}" style="color: blue; margin-bottom: 10px;" th:text="${message}"></div>
+<div th:if="${error}" style="color: red; margin-bottom: 10px;" th:text="${error}"></div>
+
 <!-- 검색 폼 -->
 <form action="/board" method="get" style="margin-bottom: 10px; text-align: right;">
     <!-- 카테고리 선택 -->

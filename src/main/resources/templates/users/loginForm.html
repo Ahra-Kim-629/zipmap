@@ -12,6 +12,9 @@
     <div th:if="${error}">
         <p th:text="${error}" style="color: red" ;></p>
     </div>
+    <div th:if="${message}">
+        <p th:text="${message}" style="color: red" ;></p>
+    </div>
     <form th:action="@{/login}" th:method="post">
         <div>
             <label for="login_id">아이디</label>

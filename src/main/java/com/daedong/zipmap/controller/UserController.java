@@ -1,8 +1,10 @@
 package com.daedong.zipmap.controller;
 
+import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.MailService;
 import com.daedong.zipmap.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,12 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
-
-    @GetMapping("/")
-    public String index() {
-        return "index";
-    }
 
     @GetMapping("/signUp")
     public String signUp() {
@@ -91,14 +87,46 @@ public class UserController {
     }
 
     @PostMapping("/users/find/password")
-    public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr) {
+    public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr, HttpServletRequest request) {
+        String clientIp = getClientIp(request);
         try {
-            userService.passwordReset(loginId, name, email);
+            userService.passwordReset(loginId, name, email, clientIp);
             rttr.addFlashAttribute("message", "비밀번호 재설정 메일을 발송했습니다.");
             return "redirect:/login";
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             rttr.addFlashAttribute("error", e.getMessage());
             return "redirect:/users/find/password";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "비밀번호 재설정 중 오류가 발생했습니다.");
+            return "redirect:/users/find/password";
+        }
+    }
+
+    @GetMapping("/users/reset-password")
+    public String resetPassword(@RequestParam String token, Model model) {
+        Token tokenData = userService.selectValidToken(token);
+        if (tokenData == null) {
+            model.addAttribute("error", "유효하지 않은 링크입니다.");
+            return "redirect:/";
+        }
+
+        model.addAttribute("token", token);
+        return "/users/reset_password_form";
+    }
+
+    @PostMapping("/users/reset-password")
+    public String resetPassword(@RequestParam String token, String newPassword, RedirectAttributes rttr, HttpServletRequest request) {
+        String usedIp = getClientIp(request);
+        try {
+            userService.confirmReset(token, newPassword, usedIp);
+            rttr.addFlashAttribute("message", "비밀번호가 재설정되었습니다.");
+            return "redirect:/login";
+        } catch (RuntimeException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "비밀번호 재설정 중 오류가 발생했습니다.");
+            return "redirect:/";
         }
     }
 
@@ -133,8 +161,8 @@ public class UserController {
             }
             if (new_password != null && !new_password.isEmpty()) {
                 if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                     rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
-                     return "redirect:/users/mypage";
+                    rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
+                    return "redirect:/users/mypage";
                 }
 
                 if (!new_password.equals(password_confirm)) {
@@ -185,7 +213,29 @@ public class UserController {
         }
     }
 
+    private String getClientIp(HttpServletRequest request) {
+        String clientIp = request.getHeader("X-Forwarded-For");
 
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("Proxy-Client-IP");
+        }
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getRemoteAddr();
+        }
 
+        if (clientIp != null && clientIp.contains(",")) {
+            clientIp = clientIp.split(",")[0].trim();
+        }
 
+        return clientIp;
+    }
 }
