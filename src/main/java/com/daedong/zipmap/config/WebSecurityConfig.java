@@ -36,26 +36,27 @@ public class WebSecurityConfig {
 
                 .anyRequest().authenticated()
             )
-            .formLogin((formLogin) -> formLogin
-                .loginPage("/login")
-                .usernameParameter("loginId")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/")
-                .failureHandler(loginFailureHandler)
+                .formLogin((formLogin) -> formLogin
+                    .loginPage("/login")
+                    .usernameParameter("loginId")
+                    .passwordParameter("password")
+                    .defaultSuccessUrl("/")
+                    .failureHandler(loginFailureHandler)
 
             )
             .oauth2Login(oauth2 -> oauth2
-                 .loginPage("/login")
-                 .defaultSuccessUrl("/")
-                 .userInfoEndpoint(userInfo -> userInfo
-                     .userService(customOauth2UserService)
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/")
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(customOauth2UserService)
                  )
             )
 
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
             );
 
         return http.build();
