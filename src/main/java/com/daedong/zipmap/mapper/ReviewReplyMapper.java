@@ -11,11 +11,11 @@ public interface ReviewReplyMapper {
     void addReply(ReviewReply reviewReply);
 
     // 댓글 조회
-    ReviewReply findReplyById(Long id);
+    ReviewReply findReplyById(long id);
 
     // 댓글 수정
     void updateReply(ReviewReply reviewReply);
 
     // 댓글 삭제
-    void deleteReply(Long reviewReplyId);
+    void deleteReply(long reviewReplyId);
 }

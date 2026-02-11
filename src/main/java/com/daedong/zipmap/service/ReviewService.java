@@ -88,7 +88,7 @@ public class ReviewService {
         reviewDTO.setConsList(consStrings);
 
         reviewDTO.setFileList(fileMapper.findByReviewId(id));
-        reviewDTO.setReplyList(reviewReplyMapper.findByReviewId(id));
+        reviewDTO.setReplyList(reviewReplyMapper.findReplyById(id));
 
         return reviewDTO;
     }
