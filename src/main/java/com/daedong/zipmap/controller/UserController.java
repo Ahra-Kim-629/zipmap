@@ -27,6 +27,7 @@ public class UserController {
     public String signUp() {
         return "/users/signUpForm";
     }
+    
 
     @PostMapping("/signUp")
     public String signUp(User user, RedirectAttributes rttr) {
