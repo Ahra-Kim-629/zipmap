@@ -1,13 +1,12 @@
 package com.daedong.zipmap.domain;
 
-
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-public class Review {
+public class ReviewDTO {
     private long id;
     private String title;
     private String content;
@@ -17,5 +16,12 @@ public class Review {
     private String reviewStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String loginId;
+
+    private List<String> prosList;
+    private List<String> consList;
+    private List<ReviewFile> fileList;
+    private List<ReviewReply> replyList;
 
 }

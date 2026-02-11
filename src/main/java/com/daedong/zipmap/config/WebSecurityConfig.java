@@ -23,20 +23,20 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm").permitAll()
+                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm","/review","/board/**").permitAll()
                 .requestMatchers("/css/**", "/js/**").permitAll()
 
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 .requestMatchers("/find/**","/users/**",
-                        "/review/**", "/board**").hasRole("WRITER")
+                        "/review/**").hasRole("WRITER")
 
                 .anyRequest().authenticated()
             )
             .formLogin((formLogin) -> formLogin
                 .loginPage("/login")
-                .usernameParameter("login_id")
-                .usernameParameter("password")
+                .usernameParameter("loginId")
+                .passwordParameter("password")
                 .defaultSuccessUrl("/")
                 .failureHandler(loginFailureHandler)
 

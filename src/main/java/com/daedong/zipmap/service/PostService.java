@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostService {
     private final PostMapper postMapper;
+    private final FileService fileService;
 
     public Page<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         int totalCount = postMapper.countAll(searchType, keyword, category, location);
@@ -34,25 +36,10 @@ public class PostService {
         return postMapper.findById(id);
     }
 
+    @Transactional
     public void write(Post post, List<MultipartFile> files) throws IOException {
         postMapper.insertPost(post);
 
-        if (files != null && !files.isEmpty()) {
-            String uploadDir = "D:/SaDang/first_project/files";
-
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                    File saveFile = new File(uploadDir, fileName);
-                    file.transferTo(saveFile);
-
-                    PostFile postFile = new PostFile();
-                    postFile.setPostId(post.getId());
-                    postFile.setFilePath(fileName);
-                    postMapper.insertFile(postFile);
-                }
-            }
-
-        }
+        fileService.saveFiles(post.getId(), files);
     }
 }

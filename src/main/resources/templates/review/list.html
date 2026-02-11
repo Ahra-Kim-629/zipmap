@@ -1,143 +1,251 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org/">
 <head>
-  <meta charset="UTF-8">
-  <title>리뷰 목록</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-  <style>
-    body { background: #f2f3f7; font-family: 'Noto Sans KR', sans-serif; }
-    .container { margin-top: 30px; }
+    <meta charset="UTF-8">
+    <title>리뷰 목록</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a, .pagination strong { margin: 0 5px; text-decoration: none; color: black; }
+        .pagination strong { font-weight: bold; color: red; }
+        .search-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+        .checkbox-group { margin: 5px 0; }
+        .checkbox-group label { margin-right: 10px; }
+        #map { width: 100%; height: 400px; margin-bottom: 20px; border: 1px solid #ddd; }
+    </style>
 
-    h2 { font-weight: 700; color: #2c3e50; text-align: center; margin-bottom: 25px; }
-
-    /* 검색폼 반응형 */
-    .search-form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .search-form select, .search-form input, .search-form button {
-        flex: 1 1 auto;
-        min-width: 120px;
-        padding: 10px 15px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        transition: all 0.3s;
-    }
-    .search-form button { font-weight: 600; border: none; }
-    .search-form .btn-primary { background: #5e72e4; color: #fff; }
-    .search-form .btn-primary:hover { background: #324cdd; }
-    .btn-success { border-radius: 10px; font-weight: 600; background: #00b894; border: none; transition: all 0.3s; }
-    .btn-success:hover { background: #019875; }
-
-    /* 리뷰 카드 */
-    .review-card { background: #fff; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; }
-    .review-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
-    .review-title a { font-weight: 700; font-size: 1.1rem; color: #5e72e4; text-decoration: none; }
-    .review-title a:hover { text-decoration: underline; }
-    .review-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; color: #7f8c8d; font-size: 0.9rem; align-items: center; }
-
-    /* 페이징 */
-    .pagination { justify-content: center; margin-top: 20px; }
-    .pagination .page-link { color: #5e72e4; font-weight: 600; border-radius: 8px; }
-    .pagination .page-item.active .page-link { background-color: #5e72e4; border-color: #5e72e4; color: #fff; }
-
-    /* 지도 모달 */
-    #map { width: 100%; height: 300px; border-radius: 10px; }
-    @media (min-width: 576px) {
-        #map { height: 400px; }
-    }
-  </style>
+    <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
 </head>
 <body>
 
-<div class="container">
-  <h2>리뷰 목록</h2>
+<h1>리뷰 목록</h1>
 
-  <!-- 리뷰 등록 버튼 -->
-  <div class="mb-3 text-end">
-    <a th:href="@{/review/write}" class="btn btn-success">리뷰 등록</a>
-  </div>
-
-  <!-- 검색폼 -->
-  <form th:action="@{/review}" th:method="get" class="search-form">
-    <select name="searchType" class="form-select">
-      <option value="title" th:selected="${searchType == 'title'}">제목</option>
-      <option value="content" th:selected="${searchType == 'content'}">내용</option>
-      <option value="writer" th:selected="${searchType == 'writer'}">작성자</option>
-    </select>
-    <input type="text" th:value="${keyword}" name="keyword" class="form-control" placeholder="검색어를 입력하세요.">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mapModal">지도 검색</button>
-    <button type="submit" class="btn btn-primary">검색</button>
-  </form>
-
-  <!-- 리뷰 카드 목록 -->
-  <div th:each="review : ${reviews}" class="review-card">
-    <div class="review-title">
-      <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
-    </div>
-    <div class="review-meta">
-      <span th:text="${review.address != null ? (review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address) : ''}"></span>
-      <span>ID: <span th:text="${review.userId}"></span></span>
-      <span>평점: <span th:utext="${'&#9733;'.repeat(review.point)}"></span></span>
-      <span th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
-    </div>
-  </div>
-
-  <!-- 페이징 -->
-  <nav th:if="${reviews.totalPages > 0}" aria-label="Page navigation">
-    <ul class="pagination">
-      <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-        <a class="page-link" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword})}">&laquo;</a>
-      </li>
-      <li class="page-item" th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}"
-          th:classappend="${page == reviews.number} ? 'active'">
-        <a class="page-link"
-           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword})}"
-           th:text="${page+1}"></a>
-      </li>
-      <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-        <a class="page-link" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword})}">&raquo;</a>
-      </li>
-    </ul>
-  </nav>
+<div style="margin-bottom: 10px;">
+    <a th:href="@{/review/write}">[리뷰 등록]</a>
+    <button type="button" onclick="handleMapClick()">[지도로 검색하기]</button>
 </div>
 
-<!-- 지도 모달 -->
-<div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="mapModalLabel">지도 검색</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="map"></div>
-      </div>
+<div id="map" style="display: none;"></div>
+
+<form id="searchForm" th:action="@{/review}" th:method="get" class="search-container">
+    <div>
+        <select name="searchType" id="searchType">
+            <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소</option>
+            <option value="content" th:selected="${searchType == 'content'}">내용</option>
+        </select>
+        <input type="text" th:value="${keyword}" name="keyword" id="keyword" placeholder="검색어 입력">
+        <button type="submit">검색</button>
     </div>
-  </div>
+
+    <!-- 장점 체크박스 -->
+    <div class="checkbox-group">
+        <span>장점:</span>
+        <label th:each="p : ${prosList}">
+            <input type="checkbox" name="pros" th:value="${p}" th:checked="${pros != null && pros.contains(p)}" />
+            <span th:text="${p}"></span>
+        </label>
+    </div>
+
+    <!-- 단점 체크박스 -->
+    <div class="checkbox-group">
+        <span>단점:</span>
+        <label th:each="c : ${consList}">
+            <input type="checkbox" name="cons" th:value="${c}" th:checked="${cons != null && cons.contains(c)}" />
+            <span th:text="${c}"></span>
+        </label>
+    </div>
+</form>
+
+<table>
+    <colgroup>
+        <col style="width: 40%">
+        <col style="width: 20%">
+        <col style="width: 15%">
+        <col style="width: 10%">
+        <col style="width: 15%">
+    </colgroup>
+    <thead>
+    <tr>
+        <th>제목</th>
+        <th>주소</th>
+        <th>작성자 ID</th>
+        <th>평점</th>
+        <th>작성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="review : ${reviews.content}" class="review-item"
+        th:data-address="${review.address}" th:data-title="${review.title}"
+        th:data-pros="${review.pros}" th:data-cons="${review.cons}">
+        <td style="text-align: left;">
+            <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
+        </td>
+        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+        <td th:text="${review.loginId}"></td>
+        <td th:text="${review.point}"></td>
+        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="pagination" th:if="${reviews.totalPages > 0}">
+    <a th:if="${!reviews.first}" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword},
+        pros=${pros}, cons=${cons})}">&laquo; 이전</a>
+    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
+
+    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
+        <a th:if="${page != reviews.number}" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword},
+            pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+        <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
+    </span>
+
+    <a th:if="${!reviews.last}" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword},
+        pros=${pros}, cons=${cons})}">다음 &raquo;</a>
+    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
 </div>
 
-<!-- 카카오 지도 API -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.allReviews = /*[[${allReviews}]]*/ [];
+    /*]]>*/
+</script>
 
 <script>
-  var mapModal = document.getElementById('mapModal');
-  mapModal.addEventListener('shown.bs.modal', function () {
-      var container = document.getElementById('map');
-      var options = { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5 };
-      var map = new kakao.maps.Map(container, options);
+    let map, geocoder, markers = [];
 
-      var geocoder = new kakao.maps.services.Geocoder();
-      var keyword = document.querySelector('input[name="keyword"]').value;
-      if(keyword) {
-          geocoder.addressSearch(keyword, function(result, status) {
-              if (status === kakao.maps.services.Status.OK) {
-                  var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                  new kakao.maps.Marker({ map: map, position: coords });
-                  map.setCenter(coords);
-              }
-          });
-      }
-  });
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showMap') === 'true') {
+            toggleMap();
+        }
+    });
+
+    function handleMapClick() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSearching = urlParams.get('keyword') || urlParams.get('pros') || urlParams.get('cons');
+
+        if (isSearching) {
+            window.location.href = '/review?showMap=true';
+        } else {
+            toggleMap();
+        }
+    }
+
+    function toggleMap() {
+        const mapContainer = document.getElementById('map');
+
+        if (mapContainer.style.display === 'none' || mapContainer.style.display === '') {
+            mapContainer.style.display = 'block';
+
+            setTimeout(function() {
+                if (!map) {
+                    geocoder = new kakao.maps.services.Geocoder();
+                    map = new kakao.maps.Map(mapContainer, {
+                        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+                        level: 7
+                    });
+
+                    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                        geocoder.coord2Address(mouseEvent.latLng.getLng(), mouseEvent.latLng.getLat(),
+                            function(result, status) {
+                                if (status === kakao.maps.services.Status.OK) {
+                                    let address = result[0].road_address
+                                        ? result[0].road_address.address_name
+                                        : result[0].address.address_name;
+                                    const guMatch = address.match(/([가-힣]+구)/);
+                                    if (guMatch) address = guMatch[1];
+
+                                    document.getElementById('searchType').value = 'titleAddress';
+                                    document.getElementById('keyword').value = address;
+                                    document.getElementById('searchForm').submit();
+                                }
+                            }
+                        );
+                    });
+                } else {
+                    const currentCenter = map.getCenter();
+                    map.relayout();
+                    map.setCenter(currentCenter);
+                }
+
+                displayMarkers();
+            }, 100);
+
+        } else {
+            mapContainer.style.display = 'none';
+        }
+    }
+
+    function displayMarkers() {
+        if (!map || !geocoder) return;
+
+        markers.forEach(m => m.setMap(null));
+        markers = [];
+
+        const selectedPros = Array.from(document.querySelectorAll('input[name="pros"]:checked')).map(i => i.value);
+        const selectedCons = Array.from(document.querySelectorAll('input[name="cons"]:checked')).map(i => i.value);
+
+        const reviewsByGu = {};
+        const reviews = window.allReviews || [];
+
+        reviews.forEach(review => {
+            const address = review.address;
+            const pros = review.pros ? review.pros.split(',') : [];
+            const cons = review.cons ? review.cons.split(',') : [];
+
+            if (!selectedPros.every(p => pros.includes(p)) || !selectedCons.every(c => cons.includes(c))) return;
+            if (!address) return;
+
+            const guMatch = address.match(/([가-힣]+구)/);
+            if (!guMatch) return;
+            const gu = guMatch[1];
+
+            if (!reviewsByGu[gu]) reviewsByGu[gu] = [];
+            reviewsByGu[gu].push(address);
+        });
+
+        const bounds = new kakao.maps.LatLngBounds();
+        const guKeys = Object.keys(reviewsByGu);
+
+        if (guKeys.length === 0) return;
+
+        guKeys.forEach(gu => {
+            const firstAddress = reviewsByGu[gu][0];
+            geocoder.addressSearch(firstAddress, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    const content = document.createElement('div');
+                    content.style.padding = '5px 10px';
+                    content.style.background = '#FF5A5F';
+                    content.style.color = 'white';
+                    content.style.borderRadius = '20px';
+                    content.style.fontWeight = 'bold';
+                    content.style.cursor = 'pointer';
+                    content.innerHTML = reviewsByGu[gu].length;
+
+                    content.onclick = function() {
+                        document.getElementById('searchType').value = 'titleAddress';
+                        document.getElementById('keyword').value = gu;
+                        document.getElementById('searchForm').submit();
+                    };
+
+                    const overlay = new kakao.maps.CustomOverlay({
+                        map: map,
+                        position: coords,
+                        content: content,
+                        yAnchor: 1
+                    });
+
+                    markers.push(overlay);
+                    bounds.extend(coords);
+                    map.setBounds(bounds);
+                }
+            });
+        });
+    }
 </script>
 
 </body>

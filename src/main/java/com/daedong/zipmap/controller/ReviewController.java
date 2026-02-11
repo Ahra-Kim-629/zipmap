@@ -1,8 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewFile;
-import com.daedong.zipmap.domain.ReviewReply;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
@@ -26,39 +24,45 @@ import java.util.List;
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
+
     private final ReviewService reviewService;
     private final FileService fileService;
 
-    // 리뷰 전체 리스트
     @GetMapping
     public String list(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) List<String> pros,
+                       @RequestParam(required = false) List<String> cons,
                        Model model) {
-        Page<Review> reviews = reviewService.findAll(searchType, keyword, pageable);
+
+        // 페이징 리뷰
+        Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
+
+        // 지도 표시용 전체 리뷰
+        List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
+
+        // 장점/단점 체크박스 항목
+        List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
+        List<String> consList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
+
         model.addAttribute("reviews", reviews);
+        model.addAttribute("allReviews", allReviews);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
-        return "review/list";
+        model.addAttribute("pros", pros);
+        model.addAttribute("cons", cons);
+        model.addAttribute("prosList", prosList);
+        model.addAttribute("consList", consList);
+
+        return "review/list"; // templates/review/list.html
     }
 
     // 리뷰 열람 (상세페이지)
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        Review review = reviewService.findById(id);
-        model.addAttribute("id", id);
-
-        // 리뷰 작성자 가져오기
-        String writer = reviewService.findWriterById(id);
-        model.addAttribute("writer", writer);
-
-        // 이 리뷰의 댓글 목록 가져오기
-        List<ReviewReply> replies = reviewService.findReplyById(id);
-        model.addAttribute("replies", replies);
-
-        // 이 리뷰에 첨부된 파일 목록 가져오기
-        List<ReviewFile> attachedFiles = fileService.findFilesByReviewId(id);
-        model.addAttribute("attachedFiles", attachedFiles);
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
     }
@@ -72,47 +76,48 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(Review review, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
-        review.setUserId(user.getId());
-        reviewService.save(review);
+    public String write(ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        reviewDTO.setUserId(user.getId());
+        long savedId = reviewService.save(reviewDTO);
 
         // 파일저장
-        if (!file.isEmpty()) {
-            fileService.saveFile(review.getId(), file);
+        if (file != null && !file.isEmpty()) {
+            fileService.saveFile(savedId, file);
         }
-        return "redirect:/review/detail/" + review.getId();
+        return "redirect:/review/detail/" + savedId;
     }
 
     // 리뷰 수정
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
-        Review review = reviewService.findById(id);
-        if (review.getUserId() != user.getId()) {
+        ReviewDTO reviewDTO = reviewService.findById(id);
+        if (reviewDTO.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
-        model.addAttribute("review", review);
-        List<ReviewFile> attachedFiles = fileService.findFilesByReviewId(id);
-        model.addAttribute("attachedFiles", attachedFiles);
-
+        model.addAttribute("reviewDTO", reviewDTO);
         return "review/editForm";
     }
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, Review review, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
-        Review originalReview = reviewService.findById(id);
-        if (originalReview.getUserId() != (user.getId())) {
+    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+        ReviewDTO original = reviewService.findById(id);
+        if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
-        review.setId(id);
-        reviewService.save(review);
 
-        if (!file.isEmpty()) {
+        reviewDTO.setId(id);
+        reviewDTO.setUserId(user.getId());
+        reviewService.edit(reviewDTO);
+
+        // 파일 처리
+        if (file != null && !file.isEmpty()) {
             fileService.saveFile(id, file);
         }
 
         return "redirect:/review/detail/" + id;
     }
+
 
 }
