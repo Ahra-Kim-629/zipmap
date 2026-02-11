@@ -89,7 +89,8 @@
     <!-- 현재 페이지의 리뷰 목록 반복 -->
     <tr th:each="review : ${reviews.content}" class="review-item"
         th:data-address="${review.address}" th:data-title="${review.title}"
-        th:data-pros="${review.pros}" th:data-cons="${review.cons}">
+        th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
+        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
 
         <!-- 제목 (상세 페이지 링크) -->
         <td style="text-align: left;">
