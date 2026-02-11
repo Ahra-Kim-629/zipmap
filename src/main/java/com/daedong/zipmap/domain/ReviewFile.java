@@ -11,5 +11,4 @@ public class ReviewFile {
     private String filePath;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

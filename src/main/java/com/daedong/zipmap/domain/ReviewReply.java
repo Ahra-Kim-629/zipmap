@@ -14,5 +14,4 @@ public class ReviewReply {
     private LocalDateTime updatedAt;
 
     private String loginId;
-
 }

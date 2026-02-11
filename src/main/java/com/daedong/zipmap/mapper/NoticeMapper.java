@@ -7,7 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface NoticeMapper {
-
     List<Notice> findCurrentNoticeList();
 
     void insertNotice(Notice notice);

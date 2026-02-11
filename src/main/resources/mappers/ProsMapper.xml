@@ -6,24 +6,24 @@
 
     <!-- 장점 추가 -->
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
-            INSERT INTO pros
-            (review_id, attribute)
-            VALUES
-            (#{reviewId}, #{attribute})
+        INSERT INTO pros
+        (review_id, attribute)
+        VALUES
+        (#{reviewId}, #{attribute})
     </insert>
 
     <!-- 장점 삭제 -->
     <delete id="deleteByReviewId" parameterType="long">
-            DELETE FROM pros
-            WHERE review_id = #{id}
+        DELETE FROM pros
+        WHERE review_id = #{id}
     </delete>
 
     <!-- 장점 조회 -->
     <select id="findByReviewId" resultType="com.daedong.zipmap.domain.Pros" parameterType="long">
-            SELECT
-            id, review_id, attribute
-            FROM pros
-            WHERE review_id = #{id}
+        SELECT
+        id, review_id, attribute
+        FROM pros
+        WHERE review_id = #{id}
     </select>
 
 </mapper>

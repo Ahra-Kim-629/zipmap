@@ -18,7 +18,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
-
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -60,7 +59,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity.setName(name);
             userEntity.setEmail(email);
             userEntity.setPhone(mobile != null ? mobile : "000-0000-0000");
-            userEntity.setGender(gender != null && !gender.isEmpty() ? gender.charAt(0):'M');
+            userEntity.setGender(gender != null && !gender.isEmpty() ? gender.charAt(0) : 'M');
             userEntity.setRole("WRITER");
             userEntity.setAddress("주소 미입력");
 

@@ -28,19 +28,18 @@ public class PostService {
         return new PageImpl<>(posts, pageable, totalCount);
     }
 
-
     public PostDTO getPostDetail(Long id) {
         return postMapper.findById(id);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void write(Post post, List<MultipartFile> files) throws IOException {
         postMapper.insertPost(post);
 
         fileService.saveFiles(post.getId(), files);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void update(Post post, List<MultipartFile> files) throws IOException {
         postMapper.updatePost(post);
 

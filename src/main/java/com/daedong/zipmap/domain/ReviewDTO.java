@@ -26,8 +26,4 @@ public class ReviewDTO {
 
     private String pros;
     private String cons;
-
-
-
-
 }

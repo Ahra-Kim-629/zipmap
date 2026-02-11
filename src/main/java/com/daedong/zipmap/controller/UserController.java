@@ -2,7 +2,6 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.service.MailService;
 import com.daedong.zipmap.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -27,7 +26,7 @@ public class UserController {
     public String signUp() {
         return "/users/signUpForm";
     }
-    
+
 
     @PostMapping("/signUp")
     public String signUp(User user, RedirectAttributes rttr) {
@@ -46,7 +45,6 @@ public class UserController {
     public String login() {
         return "/users/loginForm";
     }
-
 
     @GetMapping("/users/find/id")
     public String findId() {
@@ -170,7 +168,6 @@ public class UserController {
             return "redirect:/users/mypage";
         }
     }
-
 
     @GetMapping("/users/unregister")
     public String unregister(Model model, @AuthenticationPrincipal UserDetails userDetails) {

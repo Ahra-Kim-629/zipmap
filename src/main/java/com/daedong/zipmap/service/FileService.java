@@ -45,8 +45,6 @@ public class FileService {
         }
     }
 
-
-
     // 커뮤니티 게시판 파일 저장
     public List<PostFile> findPostFileByPostId(Long id) {
         return fileMapper.findByPostId(id);

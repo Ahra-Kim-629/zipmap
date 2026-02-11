@@ -7,7 +7,6 @@ import com.daedong.zipmap.domain.PostReply;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,18 +30,16 @@ public interface PostMapper {
                  @Param("category") String category, // 추가
                  @Param("location") String location); // 추가
 
-
-
-
-
     long insertPost(Post post);
 
     void insertFile(PostFile postFile);
 
     // 개시글 댓글 기능 관련 추가
     void insertReply(PostReply reply);
+
     // 개시글 삭제 기능 추가
     void deleteReply(Long id);
+
     // 개시글 수정 기능 추가
     void updateReply(PostReply reply);
 

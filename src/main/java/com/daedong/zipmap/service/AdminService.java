@@ -1,16 +1,13 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Notice;
-import com.daedong.zipmap.mapper.NoticeMapper;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.mapper.NoticeMapper;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminService {
     private final UserMapper userMapper;
-//    private NoticeMapper noticeMapper;
     private final NoticeMapper noticeMapper;
     private final FileService fileService;
 
@@ -50,6 +46,7 @@ public class AdminService {
         user.setRole(role);
         userMapper.updateUserStatusAndRole(user);
     }
+
     @Cacheable(value = "mainNotices")
     public List<Notice> getCurrentNoticeList() {
         return noticeMapper.findCurrentNoticeList();

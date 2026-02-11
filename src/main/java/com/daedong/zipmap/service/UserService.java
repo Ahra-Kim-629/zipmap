@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,7 +30,6 @@ public class UserService implements UserDetailsService {
     public User findById(long id) {
         return userMapper.findById(id).orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String login_id) throws UsernameNotFoundException {
@@ -54,7 +52,6 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("이미 존재하는 회원입니다.");
         }
     }
-
 
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);

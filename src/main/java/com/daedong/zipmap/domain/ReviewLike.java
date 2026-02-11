@@ -11,5 +11,4 @@ public class ReviewLike {
     private long reviewId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

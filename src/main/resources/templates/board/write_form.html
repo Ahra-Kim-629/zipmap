@@ -5,50 +5,50 @@
     <title>글쓰기 - Zipmap</title>
 </head>
 <body>
-    <h1>게시글 작성</h1>
-    <div th:if="${error}" style="color: red;">
-        <p th:text="${error}"></p>
+<h1>게시글 작성</h1>
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+<div th:if="${message}" style="color: red;">
+    <p th:text="${message}"></p>
+</div>
+<form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="category">카테고리</label>
+        <select id="category" name="category" required>
+            <option value="">카테고리 선택</option>
+            <option value="GROUP">공구</option>
+            <option value="SHARE">나눔</option>
+            <option value="FREE">자유</option>
+        </select>
     </div>
-    <div th:if="${message}" style="color: red;">
-        <p th:text="${message}"></p>
+    <div>
+        <label for="location">지역</label>
+        <select id="location" name="location" required>
+            <option value="">지역 선택</option>
+            <option value="SEOUL_CENTER">서울 중앙(종로,용산,서울역 등등)</option>
+            <option value="SEOUL_EAST">서울 동부(강동,송파,등등)</option>
+            <option value="SEOUL_SOUTH">서울 남부(강남,서초,관악,동작)</option>
+            <option value="SEOUL_WEST">서울 서부(강서,양천,구로,영등포,금천)</option>
+            <option value="SEOUL_NORTH">서울 북부(강북,성북,등등)</option>
+        </select>
     </div>
-    <form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="category">카테고리</label>
-            <select id="category" name="category" required>
-                <option value="">카테고리 선택</option>
-                <option value="GROUP">공구</option>
-                <option value="SHARE">나눔</option>
-                <option value="FREE">자유</option>
-            </select>
-        </div>
-        <div>
-            <label for="location">지역</label>
-            <select id="location" name="location" required>
-                <option value="">지역 선택</option>
-                <option value="SEOUL_CENTER">서울 중앙(종로,용산,서울역 등등)</option>
-                <option value="SEOUL_EAST">서울 동부(강동,송파,등등)</option>
-                <option value="SEOUL_SOUTH">서울 남부(강남,서초,관악,동작)</option>
-                <option value="SEOUL_WEST">서울 서부(강서,양천,구로,영등포,금천)</option>
-                <option value="SEOUL_NORTH">서울 북부(강북,성북,등등)</option>
-            </select>
-        </div>
-        <div>
-            <label for="title">제목</label>
-            <input type="text" id="title" name="title" required>
-        </div>
-        <div>
-            <label for="content">내용</label>
-            <textarea id="content" name="content" rows="10" required></textarea>
-        </div>
-        <div>
-            <label for="file">첨부파일</label>
-            <input type="file" id="file" name="file">
-        </div>
-        <div>
-            <button type="submit">등록</button>
-            <a th:href="@{/board}">취소</a>
-        </div>
-    </form>
+    <div>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div>
+        <label for="content">내용</label>
+        <textarea id="content" name="content" rows="10" required></textarea>
+    </div>
+    <div>
+        <label for="file">첨부파일</label>
+        <input type="file" id="file" name="file">
+    </div>
+    <div>
+        <button type="submit">등록</button>
+        <a th:href="@{/board}">취소</a>
+    </div>
+</form>
 </body>
 </html>

@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -24,48 +22,41 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/", "/signUp", "/login","/users/loginForm","/users/signUpForm","/review","/board/**"
-                ,"/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/files/notice/**").permitAll()
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/", "/signUp", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/board/**"
+                                , "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/files/notice/**").permitAll()
 
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                .requestMatchers("/find/**","/users/**",
-                        "/review/**").hasRole("WRITER")
+                        .requestMatchers("/find/**", "/users/**",
+                                "/review/**").hasRole("WRITER")
 
-                .anyRequest().authenticated()
-            )
+                        .anyRequest().authenticated()
+                )
                 .formLogin((formLogin) -> formLogin
-                    .loginPage("/login")
-                    .usernameParameter("loginId")
-                    .passwordParameter("password")
-                    .defaultSuccessUrl("/")
-                    .failureHandler(loginFailureHandler)
+                        .loginPage("/login")
+                        .usernameParameter("loginId")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/")
+                        .failureHandler(loginFailureHandler)
 
-            )
-            .oauth2Login(oauth2 -> oauth2
-                    .loginPage("/login")
-                    .defaultSuccessUrl("/")
-                    .userInfoEndpoint(userInfo -> userInfo
-                            .userService(customOauth2UserService)
-                 )
-            )
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOauth2UserService)
+                        )
+                )
 
-            .logout(logout -> logout
-                    .logoutUrl("/logout")
-                    .logoutSuccessUrl("/")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
-            );
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-
 }

@@ -1,6 +1,9 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Cons;
+import com.daedong.zipmap.domain.Pros;
+import com.daedong.zipmap.domain.Review;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,7 +18,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-
     private final ReviewMapper reviewMapper;
     private final ProsMapper prosMapper;
     private final ConsMapper consMapper;
@@ -139,8 +141,5 @@ public class ReviewService {
                 consMapper.save(cons);
             }
         }
-
     }
-
-
 }

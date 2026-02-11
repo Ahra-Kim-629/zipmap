@@ -13,7 +13,7 @@
         r.content,
         r.created_at AS createdAt,
         r.updated_at AS updatedAt,
-        u.login_id AS loginId  FROM review_reply r
+        u.login_id AS loginId FROM review_reply r
         JOIN user u ON r.user_id = u.id
         WHERE r.review_id = #{id}
     </select>

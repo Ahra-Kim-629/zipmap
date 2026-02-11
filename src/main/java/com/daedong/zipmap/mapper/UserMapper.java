@@ -30,7 +30,6 @@ public interface UserMapper {
     // 2026.02.11 종빈 생성
     void updateUserStatusAndRole(User user);
 
-
     void insertToken(Token token);
 
     Token selectValidToken(String token);

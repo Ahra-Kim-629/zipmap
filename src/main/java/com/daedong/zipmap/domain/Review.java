@@ -1,7 +1,6 @@
 package com.daedong.zipmap.domain;
 
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,5 +16,4 @@ public class Review {
     private String reviewStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

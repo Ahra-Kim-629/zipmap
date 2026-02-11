@@ -5,51 +5,51 @@
     <title>글 수정 - Zipmap</title>
 </head>
 <body>
-    <h1>게시글 수정</h1>
-    <div th:if="${error}" style="color: red;">
-        <p th:text="${error}"></p>
+<h1>게시글 수정</h1>
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+<div th:if="${message}" style="color: red;">
+    <p th:text="${message}"></p>
+</div>
+<form th:action="@{/board/edit/{id}(id=${board.id})}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="category">카테고리</label>
+        <select id="category" name="category" required>
+            <option value="">카테고리 선택</option>
+            <option value="GROUP" th:selected="${board.category == 'GROUP'}">공구</option>
+            <option value="SHARE" th:selected="${board.category == 'SHARE'}">나눔</option>
+            <option value="FREE" th:selected="${board.category == 'FREE'}">자유</option>
+        </select>
     </div>
-    <div th:if="${message}" style="color: red;">
-        <p th:text="${message}"></p>
+    <div>
+        <label for="location">지역</label>
+        <select id="location" name="location" required>
+            <option value="">지역 선택</option>
+            <option value="SEOUL_CENTER" th:selected="${board.location == 'SEOUL_CENTER'}">서울 중앙(종로,용산,서울역 등등)</option>
+            <option value="SEOUL_EAST" th:selected="${board.location == 'SEOUL_EAST'}">서울 동부(강동,송파,등등)</option>
+            <option value="SEOUL_SOUTH" th:selected="${board.location == 'SEOUL_SOUTH'}">서울 남부(강남,서초,관악,동작)</option>
+            <option value="SEOUL_WEST" th:selected="${board.location == 'SEOUL_WEST'}">서울 서부(강서,양천,구로,영등포,금천)</option>
+            <option value="SEOUL_NORTH" th:selected="${board.location == 'SEOUL_NORTH'}">서울 북부(강북,성북,등등)</option>
+        </select>
     </div>
-    <form th:action="@{/board/edit/{id}(id=${board.id})}" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="category">카테고리</label>
-            <select id="category" name="category" required>
-                <option value="">카테고리 선택</option>
-                <option value="GROUP" th:selected="${board.category == 'GROUP'}">공구</option>
-                <option value="SHARE" th:selected="${board.category == 'SHARE'}">나눔</option>
-                <option value="FREE" th:selected="${board.category == 'FREE'}">자유</option>
-            </select>
-        </div>
-        <div>
-            <label for="location">지역</label>
-            <select id="location" name="location" required>
-                <option value="">지역 선택</option>
-                <option value="SEOUL_CENTER" th:selected="${board.location == 'SEOUL_CENTER'}">서울 중앙(종로,용산,서울역 등등)</option>
-                <option value="SEOUL_EAST" th:selected="${board.location == 'SEOUL_EAST'}">서울 동부(강동,송파,등등)</option>
-                <option value="SEOUL_SOUTH" th:selected="${board.location == 'SEOUL_SOUTH'}">서울 남부(강남,서초,관악,동작)</option>
-                <option value="SEOUL_WEST" th:selected="${board.location == 'SEOUL_WEST'}">서울 서부(강서,양천,구로,영등포,금천)</option>
-                <option value="SEOUL_NORTH" th:selected="${board.location == 'SEOUL_NORTH'}">서울 북부(강북,성북,등등)</option>
-            </select>
-        </div>
-        <div>
-            <label for="title">제목</label>
-            <input type="text" id="title" name="title" th:value="${board.title}" required>
-        </div>
-        <div>
-            <label for="content">내용</label>
-            <textarea id="content" name="content" rows="10" th:text="${board.content}" required></textarea>
-        </div>
-        <div>
-            <label for="file">첨부파일 추가</label>
-            <input type="file" id="file" name="file" multiple>
-            <p>첨부파일 추가 시 기존 첨부파일은 삭제됩니다.</p>
-        </div>
-        <div>
-            <button type="submit">수정완료</button>
-            <a th:href="@{/board/detail/{id}(id=${board.id})}">취소</a>
-        </div>
-    </form>
+    <div>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" th:value="${board.title}" required>
+    </div>
+    <div>
+        <label for="content">내용</label>
+        <textarea id="content" name="content" rows="10" th:text="${board.content}" required></textarea>
+    </div>
+    <div>
+        <label for="file">첨부파일 추가</label>
+        <input type="file" id="file" name="file" multiple>
+        <p>첨부파일 추가 시 기존 첨부파일은 삭제됩니다.</p>
+    </div>
+    <div>
+        <button type="submit">수정완료</button>
+        <a th:href="@{/board/detail/{id}(id=${board.id})}">취소</a>
+    </div>
+</form>
 </body>
 </html>

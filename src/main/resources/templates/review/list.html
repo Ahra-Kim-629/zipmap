@@ -138,32 +138,38 @@
         th:data-address="${review.address}"
         th:data-title="${review.title}"
         th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
-        th:data-coneview.consList, ',')}">
+        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
 
-        <td style="text-align: left;">
-            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
-        </td>
+    <td style="text-align: left;">
+        <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
+    </td>
 
-        <!-- 주소: '동' 단위까지만 표시 -->
-        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-        <td th:text="${review.loginId}"></td>
-        <td th:text="${review.point}"></td>
-        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+    <!-- 주소: '동' 단위까지만 표시 -->
+    <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+    <td th:text="${review.loginId}"></td>
+    <td th:text="${review.point}"></td>
+    <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
     </tr>
     </tbody>
 </table>
 
 <!-- 페이징 -->
 <div class="pagination" th:if="${reviews.totalPages > 0}">
-    <a th:if="${!reviews.first}" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo; 이전</a>
+    <a th:if="${!reviews.first}"
+       th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo;
+        이전</a>
     <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
 
     <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
-        <a th:if="${page != reviews.number}" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+        <a th:if="${page != reviews.number}"
+           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+           th:text="${page+1}"></a>
         <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
     </span>
 
-    <a th:if="${!reviews.last}" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음 &raquo;</a>
+    <a th:if="${!reviews.last}"
+       th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음
+        &raquo;</a>
     <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
 </div>
 

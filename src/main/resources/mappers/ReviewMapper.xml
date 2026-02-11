@@ -53,6 +53,7 @@
         r.point,
         r.review_status,
         r.created_at
+        r.updated_at
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         <where>
@@ -122,9 +123,9 @@
     <update id="edit" parameterType="com.daedong.zipmap.domain.Review">
         UPDATE review
         SET title = #{title},
-            content = #{content},
-            address = #{address},
-            point = #{point}
+        content = #{content},
+        address = #{address},
+        point = #{point}
         WHERE id = #{id}
     </update>
 

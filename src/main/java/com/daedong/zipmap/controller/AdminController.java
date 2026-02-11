@@ -1,7 +1,7 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.Notice;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.List;
 
 @Controller
@@ -56,6 +55,7 @@ public class AdminController {
 
         return "admin/members";
     }
+
     // admin/members 권한 ,상태 변경 기능 추가 2026.2.11 종빈 생성
     @PostMapping("/updateStatus")
     public String updateStatus(@RequestParam("id") long id,
@@ -67,7 +67,4 @@ public class AdminController {
 
         return "redirect:/admin/members";
     }
-
-
-
 }

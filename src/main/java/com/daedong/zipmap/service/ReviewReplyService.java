@@ -12,7 +12,6 @@ import java.util.List;
 public class ReviewReplyService {
     private final ReviewReplyMapper reviewReplyMapper;
 
-
     public void addReply(ReviewReply reviewReply) {
         reviewReplyMapper.addReply(reviewReply);
     }
@@ -26,5 +25,6 @@ public class ReviewReplyService {
     }
 
     public List<ReviewReply> findByReviewId(Long id) {
-        return reviewReplyMapper.findByReviewId(id); }
+        return reviewReplyMapper.findByReviewId(id);
+    }
 }
