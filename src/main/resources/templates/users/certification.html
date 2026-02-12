@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>실거주 인증 신청</title>
+</head>
+<body>
+<div style="width: 500px; margin: 0 auto; padding-top: 50px;">
+    <h2>실거주 인증 신청</h2>
+    <p>현재 등록된 주소: <strong th:text="${user.address}">주소 없음</strong></p>
+    <hr>
+
+    <form th:action="@{/users/certification}" method="post" enctype="multipart/form-data">
+        <div style="margin: 20px 0;">
+            <label>임대차계약서 첨부:</label><br><br>
+            <input type="file" name="contractFile" required accept="image/*, .pdf">
+        </div>
+
+        <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none;">
+            인증 신청하기
+        </button>
+        <a th:href="@{/users/mypage}" style="margin-left: 10px;">취소</a>
+    </form>
+</div>
+
+<script th:if="${error}">
+    alert([[${error}]]);
+</script>
+</body>
+</html>

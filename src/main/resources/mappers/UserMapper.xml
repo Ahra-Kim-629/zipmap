@@ -109,4 +109,19 @@
         used_ip = #{usedIp}
         WHERE id = #{id}
     </update>
+
+    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification">
+        INSERT INTO certification (
+        user_id,
+        original_name,
+        stored_path,
+        status
+        ) VALUES (
+        #{userId},
+        #{originalName},
+        #{storedPath},
+        'PENDING'
+        )
+    </insert>
+
 </mapper>
