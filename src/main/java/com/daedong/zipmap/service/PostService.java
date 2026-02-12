@@ -20,12 +20,12 @@ public class PostService {
     private final PostMapper postMapper;
     private final FileService fileService;
 
-    public Page<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
+    public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         int totalCount = postMapper.countAll(searchType, keyword, category, location);
 //        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
 //        return new PageImpl<>(posts, pageable, totalCount);
-        List<Post> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
-        return new PageImpl<>(posts, pageable, totalCount);
+        List<PostDTO> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
+        return new PageImpl<PostDTO>(posts, pageable, totalCount);
     }
 
     public PostDTO getPostDetail(Long id) {

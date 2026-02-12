@@ -88,33 +88,50 @@
         p.id = #{id}
     </select>
 
-    <select id="findAll" resultType="com.daedong.zipmap.domain.Post">
-        SELECT * FROM POST
+    <select id="findAll" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+        p.*,
+        u.login_id as loginId
+        FROM POST p
+        LEFT JOIN user u ON p.user_id = u.id
         <where>
+            AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
+
             <if test="keyword != null and keyword != ''">
-                AND title LIKE CONCAT('%', #{keyword}, '%')
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND p.content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+<!--     이 부분을 수정을 해서 주석 처리 해두었습니다.            AND title LIKE CONCAT('%', #{keyword}, '%')-->
             </if>
             <if test="category != null and category != ''">
-                AND category = #{category}
+                AND p.category = #{category}
             </if>
             <if test="location != null and location != ''">
-                AND location = #{location}
+                AND p.location = #{location}
             </if>
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'title'">
-                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'content'">
-                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.content LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <otherwise>
-                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
                     </otherwise>
                 </choose>
             </if>
         </where>
-        ORDER BY id DESC
+        ORDER BY p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
@@ -207,20 +224,22 @@
         DELETE FROM post WHERE id = #{id}
     </delete>
 
-    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.Post">
-        SELECT * FROM post
-        <where>
-            <if test="category != null and category != ''">AND category = #{category}</if>
-            <if test="location != null and location != ''">AND location = #{location}</if>
-            <if test="keyword != null and keyword != ''">
-                <choose>
-                    <when test="searchType == 'title'">AND title LIKE CONCAT('%', #{keyword}, '%')</when>
-                    <when test="searchType == 'content'">AND content LIKE CONCAT('%', #{keyword}, '%')</when>
-                    <when test="searchType == 'loginid'">AND user_id LIKE CONCAT('%', #{keyword}, '%')</when>
-                </choose>
-            </if>
-        </where>
-        ORDER BY id DESC
+    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+        p.*,
+        u.login_id as loginId  FROM post p
+        LEFT JOIN user u ON p.user_id = u.id  <where>
+        <if test="category != null and category != ''">AND p.category = #{category}</if>
+        <if test="location != null and location != ''">AND p.location = #{location}</if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">AND p.title LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'content'">AND p.content LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'loginid'">AND u.login_id LIKE CONCAT('%', #{keyword}, '%')</when>
+            </choose>
+        </if>
+    </where>
+        ORDER BY p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 

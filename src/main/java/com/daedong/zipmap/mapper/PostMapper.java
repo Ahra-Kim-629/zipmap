@@ -47,7 +47,7 @@ public interface PostMapper {
                             @Param("location") String location,
                             @Param("pageable") Pageable pageable);
 
-    List<Post> findAll(@Param("searchType") String searchType,
+    List<PostDTO> findAll(@Param("searchType") String searchType,
                        @Param("keyword") String keyword,
                        @Param("category") String category,
                        @Param("location") String location,
