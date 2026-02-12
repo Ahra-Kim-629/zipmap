@@ -1,9 +1,6 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.PostDTO;
-import com.daedong.zipmap.domain.PostFile;
-import com.daedong.zipmap.domain.PostReplyDTO;
+import com.daedong.zipmap.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -63,4 +60,8 @@ public interface PostMapper {
     PostReplyDTO findReplyById(Long id);
 
     void deleteReply(Long id);
+
+    void insertReply(PostReply reply);
+
+    void updateReply(PostReply reply);
 }

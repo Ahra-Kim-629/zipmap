@@ -20,6 +20,7 @@ public class ReviewService {
     private final ConsMapper consMapper;
     private final FileMapper fileMapper;
     private final RepliesMapper replyMapper;
+    private final ReviewReplyMapper reviewReplyMapper;
 
     // 페이징 조회
     public Page<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable) {
