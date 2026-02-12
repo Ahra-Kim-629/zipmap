@@ -98,7 +98,7 @@
     <!-- 작성자일 경우 리뷰 수정, 삭제 버튼 보여주기 -->
     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reviewDTO.loginId}">
         <a th:href="@{|/review/edit/${reviewDTO.id}|}" class="btn btn-primary">수정</a>
-        <form th:action="@{/review/delete/${reviewDTO.id}}" method="post"
+        <form th:action="@{/review/delete/{id}(id=${reviewDTO.id})}" method="post"
               onsubmit="return confirm('정말 삭제하시겠습니까?')" style="display: inline">
             <button type="submit" class="btn btn-danger">삭제</button>
         </form>

@@ -22,4 +22,7 @@ public interface ReviewMapper {
 
     // 리뷰 수정
     void edit(ReviewDTO reviewDTO);
+
+    // 리뷰 삭제
+    void deleteReviewById(Long id);
 }

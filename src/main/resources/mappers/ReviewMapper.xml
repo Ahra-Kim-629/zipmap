@@ -52,7 +52,7 @@
         u.login_id AS loginId,
         r.point,
         r.review_status,
-        r.created_at
+        r.created_at,
         r.updated_at
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
@@ -128,5 +128,11 @@
         point = #{point}
         WHERE id = #{id}
     </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteReviewById">
+        DELETE FROM review
+        WHERE id = #{id}
+    </delete>
 
 </mapper>

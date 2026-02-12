@@ -142,4 +142,8 @@ public class ReviewService {
             }
         }
     }
+
+    public void deleteReviewById(Long id) {
+        reviewMapper.deleteReviewById(id);
+    }
 }

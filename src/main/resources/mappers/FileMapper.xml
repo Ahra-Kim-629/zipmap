@@ -4,6 +4,7 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.FileMapper">
 
+    <!--  REVIEW 아이도 리뷰파일 조회 -->
     <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">
         SELECT
         id, review_id, file_path, created_at, updated_at
@@ -28,7 +29,7 @@
 
     <!--  REVIEW 파일 조회 -->
     <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">
-        SELECT id, review_id, file_path, created_at, updated
+        SELECT id, review_id, file_path, created_at, updated_at
         FROM review_file
         WHERE id = #{fileId}
     </select>

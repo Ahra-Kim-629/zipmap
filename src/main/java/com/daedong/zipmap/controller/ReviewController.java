@@ -1,6 +1,8 @@
 package com.daedong.zipmap.controller;
 
+import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.ReviewFile;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
@@ -123,6 +125,28 @@ public class ReviewController {
 
         return "redirect:/review/detail/" + id;
     }
+
+    // 리뷰 삭제
+    @PostMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        ReviewDTO original = reviewService.findById(id);
+        if (original.getUserId() != user.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
+        }
+
+        List<ReviewFile> files = original.getFileList();
+        if (files != null) {
+            for (ReviewFile file : files) {
+                fileService.deleteReviewFile(file.getId());
+            }
+        }
+
+        reviewService.deleteReviewById(id);
+
+        return "redirect:/review";
+    }
+
 
     // 섬머노트 에디터에서 이미지를 올릴때 호출
 
