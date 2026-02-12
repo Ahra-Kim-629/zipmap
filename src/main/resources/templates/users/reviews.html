@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내가 쓴 리뷰</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .pagination { display: flex; justify-content: center; gap: 10px; list-style: none; padding: 0; }
+        .pagination li { display: inline; }
+        .pagination a { text-decoration: none; color: black; padding: 5px 10px; border: 1px solid #ddd; }
+        .pagination .active a { background-color: #007bff; color: white; border-color: #007bff; }
+        .pagination .disabled a { color: #ccc; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>주소</th>
+        <th>평점</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="review : ${reviews}">
+        <td th:text="${review.id}"></td>
+        <td><a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a></td>
+        <td th:text="${review.address}"></td>
+        <td th:text="${review.point}"></td>
+    </tr>
+    <tr th:if="${reviews.empty}">
+        <td colspan="4">작성한 리뷰가 없습니다.</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 페이징 -->
+<nav th:if="${reviews.totalPages > 0}" aria-label="Page navigation">
+    <ul class="pagination">
+        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+            <a class="page-link" th:href="@{/users/reviews(page=${reviews.number-1})}">&lt;</a>
+        </li>
+        <li class="page-item" th:each="page : ${#numbers.sequence(0, reviews.totalPages-1)}"
+            th:classappend="${page == reviews.number} ? 'active'">
+            <a class="page-link" th:href="@{/users/reviews(page=${page})}" th:text="${page+1}"></a>
+        </li>
+        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+            <a class="page-link" th:href="@{/users/reviews(page=${reviews.number+1})}">&gt;</a>
+        </li>
+    </ul>
+</nav>
+
+<a href="/users/mypage">마이페이지로 돌아가기</a>
+
+</body>
+</html>

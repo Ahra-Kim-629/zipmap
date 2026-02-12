@@ -1,11 +1,16 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Token;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final PostService postService;
+    private final ReviewService reviewService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signUp")
@@ -267,5 +274,50 @@ public class UserController {
             rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
             return "redirect:/users/certification";
         }
+    }
+
+    @GetMapping("/users/articles")
+    public String articles(@AuthenticationPrincipal UserDetails userDetails,
+                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                           @RequestParam(required = false, defaultValue = "reviews") String type,
+                           Model model) {
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+
+        model.addAttribute("type", type);
+
+        if ("reviews".equals(type)) {
+            Page<ReviewDTO> reviews = reviewService.findMyReviews(user.getId(), pageable);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("posts", Page.empty(pageable));
+        } else {
+            Page<Post> posts = postService.findMyPosts(user.getId(), pageable);
+            model.addAttribute("posts", posts);
+            model.addAttribute("reviews", Page.empty(pageable));
+        }
+
+        return "/users/articles";
+    }
+
+    @GetMapping("/users/comments")
+    public String comments(@AuthenticationPrincipal UserDetails userDetails,
+                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                           @RequestParam(required = false, defaultValue = "reviews") String type,
+                           Model model) {
+
+        User user =userService.findByLoginId(userDetails.getUsername());
+
+        model.addAttribute("type", type);
+
+        if ("reviews".equals(type)) {
+            Page<ReviewReply> replies = reviewService.findMyReplies(user.getId(), pageable);
+            model.addAttribute("replies", replies);
+            model.addAttribute("postReplies", Page.empty(pageable));
+        } else {
+            Page<PostReply> replies = postService.findMyReplies(user.getId(), pageable);
+            model.addAttribute("postReplies", replies);
+            model.addAttribute("replies", Page.empty(pageable));
+        }
+
+        return "/users/comments";
     }
 }

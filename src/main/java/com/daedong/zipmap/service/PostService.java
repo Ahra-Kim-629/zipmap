@@ -2,6 +2,7 @@ package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.PostReply;
 import com.daedong.zipmap.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -76,5 +77,17 @@ public class PostService {
 
         // 3. 최종 결과를 게시글 테이블(post)에 반영하여 숫자를 맞춤
         postMapper.updateBoardLikeCount(postId);
+    }
+
+    public Page<Post> findMyPosts(Long userId, Pageable pageable) {
+        int totalCount = postMapper.countByUserId(userId);
+        List<Post> posts = postMapper.findByUserId(userId, pageable);
+        return new PageImpl<>(posts, pageable, totalCount);
+    }
+
+    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
+        int totalCount = postMapper.countRepliesByUserId(userId);
+        List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
+        return new PageImpl<>(replies, pageable, totalCount);
     }
 }

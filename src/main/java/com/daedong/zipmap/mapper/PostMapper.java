@@ -50,4 +50,12 @@ public interface PostMapper {
     void deleteReaction(@Param("postId") Long postId, @Param("userId") String userId);
     void updateBoardLikeCount(@Param("postId") Long postId);
     void insertReaction(@Param("postId") Long postId, @Param("userId") String userId, @Param("type") int type);;
+
+    // 내가 쓴 글 조회
+    List<Post> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    int countByUserId(@Param("userId") Long userId);
+
+    // 내가 쓴 댓글 조회
+    List<PostReply> findRepliesByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    int countRepliesByUserId(@Param("userId") Long userId);
 }

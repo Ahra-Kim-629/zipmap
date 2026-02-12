@@ -5,15 +5,16 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class PostReplyDTO {
-    private Long id;
-    private Long postId;
-    private Long userId;
-    private String loginId;
+public class ReviewReply {
+    private long id;
+    private long reviewId;
+    private long userId;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String loginId;
     
-    // 게시글 제목 (조인용)
-    private String postTitle;
+    // 리뷰 제목 (조인용)
+    private String reviewTitle;
 }
