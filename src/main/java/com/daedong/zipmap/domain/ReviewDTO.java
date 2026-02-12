@@ -22,7 +22,7 @@ public class ReviewDTO {
     private List<String> prosList;
     private List<String> consList;
     private List<ReviewFile> fileList;
-    private List<ReviewReply> replyList;
+    private List<Replies> replyList;
 
     private String pros;
     private String cons;

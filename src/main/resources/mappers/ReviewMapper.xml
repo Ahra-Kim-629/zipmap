@@ -129,4 +129,10 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 리뷰 삭제 -->
+    <delete id="deleteReviewById">
+        DELETE FROM review
+        WHERE id = #{id}
+    </delete>
+
 </mapper>

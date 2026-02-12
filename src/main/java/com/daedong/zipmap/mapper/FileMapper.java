@@ -8,15 +8,12 @@ import java.util.List;
 
 @Mapper
 public interface FileMapper {
+    // 리뷰아이디로 파일 리스트 조회
     List<ReviewFile> findFilesByReviewId(Long id);
-
-    void saveReviewFile(ReviewFile reviewFile);
 
     void insertPostFile(PostFile postFile);
 
     List<PostFile> findByPostId(Long id);
-
-    List<ReviewFile> findByReviewId(Long id);
 
     void deleteFilesByPostId(Long id);
 
@@ -25,4 +22,7 @@ public interface FileMapper {
 
     // 리뷰 파일 삭제
     void deleteFileById(Long fileId);
+
+    // 리뷰 파일 저장
+    void saveReviewFile(ReviewFile reviewFile);
 }

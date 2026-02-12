@@ -22,7 +22,7 @@ public class ReviewService {
     private final ProsMapper prosMapper;
     private final ConsMapper consMapper;
     private final FileMapper fileMapper;
-    private final ReviewReplyMapper reviewReplyMapper;
+    private final RepliesMapper replyMapper;
 
     // 페이징 조회
     public Page<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable) {
@@ -72,7 +72,8 @@ public class ReviewService {
 
         if (reviewDTO != null) {
             // 댓글 가져와서 끼워넣기
-            reviewDTO.setReplyList(reviewReplyMapper.findByReviewId(id));
+            reviewDTO.setReplyList(replyMapper.getRepliesByTarget("review", id));
+
             // 파일 가져와서 끼워넣기
             reviewDTO.setFileList(fileMapper.findFilesByReviewId(id));
 
@@ -141,5 +142,9 @@ public class ReviewService {
                 consMapper.save(cons);
             }
         }
+    }
+
+    public void deleteReviewById(Long id) {
+        reviewMapper.deleteReviewById(id);
     }
 }

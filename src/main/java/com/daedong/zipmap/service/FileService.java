@@ -22,29 +22,6 @@ public class FileService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public List<ReviewFile> findFilesById(Long id) {
-
-        return null;
-    }
-
-    // 리뷰 파일 저장
-    public void saveReviewFile(Long id, List<MultipartFile> files) throws IOException {
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                if (!file.isEmpty()) {
-                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    File saveFile = new File(uploadDir, fileName);
-                    file.transferTo(saveFile);
-
-                    ReviewFile reviewFile = new ReviewFile();
-                    reviewFile.setReviewId(id);
-                    reviewFile.setFilePath(fileName);
-                    fileMapper.saveReviewFile(reviewFile);
-                }
-            }
-        }
-    }
-
     // 커뮤니티 게시판 파일 저장
     public List<PostFile> findPostFileByPostId(Long id) {
         return fileMapper.findByPostId(id);
@@ -84,15 +61,16 @@ public class FileService {
         return fileName;
     }
 
+    // 리뷰파일 파일아이디로 삭제
     public void deleteReviewFile(Long fileId) {
-        // 1. DB에서 파일 정보 조회 (파일명을 알아야 하니까요!)
+        // 1. DB에서 파일 정보 조회
         ReviewFile file = fileMapper.getFileById(fileId);
 
         if (file != null) {
             // 2. 실제 물리 파일 삭제
             File realFile = new File(uploadDir, file.getFilePath());
             if (realFile.exists()) {
-                realFile.delete(); // 실제 파일 삭제!
+                realFile.delete(); // 실제 파일 삭제
             }
 
             // 3. DB 데이터 삭제
@@ -121,5 +99,23 @@ public class FileService {
         imageFile.transferTo(saveFile);
 
         return fileName;
+    }
+
+    // 리뷰 파일 저장
+    public void saveReviewFile(Long id, List<MultipartFile> files) throws IOException {
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    File saveFile = new File(uploadDir, fileName);
+                    file.transferTo(saveFile);
+
+                    ReviewFile reviewFile = new ReviewFile();
+                    reviewFile.setReviewId(id);
+                    reviewFile.setFilePath(fileName);
+                    fileMapper.saveReviewFile(reviewFile);
+                }
+            }
+        }
     }
 }

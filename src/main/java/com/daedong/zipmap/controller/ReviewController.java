@@ -1,9 +1,9 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +29,7 @@ import java.util.Map;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final RepliesService repliesService;
     private final FileService fileService;
 
     @GetMapping
@@ -66,6 +67,10 @@ public class ReviewController {
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
         model.addAttribute("reviewDTO", reviewDTO);
+
+        // 해당 리뷰에 달린 댓글 목록 보여주기
+        List<Replies> replyList = repliesService.getReplyList("review", id);
+        model.addAttribute("replyList", replyList);
 
         return "review/detail";
     }
@@ -123,6 +128,28 @@ public class ReviewController {
 
         return "redirect:/review/detail/" + id;
     }
+
+    // 리뷰 삭제
+    @PostMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        ReviewDTO original = reviewService.findById(id);
+        if (original.getUserId() != user.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
+        }
+
+        List<ReviewFile> files = original.getFileList();
+        if (files != null) {
+            for (ReviewFile file : files) {
+                fileService.deleteReviewFile(file.getId());
+            }
+        }
+
+        reviewService.deleteReviewById(id);
+
+        return "redirect:/review";
+    }
+
 
     // 섬머노트 에디터에서 이미지를 올릴때 호출
 

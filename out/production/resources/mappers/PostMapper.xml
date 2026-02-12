@@ -30,12 +30,6 @@
             <result property="updatedAt" column="file_updated_at"/>
         </collection>
 
-        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReply">
-            <result property="id" column="reply_id"/>
-            <result property="content" column="reply_content"/>
-            <result property="createdAt" column="reply_created_at"/>
-            <result property="updatedAt" column="reply_updated_at"/>
-        </collection>
     </resultMap>
 
     <select id="findById" resultMap="postResultMap">

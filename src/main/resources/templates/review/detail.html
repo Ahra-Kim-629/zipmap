@@ -58,18 +58,21 @@
 
                 <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}">
                     <button type="button" th:onclick="|showEditForm(${reply.id})|">수정</button>
-                    <form th:action="@{/review/reply/delete}" method="post" style="display:inline;">
+                    <form th:action="@{/reply/delete}" method="post" style="display:inline;">
                         <input type="hidden" name="replyId" th:value="${reply.id}">
-                        <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
+                        <input type="hidden" name="targetType" value="review">
+                        <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
+                        <input type="hidden" name="userId" th:value="${reply.userId}">
                         <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
                     </form>
                 </th:block>
             </div>
 
             <div th:id="|editForm-${reply.id}|" style="display: none;">
-                <form th:action="@{/review/reply/edit}" method="post">
+                <form th:action="@{/reply/edit}" method="post">
                     <input type="hidden" name="id" th:value="${reply.id}">
-                    <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
+                    <input type="hidden" name="targetType" value="review">
+                    <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                     <textarea name="content" th:text="${reply.content}" rows="2" style="width:80%"></textarea>
                     <button type="submit" class="btn btn-primary">저장</button>
                     <button type="button" th:onclick="|hideEditForm(${reply.id})|">취소</button>
@@ -81,8 +84,9 @@
     <!-- 댓글 작성하기 -->
     <hr>
     <div sec:authorize="isAuthenticated()">
-        <form th:action="@{/review/reply/write}" method="post">
-            <input type="hidden" name="reviewId" th:value="${reviewDTO.id}">
+        <form th:action="@{/reply/write}" method="post">
+            <input type="hidden" name="targetType" value="review">
+            <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
             <p>
                 <textarea name="content" rows="2" style="width: 100%;" placeholder="따뜻한 댓글을 남겨주세요."></textarea>
             </p>
@@ -98,7 +102,7 @@
     <!-- 작성자일 경우 리뷰 수정, 삭제 버튼 보여주기 -->
     <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reviewDTO.loginId}">
         <a th:href="@{|/review/edit/${reviewDTO.id}|}" class="btn btn-primary">수정</a>
-        <form th:action="@{/review/delete/${reviewDTO.id}}" method="post"
+        <form th:action="@{/review/delete/{id}(id=${reviewDTO.id})}" method="post"
               onsubmit="return confirm('정말 삭제하시겠습니까?')" style="display: inline">
             <button type="submit" class="btn btn-danger">삭제</button>
         </form>

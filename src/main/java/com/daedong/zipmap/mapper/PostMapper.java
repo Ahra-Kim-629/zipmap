@@ -1,10 +1,11 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.PostFile;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -25,18 +26,6 @@ public interface PostMapper {
     long insertPost(Post post);
 
     void insertFile(PostFile postFile);
-
-    PostReplyDTO findReplyById(Long id);
-    // 개시글 댓글 기능 관련 추가
-    void insertReply(PostReply reply);
-
-    // 개시글 댓글 삭제 기능 추가
-    void deleteReply(Long id);
-
-    // 개시글 댓글 수정 기능 추가
-    void updateReply(PostReply reply);
-
-
 
     void updatePost(Post post);
 
