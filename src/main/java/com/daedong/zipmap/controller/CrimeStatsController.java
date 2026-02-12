@@ -1,6 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.CrimeStat;
+import com.daedong.zipmap.domain.CrimeStats;
 import com.daedong.zipmap.service.CrimeStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 안전율 지도용 Controller
- * - AJAX로 안전율 데이터 반환
- */
 @RestController
 @RequiredArgsConstructor
 public class CrimeStatsController {
@@ -19,11 +15,11 @@ public class CrimeStatsController {
     private final CrimeStatsService crimeStatsService;
 
     /**
-     * list.html에서 AJAX로 호출
-     * @return 서울 구별 안전율 데이터
+     * 안전율 데이터 요청 (AJAX)
+     * DB가 아닌 Service의 메모리 데이터를 반환
      */
     @GetMapping("/review/safety-map")
-    public List<CrimeStat> getSafetyMapData() {
-        return crimeStatsService.getAllSeoulCrimeWithSafety();
+    public List<CrimeStats> getSafetyMapData() {
+        return crimeStatsService.getSafetyData();
     }
 }
