@@ -1,10 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+    <title>리뷰 목록</title>
+
+    <!-- CSS: 테이블, 검색, 체크박스, 지도 -->
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a, .pagination strong {
+            margin: 0 5px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .pagination strong {
+            font-weight: bold;
+            color: red;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .checkbox-group {
+            margin: 5px 0;
+        }
+
+        .checkbox-group label {
+            margin-right: 10px;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+    </style>
+
+    </head>
+
 <body>
+
+<h1>리뷰 목록</h1>
+
+
+<!-- 리뷰 테이블 -->
+<table>
+    <colgroup>
+        <col style="width: 40%">
+        <col style="width: 20%">
+        <col style="width: 15%">
+        <col style="width: 10%">
+        <col style="width: 15%">
+    </colgroup>
+    <thead>
+    <tr>
+        <th>제목</th>
+        <th>주소</th>
+        <th>작성자 ID</th>
+        <th>평점</th>
+        <th>작성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 현재 페이지의 리뷰 목록 반복 -->
+    <tr th:each="review : ${reviews.content}" class="review-item"
+        th:data-address="${review.address}"
+        th:data-title="${review.title}"
+        th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
+        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
+
+        <td style="text-align: left;">
+            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
+        </td>
+
+        <!-- 주소: '동' 단위까지만 표시 -->
+        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+        <td th:text="${review.loginId}"></td>
+        <td th:text="${review.point}"></td>
+        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 페이징 -->
+<div class="pagination" th:if="${reviews.totalPages > 0}">
+    <a th:if="${!reviews.first}"
+       th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo;
+        이전</a>
+    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
+
+    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
+        <a th:if="${page != reviews.number}"
+           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+           th:text="${page+1}"></a>
+        <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
+    </span>
+
+    <a th:if="${!reviews.last}"
+       th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음
+        &raquo;</a>
+    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
+</div>
+
+
 
 </body>
 </html>
