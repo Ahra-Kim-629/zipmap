@@ -206,4 +206,39 @@
     <delete id="deletePost">
         DELETE FROM post WHERE id = #{id}
     </delete>
+
+    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.Post">
+        SELECT * FROM post
+        <where>
+            <if test="category != null and category != ''">AND category = #{category}</if>
+            <if test="location != null and location != ''">AND location = #{location}</if>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">AND title LIKE CONCAT('%', #{keyword}, '%')</when>
+                    <when test="searchType == 'content'">AND content LIKE CONCAT('%', #{keyword}, '%')</when>
+                    <when test="searchType == 'loginid'">AND user_id LIKE CONCAT('%', #{keyword}, '%')</when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countPosts" resultType="long">
+        SELECT COUNT(*) FROM post
+        <where>
+            <if test="category != null and category != ''">AND category = #{category}</if>
+            <if test="location != null and location != ''">AND location = #{location}</if>
+            <if test="keyword != null and keyword != ''">
+            </if>
+        </where>
+    </select>
+
+    <update id="updatePostStatus">
+        UPDATE post
+        SET post_status = #{status},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>

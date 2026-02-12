@@ -1,16 +1,18 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Notice;
+import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -67,4 +69,53 @@ public class AdminController {
 
         return "redirect:/admin/members";
     }
+
+    @GetMapping("/posts")
+    public String list(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                       @RequestParam(required = false) String searchType,
+                       @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String category,
+                       @RequestParam(required = false) String location,
+                       Model model) {
+        // 전체 게시판 게시글 리스트
+        List<Post> posts = adminService.findAll(searchType, keyword, category, location, pageable);
+        int totalCount = adminService.getTotalCount(searchType, keyword, category, location);
+
+        model.addAttribute("posts", posts); // 게시글 리스트 (List<Post>)
+        model.addAttribute("totalCount", totalCount); // 전체 글 수
+        model.addAttribute("size", pageable.getPageSize()); // 한 페이지당 개수
+        model.addAttribute("page", pageable.getPageNumber()); // 현재 페이지 번호
+
+        // 검색 조건 유지
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("category", category);
+        model.addAttribute("location", location);
+
+        return "admin/posts";
+    }
+
+    // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
+
+    @GetMapping("/posts/delete/{id}")
+    public String deletePost(@PathVariable("id") Long id, RedirectAttributes rttr) {
+        try {
+            adminService.deletePost(id);
+            rttr.addFlashAttribute("message", "게시글이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "게시글 삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/posts";
+    }
+
+    // AdminController.java 에 추가
+    @PostMapping("/posts/toggle-status")
+    public String toggleStatus(@RequestParam("id") Long id,
+                               @RequestParam("status") String status,
+                               RedirectAttributes rttr) {
+        adminService.togglePostStatus(id, status);
+        rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
+        return "redirect:/admin/posts";
+    }
+
 }
