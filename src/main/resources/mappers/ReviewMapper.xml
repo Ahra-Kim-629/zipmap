@@ -53,6 +53,7 @@
         r.point,
         r.review_status,
         r.created_at
+        r.updated_at
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         <where>
@@ -103,19 +104,28 @@
     <!-- 리뷰글 아이디로 찾기 -->
     <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
-        id, title, content, address, user_id, point, review_status, created_at, updated_at, user, pros_list, cons_list, file_list, reply_list
-        FROM review
-        WHERE id = #{id}
+        r.id,
+        r.title,
+        r.content,
+        r.address,
+        r.user_id AS userId,
+        r.point,
+        r.review_status AS reviewStatus,
+        r.created_at AS createdAt,
+        r.updated_at AS updatedAt,
+        u.login_id AS loginId
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.id = #{id}
     </select>
 
     <!-- 리뷰 수정 -->
     <update id="edit" parameterType="com.daedong.zipmap.domain.Review">
         UPDATE review
         SET title = #{title},
-            content = #{content},
-            address = #{address},
-            point = #{point},
-            review_status = #{reviewStatus}
+        content = #{content},
+        address = #{address},
+        point = #{point}
         WHERE id = #{id}
     </update>
 

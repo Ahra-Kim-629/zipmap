@@ -4,28 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <title>홈</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
+<th:block th:if="${noticeList != null && noticeList.size() > 0}">
+    <div th:each="notice : ${noticeList}"
+         th:id="'popup_' + ${notice.id}"
+         class="main-popup"
+         th:style="'top:' + ${notice.posTop} + 'px; left:' + ${notice.posLeft} + 'px; z-index:' + ${notice.priority}">
+
+        <div class="popup-content">
+            <a th:href="${notice.linkUrl}" target="_blank">
+                <img th:src="@{/files/notice/{name}(name=${notice.imagePath})}" th:alt="${notice.title}">
+            </a>
+        </div>
+
+        <div class="popup-footer">
+            <label>
+                <input type="checkbox" th:onclick="'closePopup(' + ${notice.id} + ', true)'">
+                오늘 하루 보지 않기
+            </label>
+            <button type="button" th:onclick="'closePopup(' + ${notice.id} + ', false)'">닫기</button>
+        </div>
+    </div>
+</th:block>
+
 <h1>웰컴페이지</h1>
 
 <div sec:authorize="isAuthenticated()">
-  <p>안녕하세요, <span sec:authentication="name">사용자</span>님! 환영합니다.</p>
-  <form th:action="@{/logout}" method="post">
-    <button type="submit">로그아웃</button>
-    <a th:href="@{/users/mypage}">마이 페이지 </a>
-    <a th:href="@{/review}">리뷰페이지</a>
-    <a th:href="@{/board}">커뮤니티</a>
-  </form>
+    <p>안녕하세요, <span sec:authentication="name">사용자</span>님! 환영합니다.</p>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">로그아웃</button>
+        <a th:href="@{/users/mypage}">마이 페이지 </a>
+        <a th:href="@{/review}">리뷰페이지</a>
+        <a th:href="@{/board}">커뮤니티</a>
+    </form>
 </div>
 
 <div sec:authorize="isAnonymous()">
-  <p> 로그인 하세요.</p>
-  <a th:href="@{/login}">로그인</a>
+    <p> 로그인 하세요.</p>
+    <a th:href="@{/login}">로그인</a>
 </div>
 
 <div sec:authorize="isAnonymous()">
-  <p> 회원이 아니신가요 ?</p>
-  <a th:href="@{/signUp}">회원가입</a>
+    <p> 회원이 아니신가요 ?</p>
+    <a th:href="@{/signUp}">회원가입</a>
 </div>
+
+<div sec:authorize="isAnonymous()">
+    <p> 아이디 찾기</p>
+    <a th:href="@{/users/find/id}">아이디 찾기</a>
+</div>
+
+<div sec:authorize="isAnonymous()">
+    <p> 비밀번호 찾기</p>
+    <a th:href="@{/users/find/password}">비밀번호 찾기</a>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

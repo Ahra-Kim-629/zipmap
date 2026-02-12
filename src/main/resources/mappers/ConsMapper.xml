@@ -2,7 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
+<mapper namespace="com.daedong.zipmap.mapper.ConsMapper">
+
+    <!-- 단점 추가 -->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cons
+        (review_id, attribute)
+        VALUES
+        (#{reviewId}, #{attribute})
+    </insert>
+
+    <!-- 단점 삭제 -->
+    <delete id="deleteByReviewId" parameterType="long">
+        DELETE FROM cons
+        WHERE review_id = #{id}
+    </delete>
+
+    <!-- 단점 조회 -->
+    <select id="findByReviewId" resultType="com.daedong.zipmap.domain.Cons" parameterType="long">
+        SELECT
+        id, review_id, attribute
+        FROM cons
+        WHERE review_id = #{id}
+    </select>
 
 
 </mapper>

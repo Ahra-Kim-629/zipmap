@@ -6,6 +6,7 @@
 </head>
 <body>
 <form th:action="@{/signUp}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
     <div>
         <label for="login_id">아이디</label>
         <input type="text" id="login_id" name="loginId" required>
@@ -36,6 +37,8 @@
     </div>
     <button type="submit">가입하기</button>
     <a th:href="@{/}">취소하기</a>
+    <a th:href="@{/oauth2/authorization/naver}">네이버로 로그인하기</a>
+    <a th:href="@{/oauth2/authorization/google}">구글로 로그인하기</a>
 </form>
 </body>
 </html>

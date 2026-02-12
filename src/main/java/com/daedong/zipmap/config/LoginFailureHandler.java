@@ -16,7 +16,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-
         String errorMessage;
 
         if(exception instanceof BadCredentialsException){
@@ -32,6 +31,5 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         request.getSession().setAttribute("errorMessage", errorMessage);
 
         response.sendRedirect("/login");
-
     }
 }

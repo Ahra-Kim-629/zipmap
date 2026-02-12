@@ -3,6 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.daedong.zipmap.mapper.FileMapper">
+
     <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">
         SELECT
         id, review_id, file_path, created_at, updated_at
@@ -10,8 +11,41 @@
         WHERE review_id = #{id}
     </select>
 
-    <insert id="insertPostFile">
-            INSERT INTO post_file (post_id, file_path)
-            VALUES (#{postId}, #{filePath})
+    <select id="findByPostId" resultType="com.daedong.zipmap.domain.PostFile">
+        SELECT
+        id, post_id, file_path, created_at, updated_at
+        FROM post_file
+        WHERE post_id = #{id}
+    </select>
+
+    <!-- REVIEW 파일 저장 -->
+    <insert id="saveReviewFile" parameterType="com.daedong.zipmap.domain.ReviewFile">
+        INSERT INTO review_file
+        (review_id, file_path)
+        VALUES
+        (#{reviewId}, #{filePath})
     </insert>
+
+    <!--  REVIEW 파일 조회 -->
+    <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">
+        SELECT id, review_id, file_path, created_at, updated
+        FROM review_file
+        WHERE id = #{fileId}
+    </select>
+
+    <!--  REVIEW 파일 삭제 -->
+    <delete id="deleteFileById">
+        DELETE FROM review_file
+        WHERE id = #{fileId}
+    </delete>
+
+    <insert id="insertPostFile">
+        INSERT INTO post_file (post_id, file_path)
+        VALUES (#{postId}, #{filePath})
+    </insert>
+
+    <delete id="deleteFilesByPostId">
+        DELETE FROM post_file
+        WHERE post_id = #{id}
+    </delete>
 </mapper>

@@ -11,5 +11,4 @@ public class Pros {
     private String attribute;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
 }

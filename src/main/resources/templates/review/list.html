@@ -6,63 +6,108 @@
 
     <!-- CSS: 테이블, 검색, 체크박스, 지도 -->
     <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .pagination { margin-top: 20px; text-align: center; }
-        .pagination a, .pagination strong { margin: 0 5px; text-decoration: none; color: black; }
-        .pagination strong { font-weight: bold; color: red; }
-        .search-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-        .checkbox-group { margin: 5px 0; }
-        .checkbox-group label { margin-right: 10px; }
-        #map { width: 100%; height: 400px; margin-bottom: 20px; border: 1px solid #ddd; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a, .pagination strong {
+            margin: 0 5px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .pagination strong {
+            font-weight: bold;
+            color: red;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .checkbox-group {
+            margin: 5px 0;
+        }
+
+        .checkbox-group label {
+            margin-right: 10px;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
     </style>
 
-    <!-- 카카오 지도 SDK: key secret properties 사용 -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var kakaoKey = /*[[${@environment.getProperty('kakao.api.key')}]]*/ 'DEFAULT_KEY';
-        var baseUrl = /*[[${@environment.getProperty('app.url')}]]*/ 'http://localhost:8080';
-        /*]]>*/
-    </script>
-    <script th:src="@{'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${kakaoKey} + '&libraries=services'}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 카카오 지도 SDK -->
+    <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
 </head>
 
 <body>
 
 <h1>리뷰 목록</h1>
 
+<!-- 상단 버튼: 리뷰 등록 + 지도 검색 -->
 <div style="margin-bottom: 10px;">
     <a th:href="@{/review/write}">[리뷰 등록]</a>
-    <button type="button" onclick="handleMapClick()">[리뷰 지도 보기]</button>
-    <button type="button" onclick="handleSafetyMapClick()">[지역 안전율 보기]</button>
+
+    <!-- 지도 검색 버튼 -->
+    <button type="button" onclick="handleMapClick()">[지도로 검색하기]</button>
 </div>
 
-<div id="map" style="display:none;"></div>
+<!-- 카카오 지도 -->
+<div id="map" style="display: none;"></div>
 
 <!-- 검색 폼 -->
 <form id="searchForm" th:action="@{/review}" th:method="get" class="search-container">
+    <!-- 검색 타입 + 키워드 -->
     <div>
+        <!-- 검색 타입 + 키워드 -->
         <select name="searchType" id="searchType">
+            <!-- 제목 + 주소 검색 -->
             <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소</option>
+            <!-- 내용 검색 -->
             <option value="content" th:selected="${searchType == 'content'}">내용</option>
         </select>
-        <input type="text" name="keyword" id="keyword" th:value="${keyword != null ? keyword : ''}" placeholder="검색어 입력">
+        <!-- 검색어 입력 -->
+        <input type="text" th:value="${keyword}" name="keyword" id="keyword" placeholder="검색어 입력">
         <button type="submit">검색</button>
     </div>
 
+    <!-- 장점 체크박스 -->
     <div class="checkbox-group">
         <span>장점:</span>
-        <label th:each="p : ${prosList != null ? prosList : {}}">
+        <label th:each="p : ${prosList}">
             <input type="checkbox" name="pros" th:value="${p}" th:checked="${pros != null && pros.contains(p)}">
             <span th:text="${p}"></span>
         </label>
     </div>
 
+    <!-- 단점 체크박스 -->
     <div class="checkbox-group">
         <span>단점:</span>
-        <label th:each="c : ${consList != null ? consList : {}}">
+        <label th:each="c : ${consList}">
             <input type="checkbox" name="cons" th:value="${c}" th:checked="${cons != null && cons.contains(c)}">
             <span th:text="${c}"></span>
         </label>
@@ -88,140 +133,193 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="review : ${reviews != null ? reviews.content : {}}"
-        class="review-item"
-        th:data-address="${review.address != null ? review.address : ''}"
+    <!-- 현재 페이지의 리뷰 목록 반복 -->
+    <tr th:each="review : ${reviews.content}" class="review-item"
+        th:data-address="${review.address}"
         th:data-title="${review.title}"
-        th:data-pros="${review.prosList != null ? #strings.arrayJoin(review.prosList, ',') : ''}"
-        th:data-cons="${review.consList != null ? #strings.arrayJoin(review.consList, ',') : ''}">
+        th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
+        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
 
-        <td style="text-align: left;">
-            <a th:href="@{/review/detail(id=${review.id})}" th:text="${review.title}"></a>
-        </td>
-        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-        <td th:text="${review.loginId}"></td>
-        <td th:text="${review.point}"></td>
-        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+    <td style="text-align: left;">
+        <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
+    </td>
+
+    <!-- 주소: '동' 단위까지만 표시 -->
+    <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+    <td th:text="${review.loginId}"></td>
+    <td th:text="${review.point}"></td>
+    <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
     </tr>
     </tbody>
 </table>
 
-<div class="pagination" th:if="${reviews != null && reviews.totalPages > 0}">
+<!-- 페이징 -->
+<div class="pagination" th:if="${reviews.totalPages > 0}">
+    <a th:if="${!reviews.first}"
+       th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo;
+        이전</a>
+    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
+
     <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
-        <a th:if="${page != reviews.number}" th:href="@{/review(page=${page}, searchType=${searchType != null ? searchType : 'titleAddress'}, keyword=${keyword != null ? keyword : ''})}" th:text="${page+1}"></a>
+        <a th:if="${page != reviews.number}"
+           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+           th:text="${page+1}"></a>
         <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
     </span>
+
+    <a th:if="${!reviews.last}"
+       th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음
+        &raquo;</a>
+    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
 </div>
 
+<!-- JS: 리뷰 데이터를 JS로 전달 -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    window.allReviews = /*[[${#objects.toJson(allReviews != null ? allReviews : [])}]]*/ [];
+    window.allReviews = /*[[${allReviews}]]*/ [];
     /*]]>*/
 </script>
 
+<!-- JS: 지도, 마커, 필터링 -->
 <script>
     let map, geocoder, markers = [];
-    let safetyMap, safetyMarkers = [];
 
-    // 리뷰 지도 버튼
-    function handleMapClick() { toggleMap(); }
-    // 안전율 지도 버튼
-    function handleSafetyMapClick() { toggleSafetyMap(); }
+    // 페이지 로드 시 showMap 파라미터 체크
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('showMap') === 'true') toggleMap();
+    });
 
-    // 리뷰 지도
-    function toggleMap() {
-        const mapContainer = document.getElementById('map');
-        mapContainer.style.display = 'block';
-        setTimeout(() => {
-            if (!map) {
-                geocoder = new kakao.maps.services.Geocoder();
-                map = new kakao.maps.Map(mapContainer, {
-                    center: new kakao.maps.LatLng(37.566826, 126.9786567),
-                    level: 7
-                });
-            }
-            displayReviewMarkers();
-        }, 100);
+    // 지도 검색 버튼 클릭
+    function handleMapClick() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSearching = urlParams.get('keyword') || urlParams.get('pros') || urlParams.get('cons');
+
+        if (isSearching) {
+            // 검색 조건이 있으면 새로고침하면서 지도 표시
+            window.location.href = '/review?showMap=true';
+        } else {
+            toggleMap();
+        }
     }
 
-    function displayReviewMarkers() {
-        if (!map || !geocoder) return;
+    // 지도 토글
+    function toggleMap() {
+        const mapContainer = document.getElementById('map');
+
+        if (mapContainer.style.display === 'none' || mapContainer.style.display === '') {
+            mapContainer.style.display = 'block';
+
+            setTimeout(() => {
+                if (!map) {
+                    geocoder = new kakao.maps.services.Geocoder();
+                    map = new kakao.maps.Map(mapContainer, {
+                        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+                        level: 7
+                    });
+
+                    // 지도 클릭 이벤트
+                    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                        geocoder.coord2Address(mouseEvent.latLng.getLng(), mouseEvent.latLng.getLat(),
+                            function(result, status) {
+                                if (status === kakao.maps.services.Status.OK) {
+                                    let address = result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name;
+                                    const guMatch = address.match(/([가-힣]+구)/);
+                                    if (guMatch) address = guMatch[1];
+
+                                    document.getElementById('searchType').value = 'titleAddress';
+                                    document.getElementById('keyword').value = address;
+                                    document.getElementById('searchForm').submit();
+                                }
+                            }
+                        );
+                    });
+                } else {
+                    const currentCenter = map.getCenter();
+                    map.relayout();
+                    map.setCenter(currentCenter);
+                }
+
+                displayMarkers();
+            }, 100);
+
+        } else {
+            mapContainer.style.display = 'none';
+        }
+    }
+
+    // 지도 마커 표시
+    function displayMarkers() {
+    if (!map || !geocoder) return;
+
+        // 기존 마커 제거
         markers.forEach(m => m.setMap(null));
         markers = [];
 
-        const reviews = window.allReviews || [];
-        const bounds = new kakao.maps.LatLngBounds();
+        // 선택된 체크박스 값
+        const selectedPros = Array.from(document.querySelectorAll('input[name="pros"]:checked')).map(i => i.value);
+        const selectedCons = Array.from(document.querySelectorAll('input[name="cons"]:checked')).map(i => i.value);
 
+    const reviewsByGu = {};
+    const reviews = window.allReviews || [];
+
+        // 리뷰 필터링 및 구별 그룹화
         reviews.forEach(review => {
             const address = review.address;
-            if (!address) return;
+            const pros = review.pros ? review.pros.split(',') : [];
+            const cons = review.cons ? review.cons.split(',') : [];
+
+        // 체크박스 필터 유지
+        if (!selectedPros.every(p => pros.includes(p)) || !selectedCons.every(c => cons.includes(c))) return;
+        if (!address) return;
+
             const guMatch = address.match(/([가-힣]+구)/);
             if (!guMatch) return;
-            const gu = guMatch[1];
 
-            geocoder.addressSearch(gu, function(result, status) {
+            const gu = guMatch[1];
+            if (!reviewsByGu[gu]) reviewsByGu[gu] = [];
+            reviewsByGu[gu].push(address);
+        });
+
+        const bounds = new kakao.maps.LatLngBounds();
+        const guKeys = Object.keys(reviewsByGu);
+        if (guKeys.length === 0) return;
+
+        // 구별 마커 생성
+        guKeys.forEach(gu => {
+            const firstAddress = gu;
+            geocoder.addressSearch(firstAddress, function(result, status) {
                 if (status === kakao.maps.services.Status.OK) {
                     const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    // 마커 내용
                     const content = document.createElement('div');
-                    content.style.cssText = 'padding:5px 10px;background:#FF5A5F;color:white;border-radius:20px;font-weight:bold;';
-                    content.innerHTML = 1;
-                    const overlay = new kakao.maps.CustomOverlay({ map, position: coords, content, yAnchor: 1 });
-                    markers.push(overlay);
-                    bounds.extend(coords);
-                    map.setBounds(bounds);
-                }
-            });
-        });
-    }
+                    content.style.cssText = 'padding:5px 10px;background:#FF5A5F;color:white;border-radius:20px;font-weight:bold;cursor:pointer;';
+                    content.innerHTML = reviewsByGu[gu].length;
 
-    // 안전율 지도
-    function toggleSafetyMap() {
-        const mapContainer = document.getElementById('map');
-        mapContainer.style.display = 'block';
-        setTimeout(() => {
-            if (!safetyMap) {
-                safetyMap = new kakao.maps.Map(mapContainer, {
-                    center: new kakao.maps.LatLng(37.566826, 126.9786567),
-                    level: 7
+                content.onclick = function() {
+                    document.getElementById('searchType').value = 'titleAddress';
+                    document.getElementById('keyword').value = gu;
+                    document.getElementById('searchForm').submit();
+                };
+
+                const overlay = new kakao.maps.CustomOverlay({
+                    map: map,
+                    position: coords,
+                    content: content,
+                    yAnchor: 1
                 });
-            }
-            displaySafetyMarkers();
-        }, 100);
-    }
 
-    function displaySafetyMarkers() {
-        if (!safetyMap) return;
-        safetyMarkers.forEach(m => m.setMap(null));
-        safetyMarkers = [];
-
-        $.ajax({
-            url: baseUrl + '/review/safety-map',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                const bounds = new kakao.maps.LatLngBounds();
-                const geocoder = new kakao.maps.services.Geocoder();
-
-                data.forEach(item => {
-                    geocoder.addressSearch(item.region, function(result, status) {
-                        if (status === kakao.maps.services.Status.OK) {
-                            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                            const content = document.createElement('div');
-                            content.style.cssText = 'padding:5px 10px;background:#4CAF50;color:white;border-radius:20px;font-weight:bold;';
-                            content.innerHTML = item.safetyRate.toFixed(1) + '%';
-                            const overlay = new kakao.maps.CustomOverlay({ map: safetyMap, position: coords, content, yAnchor: 1 });
-                            safetyMarkers.push(overlay);
-                            bounds.extend(coords);
-                            safetyMap.setBounds(bounds);
-                        }
-                    });
-                });
-            },
-            error: function(xhr, status, error){
-                alert("안전율 데이터 로딩 실패: " + error);
+                markers.push(overlay);
+                bounds.extend(coords);
+                map.setBounds(bounds);
+            } else {
+                console.warn(`주소 검색 실패: ${firstAddress}`, status);
             }
         });
-    }
+    });
+}
+
 </script>
 
 </body>

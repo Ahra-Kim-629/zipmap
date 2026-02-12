@@ -1,5 +1,6 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -28,7 +30,6 @@ public class UserService implements UserDetailsService {
     public User findById(long id) {
         return userMapper.findById(id).orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String login_id) throws UsernameNotFoundException {
@@ -52,22 +53,50 @@ public class UserService implements UserDetailsService {
         }
     }
 
-
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
     }
 
-    public void passwordReset(String loginId, String name, String email) throws Exception {
+    @Transactional
+    public void passwordReset(String loginId, String name, String email, String clientIp) throws Exception {
         User user = userMapper.findByLoginIdNameEmail(loginId, name, email);
         if (user == null) {
             throw new RuntimeException("해당 정보로 가입된 회원을 찾을 수 없습니다.");
         }
 
-        String token = UUID.randomUUID().toString();
-//        tokenService.saveToken(user.getId(), token);
+        Token token = new Token();
+        token.setToken(UUID.randomUUID().toString());
+        token.setUserId(user.getId());
+        token.setCreatedAt(LocalDateTime.now());
+        token.setExpiredAt(LocalDateTime.now().plusMinutes(10));
+        token.setRequestedIp(clientIp);
 
-        String resetLink = "http://localhost:8080/users/reset-password?token=" + token;
+        userMapper.insertToken(token);
+
+        String resetLink = "http://localhost:8080/users/reset-password?token=" + token.getToken();
         mailService.sendPasswordResetMail(email, resetLink);
+    }
+
+    @Transactional
+    public void confirmReset(String token, String newPassword, String usedIp) {
+        Token tokenData = selectValidToken(token);
+        if (tokenData == null) {
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
+        }
+
+        User user = userMapper.findById(tokenData.getUserId())
+                .orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.update(user);
+
+        tokenData.setUsedYn('Y');
+        tokenData.setUsedIp(usedIp);
+        userMapper.updateToken(tokenData);
+    }
+
+    public Token selectValidToken(String token) {
+        return userMapper.selectValidToken(token);
     }
 
     @Transactional

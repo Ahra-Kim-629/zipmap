@@ -148,4 +148,16 @@
         updated_at = NOW()
         WHERE id = #{id}
     </update>
+
+    <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
+        UPDATE post
+        SET title = #{title},
+        content = #{content},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePost">
+        DELETE FROM post WHERE id = #{id}
+    </delete>
 </mapper>

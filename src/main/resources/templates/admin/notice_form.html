@@ -6,32 +6,46 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-    <h1>공지사항 작성</h1>
-    <form th:action="@{/admin/notice}" method="post">
-        <div>
-            <label for="title">제목</label>
-            <input type="text" id="title" name="title" required>
-        </div>
-        <div>
-            <label for="content">내용</label>
-            <textarea id="content" name="content" rows="10" required></textarea>
-        </div>
-        <div>
-            <label for="startDate">게시 시작 일시:</label>
-            <input type="text" id="startDate" name="startDate" placeholder="시작 날짜와 시간을 선택하세요">
-        </div>
-        <div>
-            <label for="endDate">게시 종료 일시:</label>
-            <input type="text" id="endDate" name="endDate" placeholder="종료 날짜와 시간을 선택하세요">
-        </div>
-        <div>
-            <button type="submit">등록</button>
-            <button type="button" onclick="history.back()">취소</button>
-        </div>
-    </form>
+<h1>공지사항 작성</h1>
+<form th:action="@{/admin/notice}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div>
+        <label for="imageFile">이미지 첨부</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
+    </div>
+    <div>
+        <label for="linkUrl">링크 URL</label>
+        <input type="text" id="linkUrl" name="linkUrl" placeholder="https://...">
+    </div>
+    <div>
+        <label for="posTop">상단 위치 (px)</label>
+        <input type="number" id="posTop" name="posTop" value="100">
+        <label for="posLeft">좌측 위치 (px)</label>
+        <input type="number" id="posLeft" name="posLeft" value="100">
+    </div>
+    <div>
+        <label for="priority">우선순위 (높을수록 먼저 노출)</label>
+        <input type="number" id="priority" name="priority" value="0">
+    </div>
+    <div>
+        <label for="startDate">게시 시작 일시:</label>
+        <input type="text" id="startDate" name="startDate" placeholder="시작 날짜와 시간을 선택하세요">
+    </div>
+    <div>
+        <label for="endDate">게시 종료 일시:</label>
+        <input type="text" id="endDate" name="endDate" placeholder="종료 날짜와 시간을 선택하세요">
+    </div>
+    <div>
+        <button type="submit">등록</button>
+        <button type="button" onclick="history.back()">취소</button>
+    </div>
+</form>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
-    <script th:src="@{/js/admin-notice.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+<script th:src="@{/js/admin-notice.js}"></script>
 </body>
 </html>

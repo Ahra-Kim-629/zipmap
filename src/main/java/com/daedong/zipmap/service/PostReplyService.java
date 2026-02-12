@@ -13,6 +13,7 @@ public class PostReplyService {
     public void saveReply(PostReply reply) {
         postMapper.insertReply(reply);
     }
+
     public void deleteReply(Long id) {
         postMapper.deleteReply(id);
     }

@@ -20,6 +20,7 @@ public class PostReplyController {
         // 2. 저장이 끝나면 다시 보던 게시글 상세 페이지로 돌아갑니다 (Redirect)
         return "redirect:/board/detail/" + reply.getPostId();
     }
+
     // 댓글 삭제 요청
     @GetMapping("/delete/{id}")
     public String deleteReply(@PathVariable Long id, @RequestParam Long postId) {

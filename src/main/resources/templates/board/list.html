@@ -18,6 +18,9 @@
 
 <h1>게시글 목록</h1>
 
+<div th:if="${message}" style="color: blue; margin-bottom: 10px;" th:text="${message}"></div>
+<div th:if="${error}" style="color: red; margin-bottom: 10px;" th:text="${error}"></div>
+
 <!-- 검색 폼 -->
 <form action="/board" method="get" style="margin-bottom: 10px; text-align: right;">
     <!-- 카테고리 선택 -->
@@ -80,18 +83,21 @@
     <ul class="pagination">
         <!-- 이전 페이지 -->
         <li class="page-item" th:classappend="${posts.first} ? 'disabled'">
-            <a class="page-link" th:href="@{/board(page=${posts.number-1}, searchType=${searchType}, keyword=${keyword})}">&lt;</a>
+            <a class="page-link"
+               th:href="@{/board(page=${posts.number-1}, searchType=${searchType}, keyword=${keyword})}">&lt;</a>
         </li>
 
         <!-- 페이지 번호 -->
         <li class="page-item" th:each="page : ${#numbers.sequence(0, posts.totalPages-1)}"
             th:classappend="${page == posts.number} ? 'active'">
-            <a class="page-link" th:href="@{/board(page=${page}, searchType=${searchType}, keyword=${keyword})}" th:text="${page+1}"></a>
+            <a class="page-link" th:href="@{/board(page=${page}, searchType=${searchType}, keyword=${keyword})}"
+               th:text="${page+1}"></a>
         </li>
 
         <!-- 다음 페이지 -->
         <li class="page-item" th:classappend="${posts.last} ? 'disabled'">
-            <a class="page-link" th:href="@{/board(page=${posts.number+1}, searchType=${searchType}, keyword=${keyword})}">&gt;</a>
+            <a class="page-link"
+               th:href="@{/board(page=${posts.number+1}, searchType=${searchType}, keyword=${keyword})}">&gt;</a>
         </li>
     </ul>
 </nav>

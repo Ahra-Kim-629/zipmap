@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/review")
@@ -76,14 +79,15 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+    public String write(ReviewDTO reviewDTO, @RequestParam("files") List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
         reviewDTO.setUserId(user.getId());
-        long savedId = reviewService.save(reviewDTO);
+        Long savedId = reviewService.save(reviewDTO);
 
         // 파일저장
-        if (file != null && !file.isEmpty()) {
-            fileService.saveFile(savedId, file);
+        if (files != null && !files.isEmpty()) {
+            fileService.saveReviewFile(savedId, files);
         }
+
         return "redirect:/review/detail/" + savedId;
     }
 
@@ -101,7 +105,7 @@ public class ReviewController {
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam("file") MultipartFile file, @AuthenticationPrincipal User user) {
+    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam(value = "files", required = false) List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
         ReviewDTO original = reviewService.findById(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
@@ -111,13 +115,48 @@ public class ReviewController {
         reviewDTO.setUserId(user.getId());
         reviewService.edit(reviewDTO);
 
+
         // 파일 처리
-        if (file != null && !file.isEmpty()) {
-            fileService.saveFile(id, file);
+        if (files != null && !files.isEmpty()) {
+            fileService.saveReviewFile(id, files);
         }
 
         return "redirect:/review/detail/" + id;
     }
 
+    // 섬머노트 에디터에서 이미지를 올릴때 호출
 
+    @PostMapping("/uploadSummernoteImage")
+    @ResponseBody // JSON이나 문자열로 데이터를 보낼 때 사용
+    public Map<String, String> uploadSummernoteImage(@RequestParam("file") MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            // 1. 아까 만든 서비스 메서드를 사용하여 파일 저장 (파일명 반환)
+            // 서비스 메서드 이름 saveSummernoteFile
+            String fileName = fileService.saveSummernoteFile(file);
+
+            // 2. 브라우저가 접근할 수 있는 경로를 응답으로 보냄
+            // 예: /upload/uuid_name.jpg
+            response.put("url", "/upload/" + fileName);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response; // 자바스크립트의 success: function(response)로 전달
+    }
+
+    // 섬머노트 에디터에서 수정중 파일 삭제할때 호출
+    @PostMapping("/deleteFile/{fileId}")
+    @ResponseBody
+    public String deleteFile(@PathVariable("fileId") Long fileId) {
+        try {
+            // 서비스에게 삭제 명령 (DB 데이터 삭제 + 실제 파일 삭제)
+            fileService.deleteReviewFile(fileId);
+            return "success";
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
 }

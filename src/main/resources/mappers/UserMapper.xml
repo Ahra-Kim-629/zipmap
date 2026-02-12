@@ -40,13 +40,13 @@
         UPDATE user
         <set>
             <if test="password != null and password != ''">
-                password = #{password},
+                password = #{password}
             </if>
             <if test="phone != null and phone != ''">
-                phone = #{phone},
+                phone = #{phone}
             </if>
             <if test="email != null and email != ''">
-                email = #{email},
+                email = #{email}
             </if>
             <if test="address != null and address != ''">
                 address = #{address}
@@ -56,9 +56,57 @@
 
     </update>
 
+
     <delete id="delete">
         DELETE FROM user
         WHERE id = #{id}
     </delete>
 
+    <!-- 회원 전체 목록 가져오게 하는 쿼리 2026.02.11 종빈 수정 -->
+    <select id="findAllUsers" resultType="com.daedong.zipmap.domain.User">
+        SELECT
+        id,
+        login_id AS loginId,
+        name,
+        gender,
+        phone,
+        email,
+        address,
+        role,
+        account_status AS accountStatus,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM user
+        WHERE role != 'ADMIN'
+    </select>
+
+    <!-- 회원 계정 상태 수정 기능을 위한 쿼리 2026.02.11 종빈 수정 -->
+    <update id="updateUserStatusAndRole" parameterType="com.daedong.zipmap.domain.User">
+        UPDATE user
+        <set>
+            <if test="role != null">role = #{role},</if>
+            <if test="accountStatus != null">account_status = #{accountStatus},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertToken" parameterType="com.daedong.zipmap.domain.Token">
+        INSERT INTO token (user_id, token, created_at, expired_at, requested_ip)
+        VALUES (#{userId}, #{token}, #{createdAt}, #{expiredAt}, #{requestedIp})
+    </insert>
+
+    <select id="selectValidToken" resultType="com.daedong.zipmap.domain.Token">
+        SELECT
+        id, user_id, token, created_at, expired_at, used_yn, requested_ip, used_ip
+        FROM token
+        WHERE token = #{token} AND used_yn = 'N' AND expired_at > NOW()
+    </select>
+
+    <update id="updateToken" parameterType="com.daedong.zipmap.domain.Token">
+        UPDATE token
+        SET used_yn = #{usedYn},
+        used_ip = #{usedIp}
+        WHERE id = #{id}
+    </update>
 </mapper>

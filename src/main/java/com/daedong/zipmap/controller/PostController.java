@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class PostController {
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
                        Model model) {
-       // 전체 게시판 게시글 리스트
+        // 전체 게시판 게시글 리스트
         Page<Post> posts = postService.findAll(searchType, keyword, category, location, pageable);
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
@@ -73,5 +74,48 @@ public class PostController {
         }
     }
 
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, Model model, RedirectAttributes rttr) {
+        PostDTO postDTO = postService.getPostDetail(id);
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+        if (!postDTO.getUserId().equals(user.getId())) {
+            rttr.addFlashAttribute("message", "권한이 없습니다.");
+            return "redirect:/board";
+        }
 
+        model.addAttribute("board", postDTO);
+        return "board/edit_form";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id, Post post, @RequestParam("file") List<MultipartFile> files, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
+        try {
+            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+            post.setId(id);
+            post.setUserId(user.getId());
+            postService.update(post, files);
+            rttr.addFlashAttribute("message", "글 수정이 완료되었습니다.");
+            return "redirect:/board/detail/" + id;
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "글 수정 중 오류가 발생했습니다.");
+            return "redirect:/board";
+        }
+    }
+
+    @PostMapping("/delete/{id}")
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
+        try {
+            PostDTO postDTO = postService.getPostDetail(id);
+            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+            if (!postDTO.getUserId().equals(user.getId())) {
+                rttr.addFlashAttribute("message", "권한이 없습니다.");
+                return "redirect:/board";
+            }
+            postService.delete(id);
+            rttr.addFlashAttribute("message", "게시글이 삭제되었습니다.");
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/board";
+    }
 }
