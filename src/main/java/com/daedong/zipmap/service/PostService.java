@@ -5,6 +5,7 @@ import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.PostReply;
 import com.daedong.zipmap.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -89,5 +90,10 @@ public class PostService {
         int totalCount = postMapper.countRepliesByUserId(userId);
         List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
         return new PageImpl<>(replies, pageable, totalCount);
+    }
+
+    @Cacheable(value = "mainPostList")
+    public List<PostDTO> getMainpagePost() {
+        return postMapper.findMainpagePost();
     }
 }

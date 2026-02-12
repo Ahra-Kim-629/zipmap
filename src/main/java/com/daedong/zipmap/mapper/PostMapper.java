@@ -64,4 +64,6 @@ public interface PostMapper {
     void insertReply(PostReply reply);
 
     void updateReply(PostReply reply);
+
+    List<PostDTO> findMainpagePost();
 }

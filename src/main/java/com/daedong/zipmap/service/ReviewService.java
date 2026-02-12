@@ -3,6 +3,7 @@ package com.daedong.zipmap.service;
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -158,5 +159,10 @@ public class ReviewService {
         List<ReviewReply> content = reviewReplyMapper.findByUserId(userId, pageable);
         int total = reviewReplyMapper.countByUserId(userId);
         return new PageImpl<>(content, pageable, total);
+    }
+
+    @Cacheable(value = "mainReviewList")
+    public List<ReviewDTO> getMainpageReview() {
+        return reviewMapper.findOrderByCreatedAtDescLimit4();
     }
 }

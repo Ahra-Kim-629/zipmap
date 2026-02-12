@@ -23,4 +23,6 @@ public class PostDTO {
     private List<PostReaction> reactionList;
     private List<PostFile> fileList;
     private List<Replies> replyList;
+
+    private String reasonType;
 }

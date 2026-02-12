@@ -30,4 +30,6 @@ public interface ReviewMapper {
     // 내가 쓴 리뷰 조회
     List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
     int countByUserId(@Param("userId") Long userId);
+
+    List<ReviewDTO> findOrderByCreatedAtDescLimit4();
 }

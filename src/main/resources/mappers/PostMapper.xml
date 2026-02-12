@@ -283,4 +283,40 @@
         SELECT COUNT(*) FROM post_reply
         WHERE user_id = #{userId}
     </select>
+
+    <select id="findMainpagePost" resultType="com.daedong.zipmap.domain.PostDTO">
+        <![CDATA[
+    SELECT DISTINCT
+        id, title, content, category, created_at, likeCount, reasonType, score
+    FROM (
+        (
+            SELECT
+                id, title, content, category, created_at,
+                like_count AS likeCount,
+                like_count AS score,
+                'CATEGORY_TOP' AS reasonType
+            FROM (
+                SELECT id, title, content, category, created_at, like_count,
+                       ROW_NUMBER() OVER(PARTITION BY category ORDER BY like_count DESC, created_at DESC) as rn
+                FROM post
+                WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                  AND category IN ('COMMUNITY', 'TRADE', 'QNA')
+            ) t
+            WHERE rn = 1
+        )
+        UNION ALL
+        (
+            SELECT
+                id, title, content, category, created_at,
+                like_count AS likeCount,
+                like_count AS score,
+                'HOT_TREND' AS reasonType
+            FROM post
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        )
+    ) AS combined_posts
+    ORDER BY score DESC
+    LIMIT 3
+    ]]>
+    </select>
 </mapper>
