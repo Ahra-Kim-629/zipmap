@@ -3,15 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>회원 관리 페이지</title>
+    <style>
+        table {
+          /* 표 전체 테두리와 칸 사이의 간격을 하나로 합칩니다. 안 하면 선이 두 줄로 보여요! */
+          border-collapse: collapse;
+          width: 100%;
+        }
+        th, td {
+          /* 두께 1px, 직선(solid), 검정색(#000) 선을 그립니다. */
+          border: 1px solid #000;
+          padding: 8px; /* 칸 안의 여유 공간 */
+          text-align: center;
+        }
+        th {
+          background-color: #f2f2f2; /* 제목 칸 배경색 */
+        }
+    </style>
 </head>
 <!-- 2026.2.11 종빈 생성 -->
 <body>
 <div class="container mt-5">
     <h2 class="mb-4">전체 회원 리스트</h2>
 
-    <table class="table table-hover border">
+    <table class="table table-hover border" style="width: 100%">
         <thead class="table-dark">
         <tr>
+            <th>ID</th>
             <th>로그인 ID</th>
             <th>이름</th>
             <th>성별</th>

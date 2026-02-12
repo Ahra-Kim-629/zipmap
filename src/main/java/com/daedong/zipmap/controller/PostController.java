@@ -28,14 +28,14 @@ public class PostController {
     private final UserService userService;
 
     @GetMapping
-    public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String list(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
                        Model model) {
         // 전체 게시판 게시글 리스트
-        Page<Post> posts = postService.findAll(searchType, keyword, category, location, pageable);
+        Page<PostDTO> posts = postService.findAll(searchType, keyword, category, location, pageable);
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
@@ -117,5 +117,16 @@ public class PostController {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
         return "redirect:/board";
+    }
+
+    // 좋아요 기능
+    @PostMapping("/reaction")
+    public String handleReaction(@RequestParam("postId") Long postId,
+                                 @RequestParam("userId") String userId,
+                                 @RequestParam("type") String type) {
+
+        postService.saveOrUpdateReaction(postId, userId, type);
+
+        return "redirect:/board/detail/" + postId;
     }
 }

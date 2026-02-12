@@ -22,10 +22,34 @@ public class PostReplyController {
     }
 
     // 댓글 삭제 요청
-    @GetMapping("/delete/{id}")
-    public String deleteReply(@PathVariable Long id, @RequestParam Long postId) {
-        postReplyService.deleteReply(id);
-        return "redirect:/board/detail/" + postId; // 삭제 후 다시 상세 페이지로
+//    @PostMapping("/replies/delete/{id}")
+//    public String deleteReply(@PathVariable("id") Long id, @RequestParam("postId") Long postId) {
+//        // 이제 주소창에 입력해도 이 메서드는 실행되지 않습니다! (POST 요청만 받기 때문)
+//        postReplyService.deleteReply(id);
+//        return "redirect:/board/detail/" + postId;
+//    }
+    @PostMapping("/delete/{id}")
+    public String deleteReply(@PathVariable("id") Long id,
+                              @RequestParam("postId") Long postId,
+                              java.security.Principal principal,
+                              org.springframework.security.core.Authentication auth) {
+
+        if (principal == null) return "redirect:/login"; // 로그인 안 했으면 로그인으로
+
+        String currentUserId = principal.getName();
+
+        // 관리자 권한 확인 (ROLE_ADMIN)
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        try {
+            postReplyService.deleteReply(id, currentUserId, isAdmin);
+        } catch (Exception e) {
+            // 권한 부족 시 에러 메시지 처리 (선택 사항)
+            return "redirect:/board/detail/" + postId + "?error=denied";
+        }
+
+        return "redirect:/board/detail/" + postId;
     }
 
     // 댓글 수정 요청

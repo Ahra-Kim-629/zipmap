@@ -30,59 +30,108 @@
             <result property="updatedAt" column="file_updated_at"/>
         </collection>
 
-        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReply">
-            <result property="id" column="reply_id"/>
+<!--        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">-->
+<!--            <result property="id" column="reply_id"/>-->
+<!--            <result property="userId" column="reply_user_id"/>-->
+<!--            <result property="content" column="reply_content"/>-->
+<!--            <result property="createdAt" column="reply_created_at"/>-->
+<!--            <result property="updatedAt" column="reply_updated_at"/>-->
+<!--        </collection>-->
+        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">
+            <id property="id" column="reply_id"/>
             <result property="userId" column="reply_user_id"/>
+            <result property="loginId" column="reply_login_id"/>
             <result property="content" column="reply_content"/>
             <result property="createdAt" column="reply_created_at"/>
             <result property="updatedAt" column="reply_updated_at"/>
         </collection>
     </resultMap>
 
+<!--    <select id="findById" resultMap="postResultMap">-->
+<!--        SELECT-->
+<!--        p.id, p.title, p.content, p.user_id, p.category, p.location,-->
+<!--        p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,-->
+<!--        u_post.login_id as board_writer_id,-->
+<!--        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,-->
+<!--        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,-->
+<!--        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,-->
+<!--        c.updated_at as reply_updated_at-->
+<!--        FROM-->
+<!--        post p-->
+<!--        LEFT JOIN user u ON p.user_id = u_post.id-->
+<!--        LEFT JOIN post_reaction r ON p.id = r.post_id-->
+<!--        LEFT JOIN post_file f on p.id = f.post_id-->
+<!--        LEFT JOIN post_reply c on p.id = c.post_id-->
+<!--        LEFT JOIN user u_reply ON c.user_id = u_reply.id-->
+<!--        WHERE-->
+<!--        p.id = #{id}-->
+<!--    </select>-->
+
     <select id="findById" resultMap="postResultMap">
         SELECT
         p.id, p.title, p.content, p.user_id, p.category, p.location,
         p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
-        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
+        u_post.login_id as board_writer_id,  r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
         f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
-        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
+        c.id as reply_id, c.user_id as reply_user_id,
+        u_reply.login_id as reply_login_id, c.content as reply_content,
+        c.created_at as reply_created_at,
         c.updated_at as reply_updated_at
         FROM
         post p
+        LEFT JOIN user u_post ON p.user_id = u_post.id
         LEFT JOIN post_reaction r ON p.id = r.post_id
         LEFT JOIN post_file f on p.id = f.post_id
         LEFT JOIN post_reply c on p.id = c.post_id
+        LEFT JOIN user u_reply ON c.user_id = u_reply.id
         WHERE
         p.id = #{id}
     </select>
 
-    <select id="findAll" resultType="com.daedong.zipmap.domain.Post">
-        SELECT * FROM POST
+    <select id="findAll" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+        p.*,
+        u.login_id as loginId
+        FROM POST p
+        LEFT JOIN user u ON p.user_id = u.id
         <where>
+            AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
+
             <if test="keyword != null and keyword != ''">
-                AND title LIKE CONCAT('%', #{keyword}, '%')
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND p.content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
+                    </otherwise>
+                </choose>
+<!--     이 부분을 수정을 해서 주석 처리 해두었습니다.            AND title LIKE CONCAT('%', #{keyword}, '%')-->
             </if>
             <if test="category != null and category != ''">
-                AND category = #{category}
+                AND p.category = #{category}
             </if>
             <if test="location != null and location != ''">
-                AND location = #{location}
+                AND p.location = #{location}
             </if>
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'title'">
-                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'content'">
-                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.content LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <otherwise>
-                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
                     </otherwise>
                 </choose>
             </if>
         </where>
-        ORDER BY id DESC
+        ORDER BY p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
@@ -142,6 +191,20 @@
         DELETE FROM post_reply WHERE id = #{id}
     </delete>
 
+    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostReplyDTO">
+        SELECT
+        r.id,
+        r.post_id as postId,
+        r.user_id as userId,
+        u.login_id as loginId,
+        r.content,
+        r.created_at as createdAt,
+        r.updated_at as updatedAt
+        FROM post_reply r
+        JOIN user u ON r.user_id = u.id
+        WHERE r.id = #{id}
+    </select>
+
     <update id="updateReply">
         UPDATE post_reply
         SET content = #{content},
@@ -160,4 +223,68 @@
     <delete id="deletePost">
         DELETE FROM post WHERE id = #{id}
     </delete>
+
+    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+        p.*,
+        u.login_id as loginId  FROM post p
+        LEFT JOIN user u ON p.user_id = u.id  <where>
+        <if test="category != null and category != ''">AND p.category = #{category}</if>
+        <if test="location != null and location != ''">AND p.location = #{location}</if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">AND p.title LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'content'">AND p.content LIKE CONCAT('%', #{keyword}, '%')</when>
+                <when test="searchType == 'loginid'">AND u.login_id LIKE CONCAT('%', #{keyword}, '%')</when>
+            </choose>
+        </if>
+    </where>
+        ORDER BY p.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countPosts" resultType="long">
+        SELECT COUNT(*) FROM post
+        <where>
+            <if test="category != null and category != ''">AND category = #{category}</if>
+            <if test="location != null and location != ''">AND location = #{location}</if>
+            <if test="keyword != null and keyword != ''">
+            </if>
+        </where>
+    </select>
+
+    <update id="updatePostStatus">
+        UPDATE post
+        SET post_status = #{status},
+        updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertReaction">
+        INSERT INTO post_reaction (post_id, user_id, type, created_at)
+        VALUES (#{postId}, #{userId}, #{type}, NOW())
+        ON DUPLICATE KEY UPDATE
+        type = #{type},
+        updated_at = NOW()
+    </insert>
+
+    <delete id="deleteReaction">
+        DELETE FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </delete>
+
+    <update id="updateBoardLikeCount">
+        UPDATE post p
+        SET
+        p.like_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 1),
+        p.dislike_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 2)
+        WHERE p.id = #{postId}
+    </update>
+
+    <select id="findReaction" resultType="Integer">
+        SELECT type
+        FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </select>
+
 </mapper>

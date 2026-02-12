@@ -1,12 +1,17 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Notice;
+import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.mapper.NoticeMapper;
+import com.daedong.zipmap.mapper.PostMapper;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +25,9 @@ public class AdminService {
     private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
     private final FileService fileService;
+    private final PostMapper postMapper;
+
+
 
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
@@ -51,5 +59,32 @@ public class AdminService {
     public List<Notice> getCurrentNoticeList() {
         return noticeMapper.findCurrentNoticeList();
 
+    }
+
+
+    public List<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
+        return postMapper.adminFindAll(searchType, keyword, category, location, pageable);
+
+    }
+
+    public int getTotalCount(String searchType, String keyword, String category, String location) {
+        return postMapper.countAll(searchType, keyword, category, location);
+    }
+
+    // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
+
+    @Transactional
+    public void deletePost(Long id) {
+        // 1. 필요한 경우 관련 파일이나 댓글을 먼저 삭제하는 로직을 넣을 수 있습니다.
+        // 2. 게시글 삭제 실행
+        postMapper.deletePost(id);
+    }
+
+    // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경
+    @Transactional
+    public void togglePostStatus(Long id, String currentStatus) {
+
+        String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
+        postMapper.updatePostStatus(id, newStatus);
     }
 }
