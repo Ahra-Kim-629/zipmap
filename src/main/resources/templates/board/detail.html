@@ -24,7 +24,7 @@
         </form>
     </div>
     <div>
-        <p th:text="${board.content}">Content</p>
+        <p th:utext="${board.content}">Content</p>
     </div>
     <hr>
     <div th:if="${not #lists.isEmpty(board.fileList)}">
