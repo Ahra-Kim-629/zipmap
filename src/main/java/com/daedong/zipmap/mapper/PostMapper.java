@@ -46,4 +46,12 @@ public interface PostMapper {
     void updatePost(Post post);
 
     void deletePost(Long id);
+
+    // 내가 쓴 글 조회
+    List<Post> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    int countByUserId(@Param("userId") Long userId);
+
+    // 내가 쓴 댓글 조회
+    List<PostReply> findRepliesByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    int countRepliesByUserId(@Param("userId") Long userId);
 }

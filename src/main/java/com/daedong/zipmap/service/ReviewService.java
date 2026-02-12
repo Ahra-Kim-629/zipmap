@@ -1,9 +1,6 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Cons;
-import com.daedong.zipmap.domain.Pros;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -141,5 +138,19 @@ public class ReviewService {
                 consMapper.save(cons);
             }
         }
+    }
+
+    // 내가 쓴 리뷰 조회
+    public Page<ReviewDTO> findMyReviews(Long userId, Pageable pageable) {
+        List<ReviewDTO> content = reviewMapper.findByUserId(userId, pageable);
+        int total = reviewMapper.countByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    // 내가 쓴 리뷰 댓글 조회
+    public Page<ReviewReply> findMyReplies(Long userId, Pageable pageable) {
+        List<ReviewReply> content = reviewReplyMapper.findByUserId(userId, pageable);
+        int total = reviewReplyMapper.countByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
     }
 }

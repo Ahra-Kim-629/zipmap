@@ -41,19 +41,19 @@
 
     <select id="findById" resultMap="postResultMap">
         SELECT
-        p.id, p.title, p.content, p.user_id, p.category, p.location,
-        p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
-        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
-        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
-        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
-        c.updated_at as reply_updated_at
+            p.id, p.title, p.content, p.user_id, p.category, p.location,
+            p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
+            r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
+            f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
+            c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
+            c.updated_at as reply_updated_at
         FROM
-        post p
-        LEFT JOIN post_reaction r ON p.id = r.post_id
-        LEFT JOIN post_file f on p.id = f.post_id
-        LEFT JOIN post_reply c on p.id = c.post_id
+            post p
+                LEFT JOIN post_reaction r ON p.id = r.post_id
+                LEFT JOIN post_file f on p.id = f.post_id
+                LEFT JOIN post_reply c on p.id = c.post_id
         WHERE
-        p.id = #{id}
+            p.id = #{id}
     </select>
 
     <select id="findAll" resultType="com.daedong.zipmap.domain.Post">
@@ -120,13 +120,13 @@
     <insert id="insertPost" parameterType="com.daedong.zipmap.domain.Post"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO post (
-        title, content, user_id, category, location,
-        like_count, dislike_count, post_status, created_at, updated_at
+            title, content, user_id, category, location,
+            like_count, dislike_count, post_status, created_at, updated_at
         )
         VALUES (
-        #{title}, #{content}, #{userId}, #{category}, #{location},
-        0, 0, 'ACTIVE', NOW(), NOW()
-        )
+                   #{title}, #{content}, #{userId}, #{category}, #{location},
+                   0, 0, 'ACTIVE', NOW(), NOW()
+               )
     </insert>
 
     <insert id="insertFile" parameterType="com.daedong.zipmap.domain.PostFile">
@@ -145,19 +145,47 @@
     <update id="updateReply">
         UPDATE post_reply
         SET content = #{content},
-        updated_at = NOW()
+            updated_at = NOW()
         WHERE id = #{id}
     </update>
 
     <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
         UPDATE post
         SET title = #{title},
-        content = #{content},
-        updated_at = NOW()
+            content = #{content},
+            updated_at = NOW()
         WHERE id = #{id}
     </update>
 
     <delete id="deletePost">
         DELETE FROM post WHERE id = #{id}
     </delete>
+
+    <!-- 내가 쓴 글 조회 -->
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.Post">
+        SELECT * FROM post
+        WHERE user_id = #{userId}
+        ORDER BY id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM post
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 내가 쓴 댓글 조회 -->
+    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain.PostReply">
+        SELECT r.id, r.post_id, r.user_id, r.content, r.created_at, r.updated_at, p.title as postTitle
+        FROM post_reply r
+        JOIN post p ON r.post_id = p.id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countRepliesByUserId" resultType="int">
+        SELECT COUNT(*) FROM post_reply
+        WHERE user_id = #{userId}
+    </select>
 </mapper>

@@ -39,4 +39,27 @@
         WHERE id = #{id}
     </delete>
 
+    <!-- 내가 쓴 리뷰 댓글 조회 -->
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewReply">
+        SELECT
+        r.id,
+        r.review_id AS reviewId,
+        r.user_id AS userId,
+        r.content,
+        r.created_at AS createdAt,
+        r.updated_at AS updatedAt,
+        rev.title AS reviewTitle
+        FROM review_reply r
+        JOIN review rev ON r.review_id = rev.id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(id)
+        FROM review_reply
+        WHERE user_id = #{userId}
+    </select>
+
 </mapper>

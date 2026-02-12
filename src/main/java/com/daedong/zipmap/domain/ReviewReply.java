@@ -14,4 +14,7 @@ public class ReviewReply {
     private LocalDateTime updatedAt;
 
     private String loginId;
+    
+    // 리뷰 제목 (조인용)
+    private String reviewTitle;
 }

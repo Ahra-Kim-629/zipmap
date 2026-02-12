@@ -12,4 +12,7 @@ public class PostReply {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    // 게시글 제목 (조인용)
+    private String postTitle;
 }
