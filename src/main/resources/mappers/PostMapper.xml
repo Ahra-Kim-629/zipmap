@@ -30,13 +30,6 @@
             <result property="updatedAt" column="file_updated_at"/>
         </collection>
 
-        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReply">
-            <result property="id" column="reply_id"/>
-            <result property="userId" column="reply_user_id"/>
-            <result property="content" column="reply_content"/>
-            <result property="createdAt" column="reply_created_at"/>
-            <result property="updatedAt" column="reply_updated_at"/>
-        </collection>
     </resultMap>
 
     <select id="findById" resultMap="postResultMap">
@@ -133,21 +126,7 @@
         INSERT INTO post_file (post_id, file_path)
         VALUES (#{postId}, #{filePath})
     </insert>
-    <!-- 게시글 댓글 기능 관련 추가 쿼리 -->
-    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.PostReply">
-        INSERT INTO post_reply (post_id, user_id, content, created_at)
-        VALUES (#{postId}, #{userId}, #{content}, NOW())
-    </insert>
-    <delete id="deleteReply">
-        DELETE FROM post_reply WHERE id = #{id}
-    </delete>
 
-    <update id="updateReply">
-        UPDATE post_reply
-        SET content = #{content},
-        updated_at = NOW()
-        WHERE id = #{id}
-    </update>
 
     <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
         UPDATE post

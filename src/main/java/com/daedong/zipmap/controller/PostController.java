@@ -2,9 +2,11 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.Replies;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     private final UserService userService;
+    private final RepliesService repliesService;
 
     @GetMapping
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -51,6 +54,11 @@ public class PostController {
         model.addAttribute("board", boardDTO);
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         model.addAttribute("currentUserId", user.getId());
+
+        // 해당 게시글에 달린 댓글 목록 보여주기
+        List<Replies> replyList = repliesService.getReplyList("board", id);
+        model.addAttribute("replyList", replyList);
+
 
         return "board/detail";
     }

@@ -1,11 +1,9 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.ReviewFile;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +29,7 @@ import java.util.Map;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final RepliesService repliesService;
     private final FileService fileService;
 
     @GetMapping
@@ -68,6 +67,10 @@ public class ReviewController {
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
         model.addAttribute("reviewDTO", reviewDTO);
+
+        // 해당 리뷰에 달린 댓글 목록 보여주기
+        List<Replies> replyList = repliesService.getReplyList("review", id);
+        model.addAttribute("replyList", replyList);
 
         return "review/detail";
     }

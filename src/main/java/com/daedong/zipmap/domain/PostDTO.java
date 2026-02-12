@@ -21,5 +21,5 @@ public class PostDTO {
 
     private List<PostReaction> reactionList;
     private List<PostFile> fileList;
-    private List<PostReply> replyList;
+    private List<Replies> replyList;
 }
