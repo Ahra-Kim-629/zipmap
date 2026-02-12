@@ -1,20 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <div th:fragment="headerFragment">
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom">
         <div class="container">
             <a class="navbar-brand fw-bold text-orange" th:href="@{/}">
                 <i class="bi bi-house-heart-fill me-2"></i>SeoulRoom
             </a>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link fw-semibold" th:href="@{/reviews}">원룸 후기</a></li>
                     <li class="nav-item"><a class="nav-link fw-semibold" th:href="@{/community}">커뮤니티</a></li>
                 </ul>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm border-0">로그인</button>
-                    <a th:href="@{/signup}" class="btn btn-orange">시작하기</a>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                        <span class="user-welcome">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <strong th:text="${#authentication.name}">사용자</strong>님 환영합니다
+                        </span>
+                        <a th:href="@{/users/mypage}" class="btn btn-orange px-4 rounded-pill shadow-sm">마이페이지</a>
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-link text-muted text-decoration-none">로그아웃
+                            </button>
+                        </form>
+                    </div>
+
+                    <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                        <a th:href="@{/login}" class="btn btn-outline-orange px-3 rounded-pill">로그인</a>
+                        <a th:href="@{/signup}" class="btn btn-orange px-4 rounded-pill shadow-sm">회원가입</a>
+                    </div>
                 </div>
+
             </div>
         </div>
     </nav>

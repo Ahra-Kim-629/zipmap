@@ -6,6 +6,7 @@ import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -141,5 +142,10 @@ public class ReviewService {
                 consMapper.save(cons);
             }
         }
+    }
+
+    @Cacheable(value = "mainReviewList")
+    public List<ReviewDTO> getMainpageReview() {
+        return reviewMapper.findOrderByCreatedAtDescLimit4();
     }
 }

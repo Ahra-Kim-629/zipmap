@@ -24,13 +24,23 @@
     filter: invert(1) grayscale(100%) brightness(200%); /* 닫기 버튼을 흰색으로 */
 }
 
-.daedong-modal-body {
-    padding: 0; /* 이미지가 꽉 차게 설정 */
+/* 4. 모달 본문 이미지 영역 (슬라이드 크기 고정) */
+.daedong-modal-body .carousel-item {
+    height: auto;
+    max-height: 600px; /* 너무 길어지지 않게 제한 */
+    background-color: #000;
 }
 
 .daedong-modal-body img {
     width: 100%;
-    display: block;
+    height: 100%;
+    object-fit: contain; /* 이미지 비율 유지 */
+}
+
+/* 5. 푸터 체크박스 영역 강조 */
+.daedong-modal-footer .custom-check {
+    display: flex;
+    align-items: center;
 }
 
 .daedong-modal-footer {
@@ -227,3 +237,102 @@
     font-weight: 600;
     padding: 0.4em 0.8em;
 }
+
+/* 1. 좌우 화살표 디자인: '대동여집도' 오렌지 컬러 적용 */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: #E67E22; /* 포인트 오렌지색 */
+    border-radius: 50%;
+    background-size: 50%; /* 화살표 크기 조절 */
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* 2. 하단 인디케이터(점) 디자인 */
+.carousel-indicators [data-bs-target] {
+    background-color: #E67E22; /* 기본 색상 오렌지 */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%; /* 둥근 점 형태 */
+    margin: 0 5px;
+}
+
+/* 3. 슬라이드 캡션 배경 (이미지 위 글자 가독성) */
+.carousel-caption {
+    background: rgba(62, 54, 46, 0.7); /* 진한 나무색 투명 배경 */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+}
+
+.carousel-caption p {
+    margin-bottom: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.85rem;
+    color: #F4F1EA;
+}
+
+/* 활성글 아이콘 및 배지 스타일 */
+
+/* 1. 댓글수 표시 배지 */
+.comment-count-tag {
+    font-size: 0.75rem;
+    color: var(--main-orange);
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.comment-count-tag::before {
+    content: "💬 ";
+    font-size: 0.7rem;
+}
+
+/* 2. 인기글 불꽃 아이콘 (조회수가 특정 수치 이상일 때) */
+.hot-trend-icon {
+    color: #FF4500; /* 조금 더 선명한 오렌지-레드 */
+    font-size: 0.9rem;
+    margin-right: 4px;
+    filter: drop-shadow(0 0 2px rgba(255, 69, 0, 0.3));
+    animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: scale(1); }
+    to { transform: scale(1.15); }
+}
+
+/* 활성글 사유를 살짝 보여주는 뱃지 (선택사항) */
+.reason-badge {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #f0f0f0;
+    color: #666;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+@keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* 3. 리스트 아이템 레이아웃 보정 */
+.list-group-item .post-meta {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 4px;
+}
+
+.list-group-item .post-title {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 85%; /* 아이콘 자리를 위해 제한 */
+}
+

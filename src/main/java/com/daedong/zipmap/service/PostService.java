@@ -4,6 +4,7 @@ import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -53,5 +54,10 @@ public class PostService {
     public void delete(Long id) {
         fileService.deleteFilesByPostId(id);
         postMapper.deletePost(id);
+    }
+
+    @Cacheable(value = "mainPostList")
+    public List<PostDTO> getMainpagePost() {
+        return postMapper.findMainpagePost();
     }
 }

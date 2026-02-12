@@ -46,4 +46,6 @@ public interface PostMapper {
     void updatePost(Post post);
 
     void deletePost(Long id);
+
+    List<PostDTO> findMainpagePost();
 }

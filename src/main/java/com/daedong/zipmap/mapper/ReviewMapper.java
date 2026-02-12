@@ -22,4 +22,6 @@ public interface ReviewMapper {
 
     // 리뷰 수정
     void edit(ReviewDTO reviewDTO);
+
+    List<ReviewDTO> findOrderByCreatedAtDescLimit4();
 }
