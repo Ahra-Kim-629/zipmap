@@ -1,0 +1,229 @@
+/* 대동여집도 커스텀 모달 스타일 */
+.daedong-modal-content {
+    background-color: #fdfcf9 !important;
+    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png'); /* 한지 질감 */
+    border: 3px solid #3E362E !important; /* 진한 고가구색 테두리 */
+    border-radius: 0 !important; /* 전통미를 위해 각진 디자인 유지 */
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+}
+
+.daedong-modal-header {
+    background-color: #3E362E;
+    color: #F4F1EA;
+    border-radius: 0;
+    border: none;
+    padding: 1rem;
+}
+
+.daedong-modal-header .modal-title {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.1rem;
+}
+
+.daedong-modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* 닫기 버튼을 흰색으로 */
+}
+
+.daedong-modal-body {
+    padding: 0; /* 이미지가 꽉 차게 설정 */
+}
+
+.daedong-modal-body img {
+    width: 100%;
+    display: block;
+}
+
+.daedong-modal-footer {
+    background-color: #F4F1EA;
+    border-top: 1px solid #D2B48C;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+}
+
+/* 오늘 하루 보지 않기 체크박스 커스텀 */
+.custom-check label {
+    font-size: 0.85rem;
+    color: #3E362E;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.custom-check input[type="checkbox"] {
+    accent-color: #E67E22;
+}
+
+.btn-daedong-close {
+    background-color: #3E362E;
+    color: #F4F1EA;
+    border: none;
+    padding: 5px 15px;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.btn-daedong-close:hover {
+    background-color: #E67E22;
+    color: white;
+}
+
+/* 히어로 섹션 (핵심 디자인) */
+.hero-section {
+    /* 기존 padding: 80px 0; 에서 상하 여백을 대폭 늘려 세로 크기를 확보합니다. */
+    padding: 160px 0 120px 0;
+    background-color: var(--bg-tan);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+
+    /* 최소 높이를 지정하여 화면의 일정 비율을 차지하게 할 수도 있습니다. */
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-text-area h1 {
+  font-family: "Nanum Myeongjo", serif;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.btn-orange-lg {
+  background-color: var(--main-orange);
+  color: white;
+  border: none;
+  font-weight: bold;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+}
+
+.hero-image-card img {
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.search-box-wrapper {
+  max-width: 650px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+/* 필터 섹션 */
+.filter-card {
+  margin-top: -60px; /* 히어로 섹션에 걸치도록 배치 */
+  border-radius: 8px;
+  position: relative;
+  z-index: 10;
+}
+
+.filter-item {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-item .form-control,
+.filter-item .form-select {
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  background-color: #fcfcfc;
+}
+
+/* 5. 메인 콘텐츠 스타일링 */
+.icon-box {
+  width: 45px;
+  height: 45px;
+  background-color: #fffaf0;
+  color: var(--main-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.border-orange {
+  border-color: var(--main-orange) !important;
+}
+
+.service-card img {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.service-card img:hover {
+  transform: scale(1.05);
+}
+
+.search-box-wrapper .form-control::placeholder {
+    font-size: 0.95rem; /* 기존보다 작게 설정하여 부담을 줄임 */
+    color: #aaa;       /* 색상도 살짝 연하게 하여 시각적 무게감을 덜어냄 */
+}
+
+/* (선택 사항) 입력 필드 자체의 폰트 크기도 조정하고 싶다면 아래 추가 */
+.search-box-wrapper .form-control {
+    font-size: 1rem;
+    padding-left: 25px; /* 왼쪽 여백을 줘서 더 깔끔하게 배치 */
+}
+
+/* 3. 검색 버튼 둥글기 처리 (HTML의 rounded-end-pill과 조화) */
+.search-box-wrapper .btn-orange {
+    font-size: 1rem;
+    border-top-right-radius: 50px !important;
+    border-bottom-right-radius: 50px !important;
+}
+
+.daedong-shadow {
+    /* 1. 선(Border)을 아주 연하게 주어 형태를 잡아줍니다. */
+    border: 1px solid rgba(210, 180, 140, 0.3) !important;
+
+    /* 2. 그림자를 넓게 퍼뜨리고 투명도를 낮춥니다. (Blur를 높임) */
+    /* 수평 거리, 수직 거리, 흐림 정도, 확산 정도, 색상 순서 */
+    box-shadow: 0 10px 30px -5px rgba(62, 54, 46, 0.08) !important;
+
+    border-radius: 12px !important; /* 모서리를 살짝 더 둥글게 하면 부드러워 보입니다. */
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+}
+
+/* 리스트 아이템 사이의 구분선도 연하게 조정 */
+.list-group-flush .list-group-item {
+    border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 방 후기 카드 기본 상태 */
+.shadow-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 부드러운 움직임을 위한 베지어 곡선 */
+    border: 1px solid rgba(0, 0, 0, 0.05) !important; /* 기본 테두리는 아주 연하게 */
+    will-change: transform, box-shadow; /* 브라우저 최적화 */
+}
+
+/* 마우스를 올렸을 때 (Hover) */
+.shadow-hover:hover {
+    transform: translateY(-8px); /* 카드가 위로 8px 들려 올라감 */
+
+    /* 그림자를 더 넓고 부드럽게 확산시켜 '떠오른' 느낌을 강조 */
+    box-shadow: 0 15px 35px rgba(62, 54, 46, 0.12) !important;
+
+    /* 포인트 컬러인 오렌지색 테두리를 아주 살짝 강조 */
+    border: 1px solid rgba(230, 126, 34, 0.3) !important;
+}
+
+/* 카드 내 이미지 효과 (선택 사항) */
+.shadow-hover:hover .card-img-top {
+    filter: brightness(1.05); /* 이미지가 살짝 밝아짐 */
+    transition: filter 0.3s ease;
+}
+
+.badge-daedong {
+    background-color: rgba(192, 57, 43, 0.1) !important; /* 낙관의 붉은색을 아주 연하게 */
+    color: #C0392B !important;                          /* 진한 낙관색 글자 */
+    border: 1px solid rgba(192, 57, 43, 0.2);           /* 미세한 테두리 */
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+}

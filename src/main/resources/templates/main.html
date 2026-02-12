@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/frontpage.css}">
+</th:block>
+
+<div layout:fragment="content">
+    <th:block th:if="${noticeList != null && noticeList.size() > 0}">
+        <div th:each="notice : ${noticeList}"
+             class="modal fade"
+             th:id="'modal_' + ${notice.id}"
+             tabindex="-1"
+             aria-hidden="true">
+
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content daedong-modal-content">
+                    <div class="modal-header daedong-modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-scroll me-2"></i><span th:text="${notice.title}">공지사항</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body daedong-modal-body">
+                        <a th:href="${notice.linkUrl}" target="_blank">
+                            <img th:src="@{/files/notice/{name}(name=${notice.imagePath})}" th:alt="${notice.title}">
+                        </a>
+                    </div>
+
+                    <div class="modal-footer daedong-modal-footer">
+                        <div class="custom-check">
+                            <label>
+                                <input type="checkbox" th:onchange="'closeModalWithCookie(' + ${notice.id} + ')'">
+                                오늘 하루 보지 않기
+                            </label>
+                        </div>
+                        <button type="button" class="btn-daedong-close shadow-sm" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <header class="hero-section text-center">
+        <div class="container">
+            <h1 class="fw-bold mb-3">서울 자취방, 속지 말고 확인하세요</h1>
+            <p class="text-muted mb-5">실제 거주자가 작성한 생생한 이미지 후기부터 자취 꿀팁까지</p>
+            <div class="row justify-content-center">
+                <div class="col-md-7">
+                    <div class="search-box-wrapper mx-auto rounded-pill bg-white">
+                        <div class="input-group input-group-lg shadow-sm overflow-hidden rounded-pill">
+                            <input
+                                    type="text"
+                                    class="form-control border-0 bg-white"
+                                    placeholder="동네 이름이나 건물명을 입력하세요"
+                            />
+                            <button class="btn btn-orange px-4 border-0" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h4 class="fw-bold mb-4">최신 방 후기</h4>
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div class="col" th:each="i : ${#numbers.sequence(1, 4)}">
+                        <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
+                             style="cursor: pointer;" th:onclick="|location.href='@{/reviews/detail}'|">
+                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500"
+                                 class="card-img-top" style="height:200px; object-fit:cover;">
+                            <div class="card-body">
+                                <span class="badge badge-daedong mb-2">관악구 봉천동</span>
+                                <h5 class="card-title fw-bold">채광 맛집 분리형 원룸</h5>
+                                <p class="card-text text-muted small text-truncate">집주인분 친절하시고 수압 좋습니다...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card daedong-shadow mb-4 border-0">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h5 class="fw-bold mb-0">커뮤니티 활성글</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-orange">[공동구매]</h6>
+                                <small class="text-muted">12:30</small>
+                            </div>
+                            <p class="mb-1 small">합정역 근처 두루마리 휴지 30롤 나누실 분?</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-success">[무료나눔]</h6>
+                                <small class="text-muted">11:15</small>
+                            </div>
+                            <p class="mb-1 small">좌식 의자 깨끗한 거 나눔합니다.</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3 border-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-warning">[자취꿀팁]</h6>
+                                <small class="text-muted">어제</small>
+                            </div>
+                            <p class="mb-1 small">원룸 곰팡이 방지 꿀템 공유함</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-dark btn-lg fw-bold shadow-sm py-3">
+                        <i class="bi bi-pencil-square me-2"></i>글쓰기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script th:src="@{/js/frontpage.js}"></script>
+</div>
+</html>

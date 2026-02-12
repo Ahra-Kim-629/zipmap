@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="headerFragment">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-orange" th:href="@{/}">
+                <i class="bi bi-house-heart-fill me-2"></i>SeoulRoom
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link fw-semibold" th:href="@{/reviews}">원룸 후기</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" th:href="@{/community}">커뮤니티</a></li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm border-0">로그인</button>
+                    <a th:href="@{/signup}" class="btn btn-orange">시작하기</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+</html>

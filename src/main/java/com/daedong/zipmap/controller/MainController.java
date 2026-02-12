@@ -19,6 +19,6 @@ public class MainController {
         List<Notice> noticeList = adminService.getCurrentNoticeList();
         model.addAttribute("noticeList", noticeList);
 
-        return "index";
+        return "main";
     }
 }
