@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.PostFile;
+import com.daedong.zipmap.domain.PostReplyDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -58,4 +59,8 @@ public interface PostMapper {
     // 내가 쓴 댓글 조회
     List<PostReply> findRepliesByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
     int countRepliesByUserId(@Param("userId") Long userId);
+
+    PostReplyDTO findReplyById(Long id);
+
+    void deleteReply(Long id);
 }
