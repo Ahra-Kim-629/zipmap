@@ -37,8 +37,23 @@
     </div>
     <hr>
     <div>
-        <span>Likes: <span th:text="${board.likeCount}">0</span></span>
-        <span>Dislikes: <span th:text="${board.dislikeCount}">0</span></span>
+        <form th:action="@{/board/reaction}" method="post">
+            <input type="hidden" name="postId" th:value="${board.id}">
+            <input type="hidden" name="userId" th:value="${currentUserId}">
+            <input type="hidden" name="type" value="LIKE">
+            <button type="submit">
+                 좋아요 <span th:text="${board.likeCount}">0</span>
+            </button>
+        </form>
+
+        <form th:action="@{/board/reaction}" method="post">
+            <input type="hidden" name="postId" th:value="${board.id}">
+            <input type="hidden" name="userId" th:value="${currentUserId}">
+            <input type="hidden" name="type" value="DISLIKE">
+            <button type="submit" >
+                👎 싫어요 <span th:text="${board.dislikeCount}">0</span>
+            </button>
+        </form>
     </div>
     <hr>
     <h3>Replies</h3>

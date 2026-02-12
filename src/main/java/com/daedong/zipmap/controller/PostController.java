@@ -118,4 +118,15 @@ public class PostController {
         }
         return "redirect:/board";
     }
+
+    // 좋아요 기능
+    @PostMapping("/reaction")
+    public String handleReaction(@RequestParam("postId") Long postId,
+                                 @RequestParam("userId") String userId,
+                                 @RequestParam("type") String type) {
+
+        postService.saveOrUpdateReaction(postId, userId, type);
+
+        return "redirect:/board/detail/" + postId;
+    }
 }

@@ -4,6 +4,7 @@ import com.daedong.zipmap.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -55,4 +56,9 @@ public interface PostMapper {
 
     // UPDATE 커뮤니티 게시글 보이게 하기, 숨기게 하기 기능
     void updatePostStatus(@Param("id") Long id, @Param("status") String status);
+
+    Integer findReaction(@Param("postId") Long postId, @Param("userId") String userId);
+    void deleteReaction(@Param("postId") Long postId, @Param("userId") String userId);
+    void updateBoardLikeCount(@Param("postId") Long postId);
+    void insertReaction(@Param("postId") Long postId, @Param("userId") String userId, @Param("type") int type);;
 }

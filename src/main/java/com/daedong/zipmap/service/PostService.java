@@ -54,4 +54,27 @@ public class PostService {
         fileService.deleteFilesByPostId(id);
         postMapper.deletePost(id);
     }
+    // 좋아요 기능 관련 추가
+    @Transactional
+    public void saveOrUpdateReaction(Long postId, String userId, String typeStr) {
+        int newType = typeStr.equals("LIKE") ? 1 : 2;
+        Integer existingType = postMapper.findReaction(postId, userId);
+
+        if (existingType != null) {
+            if (existingType == newType) {
+                // 이미 같은 걸 눌렀다면? -> 반응 삭제 (취소)
+                postMapper.deleteReaction(postId, userId);
+            } else {
+                // 다른 걸 눌렀다면? (좋아요 누른 상태에서 싫어요 클릭) -> 타입 변경
+                // insertReaction에 ON DUPLICATE KEY UPDATE가 구현되어 있어야 합니다.
+                postMapper.insertReaction(postId, userId, newType);
+            }
+        } else {
+            // 처음 누르는 거라면? -> 데이터 추가
+            postMapper.insertReaction(postId, userId, newType);
+        }
+
+        // 3. 최종 결과를 게시글 테이블(post)에 반영하여 숫자를 맞춤
+        postMapper.updateBoardLikeCount(postId);
+    }
 }

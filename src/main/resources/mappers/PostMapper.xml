@@ -260,4 +260,31 @@
         WHERE id = #{id}
     </update>
 
+    <insert id="insertReaction">
+        INSERT INTO post_reaction (post_id, user_id, type, created_at)
+        VALUES (#{postId}, #{userId}, #{type}, NOW())
+        ON DUPLICATE KEY UPDATE
+        type = #{type},
+        updated_at = NOW()
+    </insert>
+
+    <delete id="deleteReaction">
+        DELETE FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </delete>
+
+    <update id="updateBoardLikeCount">
+        UPDATE post p
+        SET
+        p.like_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 1),
+        p.dislike_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 2)
+        WHERE p.id = #{postId}
+    </update>
+
+    <select id="findReaction" resultType="Integer">
+        SELECT type
+        FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </select>
+
 </mapper>
