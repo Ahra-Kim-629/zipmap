@@ -1,4 +1,4 @@
-package com.daedong.zipmap.service;
+package com.daedong.zipmap.config.security.oauth;
 
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
@@ -27,28 +27,24 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        String providerId = "";
-        String loginId = "";
-        String name = "";
-        String email = "";
+        OAuth2UserInfo oAuth2UserInfo = null;
+
+        if (provider.equals("google")) {
+            oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        } else if (provider.equals("naver")) {
+            oAuth2UserInfo = new NaverUserInfo(oAuth2User.getAttributes());
+        }else{
+            throw new RuntimeException("지원하지 않는 로그인입니다.");
+        }
+
+        String providerId = oAuth2UserInfo.getProviderId();
+        String loginId = provider + "_" + providerId;
+        String email = oAuth2UserInfo.getProviderEmail();
+        String name = oAuth2UserInfo.getProviderName();
         String mobile = "";
         String gender = "";
 
-        if (provider.equals("naver")) {
-            Map<String, Object> response = (Map<String, Object>) oAuth2User.getAttributes().get("response");
-            providerId = (String) response.get("id");
-            loginId = provider + "_" + providerId;
-            name = (String) response.get("name");
-            email = (String) response.get("email");
-            mobile = (String) response.get("mobile");
-            gender = (String) response.get("gender");
-        } else if (provider.equals("google")) {
-            providerId = oAuth2User.getAttribute("sub");
-            loginId = provider + "_" + providerId;
-            name = oAuth2User.getAttribute("name");
-            email = oAuth2User.getAttribute("email");
 
-        }
 
         User userEntity = userMapper.findByLoginId(loginId);
 
@@ -59,13 +55,17 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity.setName(name);
             userEntity.setEmail(email);
             userEntity.setPhone(mobile != null ? mobile : "000-0000-0000");
-            userEntity.setGender(gender != null && !gender.isEmpty() ? gender.charAt(0) : 'M');
+            userEntity.setGender(
+                    (gender != null && !gender.isEmpty())
+                            ? gender.charAt(0)
+                            : 'M'
+            );
             userEntity.setRole("WRITER");
-            userEntity.setAddress("주소 미입력");
-
+            userEntity.setAccountStatus("ACTIVE");
             userMapper.save(userEntity);
         }
 
         return new UserPrincipalDetails(userEntity, oAuth2User.getAttributes());
     }
+
 }

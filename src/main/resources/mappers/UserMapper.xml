@@ -40,7 +40,7 @@
         UPDATE user
         <set>
             updated_at = NOW(),
-            
+
             <if test="password != null and password != ''">
                 password = #{password},
             </if>
@@ -52,6 +52,10 @@
             </if>
             <if test="address != null and address != ''">
                 address = #{address},
+                address = #{address},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender}
             </if>
         </set>
         WHERE id = #{id}

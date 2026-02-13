@@ -71,10 +71,12 @@
                                     <input type="email" id="email" th:field="*{email}" class="form-control rounded-3"
                                            required/>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="phone" class="form-label">전화번호</label>
-                                    <input type="text" id="phone" th:field="*{phone}" class="form-control rounded-3"
-                                           placeholder="010-0000-0000"/>
+                                <div>
+                                    <label>성별:</label>
+                                    <input type="radio" id="genderM" name="gender" value="M" th:field="*{gender}" />
+                                    <label for="genderM">남자</label>
+                                    <input type="radio" id="genderF" name="gender" value="M" th:field="*{gender}" />
+                                    <label for="genderF">여자</label>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="address" class="form-label">거주 주소</label>

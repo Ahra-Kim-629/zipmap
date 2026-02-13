@@ -1,9 +1,11 @@
 package com.daedong.zipmap.config;
 
-import com.daedong.zipmap.service.CustomOauth2UserService;
+import com.daedong.zipmap.config.security.oauth.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,12 +22,23 @@ public class WebSecurityConfig {
     private final CustomOauth2UserService customOauth2UserService;
 
     @Bean
+    public RoleHierarchy roleHierarchy(){
+        return RoleHierarchyImpl.withDefaultRolePrefix()
+                .role("ADMIN").implies("WRITER")
+                .role("WRITER").implies("VIEWER")
+                .build();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/signUp", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/board/**"
                                 , "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
+
                         .requestMatchers("/css/**", "/js/**", "/files/notice/**", "/files/upload/**").permitAll()
+
+                        .requestMatchers("/error", "/favicon.ico").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
@@ -54,6 +67,7 @@ public class WebSecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                 );
 
