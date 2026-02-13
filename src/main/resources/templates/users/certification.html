@@ -1,30 +1,120 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>실거주 인증 신청</title>
-</head>
-<body>
-<div style="width: 500px; margin: 0 auto; padding-top: 50px;">
-    <h2>실거주 인증 신청</h2>
-    <p>현재 등록된 주소: <strong th:text="${user.address}">주소 없음</strong></p>
-    <hr>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-    <form th:action="@{/users/certification}" method="post" enctype="multipart/form-data">
-        <div style="margin: 20px 0;">
-            <label>임대차계약서 첨부:</label><br><br>
-            <input type="file" name="contractFile" required accept="image/*, .pdf">
+<th:block layout:fragment="css">
+    <style>
+        .cert-container { padding: 60px 0; background-color: #fdfcf9; min-height: 80vh; }
+        .cert-card { max-width: 600px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 20px; }
+        .cert-title { color: #3E362E; font-weight: 800; }
+
+        /* 주소 안내 박스 */
+        .address-info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--main-orange);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        /* 파일 업로드 영역 커스텀 */
+        .file-upload-wrapper {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--main-orange);
+            background-color: #fff9f4;
+        }
+        .file-upload-icon { font-size: 2.5rem; color: #ccc; margin-bottom: 10px; }
+        .file-upload-wrapper:hover .file-upload-icon { color: var(--main-orange); }
+
+        /* 실제 파일 인풋은 숨기되 위치는 유지 */
+        #contractFile {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .guide-text { font-size: 0.85rem; color: #888; line-height: 1.6; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="cert-container">
+        <div class="container">
+            <div class="cert-card daedong-shadow">
+                <div class="text-center mb-4">
+                    <h2 class="cert-title mb-2">실거주 인증 신청</h2>
+                    <p class="text-muted small">정직한 리뷰 문화를 위해 임대차계약서 확인이 필요합니다.</p>
+                </div>
+
+                <div class="address-info-box">
+                    <span class="small text-muted d-block mb-1">현재 등록된 인증 주소</span>
+                    <strong class="fs-5" th:text="${user.address}">서울특별시 관악구 봉천동...</strong>
+                    <p class="guide-text mt-2 mb-0 text-orange">※ 주소가 다를 경우 마이페이지에서 먼저 수정해 주세요.</p>
+                </div>
+
+                <form th:action="@{/users/certification}" method="post" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-2">임대차계약서 첨부</label>
+                        <div class="file-upload-wrapper" id="dropZone">
+                            <i class="bi bi-cloud-arrow-up file-upload-icon d-block"></i>
+                            <span class="d-block fw-bold mb-1" id="fileNameDisplay">파일을 클릭하거나 여기로 끌어다 놓으세요</span>
+                            <span class="guide-text">JPG, PNG 또는 PDF 형식 (최대 10MB)</span>
+                            <input type="file" name="contractFile" id="contractFile" required accept="image/*, .pdf">
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <ul class="guide-text mb-0">
+                            <li>계약서 내 <strong>주소, 임대기간, 확정일자</strong>가 명확히 보여야 합니다.</li>
+                            <li>민감한 정보(주민등록번호 뒷자리 등)는 마스킹 처리 후 업로드 권장합니다.</li>
+                            <li>관리자 승인까지 영업일 기준 1~3일이 소요될 수 있습니다.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-orange py-3 fw-bold rounded-pill shadow-sm">
+                            인증 신청하기
+                        </button>
+                        <a th:href="@{/users/mypage}" class="btn btn-link text-muted text-decoration-none small">
+                            취소하고 돌아가기
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
+    </div>
 
-        <button type="submit" style="padding: 10px 20px; background-color: blue; color: white; border: none;">
-            인증 신청하기
-        </button>
-        <a th:href="@{/users/mypage}" style="margin-left: 10px;">취소</a>
-    </form>
+    <script layout:fragment="script">
+        const fileInput = document.getElementById('contractFile');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.innerText = this.files[0].name;
+                fileNameDisplay.classList.add('text-orange');
+            } else {
+                fileNameDisplay.innerText = "파일을 클릭하거나 여기로 끌어다 놓으세요";
+                fileNameDisplay.classList.remove('text-orange');
+            }
+        });
+
+        // 에러 메시지 처리 (기존 로직 유지)
+        /*[[${error}]]*/
+        const errorMsg = "[[${error}]]";
+        if(errorMsg && errorMsg !== "null" && errorMsg !== "") {
+            alert(errorMsg);
+        }
+    </script>
 </div>
-
-<script th:if="${error}">
-    alert([[${error}]]);
-</script>
-</body>
 </html>

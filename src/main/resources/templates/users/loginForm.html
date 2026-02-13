@@ -1,35 +1,151 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
-<head>
-    <meta charset="UTF-8">
-    <title>로그인</title>
-</head>
-<body>
-<div>
-    <div>
-        <h2>로그인</h2>
-    </div>
-    <div th:if="${error}">
-        <p th:text="${error}" style="color: red" ;></p>
-    </div>
-    <div th:if="${message}">
-        <p th:text="${message}" style="color: red" ;></p>
-    </div>
-    <form th:action="@{/login}" th:method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        <div>
-            <label for="login_id">아이디</label>
-            <input type="text" id="login_id" name="loginId" required>
-        </div>
-        <div>
-            <label for="password">비밀번호</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">로그인</button>
-        <a th:href="@{/oauth2/authorization/naver}">네이버로 로그인하기</a>
-        <a th:href="@{/oauth2/authorization/google}">구글로 로그인하기</a>
-    </form>
-</div>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-</body>
+<th:block layout:fragment="css">
+    <style>
+        .login-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            background-color: #fdfcf9; /* 한지 느낌의 연한 배경색 */
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 2.5rem;
+            background: #ffffff;
+            /* 기존 main.css의 daedong-shadow 활용 */
+        }
+        .login-title {
+            color: #3E362E;
+            font-weight: 800;
+        }
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+        .form-control:focus {
+            border-color: var(--main-orange);
+            box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.1);
+        }
+        /* 소셜 로그인 버튼 스타일 */
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-naver {
+            background-color: #03C75A;
+            color: white;
+            border: none;
+        }
+        .btn-naver:hover { background-color: #02b350; color: white; }
+
+        .btn-google {
+            background-color: #ffffff;
+            color: #757575;
+            border: 1px solid #ddd;
+        }
+        .btn-google:hover { background-color: #f8f9fa; }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #ccc;
+            font-size: 0.8rem;
+        }
+        .login-divider::before, .login-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+        .login-divider span { padding: 0 10px; }
+
+        .find-links a:hover {
+        color: var(--main-orange) !important;
+        text-decoration: underline !important;
+        }
+        .text-silver {
+            color: #e0e0e0;
+            user-select: none;
+        }
+        /* 찾기 링크용 부드러운 전환 */
+        .shadow-hover-text {
+        transition: color 0.2s ease;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="login-wrapper">
+        <div class="login-card daedong-shadow">
+            <div class="text-center mb-4">
+                <h2 class="login-title mb-2">로그인</h2>
+                <p class="text-muted small">SeoulRoom에 오신 것을 환영합니다</p>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
+            <div th:if="${message}" class="alert alert-warning border-0 small p-2 text-center"
+                 th:text="${message}"></div>
+
+            <form th:action="@{/login}" th:method="post" class="mb-3">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="mb-3">
+                    <label for="login_id" class="form-label">아이디</label>
+                    <input type="text" id="login_id" name="loginId" class="form-control rounded-3"
+                           placeholder="아이디를 입력하세요" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input type="password" id="password" name="password" class="form-control rounded-3"
+                           placeholder="비밀번호를 입력하세요" required>
+                </div>
+
+                <button type="submit" class="btn btn-orange w-100 py-3 fw-bold rounded-pill shadow-sm">
+                    로그인
+                </button>
+
+                <div class="find-links d-flex justify-content-center gap-3 small my-3">
+                    <a th:href="@{/users/find/id}" class="text-muted text-decoration-none shadow-hover-text">아이디 찾기</a>
+                    <span class="text-silver">|</span>
+                    <a th:href="@{/users/find/password}" class="text-muted text-decoration-none shadow-hover-text">비밀번호
+                        찾기</a>
+                </div>
+            </form>
+
+            <div class="login-divider">
+                <span>간편 로그인</span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a th:href="@{/oauth2/authorization/naver}"
+                   class="btn btn-social btn-naver py-3 rounded-pill shadow-sm">
+                    <i class="bi bi-chat-fill"></i> 네이버로 시작하기
+                </a>
+                <a th:href="@{/oauth2/authorization/google}"
+                   class="btn btn-social btn-google py-3 rounded-pill shadow-sm">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="18" alt="google">
+                    구글로 시작하기
+                </a>
+            </div>
+
+            <div class="mt-4 text-center">
+                <span class="text-muted small">계정이 없으신가요?</span>
+                <a th:href="@{/signUp}" class="text-orange small fw-bold text-decoration-none ms-1">회원가입</a>
+            </div>
+        </div>
+    </div>
+</div>
 </html>

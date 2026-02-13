@@ -1,44 +1,189 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
-<head>
-    <meta charset="UTF-8">
-    <title>회원 가입</title>
-</head>
-<body>
-<form th:action="@{/signUp}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    <div>
-        <label for="login_id">아이디</label>
-        <input type="text" id="login_id" name="loginId" required>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <style>
+        .signup-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            background-color: #fdfcf9;
+        }
+        .signup-card {
+            width: 100%;
+            max-width: 550px;
+            padding: 3rem;
+            background: #ffffff;
+        }
+        .signup-title {
+            color: #3E362E;
+            font-weight: 800;
+        }
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            padding: 0.7rem 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px !important;
+        }
+        .form-control:focus {
+            border-color: var(--main-orange);
+            box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.1);
+        }
+        /* 성별 라디오 버튼 커스텀 */
+        .gender-group .btn-check:checked + .btn-outline-orange {
+            background-color: var(--main-orange);
+            color: white;
+        }
+        .btn-outline-orange {
+            color: var(--main-orange);
+            border-color: var(--main-orange);
+        }
+        .btn-outline-orange:hover {
+            background-color: var(--main-orange);
+            color: white;
+        }
+        .login-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: #ccc;
+            font-size: 0.8rem;
+        }
+        .login-divider::before, .login-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+        .login-divider span { padding: 0 10px; }
+
+        .btn-social-signup {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        /* 네이버 버튼: 네이버 시그니처 그린 */
+        .btn-naver {
+            background-color: #03C75A !important;
+            color: white !important;
+        }
+        .btn-naver:hover {
+            background-color: #02b350 !important;
+            box-shadow: 0 4px 12px rgba(3, 199, 90, 0.3);
+        }
+
+        /* 구글 버튼: 화이트 + 테두리 */
+        .btn-google {
+            background-color: #ffffff !important;
+            color: #3c4043 !important;
+            border: 1px solid #dadce0 !important;
+        }
+        .btn-google:hover {
+            background-color: #f8f9fa !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="signup-wrapper">
+        <div class="signup-card daedong-shadow">
+            <div class="text-center mb-5">
+                <h2 class="signup-title mb-2">회원가입</h2>
+                <p class="text-muted small">SeoulRoom과 함께 정직한 방 찾기를 시작하세요</p>
+            </div>
+
+            <form th:action="@{/signUp}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="login_id" class="form-label">아이디</label>
+                        <input type="text" id="login_id" name="loginId" class="form-control" placeholder="아이디를 입력하세요"
+                               required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="password" class="form-label">비밀번호</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="비밀번호를 입력하세요" required>
+                    </div>
+
+                    <div class="col-md-7">
+                        <label for="name" class="form-label">이름</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="홍길동" required>
+                    </div>
+
+                    <div class="col-md-5">
+                        <label class="form-label">성별</label>
+                        <div class="d-flex gap-2 gender-group">
+                            <input type="radio" class="btn-check" name="gender" id="male" value="M" required checked>
+                            <label class="btn btn-outline-orange w-100 rounded-3" for="male">남성</label>
+
+                            <input type="radio" class="btn-check" name="gender" id="female" value="F">
+                            <label class="btn btn-outline-orange w-100 rounded-3" for="female">여성</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="phone" class="form-label">연락처</label>
+                        <input type="text" id="phone" name="phone" class="form-control" placeholder="010-0000-0000">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="email" class="form-label">이메일</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               placeholder="example@seoulroom.com" required>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="address" class="form-label">주소</label>
+                        <div class="input-group">
+                            <input type="text" id="address" name="address" class="form-control"
+                                   placeholder="거주하시는 지역(구, 동)을 입력하세요" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-orange py-3 fw-bold rounded-pill shadow-sm">가입하기</button>
+                    <a th:href="@{/}" class="btn btn-link text-muted text-decoration-none small">취소하기</a>
+                </div>
+            </form>
+
+            <div class="login-divider">
+                <span>SNS 계정으로 빠른 가입</span>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a th:href="@{/oauth2/authorization/naver}" class="btn btn-social-signup btn-naver py-3 rounded-pill shadow-sm">
+                    <i class="bi bi-chat-fill"></i> 네이버로 가입하기
+                </a>
+
+                <a th:href="@{/oauth2/authorization/google}" class="btn btn-social-signup btn-google py-3 rounded-pill shadow-sm">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" width="18" alt="google"> 구글로 가입하기
+                </a>
+            </div>
+
+            <div class="mt-4 text-center">
+                <span class="text-muted small">이미 계정이 있으신가요?</span>
+                <a th:href="@{/login}" class="text-orange small fw-bold text-decoration-none ms-1">로그인하러 가기</a>
+            </div>
+        </div>
     </div>
-    <div>
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
-    </div>
-    <div>
-        <label for="name">이름</label>
-        <input type="text" id="name" name="name" required>
-    </div>
-    <div>
-        <label for="gender">성별(M/F)</label>
-        <input type="text" id="gender" name="gender" required>
-    </div>
-    <div>
-        <label for="phone">연락처</label>
-        <input type="text" id="phone" name="phone">
-    </div>
-    <div>
-        <label for="email">이메일</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-    <div>
-        <label for="address">주소</label>
-        <input type="text" id="address" name="address" required>
-    </div>
-    <button type="submit">가입하기</button>
-    <a th:href="@{/}">취소하기</a>
-    <a th:href="@{/oauth2/authorization/naver}">네이버로 로그인하기</a>
-    <a th:href="@{/oauth2/authorization/google}">구글로 로그인하기</a>
-</form>
-</body>
+</div>
 </html>

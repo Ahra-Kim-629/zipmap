@@ -1,162 +1,195 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Post Detail</title>
-</head>
-<body>
-<a th:href="@{/}" class="btn btn-primary">홈으로</a>
-<div th:if="${board != null}">
-    <h1 th:text="${board.title}">Title</h1>
-    <p><strong>Category:</strong> <span th:text="${board.category}">Category</span></p>
-    <p><strong>Author:</strong> <span th:text="${board.userId}">User ID</span></p>
-    <p><strong>Location:</strong> <span th:text="${board.location}">Location</span></p>
-    <p><strong>Date:</strong> <span th:text="${board.createdAt}">Date</span></p>
-    <hr>
-    <div th:if="${currentUserId == board.userId}" style="margin-bottom: 10px;">
-        <a th:href="@{/board/edit/{id}(id=${board.id})}"
-           style="padding: 5px 15px; font-size: 14px; background-color: #f8f9fa; border: 1px solid #ddd; color: #333; text-decoration: none; border-radius: 4px;">수정</a>
-        <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" style="display:inline;">
-            <button type="submit"
-                    onclick="return confirm('정말 삭제하시겠습니까?')"
-                    style="padding: 5px 15px; font-size: 14px; background-color: #fff; border: 1px solid #d9534f; color: #d9534f; border-radius: 4px; cursor:pointer;">
-                삭제
-            </button>
-        </form>
-    </div>
-    <div>
-        <p th:utext="${board.content}">Content</p>
-    </div>
-    <hr>
-    <div th:if="${not #lists.isEmpty(board.fileList)}">
-        <h3>Files</h3>
-        <ul>
-            <li th:each="file : ${board.fileList}">
-                <a th:href="${file.filePath}" th:text="${file.filePath}">File Path</a>
-            </li>
-        </ul>
-    </div>
-    <!-- 좋아요 싫어요 표시 -->
-    <hr>
-    <div class="reaction-section" style="text-align: center; margin-top: 30px;">
-        <form th:action="@{/board/reaction}" method="post" style="display: inline-block;">
-            <input type="hidden" name="targetId" th:value="${board.id}">
-            <input type="hidden" name="type" value="1">
-            <button type="submit">👍 좋아요 [[${board.likeCount}]]</button>
-        </form>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-        <form th:action="@{/board/reaction}" method="post" style="display: inline-block; margin-left: 10px;">
-            <input type="hidden" name="targetId" th:value="${board.id}">
-            <input type="hidden" name="type" value="-1">
-            <button type="submit"><span style="filter: grayscale(100%); opacity: 0.7;">👎</span> 싫어요 [[${board.dislikeCount}]]</button>
-        </form>
-    </div>
-    <hr>
-    <h3>Replies</h3>
-    <a th:href="@{/board}"
-       style="display: inline-block; margin: 20px 0; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
-        목록으로 돌아가기
-    </a>
-    <!--        <div th:if="${not #lists.isEmpty(board.replyList)}">-->
-    <!--            <ul>-->
-    <!--                <li th:each="reply : ${board.replyList}">-->
-    <!--                    <p th:text="${reply.content}">Reply Content</p>-->
-    <!--                    <small th:text="${reply.createdAt}">Reply Date</small>-->
-    <!--                </li>-->
-    <!--            </ul>-->
-    <!--        </div>-->
-    <!-- 댓글 등록 폼 -->
-    <div style="margin-bottom: 30px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
-        <form th:action="@{/reply/write}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <input type="hidden" name="targetType" value="board">
-            <input type="hidden" name="targetId" th:value="${board.id}">
-            <input type="hidden" name="userId" th:value="${currentUserId}">
+<th:block layout:fragment="css">
+    <style>
+        .board-detail-container { padding: 50px 0; background-color: #fdfcf9; }
+        .detail-card { background: #fff; padding: 40px; border-radius: 20px; border: none; }
 
-            <div style="display: flex; gap: 10px;">
-            <textarea name="content" placeholder="댓글을 입력해주세요" required
-                      style="flex: 1; height: 60px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                <button type="submit"
-                        style="width: 80px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    등록
-                </button>
-            </div>
-        </form>
-    </div>
+        /* 상단 헤더 영역 */
+        .post-header { border-bottom: 2px solid #f1f1f1; padding-bottom: 20px; margin-bottom: 30px; }
+        .post-title {  font-weight: 800; color: #3E362E; line-height: 1.4; }
+        .meta-info { font-size: 0.9rem; color: #888; display: flex; flex-wrap: wrap; gap: 15px; }
 
-    <div th:if="${not #lists.isEmpty(replyList)}">
-        <ul style="padding: 0;">
-            <li th:each="reply : ${replyList}"
-                style="margin-bottom: 20px; list-style: none; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        /* 카테고리/지역 배지 */
+        .badge-category { background-color: var(--main-orange); color: white; padding: 5px 12px; font-size: 0.8rem; }
+        .badge-location { background-color: #f8f9fa; color: #666; border: 1px solid #eee; padding: 5px 12px; font-size: 0.8rem; }
 
-                <div th:id="'reply-content-' + ${reply.id}">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <strong th:text="${reply.loginId}">작성자</strong> :
-                            <span th:text="${reply.content}">댓글 내용</span>
-                            <br>
-                            <small style="color: #888;" th:text="${reply.createdAt}"></small>
-                        </div>
+        /* 본문 영역 */
+        .post-content { line-height: 1.8; color: #444; font-size: 1.05rem; min-height: 200px; padding: 20px 0; }
 
-                        <!-- 댓글 삭제 -->
-                        <div style="flex-shrink: 0;"
-                             th:if="${currentUserId == reply.userId || #authorization.expression('hasRole(''ADMIN'')')}">
+        /* 반응 버튼 영역 (좋아요/싫어요) */
+        .reaction-wrapper { display: flex; justify-content: center; gap: 20px; margin: 40px 0; padding: 20px; border-top: 1px solid #f8f9fa; }
+        .btn-reaction { border-radius: 50px; padding: 10px 25px; font-weight: bold; transition: 0.2s; border: 1px solid #eee; background: white; }
+        .btn-like:hover { background-color: #fff5f5; border-color: #ff8787; color: #fa5252; }
+        .btn-dislike:hover { background-color: #f8f9fa; border-color: #adb5bd; color: #495057; }
 
-                            <button type="button" th:if="${currentUserId == reply.userId}"
-                                    th:onclick="'showEditForm(' + ${reply.id} + ')'"
-                                    style="padding: 2px 8px; font-size: 12px; background: #eee; border: 1px solid #ccc; cursor: pointer;">
-                                수정
+        /* 첨부 파일 */
+        .file-section { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+        .file-link { color: #555; text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .file-link:hover { color: var(--main-orange); }
+
+        /* 댓글 영역 */
+        .reply-container { margin-top: 50px; padding-top: 30px; border-top: 2px solid #3E362E; }
+        .reply-item { padding: 20px 0; border-bottom: 1px solid #eee; }
+        .reply-author { font-weight: bold; color: #333; margin-right: 10px; }
+        .reply-date { font-size: 0.8rem; color: #bbb; }
+        .reply-content { margin: 10px 0; color: #555; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="board-detail-container">
+        <div class="container" th:if="${board != null}">
+            <div class="detail-card daedong-shadow">
+
+                <div class="post-header">
+                    <div class="mb-3">
+                        <span class="badge badge-category rounded-pill me-2" th:text="${board.category}">카테고리</span>
+                        <span class="badge badge-location rounded-pill" th:text="${board.location}">지역 정보</span>
+                    </div>
+                    <h2 class="post-title mb-3" th:text="${board.title}">게시글 제목입니다</h2>
+                    <div class="meta-info">
+                        <span><i class="bi bi-person me-1"></i><span th:text="${board.userId}">작성자</span></span>
+                        <span><i class="bi bi-clock me-1"></i><span
+                                th:text="${#temporals.format(board.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span></span>
+                    </div>
+
+                    <div th:if="${currentUserId == board.userId}" class="mt-3 text-end">
+                        <a th:href="@{/board/edit/{id}(id=${board.id})}"
+                           class="btn btn-sm btn-outline-secondary rounded-pill px-3 me-1">수정</a>
+                        <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                    onclick="return confirm('정말 삭제하시겠습니까?')">삭제
                             </button>
-                            <form th:action="@{/reply/delete}" method="post" style="display:inline;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                                <input type="hidden" name="replyId" th:value="${reply.id}">
-                                <input type="hidden" name="targetId" th:value="${board.id}">
-                                <input type="hidden" name="targetType" value="board">
-                                <input type="hidden" name="userId" th:value="${reply.userId}">
-
-                                <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')"
-                                        style="padding: 2px 8px; font-size: 12px; color: #d9534f; background: #fff; border: 1px solid #d9534f; border-radius: 2px; cursor:pointer;">
-                                    삭제
-                                </button>
-                            </form>
-                        </div>
+                        </form>
                     </div>
                 </div>
-                <!-- 댓글 수정 -->
-                <div th:id="'editForm-' + ${reply.id}"
-                     style="display: none; margin-top: 10px; background: #fff; padding: 10px; border: 1px solid #ddd;">
-                    <form action="/reply/edit" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <input type="hidden" name="id" th:value="${reply.id}">
+
+                <div class="post-content" th:utext="${board.content}">
+                    내용이 표시되는 공간입니다.
+                </div>
+
+                <div th:if="${not #lists.isEmpty(board.fileList)}" class="file-section">
+                    <h6 class="fw-bold mb-3 small"><i class="bi bi-paperclip me-2"></i>첨부파일</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li th:each="file : ${board.fileList}" class="mb-1">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                            <a th:href="${file.filePath}" th:text="${file.filePath}" class="file-link">파일명.pdf</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="reaction-wrapper">
+                    <form th:action="@{/board/reaction}" method="post" style="display: inline-block;">
                         <input type="hidden" name="targetId" th:value="${board.id}">
-                        <input type="hidden" name="targetType" value="board">
-                        <div style="display: flex; gap: 5px;">
-                            <input type="text" name="content" th:value="${reply.content}"
-                                   style="flex: 1; padding: 5px; border: 1px solid #ccc;">
-                            <button type="submit"
-                                    style="background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                                저장
-                            </button>
-                            <button type="button" th:onclick="'hideEditForm(' + ${reply.id} + ')'"
-                                    style="background: #6c757d; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                                취소
-                            </button>
-                        </div>
+                        <input type="hidden" name="type" value="1">
+                        <button type="submit">👍 좋아요 [[${board.likeCount}]]</button>
+                    </form>
+
+                    <form th:action="@{/board/reaction}" method="post" style="display: inline-block; margin-left: 10px;">
+                        <input type="hidden" name="targetId" th:value="${board.id}">
+                        <input type="hidden" name="type" value="-1">
+                        <button type="submit"><span style="filter: grayscale(100%); opacity: 0.7;">👎</span> 싫어요 [[${board.dislikeCount}]]</button>
                     </form>
                 </div>
-            </li>
-        </ul>
-    </div>
-    <div th:if="${#lists.isEmpty(board.replyList)}">
-        <p>No replies yet.</p>
+
+                <div class="reply-container">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-chat-dots me-2"></i>댓글 <span class="text-orange"
+                                                                                          th:text="${replyList != null ? replyList.size() : 0}">0</span>
+                    </h5>
+
+                    <div class="bg-light p-4 rounded-4 mb-5 shadow-sm">
+                        <form th:action="@{/reply/write}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="targetType" value="board">
+                            <input type="hidden" name="targetId" th:value="${board.id}">
+                            <input type="hidden" name="userId" th:value="${currentUserId}">
+
+                            <div class="d-flex gap-2">
+                            <textarea name="content" class="form-control border-0 p-3 flex-grow-1" rows="2"
+                                      placeholder="따뜻한 댓글을 남겨주세요."
+                                      style="border-radius: 12px; resize: none;" required></textarea>
+
+                                <button type="submit" class="btn btn-dark fw-bold"
+                                        style="border-radius: 12px; min-width: 80px; white-space: nowrap; height: auto;">
+                                    등록
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div th:if="${not #lists.isEmpty(replyList)}">
+                        <div th:each="reply : ${replyList}" class="reply-item">
+                            <div th:id="'reply-content-' + ${reply.id}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="reply-author" th:text="${reply.loginId}">작성자</span>
+                                        <span class="reply-date"
+                                              th:text="${#temporals.format(reply.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span>
+                                    </div>
+                                    <div th:if="${currentUserId == reply.userId || #authorization.expression('hasRole(''ADMIN'')')}">
+                                        <button type="button" th:if="${currentUserId == reply.userId}"
+                                                th:onclick="|showEditForm(${reply.id})|"
+                                                class="btn btn-link btn-sm text-muted p-0 text-decoration-none">수정
+                                        </button>
+                                        <form th:action="@{/reply/delete}" method="post" class="d-inline ms-2">
+                                            <input type="hidden" th:name="${_csrf.parameterName}"
+                                                   th:value="${_csrf.token}"/>
+                                            <input type="hidden" name="replyId" th:value="${reply.id}">
+                                            <input type="hidden" name="targetId" th:value="${board.id}">
+                                            <input type="hidden" name="targetType" value="board">
+                                            <button type="submit"
+                                                    class="btn btn-link btn-sm text-danger p-0 text-decoration-none"
+                                                    onclick="return confirm('정말 삭제하시겠습니까?')">삭제
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <p class="reply-content" th:text="${reply.content}">댓글 내용이 들어갑니다.</p>
+                            </div>
+
+                            <div th:id="'editForm-' + ${reply.id}" style="display: none; margin-top: 15px;"
+                                 class="bg-white p-3 border rounded-3">
+                                <form action="/reply/edit" method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="id" th:value="${reply.id}">
+                                    <input type="hidden" name="targetId" th:value="${board.id}">
+                                    <input type="hidden" name="targetType" value="board">
+                                    <div class="input-group">
+                                        <input type="text" name="content" th:value="${reply.content}"
+                                               class="form-control">
+                                        <button type="submit" class="btn btn-orange px-3">저장</button>
+                                        <button type="button" th:onclick="|hideEditForm(${reply.id})|"
+                                                class="btn btn-secondary px-3">취소
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(replyList)}" class="text-center py-5 text-muted">
+                        <p>아직 작성된 댓글이 없습니다. 첫 댓글을 남겨보세요!</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5 border-top pt-4">
+                    <a th:href="@{/board}" class="btn btn-light rounded-pill px-4">
+                        <i class="bi bi-list me-1"></i> 목록으로 돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div th:if="${board == null}" class="container text-center py-5">
+            <h3>존재하지 않는 게시글입니다.</h3>
+            <a th:href="@{/board}" class="btn btn-orange mt-3">목록으로 가기</a>
+        </div>
     </div>
 </div>
-<div th:if="${board == null}">
-    <p>Post not found.</p>
-</div>
-</body>
-<script>
+
+<script layout:fragment="script">
     function showEditForm(id) { document.getElementById('editForm-' + id).style.display = 'block'; }
     function hideEditForm(id) { document.getElementById('editForm-' + id).style.display = 'none'; }
 </script>

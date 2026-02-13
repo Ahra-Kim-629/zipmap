@@ -1,281 +1,292 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
-<head>
-    <meta charset="UTF-8">
-    <title>리뷰 목록</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
+<th:block layout:fragment="css">
     <style>
-        /* 공통 테이블 스타일 */
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
+        .review-container { padding: 40px 0; background-color: #fdfcf9; }
+        .page-title {  font-weight: 800; color: #3E362E; }
+
+        /* 지도 관련 스타일 */
+        .map-section { position: relative; width: 100%; height: 450px; border-radius: 15px; overflow: hidden; display: none; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #map { width: 100%; height: 100%; }
+
+        /* 필터 및 검색 */
+        .search-card { background: white; padding: 25px; border-radius: 15px; border: none; }
+        .filter-label { font-size: 0.85rem; font-weight: 700; color: #666; margin-right: 15px; min-width: 40px; display: inline-block; }
+        .checkbox-item { margin-right: 12px; cursor: pointer; font-size: 0.9rem; }
+        .checkbox-item input { accent-color: var(--main-orange); margin-right: 4px; }
+
+        /* 테이블 스타일 */
+        .review-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; }
+        .table thead { background-color: #f8f9fa; border-bottom: 2px solid #eee; }
+        .table th { font-weight: 700; color: #555; font-size: 0.9rem; border: none; padding: 15px; }
+        .table td { vertical-align: middle; padding: 15px; font-size: 0.95rem; border-bottom: 1px solid #f1f1f1; }
+        .review-link { text-decoration: none; color: #333; font-weight: 600; transition: 0.2s; }
+        .review-link:hover { color: var(--main-orange); }
 
         /* 페이징 스타일 */
-        .pagination { margin-top: 20px; text-align: center; }
-        .pagination a, .pagination strong { margin: 0 5px; text-decoration: none; color: black; }
-        .pagination strong { font-weight: bold; color: red; }
-
-        /* 검색박스 및 지도 컨테이너 */
-        .search-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-        .checkbox-group { margin: 5px 0; }
-
-        /* 지도 Wrapper: 범례를 지도 위에 띄우기 위해 relative 설정 */
-        .map-wrapper { position: relative; width: 100%; height: 400px; display: none; margin-bottom: 20px; }
-        #map { width: 100%; height: 100%; border: 1px solid #ddd; }
+        .pagination-container { margin-top: 40px; }
+        .page-link { color: #555; border: none; margin: 0 3px; border-radius: 8px !important; transition: 0.2s; }
+        .page-item.active .page-link { background-color: var(--main-orange); border-color: var(--main-orange); color: white; }
+        .page-link:hover:not(.active) { background-color: #eee; }
 
         /* 안전율 마커 디자인 */
-        .safety-marker {
-            padding: 8px 15px;
-            color: white;
-            border-radius: 20px;
-            font-weight: bold;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            text-align: center;
-            font-size: 13px;
-            white-space: nowrap; /* 글자 줄바꿈 방지 */
-        }
-
-        /* 지도 오른쪽 상단 범례(Legend) 박스 */
-        .map-legend {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10; /* 지도 위에 표시 */
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-size: 12px;
-            display: none; /* 기본은 숨김 */
-        }
-        .legend-item { display: flex; align-items: center; margin-bottom: 5px; color: #333; font-weight: bold; }
-        .legend-item:last-child { margin-bottom: 0; }
-        .legend-color { width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; display: inline-block; }
+        .safety-marker { padding: 6px 12px; color: white; border-radius: 20px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .review-count-marker { padding: 5px 12px; background: var(--main-orange); color: white; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(230,126,34,0.4); }
     </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="review-container">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="page-title mb-1">원룸 후기 목록</h2>
+                    <p class="text-muted small mb-0">서울 전역의 실제 거주 후기를 지도로 확인해 보세요.</p>
+                </div>
+                <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+                    <button class="btn btn-white border-end px-3" onclick="handleMapClick()">
+                        <i class="bi bi-map me-1"></i>지도로 보기
+                    </button>
+                    <button class="btn btn-white px-3" onclick="viewSafetyMap()">
+                        <i class="bi bi-shield-check me-1 text-success"></i>지역별 안전율
+                    </button>
+                    <a th:href="@{/review/write}" class="btn btn-orange px-4 fw-bold">
+                        <i class="bi bi-pencil-square me-1"></i>리뷰 작성
+                    </a>
+                </div>
+            </div>
+
+            <div id="mapWrapper" class="map-section daedong-shadow">
+                <div id="map"></div>
+                <div id="safetyLegend" class="map-legend"
+                     style="display:none; position:absolute; top:20px; right:20px; z-index:10; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+                    <div class="small fw-bold mb-2 border-bottom pb-1">지역 안전 등급</div>
+                    <div class="d-flex align-items-center mb-1"><span
+                            style="width:10px; height:10px; background:#4CAF50; border-radius:50%; margin-right:8px;"></span>안전
+                    </div>
+                    <div class="d-flex align-items-center mb-1"><span
+                            style="width:10px; height:10px; background:#FFC107; border-radius:50%; margin-right:8px;"></span>보통
+                    </div>
+                    <div class="d-flex align-items-center"><span
+                            style="width:10px; height:10px; background:#FF5722; border-radius:50%; margin-right:8px;"></span>위험
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-card daedong-shadow mb-4">
+                <form id="searchForm" th:action="@{/review}" th:method="get">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <select name="searchType" id="searchType" class="form-select rounded-3 form-control">
+                                <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소
+                                </option>
+                                <option value="content" th:selected="${searchType == 'content'}">내용</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-3"><i
+                                        class="bi bi-search text-muted"></i></span>
+                                <input type="text" th:value="${keyword}" name="keyword" id="keyword"
+                                       class="form-control border-start-0 rounded-end-3" placeholder="검색어를 입력하세요">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-dark w-100 rounded-3 fw-bold form-control">검색하기
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex align-items-start mb-2">
+                            <span class="filter-label">장점</span>
+                            <div class="d-flex flex-wrap">
+                                <label th:each="p : ${prosList}" class="checkbox-item">
+                                    <input type="checkbox" name="pros" th:value="${p}"
+                                           th:checked="${pros != null && pros.contains(p)}">
+                                    <span th:text="${p}"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start">
+                            <span class="filter-label">단점</span>
+                            <div class="d-flex flex-wrap">
+                                <label th:each="c : ${consList}" class="checkbox-item">
+                                    <input type="checkbox" name="cons" th:value="${c}"
+                                           th:checked="${cons != null && cons.contains(c)}">
+                                    <span th:text="${c}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="review-table-card daedong-shadow">
+                <table class="table mb-0 text-center">
+                    <thead>
+                    <tr>
+                        <th style="width: 45%;">제목</th>
+                        <th style="width: 15%;">지역</th>
+                        <th style="width: 15%;">평점</th>
+                        <th style="width: 25%;">작성일</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="review : ${reviews.content}">
+                        <td class="text-start ps-4">
+                            <a th:href="@{/review/detail/{id}(id=${review.id})}" class="review-link"
+                               th:text="${review.title}"></a>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark fw-normal rounded-pill px-3"
+                                  th:text="${review.address != null && review.address.contains('구 ') ? review.address.split(' ')[1] : '서울'}"></span>
+                        </td>
+                        <td>
+                            <span class="text-warning fw-bold" th:text="'★ ' + ${review.point}"></span>
+                        </td>
+                        <td class="text-muted small"
+                            th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="pagination-container d-flex justify-content-center">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}"
+                        th:classappend="${page == reviews.number} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+                           th:text="${page+1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
-</head>
 
-<body>
-<a th:href="@{/}" class="btn btn-primary">홈으로</a>
+    <script th:inline="javascript">
+        window.allReviews = /*[[${allReviews}]]*/ [];
+        let map, geocoder, markers = [];
 
-<h1>리뷰 목록</h1>
+        function initMap() {
+            const mapWrapper = document.getElementById('mapWrapper');
+            mapWrapper.style.display = 'block';
 
-<div style="margin-bottom: 10px;">
-    <a th:href="@{/review/write}">[리뷰 등록]</a>
-    <button type="button" onclick="handleMapClick()">[지도로 검색하기]</button>
-    <button type="button" onclick="viewSafetyMap()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">
-        [지역별 안전율 보기]
-    </button>
-</div>
-
-<div id="mapWrapper" class="map-wrapper">
-    <div id="map"></div>
-
-    <div id="safetyLegend" class="map-legend">
-        <div class="legend-item"><span class="legend-color" style="background:#4CAF50;"></span>안전 (상위 5개구)</div>
-        <div class="legend-item"><span class="legend-color" style="background:#FFC107;"></span>보통 (중위 10개구)</div>
-        <div class="legend-item"><span class="legend-color" style="background:#FF5722;"></span>위험 (하위 10개구)</div>
-    </div>
-</div>
-
-<form id="searchForm" th:action="@{/review}" th:method="get" class="search-container">
-    <div>
-        <select name="searchType" id="searchType">
-            <option value="titleAddress" th:selected="${searchType == 'titleAddress'}">제목+주소</option>
-            <option value="content" th:selected="${searchType == 'content'}">내용</option>
-        </select>
-        <input type="text" th:value="${keyword}" name="keyword" id="keyword" placeholder="검색어 입력">
-        <button type="submit">검색</button>
-    </div>
-
-    <div class="checkbox-group">
-        <span>장점:</span>
-        <label th:each="p : ${prosList}">
-            <input type="checkbox" name="pros" th:value="${p}" th:checked="${pros != null && pros.contains(p)}">
-            <span th:text="${p}"></span>
-        </label>
-    </div>
-
-    <div class="checkbox-group">
-        <span>단점:</span>
-        <label th:each="c : ${consList}">
-            <input type="checkbox" name="cons" th:value="${c}" th:checked="${cons != null && cons.contains(c)}">
-            <span th:text="${c}"></span>
-        </label>
-    </div>
-</form>
-
-<table>
-    <colgroup>
-        <col style="width: 40%">
-        <col style="width: 20%">
-        <col style="width: 15%">
-        <col style="width: 10%">
-        <col style="width: 15%">
-    </colgroup>
-    <thead>
-    <tr>
-        <th>제목</th>
-        <th>주소</th>
-        <th>작성자 ID</th>
-        <th>평점</th>
-        <th>작성일</th>
-        <th>❤️</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="review : ${reviews.content}" class="review-item"
-        th:data-address="${review.address}"
-        th:data-title="${review.title}"
-        th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
-        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
-        <td style="text-align: left;">
-            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
-        </td>
-        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-        <td th:text="${review.loginId}"></td>
-        <td th:text="${review.point}"></td>
-        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
-        <td>❤️ <span th:text="${review.likeCount}">0</span>️</td>
-    </tr>
-    </tbody>
-</table>
-
-<div class="pagination" th:if="${reviews.totalPages > 0}">
-    <a th:if="${!reviews.first}" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo; 이전</a>
-    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
-    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
-        <a th:if="${page != reviews.number}" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
-        <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
-    </span>
-    <a th:if="${!reviews.last}" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음 &raquo;</a>
-    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
-</div>
-
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    window.allReviews = /*[[${allReviews}]]*/ [];
-    /*]]>*/
-</script>
-
-<script>
-    let map, geocoder, markers = [];
-
-    // 페이지 로드 시 '지도로 검색' 상태면 지도 띄우기
-    window.addEventListener('load', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('showMap') === 'true') toggleMap();
-    });
-
-    // [버튼 클릭] 지도로 검색하기
-    function handleMapClick() {
-        const urlParams = new URLSearchParams(window.location.search);
-        // 이미 검색 조건이 있으면 페이지 새로고침하며 지도 유지
-        const isSearching = urlParams.get('keyword') || urlParams.get('pros') || urlParams.get('cons');
-
-        if (isSearching) {
-            window.location.href = '/review?showMap=true';
-        } else {
-            toggleMap();
+            if (!map) {
+                const mapContainer = document.getElementById('map');
+                geocoder = new kakao.maps.services.Geocoder();
+                map = new kakao.maps.Map(mapContainer, {
+                    center: new kakao.maps.LatLng(37.566826, 126.9786567),
+                    level: 8
+                });
+            } else {
+                // 핵심수정: 지도가 표시될 때 크기가 깨지는 현상 방지
+                setTimeout(() => {
+                    map.relayout();
+                    map.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567));
+                }, 100);
+            }
         }
-    }
 
-    // [공통] 지도 초기화 함수 (지도 객체가 없으면 생성)
-    function initMap() {
-        const mapWrapper = document.getElementById('mapWrapper');
-        mapWrapper.style.display = 'block';
+        // 기존 코드의 '지도로 검색하기' 기능을 보강한 로직
+        function handleMapClick() {
+            initMap();
+            document.getElementById('safetyLegend').style.display = 'none';
+            clearMarkers();
+            displayReviewMarkers();
+        }
 
-        if (!map) {
-            const mapContainer = document.getElementById('map');
-            geocoder = new kakao.maps.services.Geocoder();
-            map = new kakao.maps.Map(mapContainer, {
-                center: new kakao.maps.LatLng(37.566826, 126.9786567), // 서울 시청 중심
-                level: 7
-            });
+        function clearMarkers() {
+            markers.forEach(m => m.setMap(null));
+            markers = [];
+        }
 
-            // 지도 클릭 시 주소 검색 이벤트 (기존 검색 기능용)
-            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
-                geocoder.coord2Address(mouseEvent.latLng.getLng(), mouseEvent.latLng.getLat(),
-                    function(result, status) {
-                        if (status === kakao.maps.services.Status.OK) {
-                            let address = result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name;
-                            const guMatch = address.match(/([가-힣]+구)/);
-                            if (guMatch) address = guMatch[1];
+        // 안전율 지도 보기 (디자인 및 색상 보강)
+        function viewSafetyMap() {
+            initMap();
+            document.getElementById('safetyLegend').style.display = 'block';
+            clearMarkers();
 
-                            document.getElementById('searchType').value = 'titleAddress';
-                            document.getElementById('keyword').value = address;
-                            document.getElementById('searchForm').submit();
+            fetch('/review/safety-map')
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(stat => {
+                        if (stat.lat > 0) {
+                            let color = stat.grade === 'SAFE' ? '#4CAF50' : (stat.grade === 'NORMAL' ? '#FFC107' : '#FF5722');
+                            const content = `<div class="safety-marker" style="background:${color}">${stat.region}</div>`;
+                            const overlay = new kakao.maps.CustomOverlay({
+                                position: new kakao.maps.LatLng(stat.lat, stat.lng),
+                                content: content,
+                                map: map
+                            });
+                            markers.push(overlay);
                         }
-                    }
-                );
-            });
-        } else {
-            // 지도가 숨겨졌다가 나올 때 깨짐 방지
-            const currentCenter = map.getCenter();
-            map.relayout();
-            map.setCenter(currentCenter);
+                    });
+                });
         }
-    }
 
-    // [기능 1] 리뷰 마커 지도 보기
-    function toggleMap() {
-        initMap();
+        function displayReviewMarkers() {
+            if (!map || !geocoder) return;
 
-        // 안전율 범례 숨기기
-        document.getElementById('safetyLegend').style.display = 'none';
+            const selectedPros = Array.from(document.querySelectorAll('input[name="pros"]:checked')).map(i => i.value);
+            const selectedCons = Array.from(document.querySelectorAll('input[name="cons"]:checked')).map(i => i.value);
+            const reviewsByGu = {};
+            const reviews = window.allReviews || [];
 
-        // 기존 마커 삭제
-        markers.forEach(m => m.setMap(null));
-        markers = [];
+            reviews.forEach(review => {
+                const address = review.address;
+                const pros = review.pros ? review.pros.split(',') : [];
+                const cons = review.cons ? review.cons.split(',') : [];
 
-        // 리뷰 데이터 마커 표시 실행
-        displayReviewMarkers();
-    }
+                if (!selectedPros.every(p => pros.includes(p)) || !selectedCons.every(c => cons.includes(c))) return;
+                if (!address) return;
 
-    // [기능 2] 지역별 안전율 지도 보기 (새로 추가된 기능)
-    function viewSafetyMap() {
-        initMap();
+                const guMatch = address.match(/([가-힣]+구)/);
+                if (!guMatch) return;
 
-        // 안전율 범례 보이기
-        document.getElementById('safetyLegend').style.display = 'block';
+                const gu = guMatch[1];
+                if (!reviewsByGu[gu]) reviewsByGu[gu] = [];
+                reviewsByGu[gu].push(address);
+            });
 
-        // 기존 마커 삭제
-        markers.forEach(m => m.setMap(null));
-        markers = [];
+            const bounds = new kakao.maps.LatLngBounds();
+            const guKeys = Object.keys(reviewsByGu);
+            if (guKeys.length === 0) return;
 
-        // 서울 전체가 보이도록 줌 레벨 조정
-        map.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567));
-        map.setLevel(8);
+            guKeys.forEach(gu => {
+                const firstAddress = gu;
+                geocoder.addressSearch(firstAddress, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-        // 백엔드에서 데이터 가져오기 (AJAX)
-        fetch('/review/safety-map')
-            .then(response => response.json())
-            .then(data => {
-                if (data.length === 0) {
-                    alert("안전율 데이터를 불러올 수 없습니다.");
-                    return;
-                }
-
-                // 데이터 반복문
-                data.forEach(stat => {
-                    if (stat.lat > 0 && stat.lng > 0) {
-                        const coords = new kakao.maps.LatLng(stat.lat, stat.lng);
-
-                        // 등급(Grade)에 따른 색상 결정
-                        let bgColor;
-                        if (stat.grade === 'SAFE') bgColor = '#4CAF50';        // 녹색 (안전)
-                        else if (stat.grade === 'NORMAL') bgColor = '#FFC107'; // 노랑 (보통)
-                        else bgColor = '#FF5722';                              // 빨강 (위험)
-
-                        // 커스텀 오버레이 내용 생성
                         const content = document.createElement('div');
-                        content.className = 'safety-marker';
-                        content.style.backgroundColor = bgColor;
-                        content.innerHTML = `<div>${stat.region}</div>`; // 구 이름만 표시
+                        content.style.cssText = 'padding:5px 10px;background:#FF5A5F;color:white;border-radius:20px;font-weight:bold;cursor:pointer;';
+                        content.innerHTML = reviewsByGu[gu].length + "건";
 
-                        // 지도에 올리기
+                        content.onclick = function() {
+                            document.getElementById('searchType').value = 'titleAddress';
+                            document.getElementById('keyword').value = gu;
+                            document.getElementById('searchForm').submit();
+                        };
+
                         const overlay = new kakao.maps.CustomOverlay({
                             map: map,
                             position: coords,
@@ -284,75 +295,12 @@
                         });
 
                         markers.push(overlay);
+                        bounds.extend(coords);
+                        map.setBounds(bounds);
                     }
                 });
-            })
-            .catch(error => {
-                console.error(error);
-                alert('데이터 로딩 중 오류가 발생했습니다.');
             });
-    }
-
-    // [내부 함수] 리뷰 개수 마커 표시 로직 (기존 코드 유지)
-    function displayReviewMarkers() {
-        if (!map || !geocoder) return;
-
-        const selectedPros = Array.from(document.querySelectorAll('input[name="pros"]:checked')).map(i => i.value);
-        const selectedCons = Array.from(document.querySelectorAll('input[name="cons"]:checked')).map(i => i.value);
-        const reviewsByGu = {};
-        const reviews = window.allReviews || [];
-
-        reviews.forEach(review => {
-            const address = review.address;
-            const pros = review.pros ? review.pros.split(',') : [];
-            const cons = review.cons ? review.cons.split(',') : [];
-
-            if (!selectedPros.every(p => pros.includes(p)) || !selectedCons.every(c => cons.includes(c))) return;
-            if (!address) return;
-
-            const guMatch = address.match(/([가-힣]+구)/);
-            if (!guMatch) return;
-
-            const gu = guMatch[1];
-            if (!reviewsByGu[gu]) reviewsByGu[gu] = [];
-            reviewsByGu[gu].push(address);
-        });
-
-        const bounds = new kakao.maps.LatLngBounds();
-        const guKeys = Object.keys(reviewsByGu);
-        if (guKeys.length === 0) return;
-
-        guKeys.forEach(gu => {
-            const firstAddress = gu;
-            geocoder.addressSearch(firstAddress, function(result, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-
-                    const content = document.createElement('div');
-                    content.style.cssText = 'padding:5px 10px;background:#FF5A5F;color:white;border-radius:20px;font-weight:bold;cursor:pointer;';
-                    content.innerHTML = reviewsByGu[gu].length + "건";
-
-                    content.onclick = function() {
-                        document.getElementById('searchType').value = 'titleAddress';
-                        document.getElementById('keyword').value = gu;
-                        document.getElementById('searchForm').submit();
-                    };
-
-                    const overlay = new kakao.maps.CustomOverlay({
-                        map: map,
-                        position: coords,
-                        content: content,
-                        yAnchor: 1
-                    });
-
-                    markers.push(overlay);
-                    bounds.extend(coords);
-                    map.setBounds(bounds);
-                }
-            });
-        });
-    }
-</script>
-
-</body>
+        }
+    </script>
+</div>
 </html>

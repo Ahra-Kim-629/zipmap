@@ -1,65 +1,124 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>회원 정보 수정</title>
-</head>
-<body>
-<h1>회원 정보 수정</h1>
-<form th:action="@{/users/mypage}" th:method="post" th:object="${user}">
-    <input type="hidden" th:field="*{id}"/>
-    <div>
-        <label for="loginId">아이디:</label>
-        <input type="text" id="loginId" th:field="*{loginId}" readonly/>
-    </div>
-    <div>
-        <label for="password">기존 비밀번호</label>
-        <input type="text" id="password" name="password" placeholder="기존 비밀번호"/>
-    </div>
-    <div>
-        <label for="newPassword">새 비밀번호</label>
-        <input type="text" id="newPassword" name="new_password" placeholder="새 비밀번호"/>
-    </div>
-    <div>
-        <label for="passwordConfirm">새 비밀번호 확인</label>
-        <input type="text" id="passwordConfirm" name="password_confirm" placeholder="새 비밀번호 확인"/>
-    </div>
-    <div>
-        <label for="name">이름:</label>
-        <input type="text" id="name" th:field="*{name}" readonly/>
-    </div>
-    <div>
-        <label for="email">이메일:</label>
-        <input type="email" id="email" th:field="*{email}"/>
-    </div>
-    <div>
-        <label for="phone">전화번호:</label>
-        <input type="text" id="phone" th:field="*{phone}"/>
-    </div>
-    <div>
-        <label for="address">주소:</label>
-        <input type="text" id="address" th:field="*{address}"/>
-    </div>
-    <button type="submit">수정 완료</button>
-    <a th:href="@{/}">취소</a>
-</form>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-<div style="margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-    <h3>실거주 인증 서비스</h3>
-    <p>실거주 리뷰를 작성하시려면 임대차계약서 인증이 필요합니다.</p>
+<th:block layout:fragment="css">
+    <style>
+        .mypage-container { padding: 60px 0; background-color: #fdfcf9; }
+        .mypage-card { background: #fff; padding: 40px; border-radius: 15px; }
+        .section-title {color: #3E362E; font-weight: 800; border-bottom: 2px solid var(--main-orange); display: inline-block; padding-bottom: 5px; margin-bottom: 30px; }
 
-    <a th:href="@{/users/certification}"
-       style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-        실거주 인증 신청하기
-    </a>
+        /* 폼 스타일 */
+        .form-label { font-size: 0.85rem; font-weight: 600; color: #666; }
+        .form-control[readonly] { background-color: #f8f9fa; color: #aaa; cursor: not-allowed; }
+
+        /* 인증 박스 스타일 */
+        .cert-box { background-color: #fff9f4; border: 1px dashed var(--main-orange); border-radius: 12px; padding: 25px; transition: transform 0.2s; }
+        .cert-box:hover { transform: translateY(-3px); }
+
+        /* 활동 링크 사이드바 스타일 */
+        .activity-link { display: flex; align-items: center; padding: 12px 15px; background: #fff; border: 1px solid #eee; border-radius: 8px; color: #555; text-decoration: none; transition: 0.2s; margin-bottom: 10px; }
+        .activity-link:hover { background-color: var(--main-orange); color: #fff; border-color: var(--main-orange); }
+        .activity-link i { margin-right: 10px; font-size: 1.1rem; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="mypage-container">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="mypage-card daedong-shadow">
+                        <h3 class="section-title">회원 정보 수정</h3>
+
+                        <form th:action="@{/users/mypage}" th:method="post" th:object="${user}">
+                            <input type="hidden" th:field="*{id}"/>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="loginId" class="form-label">아이디</label>
+                                    <input type="text" id="loginId" th:field="*{loginId}" class="form-control rounded-3"
+                                           readonly/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">이름</label>
+                                    <input type="text" id="name" th:field="*{name}" class="form-control rounded-3"
+                                           readonly/>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <p class="small fw-bold text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>비밀번호
+                                        변경 (필요 시에만 입력)</p>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <input type="password" id="password" name="password"
+                                                   class="form-control rounded-3" placeholder="기존 비밀번호"/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="password" id="newPassword" name="new_password"
+                                                   class="form-control rounded-3" placeholder="새 비밀번호"/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="password" id="passwordConfirm" name="password_confirm"
+                                                   class="form-control rounded-3" placeholder="새 비밀번호 확인"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <label for="email" class="form-label">이메일</label>
+                                    <input type="email" id="email" th:field="*{email}" class="form-control rounded-3"
+                                           required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">전화번호</label>
+                                    <input type="text" id="phone" th:field="*{phone}" class="form-control rounded-3"
+                                           placeholder="010-0000-0000"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="address" class="form-label">거주 주소</label>
+                                    <input type="text" id="address" th:field="*{address}"
+                                           class="form-control rounded-3"/>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-5">
+                                <button type="submit" class="btn btn-orange px-5 py-2 rounded-pill fw-bold shadow-sm">
+                                    수정 완료
+                                </button>
+                                <a th:href="@{/}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">취소</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="cert-box daedong-shadow mb-4">
+                        <h5 class="fw-bold text-orange mb-3"><i class="bi bi-patch-check-fill me-2"></i>실거주 인증 서비스</h5>
+                        <p class="text-muted small mb-4">임대차계약서 인증을 완료하시면<br><strong>실거주 리뷰</strong>를 작성하실 수 있습니다.</p>
+                        <a th:href="@{/users/certification}" class="btn btn-dark w-100 py-2 rounded-pill fw-bold mb-2">인증
+                            신청하기</a>
+                    </div>
+
+                    <div class="mypage-card daedong-shadow py-4">
+                        <h5 class="fw-bold mb-3 px-2">나의 활동</h5>
+                        <div class="activity-menu">
+                            <a th:href="@{/users/articles(type='reviews')}" class="activity-link">
+                                <i class="bi bi-file-earmark-text"></i> 내가 쓴 리뷰
+                            </a>
+                            <a th:href="@{/users/comments(type='reviews')}" class="activity-link">
+                                <i class="bi bi-chat-dots"></i> 내가 쓴 댓글
+                            </a>
+                        </div>
+                        <hr class="my-4 opacity-5">
+                        <div class="px-2">
+                            <a th:href="@{/users/unregister}" class="text-danger small text-decoration-none">회원 탈퇴</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<br>
-<a th:href="@{/}">실거주 주소 수정</a>
-<a th:href="@{/users/unregister}">회원 탈퇴</a>
-
-<a th:href="@{/users/articles(type='reviews')}">내가 쓴 리뷰</a>
-<a th:href="@{/users/comments(type='reviews')}">내가 쓴 댓글</a>
-
-</body>
 </html>

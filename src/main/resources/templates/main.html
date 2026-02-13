@@ -76,17 +76,15 @@
             <p class="text-muted mb-5">실제 거주자가 작성한 생생한 이미지 후기부터 자취 꿀팁까지</p>
             <div class="row justify-content-center">
                 <div class="col-md-7">
-                    <div class="search-box-wrapper mx-auto rounded-pill bg-white">
-                        <div class="input-group input-group-lg shadow-sm overflow-hidden rounded-pill">
-                            <input
-                                    type="text"
-                                    class="form-control border-0 bg-white"
-                                    placeholder="동네 이름이나 건물명을 입력하세요"
-                            />
-                            <button class="btn btn-orange px-4 border-0" type="button">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
+                    <div class="search-box-wrapper mx-auto bg-white d-flex align-items-center">
+                        <input
+                                type="text"
+                                class="form-control hero-input"
+                                placeholder="동네 이름이나 건물명을 입력하세요"
+                        />
+                        <button class="btn btn-orange btn-search-hero" type="button">
+                            <i class="bi bi-search me-2"></i>검색
+                        </button>
                     </div>
                 </div>
             </div>
@@ -100,7 +98,8 @@
                 <div class="row row-cols-1 row-cols-md-2 g-4">
                     <div class="col" th:each="review : ${reviewDTOList}">
                         <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
-                             style="cursor: pointer;" th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
+                             style="cursor: pointer;"
+                             th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
                             <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500"
                                  class="card-img-top" style="height:200px; object-fit:cover;">
                             <div class="card-body">
@@ -119,13 +118,15 @@
                         <h5 class="fw-bold mb-0">커뮤니티 활성글</h5>
                     </div>
                     <div class="list-group list-group-flush">
-                        <a th:each="post : ${postDTOList}" th:href="@{/board/detail/{id}(id=${post.id})}" class="list-group-item list-group-item-action py-3">
+                        <a th:each="post : ${postDTOList}" th:href="@{/board/detail/{id}(id=${post.id})}"
+                           class="list-group-item list-group-item-action py-3">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <h6 class="mb-1 fw-bold"
                                     th:classappend="${post.category == 'TRADE' ? 'text-orange' : (post.category == 'COMMUNITY' ? 'text-success' : 'text-warning')}"
                                     th:text="'[' + ${post.category} + ']'">
                                 </h6>
-                                <small class="text-muted text-muted-date" th:data-date="${post.createdAt}">계산 중...</small>
+                                <small class="text-muted text-muted-date" th:data-date="${post.createdAt}">계산
+                                    중...</small>
                             </div>
 
                             <div class="d-flex align-items-center mt-1">

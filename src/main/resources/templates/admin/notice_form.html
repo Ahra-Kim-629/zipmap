@@ -1,51 +1,165 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>공지사항 작성</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-</head>
-<body>
-<h1>공지사항 작성</h1>
-<form th:action="@{/admin/notice}" method="post" enctype="multipart/form-data">
-    <div>
-        <label for="title">제목</label>
-        <input type="text" id="title" name="title" required>
-    </div>
-    <div>
-        <label for="imageFile">이미지 첨부</label>
-        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
-    </div>
-    <div>
-        <label for="linkUrl">링크 URL</label>
-        <input type="text" id="linkUrl" name="linkUrl" placeholder="https://...">
-    </div>
-    <div>
-        <label for="posTop">상단 위치 (px)</label>
-        <input type="number" id="posTop" name="posTop" value="100">
-        <label for="posLeft">좌측 위치 (px)</label>
-        <input type="number" id="posLeft" name="posLeft" value="100">
-    </div>
-    <div>
-        <label for="priority">우선순위 (높을수록 먼저 노출)</label>
-        <input type="number" id="priority" name="priority" value="0">
-    </div>
-    <div>
-        <label for="startDate">게시 시작 일시:</label>
-        <input type="text" id="startDate" name="startDate" placeholder="시작 날짜와 시간을 선택하세요">
-    </div>
-    <div>
-        <label for="endDate">게시 종료 일시:</label>
-        <input type="text" id="endDate" name="endDate" placeholder="종료 날짜와 시간을 선택하세요">
-    </div>
-    <div>
-        <button type="submit">등록</button>
-        <button type="button" onclick="history.back()">취소</button>
-    </div>
-</form>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
-<script th:src="@{/js/admin-notice.js}"></script>
-</body>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .admin-container { padding: 60px 0; background-color: #fdfcf9; min-height: 90vh; }
+        .notice-card { max-width: 750px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 20px; border: none; }
+        .page-title {  font-weight: 800; color: #3E362E; }
+
+        /* 섹션 구분 */
+        .form-section { margin-bottom: 35px; }
+        .section-label { font-weight: 700; color: #3E362E; margin-bottom: 20px; display: block; font-size: 1.1rem; border-left: 4px solid var(--main-orange); padding-left: 12px; }
+
+        /* 입력창 스타일 */
+        .form-label { font-size: 0.85rem; font-weight: 600; color: #666; margin-bottom: 8px; }
+        .form-control, .form-select { border-radius: 10px; padding: 12px 15px; border: 1px solid #eee; background-color: #fdfdfd; }
+        .form-control:focus { border-color: var(--main-orange); box-shadow: 0 0 0 0.25rem rgba(230,126,34,0.1); background-color: #fff; }
+
+        /* 이미지 미리보기 박스 */
+        .preview-box {
+            width: 100%; min-height: 150px; border: 2px dashed #eee; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa;
+        }
+        .preview-box img { max-width: 100%; height: auto; }
+
+        /* 날짜 입력창 커스텀 */
+        .flatpickr-input { background-color: #fff !important; cursor: pointer; }
+
+        .guide-text { font-size: 0.75rem; color: #999; margin-top: 5px; line-height: 1.4; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="admin-container">
+        <div class="container">
+            <div class="notice-card daedong-shadow">
+                <div class="text-center mb-5">
+                    <h2 class="page-title mb-2">중앙 모달 공지 등록</h2>
+                    <p class="text-muted small">메인 화면 접속 시 정중앙에 나타날 팝업 공지를 설정합니다.</p>
+                </div>
+
+                <form th:action="@{/admin/notice}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="form-section">
+                        <span class="section-label">공지 콘텐츠</span>
+                        <div class="mb-4">
+                            <label for="title" class="form-label">관리용 제목</label>
+                            <input type="text" id="title" name="title" class="form-control"
+                                   placeholder="목록 식별을 위한 제목을 입력하세요" required>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-7">
+                                <label for="imageFile" class="form-label">팝업 이미지 등록</label>
+                                <input type="file" id="imageFile" name="imageFile" class="form-control mb-2"
+                                       accept="image/*" required onchange="previewImage(this)">
+                                <div class="guide-text">
+                                    <i class="bi bi-info-circle me-1"></i> 중앙 모달은 <strong>가로 450px ~ 500px</strong> 크기가
+                                    가장 적당합니다.<br>
+                                    <i class="bi bi-info-circle me-1"></i> 배경이 투명한 PNG 파일을 권장합니다.
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">이미지 미리보기</label>
+                                <div class="preview-box" id="imagePreview">
+                                    <span class="text-muted small">이미지를 선택하세요</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <span class="section-label">연결 및 노출 순서</span>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label for="linkUrl" class="form-label">클릭 시 이동할 URL (선택)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i
+                                            class="bi bi-link-45deg"></i></span>
+                                    <input type="url" id="linkUrl" name="linkUrl" class="form-control border-start-0"
+                                           placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="priority" class="form-label">노출 우선순위</label>
+                                <input type="number" id="priority" name="priority"
+                                       class="form-control text-center fw-bold" value="0">
+                                <div class="guide-text text-end">※ 숫자가 높을수록 먼저 노출</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section border-0 mb-0">
+                        <span class="section-label">게시 기간</span>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">시작 일시</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-calendar-check"></i></span>
+                                    <input type="text" id="startDate" name="startDate"
+                                           class="form-control border-start-0" placeholder="시작 날짜와 시간" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">종료 일시</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-calendar-x"></i></span>
+                                    <input type="text" id="endDate" name="endDate" class="form-control border-start-0"
+                                           placeholder="종료 날짜와 시간" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center mt-5 pt-4 border-top">
+                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">공지사항 등록
+                        </button>
+                        <button type="button" onclick="history.back()"
+                                class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // 기간 선택기 설정
+            const fpConfig = {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                locale: "ko",
+                time_24hr: true,
+                minDate: "today"
+            };
+
+            flatpickr("#startDate", fpConfig);
+            flatpickr("#endDate", fpConfig);
+        });
+
+        // 이미지 미리보기 함수
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="미리보기">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = `<span class="text-muted small">이미지를 선택하세요</span>`;
+            }
+        }
+    </script>
+</div>
 </html>
