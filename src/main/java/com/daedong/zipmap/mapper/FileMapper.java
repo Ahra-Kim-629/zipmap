@@ -1,8 +1,10 @@
 package com.daedong.zipmap.mapper;
 
+import com.daedong.zipmap.domain.FileAttachment;
 import com.daedong.zipmap.domain.PostFile;
 import com.daedong.zipmap.domain.ReviewFile;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,4 +27,19 @@ public interface FileMapper {
 
     // 리뷰 파일 저장
     void saveReviewFile(ReviewFile reviewFile);
+
+    // [수정됨] 통합 파일 저장
+    void insertAttachment(FileAttachment fileAttachment);
+
+    // [수정됨] 통합 파일 목록 조회
+    List<FileAttachment> findAttachments(@Param("targetType") String targetType, @Param("targetId") Long targetId);
+
+    // [수정됨] 통합 파일 단건 조회
+    FileAttachment findAttachmentById(Long id);
+
+    // [수정됨] 통합 파일 개별 삭제 (이름 변경: deleteFileById -> deleteAttachment)
+    void deleteAttachment(Long id);
+
+    // [수정됨] 통합 파일 전체 삭제 (글 삭제 시)
+    void deleteAttachmentsByTarget(@Param("targetType") String targetType, @Param("targetId") Long targetId);
 }

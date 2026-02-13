@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>리뷰 작성 페이지</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
@@ -57,54 +60,64 @@
             <label><input type="checkbox" id="c_noise" name="consList" value="소음">소음</label>
             <label><input type="checkbox" id="c_safety" name="consList" value="치안">치안</label>
             <label><input type="checkbox" id="c_landlord" name="consList" value="집주인">집주인</label>
-
         </div>
-
 
         <div class="form-group">
             <label for="content">내용</label>
             <textarea class="form-control" id="content" name="content" rows="20" cols="40" required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">작성</button>
 
+        <button type="submit" class="btn btn-primary">작성</button>
     </form>
 
     <a th:href="@{/review/list}">작성취소/ 리뷰목록으로 이동</a>
-
 </div>
 
 <script>
     $(document).ready(function() {
         $('#content').summernote({
-            height: 400,                 // 에디터 높이
-            lang: 'ko-KR',               // 언어 설정 (한글 패키지 추가 시)
+            height: 400,
+            lang: 'ko-KR',
             placeholder: '내용을 입력해주세요.',
             callbacks: {
-                // 이미지를 업로드했을 때 실행되는 함수
                 onImageUpload: function(files) {
-                    // 올려진 파일 개수만큼 반복해서 서버에 보내기
-    for (let i = 0; i < files.length; i++) {
-        uploadSummernoteImage(files[i], this);
-    }
+                    for (let i = 0; i < files.length; i++) {
+                        uploadSummernoteImage(files[i], this);
+                    }
                 }
             }
         });
     });
 
-    // 이미지를 서버에 저장하고 주소를 받아오는 Ajax 함수
     function uploadSummernoteImage(file, editor) {
         let data = new FormData();
         data.append("file", file);
+
+        // HTML 헤더에서 토큰 값 가져오기 (기존코드에서 추가)
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
         $.ajax({
             url: "/review/uploadSummernoteImage",
             type: "POST",
             data: data,
             contentType: false,
             processData: false,
+
+            // 토큰을 헤더에 실어 보내기
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
             success: function(response) {
-                // 서버가 알려준 이미지 주소를 본문에 삽입
+                // response가 {url: "..."} 형태여야 함
                 $(editor).summernote('insertImage', response.url);
+            },
+            error: function(e) {
+                console.log("에러 내용:", e);
+                alert("이미지 업로드 실패 (403이면 CSRF 문제)");
             }
         });
     }

@@ -16,10 +16,8 @@
 <div th:if="${error}" style="color: red;">
     <p th:text="${error}"></p>
 </div>
-<div th:if="${message}" style="color: red;">
-    <p th:text="${message}"></p>
-</div>
-<form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
+
+<form th:action="@{/board/write}" method="post">
     <div>
         <label for="category">카테고리</label>
         <select id="category" name="category" required>
@@ -49,10 +47,7 @@
         <label for="content">내용</label>
         <textarea class="form-control" id="content" name="content" rows="20" cols="40" required></textarea>
     </div>
-    <div>
-        <label for="file">첨부파일</label>
-        <input type="file" id="file" name="file">
-    </div>
+
     <div>
         <button type="submit">등록</button>
         <a th:href="@{/board}">취소</a>
@@ -62,22 +57,25 @@
 <script>
     $(document).ready(function() {
         $('#content').summernote({
-            height: 400,                 // 에디터 높이
-            lang: 'ko-KR',               // 언어 설정 (한글 패키지 추가 시)
+            height: 400,
+            lang: 'ko-KR',
             placeholder: '내용을 입력해주세요.',
             callbacks: {
-                // 이미지를 업로드했을 때 실행되는 함수
+                // 1. 이미지 업로드 시
                 onImageUpload: function(files) {
-                    // 올려진 파일 개수만큼 반복해서 서버에 보내기
                     for (let i = 0; i < files.length; i++) {
-                    uploadSummernoteImage(files[i], this);
+                        uploadSummernoteImage(files[i], this);
                     }
+                },
+                // 2. 이미지 삭제 시
+                onMediaDelete: function(target) {
+                    deleteSummernoteImage(target[0].src);
                 }
             }
         });
     });
 
-    // 이미지를 서버에 저장하고 주소를 받아오는 Ajax 함수
+    // [이미지 업로드]
     function uploadSummernoteImage(file, editor) {
         let data = new FormData();
         data.append("file", file);
@@ -86,7 +84,7 @@
         let header = $("meta[name='_csrf_header']").attr("content");
 
         $.ajax({
-            url: "/review/uploadSummernoteImage",
+            url: "/board/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
             type: "POST",
             data: data,
             contentType: false,
@@ -97,9 +95,24 @@
                 }
             },
             success: function(response) {
-                // 서버가 알려준 이미지 주소를 본문에 삽입
-                console.log(response);
                 $(editor).summernote('insertImage', response.url);
+            }
+        });
+    }
+
+    // [이미지 삭제]
+    function deleteSummernoteImage(src) {
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            data: {src: src},
+            type: "POST",
+            url: "/board/deleteSummernoteImage", // ★ 주소 변경됨
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
             }
         });
     }

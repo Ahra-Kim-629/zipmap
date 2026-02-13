@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
     private final PostMapper postMapper;
-    private final FileService fileService;
+    //   private final FileService fileService;
 
     public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         int totalCount = postMapper.countAll(searchType, keyword, category, location);
@@ -35,25 +35,30 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void write(Post post, List<MultipartFile> files) throws IOException {
+    public Long write(Post post) { // 리턴타입 void -> Long (ID 반환)
         postMapper.insertPost(post);
-
-        fileService.saveFiles(post.getId(), files);
+        return post.getId(); // XML에서 keyProperty="id"로 세팅된 ID 반환
     }
 
+    // [수정됨] 파일 처리 로직 제거
     @Transactional(rollbackFor = Exception.class)
-    public void update(Post post, List<MultipartFile> files) throws IOException {
+    public void update(Post post) {
         postMapper.updatePost(post);
+    }
 
-        if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
-            fileService.deleteFilesByPostId(post.getId());
-            fileService.saveFiles(post.getId(), files);
-        }
+    // [추가] 내용(HTML)만 업데이트하는 메서드 (필수!)
+    @Transactional
+    public void updateContent(Long id, String content) {
+        // Post 객체를 만들어서 Mapper에 전달
+        Post post = new Post();
+        post.setId(id);
+        post.setContent(content);
+        postMapper.updateContent(post); // Mapper XML에 추가한 쿼리 호출
     }
 
     @Transactional
     public void delete(Long id) {
-        fileService.deleteFilesByPostId(id);
+        // 기존 파일 삭제 로직 제거 (Controller에서 FileUtilService로 처리)
         postMapper.deletePost(id);
     }
     // 좋아요 기능 관련 추가

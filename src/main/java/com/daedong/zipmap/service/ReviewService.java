@@ -165,4 +165,17 @@ public class ReviewService {
     public List<ReviewDTO> getMainpageReview() {
         return reviewMapper.findOrderByCreatedAtDescLimit4();
     }
+
+    // [추가] 글 내용(HTML)만 업데이트하는 메서드
+    public void updateContent(Long id, String content) {
+        // 매퍼에 쿼리 호출 (파라미터가 2개라 Map이나 @Param 필요할 수 있음)
+        // 여기서는 편의상 DTO를 만들어서 보내거나, Map을 씁니다.
+        // 가장 쉬운 방법: ReviewDTO를 재활용해서 보냅니다.
+        ReviewDTO dto = new ReviewDTO();
+        dto.setId(id);
+        dto.setContent(content);
+        reviewMapper.updateContent(dto);
+        // 주의: Mapper XML에서 #{content}, #{id}를 쓰니까 DTO에 값이 있어야 함
+    }
+
 }

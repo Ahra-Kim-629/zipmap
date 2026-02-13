@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>리뷰 수정 페이지</title>
@@ -14,7 +14,7 @@
 <body>
 <div class="container">
     <h2>리뷰 수정</h2>
-    <form th:action="@{|/review/edit/${reviewDTO.id}}|" method="post" enctype="multipart/form-data">
+    <form th:action="@{|/review/edit/${reviewDTO.id}|}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">제목</label>
             <input type="text" class="form-control" id="title" name="title" th:value="${reviewDTO.title}">
@@ -28,36 +28,35 @@
         <div class="form-group">
             <label for="point">별점</label>
             <select class="form-control" id="point" name="point" th:value="${reviewDTO.point}">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
+                <option value="1" th:selected="${reviewDTO.point == 1}">1</option>
+                <option value="2" th:selected="${reviewDTO.point == 2}">2</option>
+                <option value="3" th:selected="${reviewDTO.point == 3}">3</option>
+                <option value="4" th:selected="${reviewDTO.point == 4}">4</option>
+                <option value="5" th:selected="${reviewDTO.point == 5}">5</option>
             </select>
         </div>
 
         <div class="form-group">
-            <p class="pros"><b>장점 (기존 선택한 항목들이 표시됩니다.)</b></p>
+            <p class="pros"><b>장점</b></p>
             <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
                 <label>
                     <input type="checkbox" name="prosList" th:value="${item}"
-                           th:checked="${#lists.contains(reviewDTO.prosList, item)}">[[${item}]]
+                           th:checked="${reviewDTO.prosList != null and #lists.contains(reviewDTO.prosList, item)}">[[${item}]]
                 </label>
             </th:block>
 
-            <p class="cons"><b>단점 (기존 선택한 항목들이 표시됩니다.)</b></p>
+            <p class="cons"><b>단점</b></p>
             <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
                 <label>
                     <input type="checkbox" name="consList" th:value="${item}"
-                           th:checked="${#lists.contains(reviewDTO.consList, item)}">[[${item}]]
+                           th:checked="${reviewDTO.consList != null and #lists.contains(reviewDTO.consList, item)}">[[${item}]]
                 </label>
             </th:block>
         </div>
 
         <div class="form-group">
             <label for="content">내용</label>
-            <textarea class="form-control" id="content" name="content" rows="10" th:text="${reviewDTO.content}"
-                      required></textarea>
+            <textarea class="form-control" id="content" name="content" rows="10" th:text="${reviewDTO.content}" required></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">수정 완료</button>
@@ -65,72 +64,78 @@
     </form>
 </div>
 
-
 <script>
-
     $(document).ready(function() {
-    $('#content').summernote({
-        height: 400,
-        lang: 'ko-KR',
-        placeholder: '내용을 입력해주세요.',
-        callbacks: {
-            onImageUpload: function(files) {
-                // 올려진 파일 개수만큼 반복해서 서버에 보내기
-    for (let i = 0; i < files.length; i++) {
-        uploadSummernoteImage(files[i], this);
+        $('#content').summernote({
+            height: 400,
+            lang: 'ko-KR',
+            placeholder: '내용을 입력해주세요.',
+            callbacks: {
+                // 1. 이미지 업로드 시
+                onImageUpload: function(files) {
+                    for (let i = 0; i < files.length; i++) {
+                        uploadSummernoteImage(files[i], this);
+                    }
+                },
+                // 2. 이미지 삭제 시 (x 버튼)
+                onMediaDelete: function(target) {
+                    deleteSummernoteImage(target[0].src);
+                }
+            }
+        });
+    });
+
+    // [이미지 업로드 함수]
+    function uploadSummernoteImage(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
+
+        // 헤더 토큰 가져오기
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: "/review/uploadSummernoteImage",
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            // ★★★ 핵심: 전송 전에 헤더에 보안 키 심기 ★★★
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                // 에디터에 이미지 태그 삽입
+                $(editor).summernote('insertImage', response.url);
+            },
+            error: function(e) {
+                console.error(e);
+                alert("이미지 업로드 실패 (관리자에게 문의하세요)");
+            }
+        });
     }
+
+    // [이미지 삭제 함수] - 에디터에서 지울 때 서버 파일도 삭제
+    function deleteSummernoteImage(src) {
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            data: {src: src},
+            type: "POST",
+            url: "/review/deleteSummernoteImage",
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                console.log("파일 삭제 성공");
             }
-        }
-    });
-});
-
-function uploadSummernoteImage(file, editor) {
-    let data = new FormData();
-    data.append("file", file);
-    $.ajax({
-        url: "/review/uploadSummernoteImage", // 아까 만든 컨트롤러 그대로 사용
-        type: "POST",
-        data: data,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-            $(editor).summernote('insertImage', response.url);
-        }
-    });
-}
-
-    function deleteFile(fileId) {
-    if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
-
-    // 헤더에서 보안 토큰 정보 가져오기
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
-
-    $.ajax({
-        url: "/review/deleteFile/" + fileId,
-        type: "POST",
-        beforeSend: function(xhr) {
-            // 보안 카드가 있을 때만 헤더에 추가
-            if (token && header) {
-                xhr.setRequestHeader(header, token);
-            }
-        },
-        success: function(result) {
-            console.log("서버 응답:", result);
-            if (result.trim() === "success") {
-                // 화면에서 해당 파일 박스 삭제
-                $('#file-card-' + fileId).remove();
-                alert("파일이 삭제되었습니다.");
-            } else {
-                alert("삭제 처리에 실패했습니다. (응답값 오류)");
-            }
-        },
-        error: function(xhr) {
-            console.error("에러 발생:", xhr);
-            alert("삭제 중 오류가 발생했습니다. (상태코드: " + xhr.status + ")");
-        }
-    });
-}
+        });
+    }
 </script>
 </body>
 </html>

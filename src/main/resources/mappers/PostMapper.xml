@@ -319,4 +319,13 @@
     LIMIT 3
     ]]>
     </select>
+
+    <!--    추가 2/13 -->
+    <update id="updateContent">
+        UPDATE post
+        SET content = #{content}
+        WHERE id = #{id}
+    </update>
+
+
 </mapper>
