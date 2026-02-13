@@ -58,6 +58,7 @@
 </head>
 
 <body>
+<a th:href="@{/}" class="btn btn-primary">홈으로</a>
 
 <h1>리뷰 목록</h1>
 
@@ -121,6 +122,7 @@
         <th>작성자 ID</th>
         <th>평점</th>
         <th>작성일</th>
+        <th>❤️</th>
     </tr>
     </thead>
     <tbody>
@@ -131,12 +133,12 @@
         th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
         <td style="text-align: left;">
             <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
-            <span>❤️ 좋아요: <span th:text="${review.likeCount}">0</span>개</span>
         </td>
         <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
         <td th:text="${review.loginId}"></td>
         <td th:text="${review.point}"></td>
         <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+        <td>❤️ <span th:text="${review.likeCount}">0</span>️</td>
     </tr>
     </tbody>
 </table>

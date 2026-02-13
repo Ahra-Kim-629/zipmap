@@ -5,6 +5,7 @@
     <title>Post Detail</title>
 </head>
 <body>
+<a th:href="@{/}" class="btn btn-primary">홈으로</a>
 <div th:if="${board != null}">
     <h1 th:text="${board.title}">Title</h1>
     <p><strong>Category:</strong> <span th:text="${board.category}">Category</span></p>
