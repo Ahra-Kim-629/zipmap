@@ -45,13 +45,19 @@ public class ReviewController {
         // 페이징 리뷰
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
+        // 좋아요 표시
+        for(ReviewDTO review : reviews) {
+            int count = likesService.countLikes("review", review.getId(), 1);
+            review.setLikeCount(count);
+        }
+
         // 지도 표시용 전체 리뷰
         List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
 
-        // 좋아요, 싫어요 갯수
-        for(ReviewDTO review : reviews){
-            review.setLikeCount(likesService.countLikes("review", review.getId()));
-            review.setDislikeCount(likesService.countDislikes("review", review.getId()));
+        // 좋아요 표시
+        for(ReviewDTO review : allReviews) {
+            int count = likesService.countLikes("review", review.getId(), 1);
+            review.setLikeCount(count);
         }
 
         // 장점/단점 체크박스 항목
@@ -74,11 +80,16 @@ public class ReviewController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
-        model.addAttribute("reviewDTO", reviewDTO);
+
+        // 좋아요
+        int likeCount = likesService.countLikes("review", id, 1);
+        reviewDTO.setLikeCount(likeCount);
 
         // 해당 리뷰에 달린 댓글 목록 보여주기
         List<Replies> replyList = repliesService.getReplyList("review", id);
         model.addAttribute("replyList", replyList);
+
+        model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
     }
@@ -203,7 +214,6 @@ public class ReviewController {
         like.setTargetType("review");
         like.setTargetId(targetId);
         like.setUserId(user.getId());
-        like.setLoginId(user.getLoginId());
         like.setType(type);
 
         likesService.save(like);

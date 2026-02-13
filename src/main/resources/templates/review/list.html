@@ -131,6 +131,7 @@
         th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
         <td style="text-align: left;">
             <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
+            <span>❤️ 좋아요: <span th:text="${review.likeCount}">0</span>개</span>
         </td>
         <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
         <td th:text="${review.loginId}"></td>

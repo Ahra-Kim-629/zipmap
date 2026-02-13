@@ -9,6 +9,19 @@
     <!-- 리뷰글 내용 -->
     <p><b>제목 : </b><span th:text="${reviewDTO.title}"></span></p>
     <p><b>작성자 : </b><span th:text="${reviewDTO.loginId}"></span></p>
+    <!-- 좋아요 버튼 -->
+    <div class="like-section" style="margin-top: 20px; text-align: center;">
+        <form th:action="@{/review/reaction}" method="post">
+            <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
+            <input type="hidden" name="type" value="1"> <button type="submit" style="border: 1px solid #ddd; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            ❤️ 좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
+        </button>
+        </form>
+    </div>
+    <div sec:authorize="isAnonymous()" style="margin-top: 20px; text-align: center;">
+        <p>❤️ 좋아요 <span th:text="${reviewDTO.likeCount}">0</span></p>
+        <p><small>(로그인 후 좋아요를 누를 수 있습니다)</small></p>
+    </div>
     <p><b>작성일 : </b><span th:text="${#temporals.format(reviewDTO.createdAt, 'yyyy-MM-dd')}"></span></p>
     <p th:if="${reviewDTO.updatedAt != null}">
         <b>수정일 : </b><span th:text="${#temporals.format(reviewDTO.updatedAt, 'yyyy-MM-dd')}"></span>

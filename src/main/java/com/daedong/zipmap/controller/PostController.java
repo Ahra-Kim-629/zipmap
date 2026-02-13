@@ -3,6 +3,7 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.LikesService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,16 @@ public class PostController {
                        Model model) {
         // 전체 게시판 게시글 리스트
         Page<PostDTO> posts = postService.findAll(searchType, keyword, category, location, pageable);
+
+        // 좋아요 싫어요 표시
+        for (PostDTO post : posts.getContent()) {
+            int likeCount = likesService.countLikes("post", post.getId(), 1);
+            int dislikeCount = likesService.countLikes("post", post.getId(), -1);
+
+            post.setLikeCount(likeCount);
+            post.setDislikeCount(dislikeCount);
+        }
+
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
@@ -49,6 +60,11 @@ public class PostController {
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         PostDTO boardDTO = postService.getPostDetail(id);
+
+        // 좋아요, 싫어요 표시
+        boardDTO.setLikeCount(likesService.countLikes("post", id, 1));
+        boardDTO.setDislikeCount(likesService.countLikes("post", id, -1));
+
         model.addAttribute("board", boardDTO);
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         model.addAttribute("currentUserId", user.getId());
@@ -132,7 +148,6 @@ public class PostController {
         like.setTargetType("post");
         like.setTargetId(targetId);
         like.setUserId(user.getId());
-        like.setLoginId(user.getLoginId());
         like.setType(type);
 
         likesService.save(like);

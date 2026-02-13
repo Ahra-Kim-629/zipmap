@@ -35,24 +35,19 @@
             </li>
         </ul>
     </div>
+    <!-- 좋아요 싫어요 표시 -->
     <hr>
-    <div>
-        <form th:action="@{/board/reaction}" method="post">
-            <input type="hidden" name="postId" th:value="${board.id}">
-            <input type="hidden" name="userId" th:value="${currentUserId}">
-            <input type="hidden" name="type" value="LIKE">
-            <button type="submit">
-                 좋아요 <span th:text="${board.likeCount}">0</span>
-            </button>
+    <div class="reaction-section" style="text-align: center; margin-top: 30px;">
+        <form th:action="@{/board/reaction}" method="post" style="display: inline-block;">
+            <input type="hidden" name="targetId" th:value="${board.id}">
+            <input type="hidden" name="type" value="1">
+            <button type="submit">👍 좋아요 [[${board.likeCount}]]</button>
         </form>
 
-        <form th:action="@{/board/reaction}" method="post">
-            <input type="hidden" name="postId" th:value="${board.id}">
-            <input type="hidden" name="userId" th:value="${currentUserId}">
-            <input type="hidden" name="type" value="DISLIKE">
-            <button type="submit" >
-                👎 싫어요 <span th:text="${board.dislikeCount}">0</span>
-            </button>
+        <form th:action="@{/board/reaction}" method="post" style="display: inline-block; margin-left: 10px;">
+            <input type="hidden" name="targetId" th:value="${board.id}">
+            <input type="hidden" name="type" value="-1">
+            <button type="submit"><span style="filter: grayscale(100%); opacity: 0.7;">👎</span> 싫어요 [[${board.dislikeCount}]]</button>
         </form>
     </div>
     <hr>

@@ -2,6 +2,7 @@ package com.daedong.zipmap.mapper;
 
 import com.daedong.zipmap.domain.Likes;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface LikesMapper {
@@ -11,7 +12,9 @@ public interface LikesMapper {
 
     void delete(Long id);
 
-    void update(Long id, int type);
+    void update(@Param("id") Long id, @Param("type") int type);
 
-    int countLikes(String targetType, Long targetId, int type);
+    int countLikes(@Param("targetType") String targetType,
+                   @Param("targetId") Long targetId,
+                   @Param("type") int type);
 }

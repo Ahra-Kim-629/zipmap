@@ -70,7 +70,7 @@
         <td><a th:href="@{/board/detail/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
         <td th:text="${post.loginId}"></td>
         <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        <td th:text="${post.likeCount}"></td>
+        <td>👍 좋아요 <span th:text="${post.likeCount}">0</span> / <span style="filter: grayscale(100%); opacity: 0.7;">👎</span> 싫어요 <span th:text="${post.dislikeCount}">0</span></td>
     </tr>
     <tr th:if="${posts.empty}">
         <td colspan="5">게시글이 없습니다.</td>
