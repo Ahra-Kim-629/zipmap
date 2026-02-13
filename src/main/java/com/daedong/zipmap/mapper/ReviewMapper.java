@@ -32,4 +32,7 @@ public interface ReviewMapper {
     int countByUserId(@Param("userId") Long userId);
 
     List<ReviewDTO> findOrderByCreatedAtDescLimit4();
+
+    // 추가 2/13
+    void updateContent(ReviewDTO dto);
 }

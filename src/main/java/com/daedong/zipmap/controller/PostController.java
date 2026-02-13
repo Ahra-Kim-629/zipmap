@@ -1,8 +1,12 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.Replies;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.LikesService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +22,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,6 +35,8 @@ public class PostController {
     private final UserService userService;
     private final RepliesService repliesService;
     private final LikesService likesService;
+
+    private final FileUtilService fileUtilService;
 
     @GetMapping
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -82,12 +91,23 @@ public class PostController {
         return "board/write_form";
     }
 
+    //@RequestParam("file") List<MultipartFile> files
+
     @PostMapping("/write")
-    public String write(@AuthenticationPrincipal UserDetails userDetails, Post post, @RequestParam("file") List<MultipartFile> files, Model model) {
+    public String write(@AuthenticationPrincipal UserDetails userDetails, Post post ,Model model) {
         try {
             User user = (User) userService.loadUserByUsername(userDetails.getUsername());
             post.setUserId(user.getId());
-            postService.write(post, files);
+
+            Long savedId = postService.write(post);
+
+            // 2. ★ 파일 이사 (temp -> post)
+            // "POST" 라고 지정하면 C:/upload/post 폴더에 저장됩니다.
+            String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
+
+            // 3. 내용 업데이트 (이미지 경로 보정)
+            postService.updateContent(savedId, newContent);
+
             model.addAttribute("message", "글 작성이 완료되었습니다.");
             return "redirect:/board";
         } catch (Exception e) {
@@ -109,13 +129,22 @@ public class PostController {
         return "board/edit_form";
     }
 
+
+    // @RequestParam("file") List<MultipartFile> files
     @PostMapping("/edit/{id}")
-    public String update(@PathVariable Long id, Post post, @RequestParam("file") List<MultipartFile> files, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
+    public String update(@PathVariable Long id, Post post, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
         try {
             User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+
+            // 1. ★ 이미지 동기화 (temp -> post 이동, 삭제된 건 제거)
+            String newContent = fileUtilService.updateImagesFromContent(post.getContent(), "POST", id);
+
             post.setId(id);
             post.setUserId(user.getId());
-            postService.update(post, files);
+            post.setContent(newContent); // 경로 보정된 내용 넣기
+
+            postService.update(post);
+
             rttr.addFlashAttribute("message", "글 수정이 완료되었습니다.");
             return "redirect:/board/detail/" + id;
         } catch (Exception e) {
@@ -133,7 +162,12 @@ public class PostController {
                 rttr.addFlashAttribute("message", "권한이 없습니다.");
                 return "redirect:/board";
             }
+
+            // ★ 파일 전체 삭제 (DB + 실제파일)
+            fileUtilService.deleteFilesByTarget("POST", id);
+
             postService.delete(id);
+
             rttr.addFlashAttribute("message", "게시글이 삭제되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
@@ -154,4 +188,40 @@ public class PostController {
 
         return "redirect:/board/detail/" + targetId;
     }
+
+    // =====================================================================
+    // 썸머노트 이미지 업로드 (Ajax) - 무조건 temp 폴더 사용
+    // =====================================================================
+    @PostMapping("/uploadSummernoteImage")
+    @ResponseBody
+    public Map<String, Object> uploadSummernoteImage(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String filePath = fileUtilService.saveTempImage(file);
+            response.put("url", "/files/" + filePath);
+            response.put("responseCode", "success");
+        } catch (IOException e) {
+            response.put("responseCode", "error");
+        }
+        return response;
+    }
+
+    // =====================================================================
+    // 썸머노트 이미지 삭제 (Ajax)
+    // =====================================================================
+    @PostMapping("/deleteSummernoteImage")
+    @ResponseBody
+    public String deleteSummernoteImage(@RequestParam("src") String src) {
+        try {
+            String filePath = src;
+            if (src.contains("/files/")) {
+                filePath = src.split("/files/")[1];
+            }
+            fileUtilService.deleteFileByPath(filePath);
+            return "success";
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
 }
+

@@ -220,14 +220,28 @@
         function uploadSummernoteImage(file, editor) {
             let data = new FormData();
             data.append("file", file);
+
+            // HTML 헤더에서 토큰 값 가져오기 (기존코드에서 추가)
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
             $.ajax({
                 url: "/review/uploadSummernoteImage",
                 type: "POST",
                 data: data,
                 contentType: false,
                 processData: false,
+                beforeSend: function(xhr) {
+                    if (token && header) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                },
                 success: function(response) {
                     $(editor).summernote('insertImage', response.url);
+                },
+                error: function(e) {
+                    console.log("에러 내용:", e);
+                    alert("이미지 업로드 실패 (403이면 CSRF 문제)");
                 }
             });
         }

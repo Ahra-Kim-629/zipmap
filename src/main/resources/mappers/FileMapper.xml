@@ -49,4 +49,36 @@
         DELETE FROM post_file
         WHERE post_id = #{id}
     </delete>
+
+    <!-- 여기부터 코드 추가 수정필요    -->
+
+    <insert id="insertAttachment" parameterType="com.daedong.zipmap.domain.FileAttachment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO file_attachment (
+        target_type, target_id,
+        file_path, file_size
+        ) VALUES (
+        #{targetType}, #{targetId},
+        #{filePath}, #{fileSize}
+        )
+    </insert>
+
+    <select id="findAttachments" resultType="com.daedong.zipmap.domain.FileAttachment">
+        SELECT * FROM file_attachment
+        WHERE target_type = #{targetType}
+        AND target_id = #{targetId}
+    </select>
+
+    <select id="findAttachmentById" resultType="com.daedong.zipmap.domain.FileAttachment">
+        SELECT * FROM file_attachment WHERE id = #{id}
+    </select>
+
+    <delete id="deleteAttachment">
+        DELETE FROM file_attachment WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteAttachmentsByTarget">
+        DELETE FROM file_attachment
+        WHERE target_type = #{targetType}
+        AND target_id = #{targetId}
+    </delete>
 </mapper>

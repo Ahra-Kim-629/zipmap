@@ -54,6 +54,12 @@ public class FileService {
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         File saveFile = new File(uploadDir + "/upload", fileName);
 
+        // ★★★ [중요] 폴더가 없으면 에러나니까, 없으면 만드는 코드 추가! ★★★
+        if (!saveFile.getParentFile().exists()) {
+            saveFile.getParentFile().mkdirs(); // mkdirs는 상위 폴더까지 싹 다 만들어줍니다.
+        }
+
+
         // 3. 물리적 저장 (DB 저장은 여기서 하지 않음)
         file.transferTo(saveFile);
 

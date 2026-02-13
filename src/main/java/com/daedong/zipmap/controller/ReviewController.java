@@ -3,6 +3,7 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.util.FileUtilService; // ★ (신) 만능 파일 서비스
 import com.daedong.zipmap.util.LikesService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,17 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final RepliesService repliesService;
     private final LikesService likesService;
+
+    // [Old] 기존 파일 서비스 (구형 데이터 호환성을 위해 남겨둠)
     private final FileService fileService;
 
+    // [New] ★ 새로 만든 파일 유틸 서비스
+    private final FileUtilService fileUtilService;
+
+
+    // =====================================================================
+    // 1. 리뷰 목록 조회
+    // =====================================================================
     @GetMapping
     public String list(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
@@ -42,7 +52,6 @@ public class ReviewController {
                        @RequestParam(required = false) List<String> cons,
                        Model model) {
 
-        // 페이징 리뷰
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
         // 좋아요 표시
@@ -73,10 +82,12 @@ public class ReviewController {
         model.addAttribute("prosList", prosList);
         model.addAttribute("consList", consList);
 
-        return "review/list"; // templates/review/list.html
+        return "review/list";
     }
 
-    // 리뷰 열람 (상세페이지)
+    // =====================================================================
+    // 2. 리뷰 상세 조회
+    // =====================================================================
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
@@ -85,7 +96,6 @@ public class ReviewController {
         int likeCount = likesService.countLikes("review", id, 1);
         reviewDTO.setLikeCount(likeCount);
 
-        // 해당 리뷰에 달린 댓글 목록 보여주기
         List<Replies> replyList = repliesService.getReplyList("review", id);
         model.addAttribute("replyList", replyList);
 
@@ -94,7 +104,9 @@ public class ReviewController {
         return "review/detail";
     }
 
-    // 리뷰 작성
+    // =====================================================================
+    // 3. 리뷰 작성
+    // =====================================================================
     @GetMapping("/write")
     @PreAuthorize("isAuthenticated()")
     public String write() {
@@ -103,19 +115,27 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(ReviewDTO reviewDTO, @RequestParam(value = "files", required = false) List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
+    public String write(ReviewDTO reviewDTO,
+                        @AuthenticationPrincipal User user) throws IOException {
+
         reviewDTO.setUserId(user.getId());
+
+        // 1. 글 내용 저장 (먼저 저장해야 ID가 생성됨)
         Long savedId = reviewService.save(reviewDTO);
 
-        // 파일저장
-        if (files != null && !files.isEmpty()) {
-            fileService.saveReviewFile(savedId, files);
-        }
+        // 2. [핵심] temp 폴더 -> review 폴더로 파일 이사
+        // 리턴값(newContent): 이미지 경로가 "/files/review/..."로 변경된 HTML
+        String newContent = fileUtilService.moveTempFilesToPermanent(reviewDTO.getContent(), "REVIEW", savedId);
+
+        // 3. 바뀐 HTML 내용으로 DB 업데이트
+        reviewService.updateContent(savedId, newContent);
 
         return "redirect:/review/detail/" + savedId;
     }
 
-    // 리뷰 수정
+    // =====================================================================
+    // 4. 리뷰 수정
+    // =====================================================================
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
@@ -129,26 +149,32 @@ public class ReviewController {
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, ReviewDTO reviewDTO, @RequestParam(value = "files", required = false) List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
+    public String edit(@PathVariable Long id,
+                       ReviewDTO reviewDTO,
+                       @AuthenticationPrincipal User user) throws IOException {
+
         ReviewDTO original = reviewService.findById(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
 
+        // 1. 이미지 처리 (temp -> review 이동 및 삭제 처리)
+        // 리턴값(newContent): 경로가 정리된 HTML
+        String newContent = fileUtilService.updateImagesFromContent(reviewDTO.getContent(), "REVIEW", id);
+
+        // 2. 정리된 내용으로 글 수정
         reviewDTO.setId(id);
         reviewDTO.setUserId(user.getId());
+        reviewDTO.setContent(newContent); // 경로 보정된 내용 넣기
+
         reviewService.edit(reviewDTO);
-
-
-        // 파일 처리
-        if (files != null && !files.isEmpty()) {
-            fileService.saveReviewFile(id, files);
-        }
 
         return "redirect:/review/detail/" + id;
     }
 
-    // 리뷰 삭제
+    // =====================================================================
+    // 5. 리뷰 삭제
+    // =====================================================================
     @PostMapping("/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
@@ -157,49 +183,48 @@ public class ReviewController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 
-        List<ReviewFile> files = original.getFileList();
-        if (files != null) {
-            for (ReviewFile file : files) {
-                fileService.deleteReviewFile(file.getId());
-            }
-        }
-
+        // [New] 해당 리뷰와 관련된 모든 파일(DB+실제파일) 삭제
+        fileUtilService.deleteFilesByTarget("REVIEW", id);
         reviewService.deleteReviewById(id);
 
         return "redirect:/review";
     }
 
-
-    // 섬머노트 에디터에서 이미지를 올릴때 호출
-
+    // =====================================================================
+    // 6. 썸머노트 업로드 (Ajax) - 무조건 temp 폴더 사용
+    // =====================================================================
     @PostMapping("/uploadSummernoteImage")
-    @ResponseBody // JSON이나 문자열로 데이터를 보낼 때 사용
-    public Map<String, String> uploadSummernoteImage(@RequestParam("file") MultipartFile file) {
-        Map<String, String> response = new HashMap<>();
+    @ResponseBody
+    public Map<String, Object> uploadSummernoteImage(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = new HashMap<>();
 
         try {
-            // 1. 아까 만든 서비스 메서드를 사용하여 파일 저장 (파일명 반환)
-            // 서비스 메서드 이름 saveSummernoteFile
-            String fileName = fileService.saveSummernoteFile(file);
+            // ★ [핵심] 작성 중에는 무조건 'temp' 폴더에 저장합니다.
+            String filePath = fileUtilService.saveTempImage(file);
 
-            // 2. 브라우저가 접근할 수 있는 경로를 응답으로 보냄
-            // 예: /upload/uuid_name.jpg
-            response.put("url", "/files/upload/" + fileName);
+            response.put("url", "/files/" + filePath);
+            response.put("responseCode", "success");
 
         } catch (IOException e) {
+            response.put("responseCode", "error");
             e.printStackTrace();
         }
-
-        return response; // 자바스크립트의 success: function(response)로 전달
+        return response;
     }
 
-    // 섬머노트 에디터에서 수정중 파일 삭제할때 호출
-    @PostMapping("/deleteFile/{fileId}")
+    // =====================================================================
+    // 7. 썸머노트 이미지 삭제 (Ajax)
+    // =====================================================================
+    @PostMapping("/deleteSummernoteImage")
     @ResponseBody
-    public String deleteFile(@PathVariable("fileId") Long fileId) {
+    public String deleteSummernoteImage(@RequestParam("src") String src) {
         try {
-            // 서비스에게 삭제 명령 (DB 데이터 삭제 + 실제 파일 삭제)
-            fileService.deleteReviewFile(fileId);
+            String filePath = src;
+            if (src.contains("/files/")) {
+                filePath = src.split("/files/")[1];
+            }
+            // 임시 파일이든 실제 파일이든 경로만 맞으면 지워줍니다.
+            fileUtilService.deleteFileByPath(filePath);
             return "success";
         } catch (Exception e) {
             return "fail";

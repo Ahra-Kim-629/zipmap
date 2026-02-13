@@ -120,26 +120,55 @@
                     onImageUpload: function(files) {
                         for (let i = 0; i < files.length; i++) { uploadSummernoteImage(files[i], this); }
                     }
+                },
+                // 2. 이미지 삭제 시
+                onMediaDelete: function(target) {
+                    deleteSummernoteImage(target[0].src);
                 }
             });
         });
 
-        function uploadSummernoteImage(file, editor) {
-            let data = new FormData();
-            data.append("file", file);
-            let token = $("meta[name='_csrf']").attr("content");
-            let header = $("meta[name='_csrf_header']").attr("content");
 
-            $.ajax({
-                url: "/review/uploadSummernoteImage",
-                type: "POST",
-                data: data,
-                contentType: false,
-                processData: false,
-                beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
-                success: function(response) { $(editor).summernote('insertImage', response.url); }
-            });
-        }
-    </script>
-</div>
+    // [이미지 업로드]
+    function uploadSummernoteImage(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
+
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+        $.ajax({
+            url: "/board/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                $(editor).summernote('insertImage', response.url);
+            }
+        });
+    }
+
+    // [이미지 삭제]
+    function deleteSummernoteImage(src) {
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            data: {src: src},
+            type: "POST",
+            url: "/board/deleteSummernoteImage", // ★ 주소 변경됨
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            }
+        });
+    }
+</script>
+</body>
 </html>

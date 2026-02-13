@@ -177,4 +177,10 @@
         ORDER BY r.created_at DESC
         LIMIT 4
     </select>
+    <!--    추가 2/13 -->
+    <update id="updateContent">
+        UPDATE review
+        SET content = #{content}
+        WHERE id = #{id}
+    </update>
 </mapper>
