@@ -55,6 +55,7 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         //계정이 활성화되었는지 여부 반환 (true : 활성화됨)
-        return true;
+        return "ACTIVE".equals(this.accountStatus);
+
     }
 }

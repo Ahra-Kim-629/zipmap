@@ -40,16 +40,19 @@
         UPDATE user
         <set>
             <if test="password != null and password != ''">
-                password = #{password}
+                password = #{password},
             </if>
             <if test="phone != null and phone != ''">
-                phone = #{phone}
+                phone = #{phone},
             </if>
             <if test="email != null and email != ''">
-                email = #{email}
+                email = #{email},
             </if>
             <if test="address != null and address != ''">
-                address = #{address}
+                address = #{address},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender}
             </if>
         </set>
         WHERE id = #{id}

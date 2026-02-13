@@ -29,6 +29,13 @@
         <input type="text" id="name" th:field="*{name}" readonly/>
     </div>
     <div>
+        <label>성별:</label>
+        <input type="radio" id="genderM" name="gender" value="M" th:field="*{gender}" />
+        <label for="genderM">남자</label>
+        <input type="radio" id="genderF" name="gender" value="M" th:field="*{gender}" />
+        <label for="genderF">여자</label>
+    </div>
+    <div>
         <label for="email">이메일:</label>
         <input type="email" id="email" th:field="*{email}"/>
     </div>
