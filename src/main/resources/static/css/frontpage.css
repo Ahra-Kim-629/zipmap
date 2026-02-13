@@ -136,3 +136,13 @@
 .btn-daedong-close:hover {
   background-color: var(--main-orange);
 }
+
+.reason-badge {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #f0f0f0;
+    color: #666;
+    margin-left: 8px;
+    vertical-align: middle;
+}
