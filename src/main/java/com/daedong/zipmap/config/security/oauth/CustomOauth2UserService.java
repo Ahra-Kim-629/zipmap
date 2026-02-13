@@ -58,7 +58,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity.setGender(
                     (gender != null && !gender.isEmpty())
                             ? gender.charAt(0)
-                            : 'U'
+                            : 'M'
             );
             userEntity.setRole("WRITER");
             userEntity.setAccountStatus("ACTIVE");
