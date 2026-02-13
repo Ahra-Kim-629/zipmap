@@ -1,7 +1,11 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Notice;
+import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.service.AdminService;
+import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,12 +17,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
     private final AdminService adminService;
+    private final ReviewService reviewService;
+    private final PostService postService;
 
     @GetMapping("/")
     public String main(Model model) {
         List<Notice> noticeList = adminService.getCurrentNoticeList();
+        List<ReviewDTO> reviewDTOList = reviewService.getMainpageReview();
+        List<PostDTO> postDTOList = postService.getMainpagePost();
         model.addAttribute("noticeList", noticeList);
-
-        return "index";
+        model.addAttribute("reviewDTOList", reviewDTOList);
+        model.addAttribute("postDTOList", postDTOList);
+        return "main";
     }
 }

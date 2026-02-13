@@ -135,4 +135,46 @@
         WHERE id = #{id}
     </delete>
 
+    <!-- 내가 쓴 리뷰 조회 -->
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id,
+        r.title,
+        r.content,
+        r.address,
+        r.user_id AS userId,
+        r.point,
+        r.review_status AS reviewStatus,
+        r.created_at AS createdAt,
+        r.updated_at AS updatedAt
+        FROM review r
+        WHERE r.user_id = #{userId}
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(id)
+        FROM review
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id,
+        r.title,
+        r.content,
+        r.address,
+        r.user_id,
+        u.login_id AS loginId,
+        r.point,
+        r.review_status,
+        r.created_at,
+        r.updated_at
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.review_status = 'ACTIVE'
+        ORDER BY r.created_at DESC
+        LIMIT 4
+    </select>
 </mapper>

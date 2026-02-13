@@ -1,11 +1,9 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Cons;
-import com.daedong.zipmap.domain.Pros;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +21,7 @@ public class ReviewService {
     private final ConsMapper consMapper;
     private final FileMapper fileMapper;
     private final RepliesMapper replyMapper;
+    private final ReviewReplyMapper reviewReplyMapper;
 
     // 페이징 조회
     public Page<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable) {
@@ -146,5 +145,24 @@ public class ReviewService {
 
     public void deleteReviewById(Long id) {
         reviewMapper.deleteReviewById(id);
+    }
+
+    // 내가 쓴 리뷰 조회
+    public Page<ReviewDTO> findMyReviews(Long userId, Pageable pageable) {
+        List<ReviewDTO> content = reviewMapper.findByUserId(userId, pageable);
+        int total = reviewMapper.countByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    // 내가 쓴 리뷰 댓글 조회
+    public Page<ReviewReply> findMyReplies(Long userId, Pageable pageable) {
+        List<ReviewReply> content = reviewReplyMapper.findByUserId(userId, pageable);
+        int total = reviewReplyMapper.countByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    @Cacheable(value = "mainReviewList")
+    public List<ReviewDTO> getMainpageReview() {
+        return reviewMapper.findOrderByCreatedAtDescLimit4();
     }
 }

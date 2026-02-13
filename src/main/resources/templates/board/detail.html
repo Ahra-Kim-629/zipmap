@@ -24,7 +24,7 @@
         </form>
     </div>
     <div>
-        <p th:text="${board.content}">Content</p>
+        <p th:utext="${board.content}">Content</p>
     </div>
     <hr>
     <div th:if="${not #lists.isEmpty(board.fileList)}">
@@ -37,8 +37,23 @@
     </div>
     <hr>
     <div>
-        <span>Likes: <span th:text="${board.likeCount}">0</span></span>
-        <span>Dislikes: <span th:text="${board.dislikeCount}">0</span></span>
+        <form th:action="@{/board/reaction}" method="post">
+            <input type="hidden" name="postId" th:value="${board.id}">
+            <input type="hidden" name="userId" th:value="${currentUserId}">
+            <input type="hidden" name="type" value="LIKE">
+            <button type="submit">
+                 좋아요 <span th:text="${board.likeCount}">0</span>
+            </button>
+        </form>
+
+        <form th:action="@{/board/reaction}" method="post">
+            <input type="hidden" name="postId" th:value="${board.id}">
+            <input type="hidden" name="userId" th:value="${currentUserId}">
+            <input type="hidden" name="type" value="DISLIKE">
+            <button type="submit" >
+                👎 싫어요 <span th:text="${board.dislikeCount}">0</span>
+            </button>
+        </form>
     </div>
     <hr>
     <h3>Replies</h3>
@@ -81,15 +96,18 @@
                 <div th:id="'reply-content-' + ${reply.id}">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
-                            <strong th:text="${reply.userId}">작성자</strong> :
+                            <strong th:text="${reply.loginId}">작성자</strong> :
                             <span th:text="${reply.content}">댓글 내용</span>
                             <br>
                             <small style="color: #888;" th:text="${reply.createdAt}"></small>
                         </div>
 
                         <!-- 댓글 삭제 -->
-                        <div style="flex-shrink: 0;" th:if="${currentUserId == reply.userId}">
-                            <button type="button" th:onclick="'showEditForm(' + ${reply.id} + ')'"
+                        <div style="flex-shrink: 0;"
+                             th:if="${currentUserId == reply.userId || #authorization.expression('hasRole(''ADMIN'')')}">
+
+                            <button type="button" th:if="${currentUserId == reply.userId}"
+                                    th:onclick="'showEditForm(' + ${reply.id} + ')'"
                                     style="padding: 2px 8px; font-size: 12px; background: #eee; border: 1px solid #ccc; cursor: pointer;">
                                 수정
                             </button>

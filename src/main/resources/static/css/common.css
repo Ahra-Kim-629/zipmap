@@ -1,0 +1,43 @@
+/* 디자인 컬러 시스템 */
+:root {
+  --main-orange: #e67e22;
+  --bg-tan: #f9f7f2;
+  --text-dark: #333;
+  --text-muted: #888;
+}
+
+body {
+  background-color: #fff;
+  font-family: "Noto Sans KR", sans-serif;
+  color: var(--text-dark);
+}
+
+/* 네비게이션 커스텀 */
+.daedong-logo {
+  font-family: "Nanum Myeongjo", serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--text-dark) !important;
+}
+
+.nav-link {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.text-orange {
+  color: var(--main-orange) !important;
+}
+
+.btn-orange {
+  background-color: var(--main-orange);
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn-orange:hover {
+  background-color: #d35400;
+  color: white;
+}
+

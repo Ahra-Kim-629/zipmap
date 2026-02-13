@@ -52,7 +52,7 @@ public class FileService {
 
         // 2. 이름 생성 (기존 로직과 동일)
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        File saveFile = new File(uploadDir, fileName);
+        File saveFile = new File(uploadDir + "/upload", fileName);
 
         // 3. 물리적 저장 (DB 저장은 여기서 하지 않음)
         file.transferTo(saveFile);

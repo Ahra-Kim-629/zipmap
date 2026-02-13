@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daedong.zipmap.mapper.ReviewReplyMapper">
+
+    <!-- 리뷰의 댓글 아이디로 찾기 -->
+    <select id="findByReviewId" resultType="com.daedong.zipmap.domain.ReviewReply">
+        SELECT
+        r.id,
+        r.review_id AS reviewId,
+        r.user_id AS userId,
+        r.content,
+        r.created_at AS createdAt,
+        r.updated_at AS updatedAt,
+        u.login_id AS loginId FROM review_reply r
+        JOIN user u ON r.user_id = u.id
+        WHERE r.review_id = #{id}
+    </select>
+
+    <!-- 리뷰의 댓글 추가 -->
+    <insert id="addReply" parameterType="com.daedong.zipmap.domain.ReviewReply">
+        INSERT INTO review_reply
+        (review_id, user_id, content)
+        VALUES
+        (#{reviewId}, #{userId}, #{content})
+    </insert>
+
+    <!-- 리뷰의 댓글 수정 -->
+    <update id="updateReply" parameterType="com.daedong.zipmap.domain.ReviewReply">
+        UPDATE review_reply
+        SET content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 리뷰의 댓글 삭제 -->
+    <delete id="deleteReply" parameterType="long">
+        DELETE FROM review_reply
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 내가 쓴 리뷰 댓글 조회 -->
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewReply">
+        SELECT
+        r.id,
+        r.review_id AS reviewId,
+        r.user_id AS userId,
+        r.content,
+        r.created_at AS createdAt,
+        r.updated_at AS updatedAt,
+        rev.title AS reviewTitle
+        FROM review_reply r
+        JOIN review rev ON r.review_id = rev.id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(id)
+        FROM review_reply
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

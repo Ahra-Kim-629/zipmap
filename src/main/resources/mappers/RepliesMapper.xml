@@ -8,8 +8,8 @@
     <select id="getRepliesByTarget" resultType="com.daedong.zipmap.domain.Replies">
         SELECT
         r.id,
-        r.target_type AS targetType,
-        r.target_id AS targetId,
+        r.target_type AS target_type,
+        r.target_id AS target_id,
         r.user_id AS userId,
         u.login_id AS loginId,  r.content,
         r.created_at AS createdAt

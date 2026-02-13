@@ -173,7 +173,7 @@ public class ReviewController {
 
             // 2. 브라우저가 접근할 수 있는 경로를 응답으로 보냄
             // 예: /upload/uuid_name.jpg
-            response.put("url", "/upload/" + fileName);
+            response.put("url", "/files/upload/" + fileName);
 
         } catch (IOException e) {
             e.printStackTrace();

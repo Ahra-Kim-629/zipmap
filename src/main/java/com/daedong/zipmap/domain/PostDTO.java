@@ -11,6 +11,7 @@ public class PostDTO {
     private String title;
     private String content;
     private Long userId;
+    private String loginId; // 로그인 아이디로 커뮤니티 글에 나오게 하기 위해 추가
     private String category;
     private String location;
     private int likeCount;
@@ -22,4 +23,6 @@ public class PostDTO {
     private List<PostReaction> reactionList;
     private List<PostFile> fileList;
     private List<Replies> replyList;
+
+    private String reasonType;
 }
