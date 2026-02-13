@@ -4,9 +4,9 @@ import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
+import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,6 +25,7 @@ import java.util.List;
 public class AdminController {
     private final AdminService adminService;
     private final UserService userService;
+    private final ReviewService reviewService;
 
     @GetMapping
     public String adminMain() {
@@ -117,5 +118,4 @@ public class AdminController {
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
-
 }

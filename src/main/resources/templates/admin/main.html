@@ -1,22 +1,128 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>관리자 메인</title>
-</head>
-<body>
-<div th:if="${message}" style="color: blue;">
-    <p th:text="${message}"></p>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <style>
+        .admin-container { padding: 60px 0; background-color: #f4f7f6; min-height: 80vh; }
+        .admin-title { font-family: 'Nanum Myeongjo', serif; font-weight: 800; color: #2c3e50; }
+
+        /* 대시보드 카드 스타일 */
+        .admin-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        .admin-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            background-color: var(--main-orange);
+            color: white !important;
+        }
+        .admin-card:hover .icon-box {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .admin-card:hover .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* 아이콘 박스 */
+        .icon-box {
+            width: 70px;
+            height: 70px;
+            border-radius: 15px;
+            background-color: #fff9f4;
+            color: var(--main-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .card-name { font-weight: 800; font-size: 1.25rem; margin-bottom: 5px; }
+        .card-desc { font-size: 0.9rem; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="admin-container">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="admin-title mb-2">관리자 센터</h2>
+                <p class="text-muted">SeoulRoom의 모든 데이터와 서비스를 관리합니다.</p>
+            </div>
+
+            <div th:if="${message}" class="alert alert-primary border-0 rounded-3 shadow-sm text-center mb-4"
+                 th:text="${message}"></div>
+            <div th:if="${error}" class="alert alert-danger border-0 rounded-3 shadow-sm text-center mb-4"
+                 th:text="${error}"></div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/admin/members}" class="admin-card daedong-shadow h-100">
+                        <div class="icon-box">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <span class="card-name">회원 관리</span>
+                        <span class="text-muted card-desc">가입 회원 정보 조회 및<br>권한 설정</span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/admin/reviews}" class="admin-card daedong-shadow h-100">
+                        <div class="icon-box">
+                            <i class="bi bi-chat-square-heart-fill"></i>
+                        </div>
+                        <span class="card-name">리뷰 관리</span>
+                        <span class="text-muted card-desc">원룸 후기 검토 및<br>실거주 인증 승인</span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/admin/posts}" class="admin-card daedong-shadow h-100">
+                        <div class="icon-box">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <span class="card-name">게시글 관리</span>
+                        <span class="text-muted card-desc">커뮤니티 게시글 및<br>부적절한 댓글 관리</span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/admin/notice}" class="admin-card daedong-shadow h-100">
+                        <div class="icon-box">
+                            <i class="bi bi-megaphone-fill"></i>
+                        </div>
+                        <span class="card-name">공지 관리</span>
+                        <span class="text-muted card-desc">메인 공지사항 작성 및<br>팝업 배너 설정</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-5 p-4 bg-white rounded-4 daedong-shadow border-0">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold mb-1"><i class="bi bi-info-circle me-2 text-primary"></i>시스템 관리 안내</h6>
+                        <p class="small text-muted mb-0">인증 신청 및 신고 건수는 매일 오전 10시에 일괄 체크를 권장합니다.</p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a th:href="@{/}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">사용자 메인으로 가기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div th:if="${error}" style="color: red;">
-    <p th:text="${error}"></p>
-</div>
-<h1>관리자 메인 페이지</h1>
-<ul>
-    <li><a th:href="@{/admin/members}">회원 관리</a></li>
-    <li><a th:href="@{/admin/reviews}">리뷰 관리</a></li>
-    <li><a th:href="@{/admin/posts}">게시글 관리</a></li>
-    <li><a th:href="@{/admin/notice}">공지 작성 폼</a></li>
-</ul>
-</body>
 </html>

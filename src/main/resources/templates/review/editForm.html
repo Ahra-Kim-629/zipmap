@@ -1,136 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>리뷰 수정 페이지</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
+<th:block layout:fragment="css">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        .write-container { padding: 60px 0; background-color: #fdfcf9; }
+        .write-card { background: #fff; padding: 40px; border-radius: 20px; border: none; }
+        .write-title { font-family: 'Nanum Myeongjo', serif; font-weight: 800; color: #3E362E; }
+
+        /* 섹션 구분 */
+        .form-section { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
+        .section-label { font-weight: 700; color: #3E362E; margin-bottom: 15px; display: block; font-size: 1.1rem; }
+
+        /* 체크박스 -> 칩(Chip) 디자인 */
+        .check-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .check-item input[type="checkbox"] { display: none; }
+        .check-item label {
+            padding: 8px 18px; border-radius: 50px; border: 1px solid #ddd;
+            background: #fff; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; color: #666;
+        }
+
+        .pros-group .check-item input[type="checkbox"]:checked + label {
+            background-color: #28a745; border-color: #28a745; color: #fff;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+        }
+
+        .cons-group .check-item input[type="checkbox"]:checked + label {
+            background-color: #dc3545; border-color: #dc3545; color: #fff;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+        }
+
+        /* Summernote 및 모달 커스텀 (작성페이지와 동일) */
+        .note-editor.note-frame { border: 1px solid #eee !important; border-radius: 12px !important; overflow: hidden; }
+        .note-toolbar { background-color: #f8f9fa !important; border-bottom: 1px solid #eee !important; }
+        .note-modal { z-index: 10050 !important; }
+        .note-modal-backdrop { z-index: 10040 !important; display: none !important; }
+        .note-modal-content { margin-top: 80px !important; border-radius: 15px !important; box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important; overflow: hidden; }
+        .note-modal-footer { height: auto !important; padding: 20px !important; display: flex !important; justify-content: center; gap: 10px; }
+        .note-modal-footer .btn { padding: 10px 25px !important; border-radius: 50px !important; font-weight: bold !important; }
+        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; }
+
+        .note-btn { background-color: white !important; border: 1px solid #eee !important; }
+
+        .note-editor.note-frame.fullscreen {
+            z-index: 9999 !important;
+            background-color: white !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <div class="write-container">
+        <div class="container">
+            <div class="write-card daedong-shadow">
+                <div class="text-center mb-5">
+                    <h2 class="write-title mb-2">원룸 후기 수정</h2>
+                    <p class="text-muted small">기존 후기 내용을 수정하거나 보완할 수 있습니다.</p>
+                </div>
+
+                <form th:action="@{|/review/edit/${reviewDTO.id}|}" method="post" enctype="multipart/form-data">
+                    <div class="form-section">
+                        <span class="section-label"><i class="bi bi-info-circle me-2 text-orange"></i>기본 정보</span>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="title" class="form-label small fw-bold text-muted">리뷰 제목</label>
+                                <input type="text" class="form-control rounded-3 py-2" id="title" name="title"
+                                       th:value="${reviewDTO.title}" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="address" class="form-label small fw-bold text-muted">주소</label>
+                                <input type="text" class="form-control rounded-3 py-2" id="address" name="address"
+                                       th:value="${reviewDTO.address}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="point" class="form-label small fw-bold text-muted">종합 평점</label>
+                                <select class="form-select rounded-3 py-2" id="point" name="point" required>
+                                    <option value="5" th:selected="${reviewDTO.point == 5}">★★★★★ (5점)</option>
+                                    <option value="4" th:selected="${reviewDTO.point == 4}">★★★★☆ (4점)</option>
+                                    <option value="3" th:selected="${reviewDTO.point == 3}">★★★☆☆ (3점)</option>
+                                    <option value="2" th:selected="${reviewDTO.point == 2}">★★☆☆☆ (2점)</option>
+                                    <option value="1" th:selected="${reviewDTO.point == 1}">★☆☆☆☆ (1점)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <span class="section-label"><i class="bi bi-tags me-2 text-orange"></i>키워드 수정</span>
+
+                        <p class="small fw-bold text-success mb-2">이 집의 장점</p>
+                        <div class="check-group pros-group mb-4">
+                            <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
+                                 class="check-item">
+                                <input type="checkbox" th:id="'p_' + ${item}" name="prosList" th:value="${item}"
+                                       th:checked="${#lists.contains(reviewDTO.prosList, item)}">
+                                <label th:for="'p_' + ${item}" th:text="${item}"></label>
+                            </div>
+                        </div>
+
+                        <p class="small fw-bold text-danger mb-2">이 집의 단점</p>
+                        <div class="check-group cons-group">
+                            <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
+                                 class="check-item">
+                                <input type="checkbox" th:id="'c_' + ${item}" name="consList" th:value="${item}"
+                                       th:checked="${#lists.contains(reviewDTO.consList, item)}">
+                                <label th:for="'c_' + ${item}" th:text="${item}"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section border-0 mb-0">
+                        <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>상세 내용</span>
+                        <textarea id="content" name="content" th:text="${reviewDTO.content}" required></textarea>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center mt-5">
+                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">수정 완료
+                        </button>
+                        <a th:href="@{|/review/detail/${reviewDTO.id}|}"
+                           class="btn btn-outline-secondary px-5 py-3 rounded-pill">수정 취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-</head>
-<body>
-<div class="container">
-    <h2>리뷰 수정</h2>
-    <form th:action="@{|/review/edit/${reviewDTO.id}}|" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="title">제목</label>
-            <input type="text" class="form-control" id="title" name="title" th:value="${reviewDTO.title}">
-        </div>
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            $('#content').summernote({
+                height: 400,
+                lang: 'ko-KR',
+                dialogsInBody: true,
+                dialogsFade: false,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'hr']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (let i = 0; i < files.length; i++) {
+                            uploadSummernoteImage(files[i], this);
+                        }
+                    }
+                }
+            });
+        });
 
-        <div class="form-group">
-            <label for="address">주소</label>
-            <input type="text" class="form-control" id="address" name="address" th:value="${reviewDTO.address}">
-        </div>
+        function uploadSummernoteImage(file, editor) {
+            let data = new FormData();
+            data.append("file", file);
+            $.ajax({
+                url: "/review/uploadSummernoteImage",
+                type: "POST",
+                data: data,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    $(editor).summernote('insertImage', response.url);
+                }
+            });
+        }
 
-        <div class="form-group">
-            <label for="point">별점</label>
-            <select class="form-control" id="point" name="point" th:value="${reviewDTO.point}">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-        </div>
+        // 파일 삭제 Ajax (기능 유지 및 알림 보강)
+        function deleteFile(fileId) {
+            if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
 
-        <div class="form-group">
-            <p class="pros"><b>장점 (기존 선택한 항목들이 표시됩니다.)</b></p>
-            <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
-                <label>
-                    <input type="checkbox" name="prosList" th:value="${item}"
-                           th:checked="${#lists.contains(reviewDTO.prosList, item)}">[[${item}]]
-                </label>
-            </th:block>
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
-            <p class="cons"><b>단점 (기존 선택한 항목들이 표시됩니다.)</b></p>
-            <th:block th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }">
-                <label>
-                    <input type="checkbox" name="consList" th:value="${item}"
-                           th:checked="${#lists.contains(reviewDTO.consList, item)}">[[${item}]]
-                </label>
-            </th:block>
-        </div>
-
-        <div class="form-group">
-            <label for="content">내용</label>
-            <textarea class="form-control" id="content" name="content" rows="10" th:text="${reviewDTO.content}"
-                      required></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">수정 완료</button>
-        <a th:href="@{|/review/detail/${reviewDTO.id}|}" class="btn btn-secondary">수정 취소</a>
-    </form>
+            $.ajax({
+                url: "/review/deleteFile/" + fileId,
+                type: "POST",
+                beforeSend: function(xhr) {
+                    if (token && header) xhr.setRequestHeader(header, token);
+                },
+                success: function(result) {
+                    if (result.trim() === "success") {
+                        $('#file-card-' + fileId).fadeOut(300, function() { $(this).remove(); });
+                    } else {
+                        alert("삭제 처리에 실패했습니다.");
+                    }
+                },
+                error: function(xhr) {
+                    alert("삭제 중 오류가 발생했습니다.");
+                }
+            });
+        }
+    </script>
 </div>
-
-
-<script>
-
-    $(document).ready(function() {
-    $('#content').summernote({
-        height: 400,
-        lang: 'ko-KR',
-        placeholder: '내용을 입력해주세요.',
-        callbacks: {
-            onImageUpload: function(files) {
-                // 올려진 파일 개수만큼 반복해서 서버에 보내기
-    for (let i = 0; i < files.length; i++) {
-        uploadSummernoteImage(files[i], this);
-    }
-            }
-        }
-    });
-});
-
-function uploadSummernoteImage(file, editor) {
-    let data = new FormData();
-    data.append("file", file);
-    $.ajax({
-        url: "/review/uploadSummernoteImage", // 아까 만든 컨트롤러 그대로 사용
-        type: "POST",
-        data: data,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-            $(editor).summernote('insertImage', response.url);
-        }
-    });
-}
-
-    function deleteFile(fileId) {
-    if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
-
-    // 헤더에서 보안 토큰 정보 가져오기
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
-
-    $.ajax({
-        url: "/review/deleteFile/" + fileId,
-        type: "POST",
-        beforeSend: function(xhr) {
-            // 보안 카드가 있을 때만 헤더에 추가
-            if (token && header) {
-                xhr.setRequestHeader(header, token);
-            }
-        },
-        success: function(result) {
-            console.log("서버 응답:", result);
-            if (result.trim() === "success") {
-                // 화면에서 해당 파일 박스 삭제
-                $('#file-card-' + fileId).remove();
-                alert("파일이 삭제되었습니다.");
-            } else {
-                alert("삭제 처리에 실패했습니다. (응답값 오류)");
-            }
-        },
-        error: function(xhr) {
-            console.error("에러 발생:", xhr);
-            alert("삭제 중 오류가 발생했습니다. (상태코드: " + xhr.status + ")");
-        }
-    });
-}
-</script>
-</body>
 </html>
