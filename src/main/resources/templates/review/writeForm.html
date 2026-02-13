@@ -125,7 +125,7 @@
                     <p class="text-muted small">여러분의 소중한 경험이 다음 거주자에게 큰 도움이 됩니다.</p>
                 </div>
 
-                <form th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+                <form id="reviewForm" th:action="@{/review/write}" method="post" enctype="multipart/form-data">
                     <div class="form-section">
                         <span class="section-label"><i class="bi bi-info-circle me-2 text-orange"></i>기본 정보</span>
                         <div class="row g-3">
@@ -180,7 +180,7 @@
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">리뷰 등록하기
+                        <button type="submit" id="submitBtn" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">리뷰 등록하기
                         </button>
                         <a th:href="@{/review}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
@@ -231,6 +231,19 @@
                 }
             });
         }
+
+        $('#submitBtn').on('click', function() {
+            let content = $('#content').summernote('code');
+
+            let pureText = content.replace(/<[^>]*>?/gm, '').trim();
+
+            if(pureText.length < 50) {
+                alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
+                return false;
+            }
+
+            $('#reviewForm').submit();
+        });
     </script>
 </div>
 </html>

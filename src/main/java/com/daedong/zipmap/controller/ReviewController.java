@@ -103,7 +103,7 @@ public class ReviewController {
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(ReviewDTO reviewDTO, @RequestParam("files") List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
+    public String write(ReviewDTO reviewDTO, @RequestParam(value = "files", required = false) List<MultipartFile> files, @AuthenticationPrincipal User user) throws IOException {
         reviewDTO.setUserId(user.getId());
         Long savedId = reviewService.save(reviewDTO);
 
