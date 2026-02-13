@@ -1,11 +1,9 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.PostDTO;
-import com.daedong.zipmap.domain.Replies;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.LikesService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +27,7 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
     private final RepliesService repliesService;
+    private final LikesService likesService;
 
     @GetMapping
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -125,5 +124,20 @@ public class PostController {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
         return "redirect:/board";
+    }
+
+    // 좋아요 싫어요
+    @PostMapping("/reaction")
+    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
+        Likes like = new Likes();
+        like.setTargetType("post");
+        like.setTargetId(targetId);
+        like.setUserId(user.getId());
+        like.setLoginId(user.getLoginId());
+        like.setType(type);
+
+        likesService.save(like);
+
+        return "redirect:/board/detail/" + targetId;
     }
 }

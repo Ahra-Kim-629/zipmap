@@ -3,6 +3,7 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.util.LikesService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final RepliesService repliesService;
+    private final LikesService likesService;
     private final FileService fileService;
 
     @GetMapping
@@ -45,6 +47,12 @@ public class ReviewController {
 
         // 지도 표시용 전체 리뷰
         List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
+
+        // 좋아요, 싫어요 갯수
+        for(ReviewDTO review : reviews){
+            review.setLikeCount(likesService.countLikes("review", review.getId()));
+            review.setDislikeCount(likesService.countDislikes("review", review.getId()));
+        }
 
         // 장점/단점 체크박스 항목
         List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
@@ -186,4 +194,21 @@ public class ReviewController {
             return "fail";
         }
     }
+
+
+    // 좋아요
+    @PostMapping("/reaction")
+    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
+        Likes like = new Likes();
+        like.setTargetType("review");
+        like.setTargetId(targetId);
+        like.setUserId(user.getId());
+        like.setLoginId(user.getLoginId());
+        like.setType(type);
+
+        likesService.save(like);
+
+        return "redirect:/review/detail/" + targetId;
+    }
+
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daedong.zipmap.mapper.LikesMapper">
+
+    <!-- 기존 반응 있는지 확인 -->
+    <select id="findByUserAndTarget" resultType="com.daedong.zipmap.domain.Likes">
+        SELECT *
+        FROM likes
+        WHERE user_id = #{userId}
+        AND target_type = #{targetType}
+        AND target_id = #{targetId}
+    </select>
+
+    <!-- 반응 저장 -->
+    <insert id="save" parameterType="com.daedong.zipmap.domain.Likes">
+        INSERT INTO likes
+         (target_type, target_id, user_id, login_id, type, created_at, updated_at)
+        VALUES
+         (#{targetType}, #{targetId}, #{userId}, #{loginId}, #{type}, NOW(), NOW())
+    </insert>
+
+    <!-- 반응 삭제 -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM likes
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 반응 변경 -->
+    <update id="update" parameterType="long">
+        UPDATE likes
+        SET type = #{type}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>
