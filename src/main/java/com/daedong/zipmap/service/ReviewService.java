@@ -1,11 +1,12 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.Certification;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.mapper.FileMapper;
 import com.daedong.zipmap.mapper.ReplyMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
-import com.daedong.zipmap.mapper.ReviewReplyMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -22,7 +25,6 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final FileMapper fileMapper;
     private final ReplyMapper replyMapper;
-    private final ReviewReplyMapper reviewReplyMapper;
     private final FileUtilService fileUtilService;
 
 
@@ -116,8 +118,8 @@ public class ReviewService {
 //    public List<ReviewDTO> getMainpageReview() {
 //        return reviewMapper.findOrderByCreatedAtDescLimit4();
 //    }
-//
-//    // [추가] 글 내용(HTML)만 업데이트하는 메서드
+
+    // [추가] 글 내용(HTML)만 업데이트하는 메서드
 //    public void updateContent(Long id, String content) {
 //        // 매퍼에 쿼리 호출 (파라미터가 2개라 Map이나 @Param 필요할 수 있음)
 //        // 여기서는 편의상 DTO를 만들어서 보내거나, Map을 씁니다.
@@ -128,5 +130,45 @@ public class ReviewService {
 //        reviewMapper.updateContent(dto);
 //        // 주의: Mapper XML에서 #{content}, #{id}를 쓰니까 DTO에 값이 있어야 함
 //    }
+
+    /**
+     * [실거주 인증] 사용자가 제출한 임대차계약서 파일을 서버에 저장하고 DB에 정보를 등록.
+     *
+     * @param user  현재 로그인한 사용자 정보
+     * @param image 사용자가 업로드한 MultipartFile 객체
+     * @throws Exception 파일 저장 중 발생할 수 있는 오류 예외 처리
+     */
+    @Transactional
+    public void registerCertification(User user, MultipartFile image, Long reviewId) throws IOException {
+
+        // 1. 파일 유효성 검사
+        if (image == null || image.isEmpty()) {
+            throw new RuntimeException("업로드된 파일이 없습니다.");
+        }
+
+        // 2. 인증 정보(글) 먼저 저장 -> ID 생성됨
+        Certification cert = new Certification();
+        cert.setUserId(user.getId());
+        cert.setReviewId(reviewId);
+
+        reviewMapper.insertCertification(cert); // DB 저장 (ID 생성)
+
+
+        // 3. ★ 파일 저장 (FileUtilService 이용)
+        // "CERTIFICATION" 폴더에 저장 (c:/upload/certification/...)
+        String filePath = fileUtilService.saveFile(image, "CERTIFICATION");
+
+
+        // 4. ★ 공통 파일 테이블(file_attachment)에 저장
+        com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
+        file.setTargetType("CERTIFICATION");
+        file.setTargetId(cert.getId()); // 방금 만든 인증 ID
+        file.setFilePath(filePath);
+        file.setFileSize(image.getSize());
+
+        fileMapper.insertFile(file);
+
+        reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.PostDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -9,12 +10,11 @@ import java.util.List;
 
 @Mapper
 public interface PostMapper {
-//    PostDTO findById(long id);
+    PostDTO findById(long id);
 
     List<Post> findAll(@Param("searchType") String searchType, @Param("keyword") String keyword);
 
     void save(Post post);
-
 
     int countAll(@Param("searchType") String searchType,
                  @Param("keyword") String keyword,
@@ -35,22 +35,26 @@ public interface PostMapper {
                             @Param("location") String location,
                             @Param("pageable") Pageable pageable);
 
-//    List<PostDTO> findAll(@Param("searchType") String searchType,
-//                       @Param("keyword") String keyword,
-//                       @Param("category") String category,
-//                       @Param("location") String location,
-//                       @Param("pageable") Pageable pageable);
+    List<PostDTO> findAll(@Param("searchType") String searchType,
+                          @Param("keyword") String keyword,
+                          @Param("category") String category,
+                          @Param("location") String location,
+                          @Param("pageable") Pageable pageable);
 
     // UPDATE 커뮤니티 게시글 보이게 하기, 숨기게 하기 기능
     void updatePostStatus(@Param("id") Long id, @Param("status") String status);
 
     Integer findReaction(@Param("postId") Long postId, @Param("userId") String userId);
+
     void deleteReaction(@Param("postId") Long postId, @Param("userId") String userId);
+
     void updateBoardLikeCount(@Param("postId") Long postId);
-    void insertReaction(@Param("postId") Long postId, @Param("userId") String userId, @Param("type") int type);;
+
+    void insertReaction(@Param("postId") Long postId, @Param("userId") String userId, @Param("type") int type);
 
     // 내가 쓴 글 조회
     List<Post> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+
     int countByUserId(@Param("userId") Long userId);
 
     // 내가 쓴 댓글 조회

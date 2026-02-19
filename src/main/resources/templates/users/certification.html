@@ -59,11 +59,12 @@
 
                 <div class="address-info-box">
                     <span class="small text-muted d-block mb-1">현재 등록된 인증 주소</span>
-                    <strong class="fs-5" th:text="${user.address}">서울특별시 관악구 봉천동...</strong>
+                    <strong class="fs-5" th:text="${user.address}"></strong>
                     <p class="guide-text mt-2 mb-0 text-orange">※ 주소가 다를 경우 마이페이지에서 먼저 수정해 주세요.</p>
                 </div>
 
                 <form th:action="@{/users/certification}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="reviewId" th:value="${reviewId}">
                     <div class="mb-4">
                         <label class="form-label fw-bold mb-2">임대차계약서 첨부</label>
                         <div class="file-upload-wrapper" id="dropZone">

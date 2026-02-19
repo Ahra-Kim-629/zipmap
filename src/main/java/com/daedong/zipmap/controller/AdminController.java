@@ -1,6 +1,5 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
@@ -13,10 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -34,7 +31,7 @@ public class AdminController {
 
     @GetMapping("/notice")
     public String notice() {
-        return "/admin/notice_form";
+        return "/admin/notice-form";
     }
 
 //    @PostMapping("/notice")

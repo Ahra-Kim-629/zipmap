@@ -35,7 +35,7 @@
     </update>
 
     <!-- 반응 개수 세기 -->
-    <select id="countLikes" resultType="int">
+    <select id="countReaction" resultType="int">
         SELECT COUNT(*)
         FROM reaction
         WHERE target_type = #{targetType}

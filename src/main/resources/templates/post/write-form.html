@@ -41,7 +41,7 @@
                 <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3"
                      th:text="${message}"></div>
 
-                <form th:action="@{/board/write}" method="post" enctype="multipart/form-data">
+                <form th:action="@{/post/write}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                     <div class="form-section">
@@ -92,7 +92,7 @@
                     <div class="d-flex gap-3 justify-content-center mt-5">
                         <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기
                         </button>
-                        <a th:href="@{/board}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
+                        <a th:href="@{/post}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
                 </form>
             </div>
@@ -135,41 +135,40 @@ function uploadSummernoteImage(file, editor) {
     let data = new FormData();
     data.append("file", file);
 
-    let token = $("meta[name='_csrf']").attr("content");
-    let header = $("meta[name='_csrf_header']").attr("content");
-    $.ajax({
-        url: "/board/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
-        type: "POST",
-        data: data,
-        contentType: false,
-        processData: false,
-        beforeSend: function(xhr) {
-            if (token && header) {
-                xhr.setRequestHeader(header, token);
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+        $.ajax({
+            url: "/post/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                $(editor).summernote('insertImage', response.url);
             }
-        },
-        success: function(response) {
-            $(editor).summernote('insertImage', response.url);
-        }
-    });
-}
+        });
+    }
 
 // [이미지 삭제]
 function deleteSummernoteImage(src) {
     let token = $("meta[name='_csrf']").attr("content");
     let header = $("meta[name='_csrf_header']").attr("content");
 
-    $.ajax({
-        data: {src: src},
-        type: "POST",
-        url: "/board/deleteSummernoteImage", // ★ 주소 변경됨
-        beforeSend: function(xhr) {
-            if (token && header) {
-                xhr.setRequestHeader(header, token);
+        $.ajax({
+            data: {src: src},
+            type: "POST",
+            url: "/post/deleteSummernoteImage", // ★ 주소 변경됨
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
             }
-        }
-    });
-}
+        });
+    }
 </script>
-</body>
 </html>

@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ public class ReviewController {
 
         // 좋아요 표시
         for (ReviewDTO review : reviews) {
-            int count = reactionService.countLikes("review", review.getId(), 1);
+            int count = reactionService.countReaction("review", review.getId(), 1);
             review.setLikeCount(count);
         }
 
@@ -109,7 +110,60 @@ public class ReviewController {
 
         long savedId = reviewService.save(review, prosList, consList);
 
-        return "redirect:/review/detail/" + savedId;
+        return "redirect:/review/certification?reviewId=" + savedId;
+    }
+
+    // =====================================================================
+    // 3-1. 리뷰 실거주 인증
+    // =====================================================================
+    // --- [실거주 인증 기능 추가  ---
+
+    /**
+     * 실거주 인증 신청 페이지로 이동.
+     *
+     * @return 인증 신청 폼 HTML 경로
+     */
+    @GetMapping("/certification")
+    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
+        try {
+            User user = (User) userDetails;
+            model.addAttribute("user", user);
+            model.addAttribute("reviewId", reviewId);
+            return "/users/certification";
+        } catch (Exception e) {
+            return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로
+        }
+    }
+
+    /**
+     * 사용자가 업로드한 임대차계약서 파일을 처리.
+     *
+     * @param file 사용자가 선택한 파일 (MultipartFile)
+     * @param user 현재 로그인한 유저 정보 (Spring Security)
+     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
+     * @return 처리가 완료된 후 이동할 주소
+     */
+    @PostMapping("/certification")
+    public String submitCertification(@RequestParam("contractFile") MultipartFile file,
+                                      @RequestParam("reviewId") Long reviewId,
+                                      @AuthenticationPrincipal User user,
+                                      RedirectAttributes rttr) {
+        try {
+            // 1. UserService에 만든 파일 저장 로직을 실행.
+            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
+            reviewService.registerCertification(user, file, reviewId);
+
+            // 2. 성공 메시지를 담아서 마이페이지로 보냄.
+            rttr.addFlashAttribute("message", "인증 신청 완료! 관리자 승인 후 리뷰가 공개됩니다.");
+            return "redirect:/review";
+
+        } catch (Exception e) {
+            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
+            return "redirect:/review/certification?reviewId=" + reviewId;
+        }
     }
 
     // =====================================================================

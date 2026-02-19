@@ -283,4 +283,22 @@
         SET content = #{content}
         WHERE id = #{id}
     </update>
+
+    <!-- 실거주 인증 -->
+    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certification (
+        user_id, status, created_at
+        ) VALUES (
+        #{userId}, 'PENDING', NOW()
+        )
+    </insert>
+
+    <update id="updateCertificationPath">
+        UPDATE certification
+        SET original_name = #{originalName},
+        stored_path = #{storedPath}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

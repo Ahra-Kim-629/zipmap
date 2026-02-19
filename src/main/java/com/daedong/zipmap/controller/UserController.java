@@ -8,6 +8,9 @@ import com.daedong.zipmap.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -291,16 +294,16 @@ public class UserController {
 //        return "/users/articles";
 //    }
 
-//    @GetMapping("/users/comments")
-//    public String comments(@AuthenticationPrincipal UserDetails userDetails,
-//                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-//                           @RequestParam(required = false, defaultValue = "reviews") String type,
-//                           Model model) {
-//
-//        User user =userService.findByLoginId(userDetails.getUsername());
-//
-//        model.addAttribute("type", type);
-//
+    @GetMapping("/users/comments")
+    public String comments(@AuthenticationPrincipal UserDetails userDetails,
+                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                           @RequestParam(required = false, defaultValue = "reviews") String type,
+                           Model model) {
+
+        User user = userService.findByLoginId(userDetails.getUsername());
+
+        model.addAttribute("type", type);
+
 //        if ("reviews".equals(type)) {
 //            Page<ReviewReply> replies = reviewService.findMyReplies(user.getId(), pageable);
 //            model.addAttribute("replies", replies);
@@ -310,7 +313,7 @@ public class UserController {
 //            model.addAttribute("postReplies", replies);
 //            model.addAttribute("replies", Page.empty(pageable));
 //        }
-//
-//        return "/users/comments";
-//    }
+
+        return "/users/comments";
+    }
 }

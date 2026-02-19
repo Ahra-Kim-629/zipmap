@@ -14,7 +14,8 @@ public interface ReactionMapper {
 
     void update(@Param("id") Long id, @Param("type") int type);
 
-    int countLikes(@Param("targetType") String targetType,
+    int countReaction(@Param("targetType") String targetType,
                    @Param("targetId") Long targetId,
                    @Param("type") int type);
+
 }
