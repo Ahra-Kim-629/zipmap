@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 public class Certification {
     private Long id;              // 인증 PK
     private Long userId;          // 신청자 ID (User 테이블의 id와 매칭)
-    private String originalName;  // 원본 파일명 (예: 임대차계약서.jpg)
-    private String storedPath;    // 서버에 저장된 실제 경로 (예: C:/zipmap_uploads/...)
     private String status;        // 상태 (PENDING, APPROVED, REJECTED)
     private LocalDateTime createdAt; // 신청 일시
 }

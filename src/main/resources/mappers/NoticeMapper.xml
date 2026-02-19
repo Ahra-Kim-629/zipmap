@@ -6,11 +6,22 @@
 
     <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.Notice">
         SELECT
-        id, title, image_path, link_url, status, start_date, end_date, pos_top, pos_left, priority, created_at,
-        updated_at
-        FROM notice
-        WHERE status='Y' AND NOW() BETWEEN start_date AND end_date
-        ORDER BY priority DESC, id DESC
+        n.id,
+        n.title,
+        n.link_url,
+        n.status,
+        n.start_date,
+        n.end_date,
+        n.pos_top,
+        n.pos_left,
+        n.priority,
+        f.file_path AS imagePath  FROM notice n
+        LEFT JOIN file f
+        ON f.target_type = 'NOTICE'
+        AND f.target_id = n.id
+        WHERE n.status='Y'
+        AND NOW() BETWEEN n.start_date AND n.end_date
+        ORDER BY n.priority DESC, n.id DESC
     </select>
 
     <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.Notice"
@@ -21,10 +32,4 @@
         (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{posTop}, #{posLeft}, #{priority}, NOW(),
         NOW())
     </insert>
-
-    <update id="updateNoticeImagePath" parameterType="com.daedong.zipmap.domain.Notice">
-        UPDATE notice
-        SET image_path = #{imagePath}
-        WHERE id = #{id}
-    </update>
 </mapper>

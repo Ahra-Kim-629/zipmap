@@ -1,9 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.PostDTO;
-import com.daedong.zipmap.domain.Replies;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;

@@ -1,8 +1,6 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.FileAttachment;
-import com.daedong.zipmap.domain.PostFile;
-import com.daedong.zipmap.domain.ReviewFile;
+import com.daedong.zipmap.domain.File; // ★ 이제 파일 도메인은 이거 하나뿐입니다!
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,36 +8,19 @@ import java.util.List;
 
 @Mapper
 public interface FileMapper {
-    // 리뷰아이디로 파일 리스트 조회
-    List<ReviewFile> findFilesByReviewId(Long id);
 
-    void insertPostFile(PostFile postFile);
+    // [통합 파일 저장]
+    void insertAttachment(File file);
 
-    List<PostFile> findByPostId(Long id);
+    // [통합 파일 목록 조회]
+    List<File> findAttachments(@Param("targetType") String targetType, @Param("targetId") Long targetId);
 
-    void deleteFilesByPostId(Long id);
+    // [통합 파일 단건 조회]
+    File findAttachmentById(Long id);
 
-    // 리뷰 파일 조회
-    ReviewFile getFileById(Long fileId);
-
-    // 리뷰 파일 삭제
-    void deleteFileById(Long fileId);
-
-    // 리뷰 파일 저장
-    void saveReviewFile(ReviewFile reviewFile);
-
-    // [수정됨] 통합 파일 저장
-    void insertAttachment(FileAttachment fileAttachment);
-
-    // [수정됨] 통합 파일 목록 조회
-    List<FileAttachment> findAttachments(@Param("targetType") String targetType, @Param("targetId") Long targetId);
-
-    // [수정됨] 통합 파일 단건 조회
-    FileAttachment findAttachmentById(Long id);
-
-    // [수정됨] 통합 파일 개별 삭제 (이름 변경: deleteFileById -> deleteAttachment)
+    // [통합 파일 개별 삭제]
     void deleteAttachment(Long id);
 
-    // [수정됨] 통합 파일 전체 삭제 (글 삭제 시)
+    // [통합 파일 전체 삭제 (글 삭제 시)]
     void deleteAttachmentsByTarget(@Param("targetType") String targetType, @Param("targetId") Long targetId);
 }

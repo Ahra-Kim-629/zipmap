@@ -1,6 +1,7 @@
 package com.daedong.zipmap.domain;
 
 import lombok.Data;
+import com.daedong.zipmap.domain.File;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +22,7 @@ public class ReviewDTO {
 
     private List<String> prosList;
     private List<String> consList;
-    private List<ReviewFile> fileList;
+    private List<File> fileList;
     private List<Replies> replyList;
 
     private int likeCount;

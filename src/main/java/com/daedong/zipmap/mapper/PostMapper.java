@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 
+import com.daedong.zipmap.domain.File;
+
 import java.util.List;
 
 @Mapper
@@ -22,8 +24,6 @@ public interface PostMapper {
                  @Param("location") String location); // 추가
 
     long insertPost(Post post);
-
-    void insertFile(PostFile postFile);
 
     void updatePost(Post post);
 

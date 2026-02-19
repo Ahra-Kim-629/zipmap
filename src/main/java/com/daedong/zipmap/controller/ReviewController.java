@@ -1,7 +1,6 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
-import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.util.FileUtilService; // ★ (신) 만능 파일 서비스
 import com.daedong.zipmap.util.LikesService;
@@ -33,9 +32,6 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final RepliesService repliesService;
     private final LikesService likesService;
-
-    // [Old] 기존 파일 서비스 (구형 데이터 호환성을 위해 남겨둠)
-    private final FileService fileService;
 
     // [New] ★ 새로 만든 파일 유틸 서비스
     private final FileUtilService fileUtilService;

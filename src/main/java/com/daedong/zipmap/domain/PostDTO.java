@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.daedong.zipmap.domain.File;
 
 @Data
 public class PostDTO {
@@ -18,7 +19,7 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private List<PostFile> fileList;
+    private List<File> fileList;
     private List<Replies> replyList;
 
     private int likeCount;

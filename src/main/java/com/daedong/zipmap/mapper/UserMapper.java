@@ -42,4 +42,5 @@ public interface UserMapper {
      * 2026.02.12 실거주 인증 기능 추가
      */
     void insertCertification(Certification certification);
+
 }

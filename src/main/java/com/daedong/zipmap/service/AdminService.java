@@ -9,12 +9,14 @@ import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.daedong.zipmap.util.FileUtilService;
+import com.daedong.zipmap.domain.File;
+import com.daedong.zipmap.mapper.FileMapper;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,20 +26,48 @@ import java.util.List;
 public class AdminService {
     private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
-    private final FileService fileService;
     private final PostMapper postMapper;
 
+
+    private final FileUtilService fileUtilService;
+    private final FileMapper fileMapper;
+
+
+// 기존 코드 혹시몰라서 일단 주석처리
+//    @Transactional
+//    @CacheEvict(value = "mainNotices", allEntries = true)
+//    public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
+//        noticeMapper.insertNotice(notice);
+//
+//        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
+//
+//        notice.setImagePath(fileName);
+//        noticeMapper.updateNoticeImagePath(notice);
+//    }
 
 
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
     public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
+
+        // 1. 먼저 공지사항 글부터 저장 (그래야 ID가 생김)
         noticeMapper.insertNotice(notice);
 
-        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
+        // 2. 파일이 있으면 -> 디스크 저장 -> 'file_attachment' 테이블에 저장
+        if (imageFile != null && !imageFile.isEmpty()) {
 
-        notice.setImagePath(fileName);
-        noticeMapper.updateNoticeImagePath(notice);
+            // (1) 실제 폴더(c:/upload/notice)에 파일 저장
+            String filePath = fileUtilService.saveFile(imageFile, "notice");
+
+            // (2) ★ [핵심] 공통 파일 테이블(file_attachment)에 정보 저장!
+            File attachment = new File();
+            attachment.setTargetType("NOTICE");        // 구분값
+            attachment.setTargetId(notice.getId());    // 방금 만든 공지사항 ID
+            attachment.setFilePath(filePath);          // notice/uuid_파일명.jpg
+            attachment.setFileSize(imageFile.getSize());
+
+            fileMapper.insertAttachment(attachment);
+        }
     }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정

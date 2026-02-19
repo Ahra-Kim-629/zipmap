@@ -1,6 +1,6 @@
 package com.daedong.zipmap.util;
 
-import com.daedong.zipmap.domain.FileAttachment;
+import com.daedong.zipmap.domain.File;
 import com.daedong.zipmap.mapper.FileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.HashSet;
 
 @Slf4j
@@ -38,13 +36,13 @@ public class FileUtilService {
         if (file.isEmpty()) return null;
 
         // 무조건 temp 폴더에 저장
-        File folder = new File(uploadDir, "temp");
+        java.io.File folder = new java.io.File(uploadDir, "temp");
         if (!folder.exists()) folder.mkdirs();
 
         String uuid = UUID.randomUUID().toString();
         String saveFileName = uuid + "_" + file.getOriginalFilename();
 
-        File destFile = new File(folder, saveFileName);
+        java.io.File destFile = new java.io.File(folder, saveFileName);
         file.transferTo(destFile);
 
         // 리턴: "temp/uuid_파일명.jpg"
@@ -62,7 +60,7 @@ public class FileUtilService {
         if (content == null || content.isEmpty()) return "";
 
         String targetFolder = targetType.toLowerCase(); // 예: review
-        File realFolder = new File(uploadDir, targetFolder);
+        java.io.File realFolder = new java.io.File(uploadDir, targetFolder);
         if (!realFolder.exists()) realFolder.mkdirs();
 
         // 1. 본문에서 "temp/..." 로 되어있는 이미지 찾기
@@ -76,13 +74,13 @@ public class FileUtilService {
             String fileName = matcher.group(1); // uuid_강아지.jpg
 
             // (1) 파일 이동: C:/upload/temp/파일 -> C:/upload/review/파일
-            File tempFile = new File(uploadDir + "/temp", fileName);
-            File destFile = new File(realFolder, fileName);
+            java.io.File tempFile = new java.io.File(uploadDir + "/temp", fileName);
+            java.io.File destFile = new java.io.File(realFolder, fileName);
 
             if (tempFile.exists()) {
                 if (tempFile.renameTo(destFile)) {
                     // 이동 성공 시 DB 저장
-                    FileAttachment attachment = new FileAttachment();
+                    File attachment = new File();
                     attachment.setTargetType(targetType);
                     attachment.setTargetId(targetId);
                     attachment.setFilePath(targetFolder + "/" + fileName); // review/파일명
@@ -121,10 +119,10 @@ public class FileUtilService {
             htmlPaths.add(matcher.group(1));
         }
 
-        List<FileAttachment> dbFiles = fileMapper.findAttachments(targetType, targetId);
+        List<File> dbFiles = fileMapper.findAttachments(targetType, targetId);
 
         // 본문에 없는 DB 파일 삭제
-        for (FileAttachment dbFile : dbFiles) {
+        for (File dbFile : dbFiles) {
             if (!htmlPaths.contains(dbFile.getFilePath())) {
                 deleteFileByPath(dbFile.getFilePath());
                 fileMapper.deleteAttachment(dbFile.getId());
@@ -137,17 +135,45 @@ public class FileUtilService {
     // (단순 삭제 메서드는 그대로 유지)
     public void deleteFileByPath(String filePath) {
         if (filePath == null || filePath.isEmpty()) return;
-        File file = new File(uploadDir, filePath);
+        java.io.File file = new java.io.File(uploadDir, filePath);
         if (file.exists()) file.delete();
     }
 
     // (글 삭제 시 전체 삭제 메서드 유지)
     @Transactional
     public void deleteFilesByTarget(String targetType, Long targetId) {
-        List<FileAttachment> files = fileMapper.findAttachments(targetType, targetId);
-        for (FileAttachment file : files) {
+        List<File> files = fileMapper.findAttachments(targetType, targetId);
+        for (File file : files) {
             deleteFileByPath(file.getFilePath());
         }
         fileMapper.deleteAttachmentsByTarget(targetType, targetId);
     }
+
+
+    // ... 기존 메서드들 아래에 추가 ...
+
+    /**
+     * [단일 파일 즉시 저장]
+     * 썸머노트 같은 거 안 쓰고, 그냥 첨부파일 1개를 바로 특정 폴더에 저장할 때 씁니다.
+     * 예: 공지사항 팝업 이미지, 프로필 사진 등
+     */
+    public String saveFile(MultipartFile file, String targetFolder) throws IOException {
+        if (file == null || file.isEmpty()) return null;
+
+        // 1. 폴더 만들기 (예: c:/upload/notice)
+        java.io.File folder = new java.io.File(uploadDir, targetFolder);
+        if (!folder.exists()) folder.mkdirs();
+
+        // 2. 파일명 중복 방지 (UUID)
+        String uuid = UUID.randomUUID().toString();
+        String saveFileName = uuid + "_" + file.getOriginalFilename();
+
+        // 3. 저장
+        java.io.File destFile = new java.io.File(folder, saveFileName);
+        file.transferTo(destFile);
+
+        // 4. 경로 리턴 (예: notice/uuid_파일명.jpg)
+        return targetFolder + "/" + saveFileName;
+    }
+
 }

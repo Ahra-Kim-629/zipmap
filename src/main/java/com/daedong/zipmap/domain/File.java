@@ -4,7 +4,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class FileAttachment {
+public class File {
     private Long id;
 
     private String targetType;      // 구분 (REVIEW, POST 등)

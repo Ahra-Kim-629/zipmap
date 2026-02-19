@@ -73,8 +73,8 @@ public class ReviewService {
             // 댓글 가져와서 끼워넣기
             reviewDTO.setReplyList(replyMapper.getRepliesByTarget("review", id));
 
-            // 파일 가져와서 끼워넣기
-            reviewDTO.setFileList(fileMapper.findFilesByReviewId(id));
+            // 변경: 통합 매퍼를 써서 "REVIEW" 게시판의 id번 글 사진들을 가져옴
+            reviewDTO.setFileList(fileMapper.findAttachments("REVIEW", id));
 
             // 2. 장점 처리 (객체 리스트 -> 문자열 리스트로 변환)
             List<Pros> prosEntities = prosMapper.findByReviewId(id);

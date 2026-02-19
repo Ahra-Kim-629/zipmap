@@ -23,7 +23,7 @@
             <result property="updatedAt" column="reaction_updated_at"/>
         </collection>
 
-        <collection property="fileList" ofType="com.daedong.zipmap.domain.PostFile">
+        <collection property="fileList" ofType="com.daedong.zipmap.domain.File">
             <result property="id" column="file_id"/>
             <result property="filePath" column="file_path"/>
             <result property="createdAt" column="file_created_at"/>

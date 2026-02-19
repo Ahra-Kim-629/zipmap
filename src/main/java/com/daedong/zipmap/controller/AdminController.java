@@ -38,7 +38,7 @@ public class AdminController {
     }
 
     @PostMapping("/notice")
-    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
+    public String writeNotice(Notice notice,@RequestParam("imageFile") MultipartFile imageFile, RedirectAttributes rttr) {
         try {
             adminService.insertNotice(notice, imageFile);
             rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
