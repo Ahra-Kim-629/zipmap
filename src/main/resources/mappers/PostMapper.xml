@@ -37,29 +37,22 @@
 <!--            <result property="createdAt" column="reply_created_at"/>-->
 <!--            <result property="updatedAt" column="reply_updated_at"/>-->
 <!--        </collection>-->
-        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">
-            <id property="id" column="reply_id"/>
-            <result property="userId" column="reply_user_id"/>
-            <result property="loginId" column="reply_login_id"/>
-            <result property="content" column="reply_content"/>
-            <result property="createdAt" column="reply_created_at"/>
-            <result property="updatedAt" column="reply_updated_at"/>
-        </collection>
+<!--        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">-->
+<!--            <id property="id" column="reply_id"/>-->
+<!--            <result property="userId" column="reply_user_id"/>-->
+<!--            <result property="loginId" column="reply_login_id"/>-->
+<!--            <result property="content" column="reply_content"/>-->
+<!--            <result property="createdAt" column="reply_created_at"/>-->
+<!--            <result property="updatedAt" column="reply_updated_at"/>-->
+<!--        </collection>-->
     </resultMap>
 
     <select id="findById" resultMap="postResultMap">
         SELECT
             p.id, p.title, p.content, p.user_id, p.category, p.location,
-            p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
-            r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
-            f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
-            c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
-            c.updated_at as reply_updated_at
+            p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at
         FROM
             post p
-                LEFT JOIN post_reaction r ON p.id = r.post_id
-                LEFT JOIN post_file f on p.id = f.post_id
-                LEFT JOIN post_reply c on p.id = c.post_id
         WHERE
             p.id = #{id}
     </select>
@@ -146,11 +139,11 @@
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO post (
             title, content, user_id, category, location,
-            like_count, dislike_count, post_status, created_at, updated_at
+            like_count, dislike_count, view_count, post_status, created_at, updated_at
         )
         VALUES (
                    #{title}, #{content}, #{userId}, #{category}, #{location},
-                   0, 0, 'ACTIVE', NOW(), NOW()
+                   0, 0, 0, 'ACTIVE', NOW(), NOW()
                )
     </insert>
 
@@ -159,26 +152,26 @@
         VALUES (#{postId}, #{filePath})
     </insert>
 
-    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostReplyDTO">
-        SELECT
-        r.id,
-        r.post_id as postId,
-        r.user_id as userId,
-        u.login_id as loginId,
-        r.content,
-        r.created_at as createdAt,
-        r.updated_at as updatedAt
-        FROM post_reply r
-        JOIN user u ON r.user_id = u.id
-        WHERE r.id = #{id}
-    </select>
+<!--    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostReplyDTO">-->
+<!--        SELECT-->
+<!--        r.id,-->
+<!--        r.post_id as postId,-->
+<!--        r.user_id as userId,-->
+<!--        u.login_id as loginId,-->
+<!--        r.content,-->
+<!--        r.created_at as createdAt,-->
+<!--        r.updated_at as updatedAt-->
+<!--        FROM post_reply r-->
+<!--        JOIN user u ON r.user_id = u.id-->
+<!--        WHERE r.id = #{id}-->
+<!--    </select>-->
 
-    <update id="updateReply">
-        UPDATE post_reply
-        SET content = #{content},
-            updated_at = NOW()
-        WHERE id = #{id}
-    </update>
+<!--    <update id="updateReply">-->
+<!--        UPDATE post_reply-->
+<!--        SET content = #{content},-->
+<!--            updated_at = NOW()-->
+<!--        WHERE id = #{id}-->
+<!--    </update>-->
 
     <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
         UPDATE post

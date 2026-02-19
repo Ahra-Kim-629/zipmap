@@ -5,7 +5,7 @@
 <mapper namespace="com.daedong.zipmap.mapper.RepliesMapper">
 
     <!-- 댓글 목록 조회 -->
-    <select id="getRepliesByTarget" resultType="com.daedong.zipmap.domain.Replies">
+    <select id="getRepliesByTarget" resultType="com.daedong.zipmap.domain.Reply">
         SELECT
         r.id,
         r.target_type AS target_type,
@@ -13,22 +13,22 @@
         r.user_id AS userId,
         u.login_id AS loginId,  r.content,
         r.created_at AS createdAt
-        FROM replies r
+        FROM reply r
         LEFT JOIN user u ON r.user_id = u.id WHERE r.target_type = #{targetType} AND r.target_id = #{targetId}
         ORDER BY r.created_at DESC
     </select>
 
     <!-- 댓글 작성 -->
-    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.Replies">
-            INSERT INTO replies
+    <insert id="insertReply" parameterType="com.daedong.zipmap.domain.Reply">
+            INSERT INTO reply
             (target_type, target_id, user_id, content)
             VALUES
             (#{targetType}, #{targetId}, #{userId}, #{content})
     </insert>
 
     <!-- 댓글 수정 -->
-    <update id="updateReply" parameterType="com.daedong.zipmap.domain.Replies">
-        UPDATE replies
+    <update id="updateReply" parameterType="com.daedong.zipmap.domain.Reply">
+        UPDATE reply
         SET content = #{content},
             updated_at = NOW()
         WHERE id = #{id}
@@ -36,7 +36,7 @@
 
     <!-- 댓글 삭제 -->
     <delete id="deleteReply" parameterType="long">
-            DELETE FROM replies
+            DELETE FROM reply
             WHERE id = #{id}
     </delete>
 

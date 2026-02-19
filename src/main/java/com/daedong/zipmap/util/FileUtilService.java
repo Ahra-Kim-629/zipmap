@@ -150,4 +150,32 @@ public class FileUtilService {
         }
         fileMapper.deleteAttachmentsByTarget(targetType, targetId);
     }
+
+
+    // ... 기존 메서드들 아래에 추가 ...
+
+    /**
+     * [단일 파일 즉시 저장]
+     * 썸머노트 같은 거 안 쓰고, 그냥 첨부파일 1개를 바로 특정 폴더에 저장할 때 씁니다.
+     * 예: 공지사항 팝업 이미지, 프로필 사진 등
+     */
+    public String saveFile(MultipartFile file, String targetFolder) throws IOException {
+        if (file == null || file.isEmpty()) return null;
+
+        // 1. 폴더 만들기 (예: c:/upload/notice)
+        File folder = new File(uploadDir, targetFolder);
+        if (!folder.exists()) folder.mkdirs();
+
+        // 2. 파일명 중복 방지 (UUID)
+        String uuid = UUID.randomUUID().toString();
+        String saveFileName = uuid + "_" + file.getOriginalFilename();
+
+        // 3. 저장
+        File destFile = new File(folder, saveFileName);
+        file.transferTo(destFile);
+
+        // 4. 경로 리턴 (예: notice/uuid_파일명.jpg)
+        return targetFolder + "/" + saveFileName;
+    }
+
 }

@@ -14,6 +14,7 @@ public class Post {
     private String location;
     private int likeCount;
     private int dislikeCount;
+    private int viewCount;
     private String postStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

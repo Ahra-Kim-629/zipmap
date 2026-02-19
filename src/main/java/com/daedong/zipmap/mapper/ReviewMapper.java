@@ -1,5 +1,6 @@
 package com.daedong.zipmap.mapper;
 
+import com.daedong.zipmap.domain.Certification;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -35,4 +36,12 @@ public interface ReviewMapper {
 
     // 추가 2/13
     void updateContent(ReviewDTO dto);
+
+    /**
+     * [실거주 인증] 사용자가 올린 인증 서류 정보를 DB에 저장
+     * 2026.02.12 실거주 인증 기능 추가
+     */
+    void insertCertification(Certification certification);
+
+    void updateReviewStatusToBanned(Long reviewId, String banned);
 }

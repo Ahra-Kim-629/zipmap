@@ -4,7 +4,7 @@ import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.util.FileUtilService; // ★ (신) 만능 파일 서비스
-import com.daedong.zipmap.util.LikesService;
+import com.daedong.zipmap.util.ReactionService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,11 +14,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final RepliesService repliesService;
-    private final LikesService likesService;
+    private final ReactionService reactionService;
 
     // [Old] 기존 파일 서비스 (구형 데이터 호환성을 위해 남겨둠)
     private final FileService fileService;
@@ -56,7 +58,7 @@ public class ReviewController {
 
         // 좋아요 표시
         for(ReviewDTO review : reviews) {
-            int count = likesService.countLikes("review", review.getId(), 1);
+            int count = reactionService.countReaction("review", review.getId(), 1);
             review.setLikeCount(count);
         }
 
@@ -65,7 +67,7 @@ public class ReviewController {
 
         // 좋아요 표시
         for(ReviewDTO review : allReviews) {
-            int count = likesService.countLikes("review", review.getId(), 1);
+            int count = reactionService.countReaction("review", review.getId(), 1);
             review.setLikeCount(count);
         }
 
@@ -93,10 +95,10 @@ public class ReviewController {
         ReviewDTO reviewDTO = reviewService.findById(id);
 
         // 좋아요
-        int likeCount = likesService.countLikes("review", id, 1);
+        int likeCount = reactionService.countReaction("review", id, 1);
         reviewDTO.setLikeCount(likeCount);
 
-        List<Replies> replyList = repliesService.getReplyList("review", id);
+        List<Reply> replyList = repliesService.getReplyList("review", id);
         model.addAttribute("replyList", replyList);
 
         model.addAttribute("reviewDTO", reviewDTO);
@@ -120,6 +122,8 @@ public class ReviewController {
 
         reviewDTO.setUserId(user.getId());
 
+        reviewDTO.setReviewStatus("BANNED");
+
         // 1. 글 내용 저장 (먼저 저장해야 ID가 생성됨)
         Long savedId = reviewService.save(reviewDTO);
 
@@ -130,7 +134,58 @@ public class ReviewController {
         // 3. 바뀐 HTML 내용으로 DB 업데이트
         reviewService.updateContent(savedId, newContent);
 
-        return "redirect:/review/detail/" + savedId;
+        return "redirect:/review/certification?reviewId=" + savedId;
+    }
+
+    // =====================================================================
+    // 3-1. 리뷰 실거주 인증
+    // =====================================================================
+    // --- [실거주 인증 기능 추가  ---
+
+    /**
+     * 실거주 인증 신청 페이지로 이동.
+     * @return 인증 신청 폼 HTML 경로
+     */
+    @GetMapping("/certification")
+    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
+        try {
+            User user = (User) userDetails;
+            model.addAttribute("user", user);
+            model.addAttribute("reviewId", reviewId);
+            return "/users/certification";
+        } catch (Exception e) {
+            return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로
+        }
+    }
+
+    /**
+     * 사용자가 업로드한 임대차계약서 파일을 처리.
+     * @param file 사용자가 선택한 파일 (MultipartFile)
+     * @param user 현재 로그인한 유저 정보 (Spring Security)
+     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
+     * @return 처리가 완료된 후 이동할 주소
+     */
+    @PostMapping("/certification")
+    public String submitCertification(@RequestParam("contractFile") MultipartFile file,
+                                      @RequestParam("reviewId") Long reviewId,
+                                      @AuthenticationPrincipal User user,
+                                      RedirectAttributes rttr) {
+        try {
+            // 1. UserService에 만든 파일 저장 로직을 실행.
+            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
+            reviewService.registerCertification(user, file, reviewId);
+
+            // 2. 성공 메시지를 담아서 마이페이지로 보냄.
+            rttr.addFlashAttribute("message", "인증 신청 완료! 관리자 승인 후 리뷰가 공개됩니다.");
+            return "redirect:/review";
+
+        } catch (Exception e) {
+            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
+            return "redirect:/review/certification?reviewId=" + reviewId;
+        }
     }
 
     // =====================================================================
@@ -235,13 +290,13 @@ public class ReviewController {
     // 좋아요
     @PostMapping("/reaction")
     public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
-        Likes like = new Likes();
+        Reaction like = new Reaction();
         like.setTargetType("review");
         like.setTargetId(targetId);
         like.setUserId(user.getId());
         like.setType(type);
 
-        likesService.save(like);
+        reactionService.save(like);
 
         return "redirect:/review/detail/" + targetId;
     }

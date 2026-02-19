@@ -4,7 +4,7 @@ import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.util.LikesService;
+import com.daedong.zipmap.util.ReactionService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
     private final RepliesService repliesService;
-    private final LikesService likesService;
+    private final ReactionService reactionService;
 
     private final FileUtilService fileUtilService;
 
@@ -47,8 +47,8 @@ public class PostController {
 
         // 좋아요 싫어요 표시
         for (PostDTO post : posts.getContent()) {
-            int likeCount = likesService.countLikes("post", post.getId(), 1);
-            int dislikeCount = likesService.countLikes("post", post.getId(), -1);
+            int likeCount = reactionService.countReaction("post", post.getId(), 1);
+            int dislikeCount = reactionService.countReaction("post", post.getId(), -1);
 
             post.setLikeCount(likeCount);
             post.setDislikeCount(dislikeCount);
@@ -66,17 +66,31 @@ public class PostController {
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         PostDTO boardDTO = postService.getPostDetail(id);
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+
+
+        Reaction reaction = new Reaction();
+        reaction.setTargetId(id);
+        reaction.setTargetType("post");
+        if(user != null) {
+            reaction.setUserId(user.getId());
+        }
+
+        // 내가 누른 반응(1, -1 혹은 0)을 가져오는 서비스 메서드
+        int myReaction = reactionService.getMyReaction(reaction);
+        model.addAttribute("myReaction", myReaction);
+
 
         // 좋아요, 싫어요 표시
-        boardDTO.setLikeCount(likesService.countLikes("post", id, 1));
-        boardDTO.setDislikeCount(likesService.countLikes("post", id, -1));
+        boardDTO.setLikeCount(reactionService.countReaction("post", id, 1));
+        boardDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
 
         model.addAttribute("board", boardDTO);
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+
         model.addAttribute("currentUserId", user.getId());
 
         // 해당 게시글에 달린 댓글 목록 보여주기
-        List<Replies> replyList = repliesService.getReplyList("board", id);
+        List<Reply> replyList = repliesService.getReplyList("board", id);
         model.addAttribute("replyList", replyList);
 
 
@@ -91,25 +105,24 @@ public class PostController {
     //@RequestParam("file") List<MultipartFile> files
 
     @PostMapping("/write")
-    public String write(@AuthenticationPrincipal UserDetails userDetails, Post post ,Model model) {
+    public String write(@AuthenticationPrincipal User user, Post post ,RedirectAttributes rttr) {
         try {
-            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
             post.setUserId(user.getId());
 
             Long savedId = postService.write(post);
 
-            // 2. ★ 파일 이사 (temp -> post)
-            // "POST" 라고 지정하면 C:/upload/post 폴더에 저장됩니다.
-            String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
+            // 2. 파일 이사 (이미지가 없을 때를 대비해 null 체크가 필요할 수 있음)
+            if (post.getContent() != null && post.getContent().contains("src=")) {
+                String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
+                postService.updateContent(savedId, newContent);
+            }
 
-            // 3. 내용 업데이트 (이미지 경로 보정)
-            postService.updateContent(savedId, newContent);
-
-            model.addAttribute("message", "글 작성이 완료되었습니다.");
+            rttr.addFlashAttribute("message", "글 작성이 완료되었습니다.");
             return "redirect:/board";
         } catch (Exception e) {
-            model.addAttribute("error", "글 작성 중 오류가 발생했습니다.");
-            return "board/write_form";
+            e.printStackTrace();
+            rttr.addFlashAttribute("error", "글 작성 중 오류가 발생했습니다: " + e.getMessage());
+            return "redirect:/board/write";
         }
     }
 
@@ -175,13 +188,13 @@ public class PostController {
     // 좋아요 싫어요
     @PostMapping("/reaction")
     public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
-        Likes like = new Likes();
+        Reaction like = new Reaction();
         like.setTargetType("post");
         like.setTargetId(targetId);
         like.setUserId(user.getId());
         like.setType(type);
 
-        likesService.save(like);
+        reactionService.save(like);
 
         return "redirect:/board/detail/" + targetId;
     }

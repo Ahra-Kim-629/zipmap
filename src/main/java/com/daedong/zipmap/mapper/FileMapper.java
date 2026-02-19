@@ -5,6 +5,7 @@ import com.daedong.zipmap.domain.PostFile;
 import com.daedong.zipmap.domain.ReviewFile;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -42,4 +43,5 @@ public interface FileMapper {
 
     // [수정됨] 통합 파일 전체 삭제 (글 삭제 시)
     void deleteAttachmentsByTarget(@Param("targetType") String targetType, @Param("targetId") Long targetId);
+
 }

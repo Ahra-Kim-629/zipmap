@@ -6,7 +6,7 @@
 
     <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.Notice">
         SELECT
-        id, title, image_path, link_url, status, start_date, end_date, pos_top, pos_left, priority, created_at,
+        id, title, image_path, link_url, status, start_date, end_date, priority, created_at,
         updated_at
         FROM notice
         WHERE status='Y' AND NOW() BETWEEN start_date AND end_date
@@ -16,7 +16,7 @@
     <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.Notice"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO notice
-        (title, image_path, link_url, status, start_date, end_date, pos_top, pos_left, priority, created_at, updated_at)
+        (title, image_path, link_url, status, start_date, end_date, priority, created_at, updated_at)
         VALUES
         (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{priority}, NOW(),
         NOW())

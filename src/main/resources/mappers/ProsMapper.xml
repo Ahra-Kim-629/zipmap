@@ -6,7 +6,7 @@
 
     <!-- 장점 추가 -->
     <insert id="save" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO pros
+        INSERT INTO review_attribute
         (review_id, attribute)
         VALUES
         (#{reviewId}, #{attribute})
@@ -14,7 +14,7 @@
 
     <!-- 장점 삭제 -->
     <delete id="deleteByReviewId" parameterType="long">
-        DELETE FROM pros
+        DELETE FROM review_attribute
         WHERE review_id = #{id}
     </delete>
 
@@ -22,7 +22,7 @@
     <select id="findByReviewId" resultType="com.daedong.zipmap.domain.Pros" parameterType="long">
         SELECT
         id, review_id, attribute
-        FROM pros
+        FROM review_attribute
         WHERE review_id = #{id}
     </select>
 

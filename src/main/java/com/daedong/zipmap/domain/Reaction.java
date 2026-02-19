@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class Likes {
+public class Reaction {
     private Long id;
     private String targetType; // REVIEW, POST 등
     private Long targetId;     // 대상의 PK 번호

@@ -99,6 +99,7 @@
                         <th style="width: 15%;">작성자</th>
                         <th style="width: 17%;">작성일</th>
                         <th style="width: 10%;"><i class="bi bi-heart-fill text-danger"></i></th>
+                        <th style="width: 8%;"><i class="bi bi-hand-thumbs-down-fill text-primary"></i></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -121,6 +122,9 @@
                         <td class="text-muted small" th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd')}"></td>
                         <td>
                             <span class="like-count" th:text="${post.likeCount}">0</span>
+                        </td>
+                        <td>
+                            <span class="like-count" th:text="${post.dislikeCount}">0</span>
                         </td>
                     </tr>
                     <tr th:if="${posts.empty}">

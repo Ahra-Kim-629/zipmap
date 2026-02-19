@@ -19,8 +19,9 @@ public class PostDTO {
     private LocalDateTime updatedAt;
 
     private List<PostFile> fileList;
-    private List<Replies> replyList;
+    private List<Reply> replyList;
 
     private int likeCount;
     private int dislikeCount;
+    private int viewCount;
 }

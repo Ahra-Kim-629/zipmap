@@ -54,7 +54,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             userEntity.setName(name);
             userEntity.setEmail(email);
-            userEntity.setPhone(mobile != null ? mobile : "000-0000-0000");
             userEntity.setGender(
                     (gender != null && !gender.isEmpty())
                             ? gender.charAt(0)
