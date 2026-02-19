@@ -20,10 +20,4 @@
         (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{priority}, NOW(),
         NOW())
     </insert>
-
-    <update id="updateNoticeImagePath" parameterType="com.daedong.zipmap.domain.Notice">
-        UPDATE notice
-        SET image_path = #{imagePath}
-        WHERE id = #{id}
-    </update>
 </mapper>

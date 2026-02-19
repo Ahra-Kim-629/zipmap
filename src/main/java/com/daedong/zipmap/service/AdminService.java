@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.daedong.zipmap.util.FileUtilService;
+import com.daedong.zipmap.domain.File;
+import com.daedong.zipmap.mapper.FileMapper;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -22,10 +26,11 @@ import java.util.List;
 public class AdminService {
     private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
-    private final FileService fileService;
     private final PostMapper postMapper;
 
 
+    private final FileUtilService fileUtilService;
+    private final FileMapper fileMapper;
 
 //    @Transactional
 //    @CacheEvict(value = "mainNotices", allEntries = true)
@@ -37,6 +42,30 @@ public class AdminService {
 //        notice.setImagePath(fileName);
 //        noticeMapper.updateNoticeImagePath(notice);
 //    }
+
+    @Transactional
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
+
+        // 1. 먼저 공지사항 글부터 저장 (그래야 ID가 생김)
+        noticeMapper.insertNotice(notice);
+
+        // 2. 파일이 있으면 -> 디스크 저장 -> 'file_attachment' 테이블에 저장
+        if (imageFile != null && !imageFile.isEmpty()) {
+
+            // (1) 실제 폴더(c:/upload/notice)에 파일 저장
+            String filePath = fileUtilService.saveFile(imageFile, "notice");
+
+            // (2) ★ [핵심] 공통 파일 테이블(file_attachment)에 정보 저장!
+            com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
+            file.setTargetType("NOTICE");        // 구분값
+            file.setTargetId(notice.getId());    // 방금 만든 공지사항 ID
+            file.setFilePath(filePath);          // notice/uuid_파일명.jpg
+            file.setFileSize(imageFile.getSize());
+
+            fileMapper.insertFile(file);
+        }
+    }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정
     @Transactional

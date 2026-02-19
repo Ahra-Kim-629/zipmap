@@ -102,17 +102,14 @@
         WHERE id = #{id}
     </update>
 
-    <!--    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification">-->
-    <!--        INSERT INTO certification (-->
-    <!--        user_id,-->
-    <!--        original_name,-->
-    <!--        stored_path,-->
-    <!--        status-->
-    <!--        ) VALUES (-->
-    <!--        #{userId},-->
-    <!--        #{originalName},-->
-    <!--        #{storedPath},-->
-    <!--        'PENDING'-->
-    <!--        )-->
-    <!--    </insert>-->
+    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certification (
+        user_id, status, created_at
+        ) VALUES (
+        #{userId}, 'PENDING', NOW()
+        )
+    </insert>
+
+
 </mapper>

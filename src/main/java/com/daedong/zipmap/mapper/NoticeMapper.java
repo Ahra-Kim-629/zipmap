@@ -11,5 +11,4 @@ public interface NoticeMapper {
 
     void insertNotice(Notice notice);
 
-    void updateNoticeImagePath(Notice notice);
 }
