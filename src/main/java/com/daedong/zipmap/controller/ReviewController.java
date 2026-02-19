@@ -1,14 +1,13 @@
 package com.daedong.zipmap.controller;
 
+import com.daedong.zipmap.domain.Reaction;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.ReactionService;
-import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,12 +33,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
-    private final RepliesService repliesService;
     private final ReactionService reactionService;
     private final UserService userService;
-
-    // [Old] 기존 파일 서비스 (구형 데이터 호환성을 위해 남겨둠)
-    private final FileService fileService;
 
     // [New] ★ 새로 만든 파일 유틸 서비스
     private final FileUtilService fileUtilService;
@@ -83,9 +78,9 @@ public class ReviewController {
         return "review/list";
     }
 
-    //    // =====================================================================
-//    // 2. 리뷰 상세 조회
-//    // =====================================================================
+    // =====================================================================
+    // 2. 리뷰 상세 조회
+    // =====================================================================
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
@@ -203,20 +198,18 @@ public class ReviewController {
             return "fail";
         }
     }
-//
-//
-//    // 좋아요
-//    @PostMapping("/reaction")
-//    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
-//        Likes like = new Likes();
-//        like.setTargetType("review");
-//        like.setTargetId(targetId);
-//        like.setUserId(user.getId());
-//        like.setType(type);
-//
-//        likesService.save(like);
-//
-//        return "redirect:/review/detail/" + targetId;
-//    }
 
+    // 좋아요
+    @PostMapping("/reaction")
+    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user) {
+        Reaction reaction = new Reaction();
+        reaction.setTargetType("review");
+        reaction.setTargetId(targetId);
+        reaction.setUserId(user.getId());
+        reaction.setType(type);
+
+        reactionService.save(reaction);
+
+        return "redirect:/review/detail/" + targetId;
+    }
 }

@@ -171,7 +171,7 @@
 
                     <div class="mt-4" sec:authorize="isAuthenticated()">
                         <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-3 shadow-sm">
-                            <input type="hidden" name="targetType" value="review">
+                            <input type="hidden" name="targetType" value="REVIEW">
                             <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                             <textarea name="content" class="form-control border-0 mb-2" rows="3"
                                       placeholder="작성자에게 따뜻한 댓글을 남겨주세요." style="resize: none;"></textarea>
