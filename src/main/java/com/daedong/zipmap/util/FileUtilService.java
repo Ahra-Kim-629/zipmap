@@ -1,6 +1,5 @@
 package com.daedong.zipmap.util;
 
-import com.daedong.zipmap.domain.File;
 import com.daedong.zipmap.mapper.FileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -80,7 +80,7 @@ public class FileUtilService {
             if (tempFile.exists()) {
                 if (tempFile.renameTo(destFile)) {
                     // 이동 성공 시 DB 저장
-                    File file = new File();
+                    com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
                     file.setTargetType(targetType);
                     file.setTargetId(targetId);
                     file.setFilePath(targetFolder + "/" + fileName); // review/파일명
@@ -119,10 +119,10 @@ public class FileUtilService {
             htmlPaths.add(matcher.group(1));
         }
 
-        List<File> dbFiles = fileMapper.findAllByTargetTypeAndTargetId(targetType, targetId);
+        List<com.daedong.zipmap.domain.File> dbFiles = fileMapper.findAllByTargetTypeAndTargetId(targetType, targetId);
 
         // 본문에 없는 DB 파일 삭제
-        for (File dbFile : dbFiles) {
+        for (com.daedong.zipmap.domain.File dbFile : dbFiles) {
             if (!htmlPaths.contains(dbFile.getFilePath())) {
                 deleteFileByPath(dbFile.getFilePath());
                 fileMapper.deleteFileById(dbFile.getId());
