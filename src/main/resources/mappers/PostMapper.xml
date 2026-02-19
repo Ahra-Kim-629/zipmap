@@ -52,20 +52,20 @@
         SELECT
         p.id, p.title, p.content, p.user_id, p.category, p.location,
         p.like_count, p.dislike_count, p.post_status, p.created_at, p.updated_at,
-        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,
+<!--        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,-->
 
-        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
+        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at
 
-        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,
-        c.updated_at as reply_updated_at
+<!--        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,-->
+<!--        c.updated_at as reply_updated_at-->
         FROM
         post p
-        LEFT JOIN post_reaction r ON p.id = r.post_id
+<!--        LEFT JOIN post_reaction r ON p.id = r.post_id-->
 
         -- ▼▼▼ [수정] 테이블 이름을 정확히 'file'로 변경했습니다! ▼▼▼
         LEFT JOIN file f ON p.id = f.target_id AND f.target_type = 'POST'
 
-        LEFT JOIN post_reply c on p.id = c.post_id
+<!--        LEFT JOIN post_reply c on p.id = c.post_id-->
         WHERE
         p.id = #{id}
     </select>
@@ -169,13 +169,13 @@
         r.content,
         r.created_at as createdAt,
         r.updated_at as updatedAt
-        FROM post_reply r
+        FROM reply r
         JOIN user u ON r.user_id = u.id
         WHERE r.id = #{id}
     </select>
 
     <update id="updateReply">
-        UPDATE post_reply
+        UPDATE reply
         SET content = #{content},
             updated_at = NOW()
         WHERE id = #{id}
@@ -229,32 +229,32 @@
         WHERE id = #{id}
     </update>
 
-<!--    <insert id="insertReaction">-->
-<!--        INSERT INTO post_reaction (post_id, user_id, type, created_at)-->
-<!--        VALUES (#{postId}, #{userId}, #{type}, NOW())-->
-<!--        ON DUPLICATE KEY UPDATE-->
-<!--        type = #{type},-->
-<!--        updated_at = NOW()-->
-<!--    </insert>-->
+    <insert id="insertReaction">
+        INSERT INTO post_reaction (post_id, user_id, type, created_at)
+        VALUES (#{postId}, #{userId}, #{type}, NOW())
+        ON DUPLICATE KEY UPDATE
+        type = #{type},
+        updated_at = NOW()
+    </insert>
 
-<!--    <delete id="deleteReaction">-->
-<!--        DELETE FROM post_reaction-->
-<!--        WHERE post_id = #{postId} AND user_id = #{userId}-->
-<!--    </delete>-->
+    <delete id="deleteReaction">
+        DELETE FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </delete>
 
-<!--    <update id="updateBoardLikeCount">-->
-<!--        UPDATE post p-->
-<!--        SET-->
-<!--        p.like_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 1),-->
-<!--        p.dislike_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 2)-->
-<!--        WHERE p.id = #{postId}-->
-<!--    </update>-->
+    <update id="updateBoardLikeCount">
+        UPDATE post p
+        SET
+        p.like_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 1),
+        p.dislike_count = (SELECT COUNT(*) FROM post_reaction WHERE post_id = #{postId} AND type = 2)
+        WHERE p.id = #{postId}
+    </update>
 
-<!--    <select id="findReaction" resultType="Integer">-->
-<!--        SELECT type-->
-<!--        FROM post_reaction-->
-<!--        WHERE post_id = #{postId} AND user_id = #{userId}-->
-<!--    </select>-->
+    <select id="findReaction" resultType="Integer">
+        SELECT type
+        FROM post_reaction
+        WHERE post_id = #{postId} AND user_id = #{userId}
+    </select>
 
 
     <!-- 내가 쓴 글 조회 -->
