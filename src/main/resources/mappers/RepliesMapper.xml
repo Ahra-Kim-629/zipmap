@@ -40,4 +40,17 @@
             WHERE id = #{id}
     </delete>
 
+    <!-- 댓글 아이디로 찾기 -->
+    <select id="findReplyById" resultType="com.daedong.zipmap.domain.Reply">
+            SELECT
+            r.id,
+            r.target_type AS target_type,
+            r.target_id AS target_id,
+            r.user_id AS userId,
+            u.login_id AS loginId,  r.content,
+            r.created_at AS createdAt
+            FROM reply r
+            LEFT JOIN user u ON r.user_id = u.id WHERE r.id = #{id}
+    </select>
+
 </mapper>

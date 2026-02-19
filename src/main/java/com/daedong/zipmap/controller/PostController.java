@@ -26,7 +26,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/board")
+@RequestMapping("/post")
 public class PostController {
     private final PostService postService;
     private final UserService userService;
@@ -60,12 +60,12 @@ public class PostController {
         model.addAttribute("category", category);
         model.addAttribute("location", location);
 
-        return "board/list";
+        return "post/list";
     }
 
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        PostDTO boardDTO = postService.getPostDetail(id);
+        PostDTO postDTO = postService.getPostDetail(id);
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
 
 
@@ -82,24 +82,24 @@ public class PostController {
 
 
         // 좋아요, 싫어요 표시
-        boardDTO.setLikeCount(reactionService.countReaction("post", id, 1));
-        boardDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
+        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
+        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
 
-        model.addAttribute("board", boardDTO);
+        model.addAttribute("post", postDTO);
 
         model.addAttribute("currentUserId", user.getId());
 
         // 해당 게시글에 달린 댓글 목록 보여주기
-        List<Reply> replyList = repliesService.getReplyList("board", id);
+        List<Reply> replyList = repliesService.getReplyList("post", id);
         model.addAttribute("replyList", replyList);
 
 
-        return "board/detail";
+        return "post/detail";
     }
 
     @GetMapping("/write")
     public String write() {
-        return "board/write_form";
+        return "post/write_form";
     }
 
     //@RequestParam("file") List<MultipartFile> files
@@ -122,7 +122,7 @@ public class PostController {
         } catch (Exception e) {
             e.printStackTrace();
             rttr.addFlashAttribute("error", "글 작성 중 오류가 발생했습니다: " + e.getMessage());
-            return "redirect:/board/write";
+            return "redirect:/post/write";
         }
     }
 
@@ -132,11 +132,11 @@ public class PostController {
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         if (!postDTO.getUserId().equals(user.getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
-            return "redirect:/board";
+            return "redirect:/post";
         }
 
-        model.addAttribute("board", postDTO);
-        return "board/edit_form";
+        model.addAttribute("post", postDTO);
+        return "post/edit_form";
     }
 
 
@@ -156,10 +156,10 @@ public class PostController {
             postService.update(post);
 
             rttr.addFlashAttribute("message", "글 수정이 완료되었습니다.");
-            return "redirect:/board/detail/" + id;
+            return "redirect:/post/detail/" + id;
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "글 수정 중 오류가 발생했습니다.");
-            return "redirect:/board";
+            return "redirect:/post";
         }
     }
 
@@ -170,7 +170,7 @@ public class PostController {
             User user = (User) userService.loadUserByUsername(userDetails.getUsername());
             if (!postDTO.getUserId().equals(user.getId())) {
                 rttr.addFlashAttribute("message", "권한이 없습니다.");
-                return "redirect:/board";
+                return "redirect:/post";
             }
 
             // ★ 파일 전체 삭제 (DB + 실제파일)
@@ -182,12 +182,13 @@ public class PostController {
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
-        return "redirect:/board";
+        return "redirect:/post";
     }
 
     // 좋아요 싫어요
     @PostMapping("/reaction")
-    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
+    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal UserDetails userDetails){
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         Reaction like = new Reaction();
         like.setTargetType("post");
         like.setTargetId(targetId);
@@ -196,7 +197,7 @@ public class PostController {
 
         reactionService.save(like);
 
-        return "redirect:/board/detail/" + targetId;
+        return "redirect:/post/detail/" + targetId;
     }
 
     // =====================================================================

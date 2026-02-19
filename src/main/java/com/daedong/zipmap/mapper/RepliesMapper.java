@@ -14,4 +14,6 @@ public interface RepliesMapper {
     void deleteReply(Long id);
 
     List<Reply> getRepliesByTarget(String targetType, Long targetId);
+
+    Reply findReplyById(Long replyId);
 }

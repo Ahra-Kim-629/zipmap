@@ -25,4 +25,8 @@ public class RepliesService {
     public List<Reply> getReplyList(String targetType, Long targetId) {
         return repliesMapper.getRepliesByTarget(targetType, targetId);
     }
+
+    public Reply findReplyById(Long replyId) {
+        return repliesMapper.findReplyById(replyId);
+    }
 }
