@@ -3,7 +3,6 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -18,21 +17,31 @@ public interface ReviewMapper {
     // 리뷰 아이디로 찾기
     ReviewDTO findById(Long id);
 
+    ReviewDTO getReviewDetail(Long id);
+
     // 리뷰 작성
-    void save(Review review);
+    void insertReview(Review review);
+
+    void insertAttributesAll(long reviewId, String type, List<String> attributeList);
 
     // 리뷰 수정
-    void edit(ReviewDTO reviewDTO);
+    void update(Review review);
 
     // 리뷰 삭제
     void deleteReviewById(Long id);
 
     // 내가 쓴 리뷰 조회
-    List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
-    int countByUserId(@Param("userId") Long userId);
+//    List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+//    int countByUserId(@Param("userId") Long userId);
+//
+//    List<ReviewDTO> findOrderByCreatedAtDescLimit4();
+//
+//    // 추가 2/13
+    void updateContent(long id, String content);
 
-    List<ReviewDTO> findOrderByCreatedAtDescLimit4();
+    void deleteAttributeByReviewId(long id);
 
-    // 추가 2/13
-    void updateContent(ReviewDTO dto);
+    void deleteReplyByReviewId(Long id);
+
+    void deleteReactionByReviewId(Long id);
 }

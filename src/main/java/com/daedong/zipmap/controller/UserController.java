@@ -1,16 +1,13 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Token;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,16 +28,14 @@ public class UserController {
 
     @GetMapping("/signUp")
     public String signUp() {
-        return "/users/signUpForm";
+        return "/users/sign-up-form";
     }
-
 
     @PostMapping("/signUp")
     public String signUp(User user, RedirectAttributes rttr) {
         try {
             userService.signUp(user);
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
-            user.setRole("ROLE_WRITER");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
             return "redirect:/login";
@@ -50,19 +45,19 @@ public class UserController {
 
     @GetMapping("/login")
     public String login() {
-        return "/users/loginForm";
+        return "/users/login-form";
     }
 
     @GetMapping("/users/find/id")
     public String findId() {
-        return "/users/find_id_form";
+        return "/users/find-id-form";
     }
 
     @PostMapping("/users/find/id")
     public String findId(String name, String email, RedirectAttributes rttr) {
         try {
-            User user = userService.findId(name, email);
-            rttr.addFlashAttribute("message", "찾으시는 아이디는 " + user.getLoginId() + " 입니다.");
+            User user = userService.findByNameAndEmail(name, email);
+            rttr.addFlashAttribute("success", "찾으시는 아이디는 " + user.getLoginId() + " 입니다.");
             return "redirect:/login";
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -72,7 +67,7 @@ public class UserController {
 
     @GetMapping("/users/find/password")
     public String findPassword() {
-        return "/users/find_password_form";
+        return "/users/find-password-form";
     }
 
     @PostMapping("/users/find/password")
@@ -80,7 +75,7 @@ public class UserController {
         String clientIp = getClientIp(request);
         try {
             userService.passwordReset(loginId, name, email, clientIp);
-            rttr.addFlashAttribute("message", "비밀번호 재설정 메일을 발송했습니다.");
+            rttr.addFlashAttribute("success", "비밀번호 재설정 메일을 발송했습니다.");
             return "redirect:/login";
         } catch (RuntimeException e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -100,7 +95,7 @@ public class UserController {
         }
 
         model.addAttribute("token", token);
-        return "/users/reset_password_form";
+        return "/users/reset-password-form";
     }
 
     @PostMapping("/users/reset-password")
@@ -108,7 +103,7 @@ public class UserController {
         String usedIp = getClientIp(request);
         try {
             userService.confirmReset(token, newPassword, usedIp);
-            rttr.addFlashAttribute("message", "비밀번호가 재설정되었습니다.");
+            rttr.addFlashAttribute("success", "비밀번호가 재설정되었습니다.");
             return "redirect:/login";
         } catch (RuntimeException e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -125,7 +120,6 @@ public class UserController {
             User user = (User) userService.loadUserByUsername(userDetails.getUsername());
             model.addAttribute("user", user);
         } catch (Exception e) {
-            e.printStackTrace();
             return "redirect:/";
         }
         return "/users/mypage";
@@ -145,9 +139,8 @@ public class UserController {
                     rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
-            } else {
-                // 기존 비밀번호를 공란으로 했을경우
             }
+
             if (new_password != null && !new_password.isEmpty()) {
                 if (user.getPassword() == null || user.getPassword().isEmpty()) {
                     rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
@@ -158,6 +151,7 @@ public class UserController {
                     rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
+
                 user.setPassword(passwordEncoder.encode(new_password));
             } else {
                 user.setPassword(null);
@@ -166,11 +160,10 @@ public class UserController {
             user.setId(findUser.getId());
             userService.update(user);
 
-            rttr.addFlashAttribute("message", "회원 정보 수정이 완료되었습니다.");
+            rttr.addFlashAttribute("success", "회원 정보 수정이 완료되었습니다.");
             return "redirect:/";
 
         } catch (Exception e) {
-            e.printStackTrace();
             rttr.addFlashAttribute("error", "회원 정보 수정 중 오류가 발생했습니다.");
             return "redirect:/users/mypage";
         }
@@ -182,7 +175,6 @@ public class UserController {
             User user = userService.findByLoginId(userDetails.getUsername());
             model.addAttribute("user", user);
         } catch (Exception e) {
-            e.printStackTrace();
             return "redirect:/";
         }
         return "/users/unregister";
@@ -192,7 +184,7 @@ public class UserController {
     public String unregister(User user, RedirectAttributes rttr, HttpSession session) {
         try {
             userService.unregister(user);
-            rttr.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+            rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
             session.invalidate();
             return "redirect:/";
         } catch (Exception e) {
@@ -231,6 +223,7 @@ public class UserController {
 
     /**
      * 실거주 인증 신청 페이지로 이동.
+     *
      * @return 인증 신청 폼 HTML 경로
      */
     @GetMapping("/users/certification")
@@ -245,79 +238,79 @@ public class UserController {
         }
     }
 
-    /**
-     * 사용자가 업로드한 임대차계약서 파일을 처리.
-     * @param file 사용자가 선택한 파일 (MultipartFile)
-     * @param userDetails 현재 로그인한 유저 정보 (Spring Security)
-     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
-     * @return 처리가 완료된 후 이동할 주소
-     */
-    @PostMapping("/users/certification")
-    public String submitCertification(@RequestParam("contractFile") org.springframework.web.multipart.MultipartFile file,
-                                      @AuthenticationPrincipal UserDetails userDetails,
-                                      RedirectAttributes rttr) {
-        try {
-            // 1. 현재 로그인한 유저의 정보를 가져옴. (userDetails 기반)
-            User user = userService.findByLoginId(userDetails.getUsername());
+//    /**
+//     * 사용자가 업로드한 임대차계약서 파일을 처리.
+//     * @param file 사용자가 선택한 파일 (MultipartFile)
+//     * @param userDetails 현재 로그인한 유저 정보 (Spring Security)
+//     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
+//     * @return 처리가 완료된 후 이동할 주소
+//     */
+//    @PostMapping("/users/certification")
+//    public String submitCertification(@RequestParam("contractFile") org.springframework.web.multipart.MultipartFile file,
+//                                      @AuthenticationPrincipal UserDetails userDetails,
+//                                      RedirectAttributes rttr) {
+//        try {
+//            // 1. 현재 로그인한 유저의 정보를 가져옴. (userDetails 기반)
+//            User user = userService.findByLoginId(userDetails.getUsername());
+//
+//            // 2. UserService에 만든 파일 저장 로직을 실행.
+//            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
+//            userService.registerCertification(user, file);
+//
+//            // 3. 성공 메시지를 담아서 마이페이지로 보냄.
+//            rttr.addFlashAttribute("message", "실거주 인증 신청이 완료되었습니다. 관리자 승인을 기다려주세요.");
+//            return "redirect:/users/mypage";
+//
+//        } catch (Exception e) {
+//            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
+//            e.printStackTrace();
+//            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
+//            return "redirect:/users/certification";
+//        }
+//    }
 
-            // 2. UserService에 만든 파일 저장 로직을 실행.
-            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-            userService.registerCertification(user, file);
+//    @GetMapping("/users/articles")
+//    public String articles(@AuthenticationPrincipal UserDetails userDetails,
+//                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+//                           @RequestParam(required = false, defaultValue = "reviews") String type,
+//                           Model model) {
+//        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+//
+//        model.addAttribute("type", type);
+//
+//        if ("reviews".equals(type)) {
+//            Page<ReviewDTO> reviews = reviewService.findMyReviews(user.getId(), pageable);
+//            model.addAttribute("reviews", reviews);
+//            model.addAttribute("posts", Page.empty(pageable));
+//        } else {
+//            Page<Post> posts = postService.findMyPosts(user.getId(), pageable);
+//            model.addAttribute("posts", posts);
+//            model.addAttribute("reviews", Page.empty(pageable));
+//        }
+//
+//        return "/users/articles";
+//    }
 
-            // 3. 성공 메시지를 담아서 마이페이지로 보냄.
-            rttr.addFlashAttribute("message", "실거주 인증 신청이 완료되었습니다. 관리자 승인을 기다려주세요.");
-            return "redirect:/users/mypage";
-
-        } catch (Exception e) {
-            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
-            e.printStackTrace();
-            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
-            return "redirect:/users/certification";
-        }
-    }
-
-    @GetMapping("/users/articles")
-    public String articles(@AuthenticationPrincipal UserDetails userDetails,
-                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                           @RequestParam(required = false, defaultValue = "reviews") String type,
-                           Model model) {
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-
-        model.addAttribute("type", type);
-
-        if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviews = reviewService.findMyReviews(user.getId(), pageable);
-            model.addAttribute("reviews", reviews);
-            model.addAttribute("posts", Page.empty(pageable));
-        } else {
-            Page<Post> posts = postService.findMyPosts(user.getId(), pageable);
-            model.addAttribute("posts", posts);
-            model.addAttribute("reviews", Page.empty(pageable));
-        }
-
-        return "/users/articles";
-    }
-
-    @GetMapping("/users/comments")
-    public String comments(@AuthenticationPrincipal UserDetails userDetails,
-                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-                           @RequestParam(required = false, defaultValue = "reviews") String type,
-                           Model model) {
-
-        User user =userService.findByLoginId(userDetails.getUsername());
-
-        model.addAttribute("type", type);
-
-        if ("reviews".equals(type)) {
-            Page<ReviewReply> replies = reviewService.findMyReplies(user.getId(), pageable);
-            model.addAttribute("replies", replies);
-            model.addAttribute("postReplies", Page.empty(pageable));
-        } else {
-            Page<PostReply> replies = postService.findMyReplies(user.getId(), pageable);
-            model.addAttribute("postReplies", replies);
-            model.addAttribute("replies", Page.empty(pageable));
-        }
-
-        return "/users/comments";
-    }
+//    @GetMapping("/users/comments")
+//    public String comments(@AuthenticationPrincipal UserDetails userDetails,
+//                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+//                           @RequestParam(required = false, defaultValue = "reviews") String type,
+//                           Model model) {
+//
+//        User user =userService.findByLoginId(userDetails.getUsername());
+//
+//        model.addAttribute("type", type);
+//
+//        if ("reviews".equals(type)) {
+//            Page<ReviewReply> replies = reviewService.findMyReplies(user.getId(), pageable);
+//            model.addAttribute("replies", replies);
+//            model.addAttribute("postReplies", Page.empty(pageable));
+//        } else {
+//            Page<PostReply> replies = postService.findMyReplies(user.getId(), pageable);
+//            model.addAttribute("postReplies", replies);
+//            model.addAttribute("replies", Page.empty(pageable));
+//        }
+//
+//        return "/users/comments";
+//    }
 }

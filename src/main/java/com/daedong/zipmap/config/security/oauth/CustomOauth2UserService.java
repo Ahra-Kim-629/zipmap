@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -33,7 +32,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
         } else if (provider.equals("naver")) {
             oAuth2UserInfo = new NaverUserInfo(oAuth2User.getAttributes());
-        }else{
+        } else {
             throw new RuntimeException("지원하지 않는 로그인입니다.");
         }
 
@@ -41,10 +40,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String loginId = provider + "_" + providerId;
         String email = oAuth2UserInfo.getProviderEmail();
         String name = oAuth2UserInfo.getProviderName();
-        String mobile = "";
         String gender = "";
-
-
 
         User userEntity = userMapper.findByLoginId(loginId);
 
@@ -54,7 +50,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             userEntity.setName(name);
             userEntity.setEmail(email);
-            userEntity.setPhone(mobile != null ? mobile : "000-0000-0000");
             userEntity.setGender(
                     (gender != null && !gender.isEmpty())
                             ? gender.charAt(0)

@@ -1,6 +1,5 @@
 package com.daedong.zipmap.util;
 
-import com.daedong.zipmap.domain.FileAttachment;
 import com.daedong.zipmap.mapper.FileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -39,7 +37,9 @@ public class FileUtilService {
 
         // 무조건 temp 폴더에 저장
         File folder = new File(uploadDir, "temp");
-        if (!folder.exists()) folder.mkdirs();
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
 
         String uuid = UUID.randomUUID().toString();
         String saveFileName = uuid + "_" + file.getOriginalFilename();
@@ -63,7 +63,9 @@ public class FileUtilService {
 
         String targetFolder = targetType.toLowerCase(); // 예: review
         File realFolder = new File(uploadDir, targetFolder);
-        if (!realFolder.exists()) realFolder.mkdirs();
+        if (!realFolder.exists()) {
+            realFolder.mkdirs();
+        }
 
         // 1. 본문에서 "temp/..." 로 되어있는 이미지 찾기
         String regex = "src=\"/files/temp/([^\"]+)\"";
@@ -82,13 +84,13 @@ public class FileUtilService {
             if (tempFile.exists()) {
                 if (tempFile.renameTo(destFile)) {
                     // 이동 성공 시 DB 저장
-                    FileAttachment attachment = new FileAttachment();
-                    attachment.setTargetType(targetType);
-                    attachment.setTargetId(targetId);
-                    attachment.setFilePath(targetFolder + "/" + fileName); // review/파일명
-                    attachment.setFileSize(destFile.length());
+                    com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
+                    file.setTargetType(targetType);
+                    file.setTargetId(targetId);
+                    file.setFilePath(targetFolder + "/" + fileName); // review/파일명
+                    file.setFileSize(destFile.length());
 
-                    fileMapper.insertAttachment(attachment);
+                    fileMapper.insertFile(file);
                 }
             }
 
@@ -121,13 +123,13 @@ public class FileUtilService {
             htmlPaths.add(matcher.group(1));
         }
 
-        List<FileAttachment> dbFiles = fileMapper.findAttachments(targetType, targetId);
+        List<com.daedong.zipmap.domain.File> dbFiles = fileMapper.findAllByTargetTypeAndTargetId(targetType, targetId);
 
         // 본문에 없는 DB 파일 삭제
-        for (FileAttachment dbFile : dbFiles) {
+        for (com.daedong.zipmap.domain.File dbFile : dbFiles) {
             if (!htmlPaths.contains(dbFile.getFilePath())) {
                 deleteFileByPath(dbFile.getFilePath());
-                fileMapper.deleteAttachment(dbFile.getId());
+                fileMapper.deleteFileById(dbFile.getId());
             }
         }
 
@@ -138,16 +140,15 @@ public class FileUtilService {
     public void deleteFileByPath(String filePath) {
         if (filePath == null || filePath.isEmpty()) return;
         File file = new File(uploadDir, filePath);
-        if (file.exists()) file.delete();
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     // (글 삭제 시 전체 삭제 메서드 유지)
     @Transactional
-    public void deleteFilesByTarget(String targetType, Long targetId) {
-        List<FileAttachment> files = fileMapper.findAttachments(targetType, targetId);
-        for (FileAttachment file : files) {
-            deleteFileByPath(file.getFilePath());
-        }
-        fileMapper.deleteAttachmentsByTarget(targetType, targetId);
+    public void deleteFilesByTargetTypeAndTargetId(String targetType, Long targetId) {
+
+        fileMapper.deleteFilesAllByTargetTypeAndTargetId(targetType, targetId);
     }
 }

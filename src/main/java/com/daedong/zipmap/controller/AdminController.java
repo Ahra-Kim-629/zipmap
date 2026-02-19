@@ -37,17 +37,17 @@ public class AdminController {
         return "/admin/notice_form";
     }
 
-    @PostMapping("/notice")
-    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
-        try {
-            adminService.insertNotice(notice, imageFile);
-            rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
-        } catch (IOException e) {
-            rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
-        }
-
-        return "redirect:/admin";
-    }
+//    @PostMapping("/notice")
+//    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
+//        try {
+//            adminService.insertNotice(notice, imageFile);
+//            rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
+//        } catch (IOException e) {
+//            rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
+//        }
+//
+//        return "redirect:/admin";
+//    }
 
     // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성
     @GetMapping("/members")

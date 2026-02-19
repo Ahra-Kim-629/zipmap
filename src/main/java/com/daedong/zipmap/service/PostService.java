@@ -1,8 +1,6 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.PostDTO;
-import com.daedong.zipmap.domain.PostReply;
 import com.daedong.zipmap.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -11,9 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -22,17 +18,17 @@ public class PostService {
     private final PostMapper postMapper;
     //   private final FileService fileService;
 
-    public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
-        int totalCount = postMapper.countAll(searchType, keyword, category, location);
-//        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
-//        return new PageImpl<>(posts, pageable, totalCount);
-        List<PostDTO> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
-        return new PageImpl<PostDTO>(posts, pageable, totalCount);
-    }
-
-    public PostDTO getPostDetail(Long id) {
-        return postMapper.findById(id);
-    }
+//    public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
+//        int totalCount = postMapper.countAll(searchType, keyword, category, location);
+////        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
+////        return new PageImpl<>(posts, pageable, totalCount);
+//        List<PostDTO> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
+//        return new PageImpl<PostDTO>(posts, pageable, totalCount);
+//    }
+//
+//    public PostDTO getPostDetail(Long id) {
+//        return postMapper.findById(id);
+//    }
 
     @Transactional(rollbackFor = Exception.class)
     public Long write(Post post) { // 리턴타입 void -> Long (ID 반환)
@@ -91,14 +87,14 @@ public class PostService {
         return new PageImpl<>(posts, pageable, totalCount);
     }
 
-    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
-        int totalCount = postMapper.countRepliesByUserId(userId);
-        List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
-        return new PageImpl<>(replies, pageable, totalCount);
-    }
-
-    @Cacheable(value = "mainPostList")
-    public List<PostDTO> getMainpagePost() {
-        return postMapper.findMainpagePost();
-    }
+//    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
+//        int totalCount = postMapper.countRepliesByUserId(userId);
+//        List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
+//        return new PageImpl<>(replies, pageable, totalCount);
+//    }
+//
+//    @Cacheable(value = "mainPostList")
+//    public List<PostDTO> getMainpagePost() {
+//        return postMapper.findMainpagePost();
+//    }
 }

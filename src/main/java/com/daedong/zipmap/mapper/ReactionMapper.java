@@ -1,14 +1,14 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.Likes;
+import com.daedong.zipmap.domain.Reaction;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface LikesMapper {
-    Likes findByUserAndTarget(Likes like);
+public interface ReactionMapper {
+    Reaction findByUserAndTarget(Reaction like);
 
-    void save(Likes like);
+    void save(Reaction like);
 
     void delete(Long id);
 

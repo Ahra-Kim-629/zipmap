@@ -25,6 +25,12 @@
 </th:block>
 
 <div layout:fragment="content">
+    <div class="container mt-3">
+        <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
+             th:text="${success}"></div>
+    </div>
+
     <div class="mypage-container">
         <div class="container">
             <div class="row g-4">
@@ -73,9 +79,9 @@
                                 </div>
                                 <div>
                                     <label>성별:</label>
-                                    <input type="radio" id="genderM" name="gender" value="M" th:field="*{gender}" />
+                                    <input type="radio" id="genderM" name="gender" value="M" th:field="*{gender}"/>
                                     <label for="genderM">남자</label>
-                                    <input type="radio" id="genderF" name="gender" value="M" th:field="*{gender}" />
+                                    <input type="radio" id="genderF" name="gender" value="F" th:field="*{gender}"/>
                                     <label for="genderF">여자</label>
                                 </div>
                                 <div class="col-md-6">

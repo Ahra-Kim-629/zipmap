@@ -8,6 +8,12 @@
 </th:block>
 
 <div layout:fragment="content">
+    <div class="container mt-3">
+        <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
+             th:text="${success}"></div>
+    </div>
+
     <th:block th:if="${noticeList != null && noticeList.size() > 0}">
         <div class="modal fade" id="noticeCarouselModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -132,7 +138,7 @@
                             <div class="d-flex align-items-center mt-1">
                                 <i th:if="${post.likeCount > 10}" class="bi bi-fire hot-trend-icon"></i>
                                 <span class="post-title small fw-bold" th:text="${post.title}">제목</span>
-<!--                                <span class="reason-badge" th:if="${post.reasonType == 'CATEGORY_TOP'}">인기</span>-->
+                                <!--                                <span class="reason-badge" th:if="${post.reasonType == 'CATEGORY_TOP'}">인기</span>-->
                             </div>
                         </a>
                     </div>
@@ -147,6 +153,6 @@
         </div>
     </main>
     <script th:src="@{/js/frontpage.js}"></script>
-    
+
 </div>
 </html>

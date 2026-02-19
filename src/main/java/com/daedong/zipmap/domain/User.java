@@ -16,7 +16,6 @@ public class User implements UserDetails {
     private String password;
     private String name;
     private char gender;
-    private String phone;
     private String email;
     private String address;
     private String role;
@@ -56,6 +55,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         //계정이 활성화되었는지 여부 반환 (true : 활성화됨)
         return "ACTIVE".equals(this.accountStatus);
-
     }
 }

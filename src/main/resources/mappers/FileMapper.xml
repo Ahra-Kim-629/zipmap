@@ -5,79 +5,79 @@
 <mapper namespace="com.daedong.zipmap.mapper.FileMapper">
 
     <!--  REVIEW 아이도 리뷰파일 조회 -->
-    <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">
-        SELECT
-        id, review_id, file_path, created_at, updated_at
-        FROM review_file
-        WHERE review_id = #{id}
-    </select>
+    <!--    <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--        SELECT-->
+    <!--        id, review_id, file_path, created_at, updated_at-->
+    <!--        FROM review_file-->
+    <!--        WHERE review_id = #{id}-->
+    <!--    </select>-->
 
-    <select id="findByPostId" resultType="com.daedong.zipmap.domain.PostFile">
-        SELECT
-        id, post_id, file_path, created_at, updated_at
-        FROM post_file
-        WHERE post_id = #{id}
-    </select>
+    <!--    <select id="findByPostId" resultType="com.daedong.zipmap.domain.PostFile">-->
+    <!--        SELECT-->
+    <!--        id, post_id, file_path, created_at, updated_at-->
+    <!--        FROM post_file-->
+    <!--        WHERE post_id = #{id}-->
+    <!--    </select>-->
 
-    <!-- REVIEW 파일 저장 -->
-    <insert id="saveReviewFile" parameterType="com.daedong.zipmap.domain.ReviewFile">
-        INSERT INTO review_file
-        (review_id, file_path)
+    <!--    &lt;!&ndash; REVIEW 파일 저장 &ndash;&gt;-->
+    <!--    <insert id="saveReviewFile" parameterType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--        INSERT INTO review_file-->
+    <!--        (review_id, file_path)-->
+    <!--        VALUES-->
+    <!--        (#{reviewId}, #{filePath})-->
+    <!--    </insert>-->
+
+    <!--    &lt;!&ndash;  REVIEW 파일 조회 &ndash;&gt;-->
+    <!--    <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--        SELECT id, review_id, file_path, created_at, updated_at-->
+    <!--        FROM review_file-->
+    <!--        WHERE id = #{fileId}-->
+    <!--    </select>-->
+
+    <!--    &lt;!&ndash;  REVIEW 파일 삭제 &ndash;&gt;-->
+    <!--    <delete id="deleteFileById">-->
+    <!--        DELETE FROM review_file-->
+    <!--        WHERE id = #{fileId}-->
+    <!--    </delete>-->
+
+    <!--    <insert id="insertPostFile">-->
+    <!--        INSERT INTO post_file (post_id, file_path)-->
+    <!--        VALUES (#{postId}, #{filePath})-->
+    <!--    </insert>-->
+
+    <!--    <delete id="deleteFilesByPostId">-->
+    <!--        DELETE FROM post_file-->
+    <!--        WHERE post_id = #{id}-->
+    <!--    </delete>-->
+
+    <!--    &lt;!&ndash; 여기부터 코드 추가 수정필요    &ndash;&gt;-->
+
+    <insert id="insertFile" parameterType="com.daedong.zipmap.domain.File"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO file
+        (target_type, target_id, file_path, file_size)
         VALUES
-        (#{reviewId}, #{filePath})
+        (#{targetType}, #{targetId}, #{filePath}, #{fileSize})
     </insert>
 
-    <!--  REVIEW 파일 조회 -->
-    <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">
-        SELECT id, review_id, file_path, created_at, updated_at
-        FROM review_file
-        WHERE id = #{fileId}
-    </select>
-
-    <!--  REVIEW 파일 삭제 -->
-    <delete id="deleteFileById">
-        DELETE FROM review_file
-        WHERE id = #{fileId}
-    </delete>
-
-    <insert id="insertPostFile">
-        INSERT INTO post_file (post_id, file_path)
-        VALUES (#{postId}, #{filePath})
-    </insert>
-
-    <delete id="deleteFilesByPostId">
-        DELETE FROM post_file
-        WHERE post_id = #{id}
-    </delete>
-
-    <!-- 여기부터 코드 추가 수정필요    -->
-
-    <insert id="insertAttachment" parameterType="com.daedong.zipmap.domain.FileAttachment" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO file_attachment (
-        target_type, target_id,
-        file_path, file_size
-        ) VALUES (
-        #{targetType}, #{targetId},
-        #{filePath}, #{fileSize}
-        )
-    </insert>
-
-    <select id="findAttachments" resultType="com.daedong.zipmap.domain.FileAttachment">
-        SELECT * FROM file_attachment
+    <select id="findAllByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.File">
+        SELECT
+        id, target_type, target_id, file_path, file_size, created_at, updated_at
+        FROM file
         WHERE target_type = #{targetType}
         AND target_id = #{targetId}
     </select>
 
-    <select id="findAttachmentById" resultType="com.daedong.zipmap.domain.FileAttachment">
-        SELECT * FROM file_attachment WHERE id = #{id}
-    </select>
+    <!--    <select id="findAttachmentById" resultType="com.daedong.zipmap.domain.FileAttachment">-->
+    <!--        SELECT * FROM file_attachment WHERE id = #{id}-->
+    <!--    </select>-->
 
-    <delete id="deleteAttachment">
-        DELETE FROM file_attachment WHERE id = #{id}
+    <delete id="deleteFileById">
+        DELETE FROM file WHERE id = #{id}
     </delete>
 
-    <delete id="deleteAttachmentsByTarget">
-        DELETE FROM file_attachment
+    <delete id="deleteFilesAllByTargetTypeAndTargetId">
+        DELETE FROM file
         WHERE target_type = #{targetType}
         AND target_id = #{targetId}
     </delete>

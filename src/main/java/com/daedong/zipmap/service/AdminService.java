@@ -9,8 +9,6 @@ import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,16 +27,16 @@ public class AdminService {
 
 
 
-    @Transactional
-    @CacheEvict(value = "mainNotices", allEntries = true)
-    public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
-        noticeMapper.insertNotice(notice);
-
-        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
-
-        notice.setImagePath(fileName);
-        noticeMapper.updateNoticeImagePath(notice);
-    }
+//    @Transactional
+//    @CacheEvict(value = "mainNotices", allEntries = true)
+//    public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
+//        noticeMapper.insertNotice(notice);
+//
+//        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
+//
+//        notice.setImagePath(fileName);
+//        noticeMapper.updateNoticeImagePath(notice);
+//    }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정
     @Transactional

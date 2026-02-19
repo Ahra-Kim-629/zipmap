@@ -14,96 +14,36 @@
         .form-section { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
         .section-label { font-weight: 700; color: #3E362E; margin-bottom: 15px; display: block; font-size: 1.1rem; }
 
-        /* 체크박스 -> 칩(Chip) 디자인 변환 */
+        /* 체크박스 -> 칩(Chip) 디자인 */
         .check-group { display: flex; flex-wrap: wrap; gap: 10px; }
         .check-item input[type="checkbox"] { display: none; }
         .check-item label {
-            padding: 8px 18px;
-            border-radius: 50px;
-            border: 1px solid #ddd;
-            background: #fff;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            color: #666;
+            padding: 8px 18px; border-radius: 50px; border: 1px solid #ddd;
+            background: #fff; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; color: #666;
         }
 
         .pros-group .check-item input[type="checkbox"]:checked + label {
-            background-color: #28a745;
-            border-color: #28a745;
-            color: #fff;
+            background-color: #28a745; border-color: #28a745; color: #fff;
             box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
         }
 
         .cons-group .check-item input[type="checkbox"]:checked + label {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            color: #fff;
+            background-color: #dc3545; border-color: #dc3545; color: #fff;
             box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
         }
 
-        /* Summernote 커스텀 및 모달 수정 */
+        /* Summernote 및 모달 커스텀 (작성페이지와 동일) */
         .note-editor.note-frame { border: 1px solid #eee !important; border-radius: 12px !important; overflow: hidden; }
         .note-toolbar { background-color: #f8f9fa !important; border-bottom: 1px solid #eee !important; }
-
-        /* 1. 모달 레이어 순위 및 배경 제거 */
         .note-modal { z-index: 10050 !important; }
         .note-modal-backdrop { z-index: 10040 !important; display: none !important; }
+        .note-modal-content { margin-top: 80px !important; border-radius: 15px !important; box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important; overflow: hidden; }
+        .note-modal-footer { height: auto !important; padding: 20px !important; display: flex !important; justify-content: center; gap: 10px; }
+        .note-modal-footer .btn { padding: 10px 25px !important; border-radius: 50px !important; font-weight: bold !important; }
+        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; }
 
-        /* 2. 모달 창 세로 사이즈 이슈 해결 핵심 코드 */
-        .note-modal-content {
-            margin-top: 80px !important;
-            border: none !important;
-            border-radius: 15px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important;
-            overflow: hidden;
-        }
+        .note-btn { background-color: white !important; border: 1px solid #eee !important; }
 
-        .note-modal-header { border-bottom: 1px solid #eee !important; padding: 15px 20px !important; }
-        .note-modal-title { font-weight: bold; color: #333; }
-        .note-modal-body { padding: 20px !important; }
-
-        /* 버튼이 잘리지 않도록 footer 높이 해제 및 패딩 조정 */
-        .note-modal-footer {
-            height: auto !important;
-            padding: 20px !important;
-            display: flex !important;
-            justify-content: center;
-            gap: 10px;
-            border-top: 1px solid #eee !important;
-        }
-
-        .note-modal-footer .btn {
-            display: inline-block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            padding: 10px 25px !important;
-            border-radius: 50px !important;
-            font-weight: bold !important;
-            font-size: 0.9rem !important;
-            text-transform: none !important;
-        }
-
-        .note-modal-footer .btn-primary {
-            background-color: var(--main-orange) !important;
-            border-color: var(--main-orange) !important;
-            color: #fff !important;
-        }
-
-        .note-modal-footer .btn-default,
-        .note-modal-footer .btn-light {
-            background-color: #eee !important;
-            border-color: #ddd !important;
-            color: #333 !important;
-        }
-
-        /* 버튼 마우스 오버 효과 */
-        .note-modal-footer .btn-primary:hover {
-            background-color: #d35400 !important;
-            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
-        }
-
-        /* 3. 전체화면 보정 */
         .note-editor.note-frame.fullscreen {
             z-index: 9999 !important;
             background-color: white !important;
@@ -111,8 +51,6 @@
             top: 0 !important; left: 0 !important;
             width: 100% !important; height: 100% !important;
         }
-
-        .note-btn { background-color: white !important; border: 1px solid #eee !important; }
     </style>
 </th:block>
 
@@ -121,54 +59,56 @@
         <div class="container">
             <div class="write-card daedong-shadow">
                 <div class="text-center mb-5">
-                    <h2 class="write-title mb-2">원룸 후기 작성</h2>
-                    <p class="text-muted small">여러분의 소중한 경험이 다음 거주자에게 큰 도움이 됩니다.</p>
+                    <h2 class="write-title mb-2">원룸 후기 수정</h2>
+                    <p class="text-muted small">기존 후기 내용을 수정하거나 보완할 수 있습니다.</p>
                 </div>
 
-                <form id="reviewForm" th:action="@{/review/write}" method="post" enctype="multipart/form-data">
+                <form th:action="@{|/review/edit/${reviewDTO.id}|}" method="post" enctype="multipart/form-data">
                     <div class="form-section">
                         <span class="section-label"><i class="bi bi-info-circle me-2 text-orange"></i>기본 정보</span>
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <label for="title" class="form-label small fw-bold text-muted">리뷰 제목</label>
                                 <input type="text" class="form-control rounded-3 py-2" id="title" name="title"
-                                       placeholder="방의 특징이 잘 드러나는 제목을 지어주세요" required>
+                                       th:value="${reviewDTO.title}" required>
                             </div>
                             <div class="col-md-8">
                                 <label for="address" class="form-label small fw-bold text-muted">주소</label>
                                 <input type="text" class="form-control rounded-3 py-2" id="address" name="address"
-                                       placeholder="도로명 또는 지번 주소를 입력하세요" required>
+                                       th:value="${reviewDTO.address}" required>
                             </div>
                             <div class="col-md-4">
                                 <label for="point" class="form-label small fw-bold text-muted">종합 평점</label>
-                                <select class="form-select rounded-3 py-2 form-control" id="point" name="point" required>
-                                    <option value="5">★★★★★ (5점)</option>
-                                    <option value="4">★★★★☆ (4점)</option>
-                                    <option value="3">★★★☆☆ (3점)</option>
-                                    <option value="2">★★☆☆☆ (2점)</option>
-                                    <option value="1">★☆☆☆☆ (1점)</option>
+                                <select class="form-select rounded-3 py-2" id="point" name="point" required>
+                                    <option value="5" th:selected="${reviewDTO.point == 5}">★★★★★ (5점)</option>
+                                    <option value="4" th:selected="${reviewDTO.point == 4}">★★★★☆ (4점)</option>
+                                    <option value="3" th:selected="${reviewDTO.point == 3}">★★★☆☆ (3점)</option>
+                                    <option value="2" th:selected="${reviewDTO.point == 2}">★★☆☆☆ (2점)</option>
+                                    <option value="1" th:selected="${reviewDTO.point == 1}">★☆☆☆☆ (1점)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-section">
-                        <span class="section-label"><i class="bi bi-tags me-2 text-orange"></i>키워드 선택</span>
+                        <span class="section-label"><i class="bi bi-tags me-2 text-orange"></i>키워드 수정</span>
 
-                        <p class="small fw-bold text-success mb-2">이 집의 장점 (중복 선택 가능)</p>
+                        <p class="small fw-bold text-success mb-2">이 집의 장점</p>
                         <div class="check-group pros-group mb-4">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
-                                <input type="checkbox" th:id="'p_' + ${item}" name="prosList" th:value="${item}">
+                                <input type="checkbox" th:id="'p_' + ${item}" name="prosList" th:value="${item}"
+                                       th:checked="${#lists.contains(reviewDTO.prosList, item)}">
                                 <label th:for="'p_' + ${item}" th:text="${item}"></label>
                             </div>
                         </div>
 
-                        <p class="small fw-bold text-danger mb-2">이 집의 단점 (중복 선택 가능)</p>
+                        <p class="small fw-bold text-danger mb-2">이 집의 단점</p>
                         <div class="check-group cons-group">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
-                                <input type="checkbox" th:id="'c_' + ${item}" name="consList" th:value="${item}">
+                                <input type="checkbox" th:id="'c_' + ${item}" name="consList" th:value="${item}"
+                                       th:checked="${#lists.contains(reviewDTO.consList, item)}">
                                 <label th:for="'c_' + ${item}" th:text="${item}"></label>
                             </div>
                         </div>
@@ -176,13 +116,14 @@
 
                     <div class="form-section border-0 mb-0">
                         <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>상세 내용</span>
-                        <textarea id="content" name="content" required></textarea>
+                        <textarea id="content" name="content" th:text="${reviewDTO.content}" required></textarea>
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" id="submitBtn" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">리뷰 등록하기
+                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">수정 완료
                         </button>
-                        <a th:href="@{/review}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
+                        <a th:href="@{|/review/detail/${reviewDTO.id}|}"
+                           class="btn btn-outline-secondary px-5 py-3 rounded-pill">수정 취소</a>
                     </div>
                 </form>
             </div>
@@ -195,7 +136,6 @@
             $('#content').summernote({
                 height: 400,
                 lang: 'ko-KR',
-                placeholder: '내용을 입력해주세요.',
                 dialogsInBody: true,
                 dialogsFade: false,
                 toolbar: [
@@ -221,10 +161,8 @@
             let data = new FormData();
             data.append("file", file);
 
-            // HTML 헤더에서 토큰 값 가져오기 (기존코드에서 추가)
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
-
             $.ajax({
                 url: "/review/uploadSummernoteImage",
                 type: "POST",
@@ -238,26 +176,35 @@
                 },
                 success: function(response) {
                     $(editor).summernote('insertImage', response.url);
-                },
-                error: function(e) {
-                    console.log("에러 내용:", e);
-                    alert("이미지 업로드 실패 (403이면 CSRF 문제)");
                 }
             });
         }
 
-        $('#submitBtn').on('click', function() {
-            let content = $('#content').summernote('code');
+        // 파일 삭제 Ajax (기능 유지 및 알림 보강)
+        function deleteFile(fileId) {
+            if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
 
-            let pureText = content.replace(/<[^>]*>?/gm, '').trim();
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
-            if(pureText.length < 50) {
-                alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
-                return false;
-            }
-
-            $('#reviewForm').submit();
-        });
+            $.ajax({
+                url: "/review/deleteFile/" + fileId,
+                type: "POST",
+                beforeSend: function(xhr) {
+                    if (token && header) xhr.setRequestHeader(header, token);
+                },
+                success: function(result) {
+                    if (result.trim() === "success") {
+                        $('#file-card-' + fileId).fadeOut(300, function() { $(this).remove(); });
+                    } else {
+                        alert("삭제 처리에 실패했습니다.");
+                    }
+                },
+                error: function(xhr) {
+                    alert("삭제 중 오류가 발생했습니다.");
+                }
+            });
+        }
     </script>
 </div>
 </html>

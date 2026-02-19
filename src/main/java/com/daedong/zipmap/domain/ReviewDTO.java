@@ -14,19 +14,16 @@ public class ReviewDTO {
     private long userId;
     private int point;
     private String reviewStatus;
+    private long likeCount;
+    private long viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     private String loginId;
 
+    private List<Reaction> reactionList;
     private List<String> prosList;
     private List<String> consList;
-    private List<ReviewFile> fileList;
-    private List<Replies> replyList;
-
-    private int likeCount;
-    private int dislikeCount;
-
-    private String pros;
-    private String cons;
+    private List<File> fileList;
+    private List<ReplyDTO> replyList;
 }

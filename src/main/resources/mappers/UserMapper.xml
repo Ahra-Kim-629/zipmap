@@ -6,32 +6,33 @@
 
     <select id="findByNameAndEmail" resultType="com.daedong.zipmap.domain.User">
         SELECT
-        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE name = #{name} AND email = #{email}
     </select>
 
     <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
-        SELECT id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        SELECT
+        id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE login_id = #{loginId}
     </select>
 
     <insert id="save">
-        INSERT INTO user (login_id, password, name, gender, phone, email, address, role)
-        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{phone}, #{email}, #{address}, "WRITER")
+        INSERT INTO user (login_id, password, name, gender, email, address, role)
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{email}, #{address}, "VIEWER")
     </insert>
 
     <select id="findById" resultType="com.daedong.zipmap.domain.User">
         SELECT
-        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE id = #{id}
     </select>
 
     <select id="findByLoginIdNameEmail" resultType="com.daedong.zipmap.domain.User">
         SELECT
-        id, login_id, password, name, gender, phone, email, address, role, account_status, created_at, updated_at
+        id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE login_id = #{loginId} AND name = #{name} AND email = #{email}
     </select>
@@ -44,14 +45,10 @@
             <if test="password != null and password != ''">
                 password = #{password},
             </if>
-            <if test="phone != null and phone != ''">
-                phone = #{phone},
-            </if>
             <if test="email != null and email != ''">
                 email = #{email},
             </if>
             <if test="address != null and address != ''">
-                address = #{address},
                 address = #{address},
             </if>
             <if test="gender != null and gender != ''">
@@ -62,7 +59,6 @@
 
     </update>
 
-
     <delete id="delete">
         DELETE FROM user
         WHERE id = #{id}
@@ -71,17 +67,7 @@
     <!-- 회원 전체 목록 가져오게 하는 쿼리 2026.02.11 종빈 수정 -->
     <select id="findAllUsers" resultType="com.daedong.zipmap.domain.User">
         SELECT
-        id,
-        login_id AS loginId,
-        name,
-        gender,
-        phone,
-        email,
-        address,
-        role,
-        account_status AS accountStatus,
-        created_at AS createdAt,
-        updated_at AS updatedAt
+        id, login_id, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE role != 'ADMIN'
     </select>
@@ -116,18 +102,17 @@
         WHERE id = #{id}
     </update>
 
-    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification">
-        INSERT INTO certification (
-        user_id,
-        original_name,
-        stored_path,
-        status
-        ) VALUES (
-        #{userId},
-        #{originalName},
-        #{storedPath},
-        'PENDING'
-        )
-    </insert>
-
+    <!--    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification">-->
+    <!--        INSERT INTO certification (-->
+    <!--        user_id,-->
+    <!--        original_name,-->
+    <!--        stored_path,-->
+    <!--        status-->
+    <!--        ) VALUES (-->
+    <!--        #{userId},-->
+    <!--        #{originalName},-->
+    <!--        #{storedPath},-->
+    <!--        'PENDING'-->
+    <!--        )-->
+    <!--    </insert>-->
 </mapper>

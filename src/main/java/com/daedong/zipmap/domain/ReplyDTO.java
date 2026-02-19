@@ -5,11 +5,14 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class PostReply {
-    private Long id;
-    private Long postId;
-    private Long userId;
+public class ReplyDTO {
+    private long id;
+    private String targetType;
+    private long targetId;
+    private long userId;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String loginId;
 }

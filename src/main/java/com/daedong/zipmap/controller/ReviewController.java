@@ -1,10 +1,13 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Review;
+import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.FileService;
 import com.daedong.zipmap.service.ReviewService;
-import com.daedong.zipmap.util.FileUtilService; // ★ (신) 만능 파일 서비스
-import com.daedong.zipmap.util.LikesService;
+import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.FileUtilService;
+import com.daedong.zipmap.util.ReactionService;
 import com.daedong.zipmap.util.RepliesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,10 @@ import java.util.Map;
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewController {
-
     private final ReviewService reviewService;
     private final RepliesService repliesService;
-    private final LikesService likesService;
+    private final ReactionService reactionService;
+    private final UserService userService;
 
     // [Old] 기존 파일 서비스 (구형 데이터 호환성을 위해 남겨둠)
     private final FileService fileService;
@@ -55,19 +59,13 @@ public class ReviewController {
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
         // 좋아요 표시
-        for(ReviewDTO review : reviews) {
-            int count = likesService.countLikes("review", review.getId(), 1);
+        for (ReviewDTO review : reviews) {
+            int count = reactionService.countLikes("review", review.getId(), 1);
             review.setLikeCount(count);
         }
 
         // 지도 표시용 전체 리뷰
         List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
-
-        // 좋아요 표시
-        for(ReviewDTO review : allReviews) {
-            int count = likesService.countLikes("review", review.getId(), 1);
-            review.setLikeCount(count);
-        }
 
         // 장점/단점 체크박스 항목
         List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
@@ -85,20 +83,12 @@ public class ReviewController {
         return "review/list";
     }
 
-    // =====================================================================
-    // 2. 리뷰 상세 조회
-    // =====================================================================
+    //    // =====================================================================
+//    // 2. 리뷰 상세 조회
+//    // =====================================================================
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
-
-        // 좋아요
-        int likeCount = likesService.countLikes("review", id, 1);
-        reviewDTO.setLikeCount(likeCount);
-
-        List<Replies> replyList = repliesService.getReplyList("review", id);
-        model.addAttribute("replyList", replyList);
-
         model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
@@ -110,25 +100,19 @@ public class ReviewController {
     @GetMapping("/write")
     @PreAuthorize("isAuthenticated()")
     public String write() {
-        return "review/writeForm";
+        return "review/write-form";
     }
 
     @PostMapping("/write")
     @PreAuthorize("isAuthenticated()")
-    public String write(ReviewDTO reviewDTO,
-                        @AuthenticationPrincipal User user) throws IOException {
+    public String write(Review review,
+                        @RequestParam("prosList") List<String> prosList,
+                        @RequestParam("consList") List<String> consList,
+                        @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+        review.setUserId(user.getId());
 
-        reviewDTO.setUserId(user.getId());
-
-        // 1. 글 내용 저장 (먼저 저장해야 ID가 생성됨)
-        Long savedId = reviewService.save(reviewDTO);
-
-        // 2. [핵심] temp 폴더 -> review 폴더로 파일 이사
-        // 리턴값(newContent): 이미지 경로가 "/files/review/..."로 변경된 HTML
-        String newContent = fileUtilService.moveTempFilesToPermanent(reviewDTO.getContent(), "REVIEW", savedId);
-
-        // 3. 바뀐 HTML 내용으로 DB 업데이트
-        reviewService.updateContent(savedId, newContent);
+        long savedId = reviewService.save(review, prosList, consList);
 
         return "redirect:/review/detail/" + savedId;
     }
@@ -144,30 +128,22 @@ public class ReviewController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
         model.addAttribute("reviewDTO", reviewDTO);
-        return "review/editForm";
+        return "review/edit-form";
     }
 
     @PostMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id,
-                       ReviewDTO reviewDTO,
+    public String edit(@PathVariable Long id, Review review,
+                       @RequestParam("prosList") List<String> prosList,
+                       @RequestParam("consList") List<String> consList,
                        @AuthenticationPrincipal User user) throws IOException {
-
         ReviewDTO original = reviewService.findById(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
 
-        // 1. 이미지 처리 (temp -> review 이동 및 삭제 처리)
-        // 리턴값(newContent): 경로가 정리된 HTML
-        String newContent = fileUtilService.updateImagesFromContent(reviewDTO.getContent(), "REVIEW", id);
-
-        // 2. 정리된 내용으로 글 수정
-        reviewDTO.setId(id);
-        reviewDTO.setUserId(user.getId());
-        reviewDTO.setContent(newContent); // 경로 보정된 내용 넣기
-
-        reviewService.edit(reviewDTO);
+        review.setId(id);
+        reviewService.update(review, prosList, consList);
 
         return "redirect:/review/detail/" + id;
     }
@@ -184,7 +160,6 @@ public class ReviewController {
         }
 
         // [New] 해당 리뷰와 관련된 모든 파일(DB+실제파일) 삭제
-        fileUtilService.deleteFilesByTarget("REVIEW", id);
         reviewService.deleteReviewById(id);
 
         return "redirect:/review";
@@ -204,10 +179,8 @@ public class ReviewController {
 
             response.put("url", "/files/" + filePath);
             response.put("responseCode", "success");
-
         } catch (IOException e) {
             response.put("responseCode", "error");
-            e.printStackTrace();
         }
         return response;
     }
@@ -230,20 +203,20 @@ public class ReviewController {
             return "fail";
         }
     }
-
-
-    // 좋아요
-    @PostMapping("/reaction")
-    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
-        Likes like = new Likes();
-        like.setTargetType("review");
-        like.setTargetId(targetId);
-        like.setUserId(user.getId());
-        like.setType(type);
-
-        likesService.save(like);
-
-        return "redirect:/review/detail/" + targetId;
-    }
+//
+//
+//    // 좋아요
+//    @PostMapping("/reaction")
+//    public String like(@RequestParam("targetId")Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user){
+//        Likes like = new Likes();
+//        like.setTargetType("review");
+//        like.setTargetId(targetId);
+//        like.setUserId(user.getId());
+//        like.setType(type);
+//
+//        likesService.save(like);
+//
+//        return "redirect:/review/detail/" + targetId;
+//    }
 
 }

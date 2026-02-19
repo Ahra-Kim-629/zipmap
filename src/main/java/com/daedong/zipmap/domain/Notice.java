@@ -2,18 +2,19 @@ package com.daedong.zipmap.domain;
 
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 public class Notice {
-    private Long id;
+    private long id;
     private String title;
     private String imagePath;
     private String linkUrl;
-    private char status;
-    private String startDate;
-    private String endDate;
-    private int posTop;
-    private int posLeft;
+    private String status;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int priority;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

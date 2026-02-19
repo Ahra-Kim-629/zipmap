@@ -5,16 +5,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ReviewReply {
+public class Reply {
     private long id;
-    private long reviewId;
+    private String targetType; // 'POST' or 'REVIEW'
+    private long targetId;
     private long userId;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    private String loginId;
-    
-    // 리뷰 제목 (조인용)
-    private String reviewTitle;
 }

@@ -1,6 +1,5 @@
 package com.daedong.zipmap.domain;
 
-
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,6 +13,8 @@ public class Review {
     private long userId;
     private int point;
     private String reviewStatus;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private long likeCount;
+    private long viewCount;
+    private LocalDateTime CreatedAt;
+    private LocalDateTime UpdatedAt;
 }

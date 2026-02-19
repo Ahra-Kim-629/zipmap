@@ -95,8 +95,8 @@
             </div>
 
             <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
-            <div th:if="${message}" class="alert alert-warning border-0 small p-2 text-center"
-                 th:text="${message}"></div>
+            <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
+                 th:text="${success}"></div>
 
             <form th:action="@{/login}" th:method="post" class="mb-3">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
