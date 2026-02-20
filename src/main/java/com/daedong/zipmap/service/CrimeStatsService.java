@@ -1,12 +1,13 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.CrimeStats;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -30,7 +31,7 @@ public class CrimeStatsService {
     private String crimeApiKey;
 
     // API 호출 결과를 메모리에 저장해둘 리스트 (DB 대용)
-//    private List<CrimeStats> cachedData = new ArrayList<>();
+    private List<CrimeStats> cachedData = new ArrayList<>();
 
     // 서울 25개 자치구의 위도/경도 좌표 (API에서 좌표를 안 줘서 직접 입력)
     // 카카오 map api 에서 주소 요청을 해서 받을수 있지만
@@ -69,168 +70,168 @@ public class CrimeStatsService {
      * 서버 실행 시 최초 1회 자동 실행
      * 데이터를 미리 가져와서 cachedData에 저장함
      */
-//    @PostConstruct
-//    public void init() {
-//        log.info("============== [안전율 데이터 로딩 시작] ==============");
-//        loadCrimeData();
-//        log.info("============== [안전율 데이터 로딩 종료] ==============");
-//    }
+    @PostConstruct
+    public void init() {
+        log.info("============== [안전율 데이터 로딩 시작] ==============");
+        loadCrimeData();
+        log.info("============== [안전율 데이터 로딩 종료] ==============");
+    }
 
     /**
      * Controller에서 호출하는 메서드
      * 메모리에 저장된 데이터를 반환 (데이터가 없으면 다시 로딩 시도)
      */
-//    public List<CrimeStats> getSafetyData() {
-//        if (cachedData.isEmpty()) {
-//            loadCrimeData();
-//        }
-//        return cachedData;
-//    }
+    public List<CrimeStats> getSafetyData() {
+        if (cachedData.isEmpty()) {
+            loadCrimeData();
+        }
+        return cachedData;
+    }
 
     /**
      * 실제 비즈니스 로직: API 호출 -> 파싱 -> 집계 -> 등급 산정
      */
-//    private void loadCrimeData() {
-//        try {
-//            // 1. 공공데이터 API 호출하여 JSON 문자열 받아오기
-//            String jsonString = callApi();
-//            if (jsonString == null) return;
-//
-//            // 2. JSON 파싱하여 구별 범죄 건수 집계 (Map<구이름, 총건수>)
-//            Map<String, Integer> crimeCountMap = parseAndAggregate(jsonString);
-//
-//            // 3. Map을 List<CrimeStat>으로 변환 (좌표 정보 추가)
-//            List<CrimeStats> statList = convertToList(crimeCountMap);
-//
-//            // 4. 범죄 건수가 적은 순서대로 정렬 (오름차순: 적을수록 1등)
-//            statList.sort(Comparator.comparingInt(CrimeStats::getCrimeCount));
-//
-//            // 5. 등수별 등급 부여 (상대평가)
-//            assignGradeByRank(statList);
-//
-//            // 6. 결과 저장
-//            this.cachedData = statList;
-//            log.info("✅ 최종 데이터 로드 완료: {}개 구 처리됨", cachedData.size());
-//
-//        } catch (Exception e) {
-//            log.error("범죄 데이터 로딩 중 오류 발생", e);
-//        }
-//    }
-//
-//    // ================= [내부 헬퍼 메서드들] =================
-//
-//    /**
-//     * 1단계: API 호출
-//     */
-//    private String callApi() throws Exception {
-//        // URL 생성 (100건 요청 - 모든 범죄 유형을 가져오기 위함)
-//        String requestUrl = crimeApiUrl + "?serviceKey=" + crimeApiKey + "&type=json&numOfRows=100&pageNo=1";
-//
-//        URL url = new URL(requestUrl);
-//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//        conn.setRequestMethod("GET");
-//        conn.setRequestProperty("Content-type", "application/json");
-//
-//        // 응답 코드 확인
-//        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
-//            log.error("API 호출 실패: 응답 코드 {}", conn.getResponseCode());
-//            return null;
-//        }
-//
-//        // 데이터 읽기
-//        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//        StringBuilder sb = new StringBuilder();
-//        String line;
-//        while ((line = rd.readLine()) != null) {
-//            sb.append(line);
-//        }
-//        rd.close();
-//        conn.disconnect();
-//
-//        return sb.toString();
-//    }
-//
-//    /**
-//     * 2단계: JSON 파싱 및 집계
-//     */
-//    private Map<String, Integer> parseAndAggregate(String jsonString) throws Exception {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode rootNode = objectMapper.readTree(jsonString);
-//        JsonNode items = rootNode.get("data"); // API 응답 구조: root -> data []
-//
-//        Map<String, Integer> crimeMap = new HashMap<>();
-//
-//        // 미리 서울 25개 구를 Map에 0으로 초기화 (데이터 누락 방지)
-//        for (String gu : SEOUL_COORDS.keySet()) {
-//            crimeMap.put(gu, 0);
-//        }
-//
-//        if (items != null && items.isArray()) {
-//            for (JsonNode item : items) {
-//                // 항목 내부의 모든 필드를 순회 ("서울 강남구": 3, "서울 종로구": 1 ...)
-//                Iterator<Map.Entry<String, JsonNode>> fields = item.fields();
-//                while (fields.hasNext()) {
-//                    Map.Entry<String, JsonNode> field = fields.next();
-//                    String key = field.getKey();
-//                    int count = field.getValue().asInt();
-//
-//                    // "서울 "로 시작하는 키만 찾아서 처리
-//                    if (key.startsWith("서울 ")) {
-//                        String guName = key.replace("서울 ", "").trim(); // "서울 강남구" -> "강남구"
-//
-//                        // 25개 구 목록에 있는 경우만 합산
-//                        if (crimeMap.containsKey(guName)) {
-//                            crimeMap.put(guName, crimeMap.get(guName) + count);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return crimeMap;
-//    }
-//
-//    /**
-//     * 3단계: Map -> List 변환 (좌표 매핑)
-//     */
-//    private List<CrimeStats> convertToList(Map<String, Integer> map) {
-//        List<CrimeStats> list = new ArrayList<>();
-//
-//        for (String gu : map.keySet()) {
-//            CrimeStats stat = new CrimeStats();
-//            stat.setRegion(gu);
-//            stat.setCrimeCount(map.get(gu));
-//            stat.setLat(SEOUL_COORDS.get(gu)[0]);
-//            stat.setLng(SEOUL_COORDS.get(gu)[1]);
-//            list.add(stat);
-//        }
-//        return list;
-//    }
-//
-//    /**
-//     * 5단계: 등수별 등급 부여 (요청하신 로직)
-//     * - 리스트는 이미 범죄 건수가 적은 순(안전한 순)으로 정렬되어 있음
-//     */
-//    private void assignGradeByRank(List<CrimeStats> list) {
-//        // 리스트 크기 (보통 25개)
-//        int total = list.size();
-//
-//        for (int i = 0; i < total; i++) {
-//            CrimeStats stat = list.get(i);
-//            int rank = i + 1; // 등수 (0번 인덱스 = 1등)
-//
-//            if (rank <= 5) {
-//                // 1등 ~ 5등 (상위 5개): 안전
-//                stat.setGrade("SAFE");
-//            } else if (rank <= 15) {
-//                // 6등 ~ 15등 (중간 10개): 보통
-//                stat.setGrade("NORMAL");
-//            } else {
-//                // 16등 ~ 25등 (하위 10개): 위험
-//                stat.setGrade("DANGER");
-//            }
-//
-//            // 로그 확인용
-//            // log.info("{}등: {} ({}건) -> {}", rank, stat.getRegion(), stat.getCrimeCount(), stat.getGrade());
-//        }
-//    }
+    private void loadCrimeData() {
+        try {
+            // 1. 공공데이터 API 호출하여 JSON 문자열 받아오기
+            String jsonString = callApi();
+            if (jsonString == null) return;
+
+            // 2. JSON 파싱하여 구별 범죄 건수 집계 (Map<구이름, 총건수>)
+            Map<String, Integer> crimeCountMap = parseAndAggregate(jsonString);
+
+            // 3. Map을 List<CrimeStat>으로 변환 (좌표 정보 추가)
+            List<CrimeStats> statList = convertToList(crimeCountMap);
+
+            // 4. 범죄 건수가 적은 순서대로 정렬 (오름차순: 적을수록 1등)
+            statList.sort(Comparator.comparingInt(CrimeStats::getCrimeCount));
+
+            // 5. 등수별 등급 부여 (상대평가)
+            assignGradeByRank(statList);
+
+            // 6. 결과 저장
+            this.cachedData = statList;
+            log.info("✅ 최종 데이터 로드 완료: {}개 구 처리됨", cachedData.size());
+
+        } catch (Exception e) {
+            log.error("범죄 데이터 로딩 중 오류 발생", e);
+        }
+    }
+
+    // ================= [내부 헬퍼 메서드들] =================
+
+    /**
+     * 1단계: API 호출
+     */
+    private String callApi() throws Exception {
+        // URL 생성 (100건 요청 - 모든 범죄 유형을 가져오기 위함)
+        String requestUrl = crimeApiUrl + "?serviceKey=" + crimeApiKey + "&type=json&numOfRows=100&pageNo=1";
+
+        URL url = new URL(requestUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+
+        // 응답 코드 확인
+        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
+            log.error("API 호출 실패: 응답 코드 {}", conn.getResponseCode());
+            return null;
+        }
+
+        // 데이터 읽기
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+
+        return sb.toString();
+    }
+
+    /**
+     * 2단계: JSON 파싱 및 집계
+     */
+    private Map<String, Integer> parseAndAggregate(String jsonString) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonString);
+        JsonNode items = rootNode.get("data"); // API 응답 구조: root -> data []
+
+        Map<String, Integer> crimeMap = new HashMap<>();
+
+        // 미리 서울 25개 구를 Map에 0으로 초기화 (데이터 누락 방지)
+        for (String gu : SEOUL_COORDS.keySet()) {
+            crimeMap.put(gu, 0);
+        }
+
+        if (items != null && items.isArray()) {
+            for (JsonNode item : items) {
+                // 항목 내부의 모든 필드를 순회 ("서울 강남구": 3, "서울 종로구": 1 ...)
+                Iterator<Map.Entry<String, JsonNode>> fields = item.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fields.next();
+                    String key = field.getKey();
+                    int count = field.getValue().asInt();
+
+                    // "서울 "로 시작하는 키만 찾아서 처리
+                    if (key.startsWith("서울 ")) {
+                        String guName = key.replace("서울 ", "").trim(); // "서울 강남구" -> "강남구"
+
+                        // 25개 구 목록에 있는 경우만 합산
+                        if (crimeMap.containsKey(guName)) {
+                            crimeMap.put(guName, crimeMap.get(guName) + count);
+                        }
+                    }
+                }
+            }
+        }
+        return crimeMap;
+    }
+
+    /**
+     * 3단계: Map -> List 변환 (좌표 매핑)
+     */
+    private List<CrimeStats> convertToList(Map<String, Integer> map) {
+        List<CrimeStats> list = new ArrayList<>();
+
+        for (String gu : map.keySet()) {
+            CrimeStats stat = new CrimeStats();
+            stat.setRegion(gu);
+            stat.setCrimeCount(map.get(gu));
+            stat.setLat(SEOUL_COORDS.get(gu)[0]);
+            stat.setLng(SEOUL_COORDS.get(gu)[1]);
+            list.add(stat);
+        }
+        return list;
+    }
+
+    /**
+     * 5단계: 등수별 등급 부여 (요청하신 로직)
+     * - 리스트는 이미 범죄 건수가 적은 순(안전한 순)으로 정렬되어 있음
+     */
+    private void assignGradeByRank(List<CrimeStats> list) {
+        // 리스트 크기 (보통 25개)
+        int total = list.size();
+
+        for (int i = 0; i < total; i++) {
+            CrimeStats stat = list.get(i);
+            int rank = i + 1; // 등수 (0번 인덱스 = 1등)
+
+            if (rank <= 5) {
+                // 1등 ~ 5등 (상위 5개): 안전
+                stat.setGrade("SAFE");
+            } else if (rank <= 15) {
+                // 6등 ~ 15등 (중간 10개): 보통
+                stat.setGrade("NORMAL");
+            } else {
+                // 16등 ~ 25등 (하위 10개): 위험
+                stat.setGrade("DANGER");
+            }
+
+            // 로그 확인용
+             log.info("{}등: {} ({}건) -> {}", rank, stat.getRegion(), stat.getCrimeCount(), stat.getGrade());
+        }
+    }
 }

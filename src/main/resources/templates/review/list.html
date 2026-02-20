@@ -32,9 +32,87 @@
         .page-item.active .page-link { background-color: var(--main-orange); border-color: var(--main-orange); color: white; }
         .page-link:hover:not(.active) { background-color: #eee; }
 
-        /* 안전율 마커 디자인 */
-        .safety-marker { padding: 6px 12px; color: white; border-radius: 20px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .review-count-marker { padding: 5px 12px; background: var(--main-orange); color: white; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(230,126,34,0.4); }
+        /* =========================================================
+           🌟 고급 지도 디자인 (로딩, 안전율 배지, 리뷰 핀) 추가
+           ========================================================= */
+
+        /* 1. 로딩 스피너 창 */
+        .map-loading { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:999; display:flex; justify-content:center; align-items:center; flex-direction:column; }
+        .spinner-orange { width: 3rem; height: 3rem; color: var(--main-orange); }
+
+        /* 2. 안전율 프리미엄 배지 디자인 */
+        .premium-badge {
+            display: flex; align-items: center; padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            font-size: 0.9rem; font-weight: 800; color: #333;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .premium-badge:hover {
+            transform: translateY(-5px);
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        /* 배지 안의 동그란 점 (심장박동 애니메이션) */
+        .status-dot {
+            width: 12px; height: 12px; border-radius: 50%; margin-right: 8px;
+            animation: pulse-dot 1.5s infinite;
+        }
+        .grade-safe { border-color: rgba(76, 175, 80, 0.5); }
+        .grade-safe .status-dot { background: #4CAF50; box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+
+        .grade-normal { border-color: rgba(255, 193, 7, 0.5); }
+        .grade-normal .status-dot { background: #FFC107; box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+
+        .grade-danger { border-color: rgba(255, 87, 34, 0.5); }
+        .grade-danger .status-dot { background: #FF5722; box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--pulse-color); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        }
+
+        /* 3. 일반 리뷰 건수 마커 (말풍선 모양) */
+        .review-pin {
+            background: var(--main-orange); color: white;
+            padding: 8px 15px; border-radius: 20px; font-weight: 800;
+            box-shadow: 0 4px 10px rgba(230,126,34,0.4);
+            position: relative; cursor: pointer; transition: 0.2s;
+        }
+        .review-pin:hover { background: #d35400; transform: scale(1.1); }
+        .review-pin::after {
+            content: ''; position: absolute; bottom: -6px; left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0; border-style: solid;
+            border-color: var(--main-orange) transparent transparent transparent;
+        }
+
+        .region-detail-card {
+            position: absolute; bottom: -150px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 350px; background: white; border-radius: 20px;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.2); z-index: 500; padding: 25px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 쫀득하게 올라오는 애니메이션 */
+            opacity: 0; pointer-events: none;
+        }
+        .region-detail-card.show {
+            bottom: 25px; opacity: 1; pointer-events: auto;
+        }
+        .card-close-btn {
+            position: absolute; top: 15px; right: 20px; cursor: pointer;
+            color: #adb5bd; font-size: 1.5rem; transition: 0.2s;
+        }
+        .card-close-btn:hover { color: #333; }
+        .card-region-title { font-size: 1.3rem; font-weight: 900; color: #333; margin-bottom: 5px; }
+        .card-grade-badge {
+            display: inline-block; padding: 5px 12px; border-radius: 20px;
+            color: white; font-weight: 800; font-size: 0.8rem; margin-bottom: 15px;
+        }
+        .card-info-text { font-size: 0.95rem; color: #666; font-weight: 600; margin-bottom: 20px; }
     </style>
 </th:block>
 
@@ -61,6 +139,23 @@
 
             <div id="mapWrapper" class="map-section daedong-shadow">
                 <div id="map"></div>
+                <div id="mapLoading" class="map-loading" style="display:none;">
+                    <div class="spinner-border spinner-orange" role="status"></div>
+                    <div class="mt-2 fw-bold text-orange">안전율 데이터를 분석 중입니다...</div>
+                </div>
+
+                <div id="regionDetailCard" class="region-detail-card">
+                    <i class="bi bi-x-lg card-close-btn" onclick="closeDetailCard()"></i>
+                    <div class="card-region-title" id="cardRegionName">지역명</div>
+                    <div class="card-grade-badge" id="cardGrade">등급</div>
+                    <div class="card-info-text">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+                        해당 지역 범죄 발생: <span id="cardCrimeCount" class="text-dark fw-bold">0건</span>
+                    </div>
+                    <button id="cardSearchBtn" class="btn btn-dark w-100 rounded-pill fw-bold">
+                        이 지역 원룸 후기 보기 <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
                 <div id="safetyLegend" class="map-legend"
                      style="display:none; position:absolute; top:20px; right:20px; z-index:10; background:white; padding:15px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1);">
                     <div class="small fw-bold mb-2 border-bottom pb-1">지역 안전 등급</div>
@@ -184,7 +279,8 @@
 
     <script th:inline="javascript">
         window.allReviews = /*[[${allReviews}]]*/ [];
-        let map, geocoder, markers = [];
+        let map, geocoder;
+        let currentOverlays = [];
 
         function initMap() {
             const mapWrapper = document.getElementById('mapWrapper');
@@ -198,51 +294,102 @@
                     level: 8
                 });
             } else {
-                // 핵심수정: 지도가 표시될 때 크기가 깨지는 현상 방지
-                setTimeout(() => {
-                    map.relayout();
-                    map.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567));
-                }, 100);
+                setTimeout(() => { map.relayout(); map.setCenter(new kakao.maps.LatLng(37.566826, 126.9786567)); }, 100);
             }
         }
 
-        // 기존 코드의 '지도로 검색하기' 기능을 보강한 로직
+        function clearOverlays() {
+            currentOverlays.forEach(overlay => overlay.setMap(null));
+            currentOverlays = [];
+            closeDetailCard(); // 지도 초기화할 때 팝업도 같이 닫기
+        }
+
+        // 팝업 카드 닫기 함수
+        function closeDetailCard() {
+            const card = document.getElementById('regionDetailCard');
+            if(card) card.classList.remove('show');
+        }
+
         function handleMapClick() {
             initMap();
             document.getElementById('safetyLegend').style.display = 'none';
-            clearMarkers();
+            clearOverlays();
             displayReviewMarkers();
         }
 
-        function clearMarkers() {
-            markers.forEach(m => m.setMap(null));
-            markers = [];
-        }
-
-        // 안전율 지도 보기 (디자인 및 색상 보강)
+        // --- ★ 프리미엄 모드: 반응형 팝업 & 스무스 패닝 ---
         function viewSafetyMap() {
             initMap();
             document.getElementById('safetyLegend').style.display = 'block';
-            clearMarkers();
+            clearOverlays();
+
+            const loading = document.getElementById('mapLoading');
+            if(loading) loading.style.display = 'flex';
 
             fetch('/review/safety-map')
                 .then(res => res.json())
                 .then(data => {
+                    if(loading) loading.style.display = 'none';
+
                     data.forEach(stat => {
                         if (stat.lat > 0) {
-                            let color = stat.grade === 'SAFE' ? '#4CAF50' : (stat.grade === 'NORMAL' ? '#FFC107' : '#FF5722');
-                            const content = `<div class="safety-marker" style="background:${color}">${stat.region}</div>`;
-                            const overlay = new kakao.maps.CustomOverlay({
+                            let gradeClass = stat.grade === 'SAFE' ? 'grade-safe' : (stat.grade === 'NORMAL' ? 'grade-normal' : 'grade-danger');
+                            let pulseColor = stat.grade === 'SAFE' ? 'rgba(76,175,80,0.6)' : (stat.grade === 'NORMAL' ? 'rgba(255,193,7,0.6)' : 'rgba(255,87,34,0.6)');
+
+                            // HTML 문자열 대신 실제 DOM 요소를 만들어야 onClick 이벤트를 달 수 있습니다!
+                            let contentElement = document.createElement('div');
+                            contentElement.className = `premium-badge ${gradeClass}`;
+                            contentElement.style.setProperty('--pulse-color', pulseColor);
+                            contentElement.innerHTML = `<div class="status-dot"></div><span>${stat.region}</span>`;
+
+                            // 🎯 [핵심] 마커 클릭 시 발생하는 액션!
+                            contentElement.onclick = function() {
+                                // 1. 스무스 패닝 (카메라 부드럽게 이동)
+                                let moveLatLon = new kakao.maps.LatLng(stat.lat, stat.lng);
+                                map.panTo(moveLatLon);
+
+                                // 2. 팝업 카드 정보 업데이트
+                                document.getElementById('cardRegionName').innerText = stat.region;
+
+                                let gradeText = stat.grade === 'SAFE' ? '안전 (상위권)' : (stat.grade === 'NORMAL' ? '보통 (중위권)' : '위험 (하위권)');
+                                let gradeColor = stat.grade === 'SAFE' ? '#4CAF50' : (stat.grade === 'NORMAL' ? '#FFC107' : '#FF5722');
+
+                                const badgeLabel = document.getElementById('cardGrade');
+                                badgeLabel.innerText = gradeText;
+                                badgeLabel.style.backgroundColor = gradeColor;
+
+                                document.getElementById('cardCrimeCount').innerText = stat.crimeCount + "건";
+
+                                // 3. 팝업 카드 버튼에 '검색 연동' 기능 달기
+                                document.getElementById('cardSearchBtn').onclick = function() {
+                                    document.getElementById('searchType').value = 'titleAddress';
+                                    document.getElementById('keyword').value = stat.region;
+                                    document.getElementById('searchForm').submit();
+                                };
+
+                                // 4. 팝업 카드 스르륵 띄우기
+                                document.getElementById('regionDetailCard').classList.add('show');
+                            };
+
+                            let overlay = new kakao.maps.CustomOverlay({
                                 position: new kakao.maps.LatLng(stat.lat, stat.lng),
-                                content: content,
-                                map: map
+                                content: contentElement, // 생성한 DOM 요소 넣기
+                                yAnchor: 0.5
                             });
-                            markers.push(overlay);
+
+                            overlay.setMap(map);
+                            currentOverlays.push(overlay);
                         }
                     });
+                })
+                .catch(err => {
+                    if(loading) loading.style.display = 'none';
+                    console.error(err);
+                    alert("데이터를 불러오는 중 오류가 발생했습니다.");
                 });
         }
 
+        // --- 일반 리뷰 건수 마커 (기존 유지) ---
         function displayReviewMarkers() {
             if (!map || !geocoder) return;
 
@@ -278,8 +425,8 @@
                         const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
 
                         const content = document.createElement('div');
-                        content.style.cssText = 'padding:5px 10px;background:#FF5A5F;color:white;border-radius:20px;font-weight:bold;cursor:pointer;';
-                        content.innerHTML = reviewsByGu[gu].length + "건";
+                        content.className = 'review-pin';
+                        content.innerHTML = `${gu} <span style="opacity:0.8; font-size:0.8rem;">${reviewsByGu[gu].length}건</span>`;
 
                         content.onclick = function() {
                             document.getElementById('searchType').value = 'titleAddress';
@@ -288,13 +435,12 @@
                         };
 
                         const overlay = new kakao.maps.CustomOverlay({
-                            map: map,
-                            position: coords,
-                            content: content,
-                            yAnchor: 1
+                            map: map, position: coords, content: content, yAnchor: 1
                         });
 
-                        markers.push(overlay);
+                        overlay.setMap(map);
+                        currentOverlays.push(overlay);
+
                         bounds.extend(coords);
                         map.setBounds(bounds);
                     }
