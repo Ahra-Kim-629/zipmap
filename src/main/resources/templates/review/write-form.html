@@ -261,22 +261,22 @@
             $('#reviewForm').submit();
         });
 
-        // 1. 카카오 주소 검색 서비스(Geocoder) 객체를 생성합니다.
+        // 카카오 주소 검색 서비스(Geocoder) 객체를 생성
  var geocoder = new kakao.maps.services.Geocoder();
 
  $('#address').on('keyup', function() {
      var query = $(this).val();
 
      if (query.length > 1) {
-         // 2. 주소로 검색을 요청합니다.
+         // 주소로 검색을 요청
          geocoder.addressSearch(query, function(result, status) {
 
-             // 3. 검색이 성공적으로 끝났다면(OK)
+             // 검색 성공 시(OK)
              if (status === kakao.maps.services.Status.OK) {
                  let $list = $('#addressList');
                  $list.empty().show();
 
-                 // 4. 결과값(result)을 반복문 돌려서 리스트로 만듭니다.
+                 // 결과값(result) 리스트 생성
                  result.forEach(function(item) {
                      let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
                               .text(item.address_name)
@@ -284,8 +284,6 @@
                                   $('#address').val(item.address_name);
                                   $list.hide();
 
-                                  // (옵션) 선택한 곳의 위도(y), 경도(x)를 확인해볼 수 있어요!
-                                  console.log("위도:", item.y, "경도:", item.x);
                               });
                      $list.append(li);
                  });
