@@ -1,5 +1,6 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -119,37 +120,37 @@ public class CrimeStatsService {
 //
 //    // ================= [내부 헬퍼 메서드들] =================
 //
-//    /**
-//     * 1단계: API 호출
-//     */
-//    private String callApi() throws Exception {
-//        // URL 생성 (100건 요청 - 모든 범죄 유형을 가져오기 위함)
-//        String requestUrl = crimeApiUrl + "?serviceKey=" + crimeApiKey + "&type=json&numOfRows=100&pageNo=1";
-//
-//        URL url = new URL(requestUrl);
-//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//        conn.setRequestMethod("GET");
-//        conn.setRequestProperty("Content-type", "application/json");
-//
-//        // 응답 코드 확인
-//        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
-//            log.error("API 호출 실패: 응답 코드 {}", conn.getResponseCode());
-//            return null;
-//        }
-//
-//        // 데이터 읽기
-//        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//        StringBuilder sb = new StringBuilder();
-//        String line;
-//        while ((line = rd.readLine()) != null) {
-//            sb.append(line);
-//        }
-//        rd.close();
-//        conn.disconnect();
-//
-//        return sb.toString();
-//    }
-//
+    /**
+     * 1단계: API 호출
+     */
+    private String callApi() throws Exception {
+        // URL 생성 (100건 요청 - 모든 범죄 유형을 가져오기 위함)
+        String requestUrl = crimeApiUrl + "?serviceKey=" + crimeApiKey + "&type=json&numOfRows=100&pageNo=1";
+
+        URL url = new URL(requestUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+
+        // 응답 코드 확인
+        if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 300) {
+            log.error("API 호출 실패: 응답 코드 {}", conn.getResponseCode());
+            return null;
+        }
+
+        // 데이터 읽기
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+
+        return sb.toString();
+    }
+
 //    /**
 //     * 2단계: JSON 파싱 및 집계
 //     */
@@ -233,4 +234,134 @@ public class CrimeStatsService {
 //            // log.info("{}등: {} ({}건) -> {}", rank, stat.getRegion(), stat.getCrimeCount(), stat.getGrade());
 //        }
 //    }
+
+
+//    ================= [리뷰 주소지의 범죄 현황] =================
+    public String extractDistrict(String fullAddress) {
+        if (fullAddress == null || fullAddress.isEmpty()) {
+            return "";
+        }
+
+        // 공백 기준 주소 자르기
+        String[] addressParts = fullAddress.split(" ");
+        // 보통 두 번째 단어인 '구' 추출
+        if (addressParts.length >= 2) {
+            return addressParts[1];
+        }
+        return "";
+    }
+
+    public static class MyCrimeInfo {
+        private String crimeName; // 범죄이름
+        private int count; // 건수
+        private boolean isNo1; // 서울 내 1위 여부
+
+        public MyCrimeInfo(String crimeName, int count, boolean isNo1) {
+            this.crimeName = crimeName;
+            this.count = count;
+            this.isNo1 = isNo1;
+        }
+
+        public String getCrimeName() { return crimeName; }
+        public int getCount() { return count; }
+        public boolean isNo1() { return isNo1; }
+    }
+
+    // ================= [리뷰 상세페이지용 범죄 분석 로직] =================
+
+    /**
+     * 리뷰 상세페이지에 보여줄 범죄 데이터를 분석하여 DTO에 담아주는 메서드
+     */
+    public void analyzeCrimeForReview(ReviewDTO reviewDto) {
+        try {
+            // 주소에서 '구' 추출
+            String district = extractDistrict(reviewDto.getAddress());
+            if (district.isEmpty()) return;
+
+            String targetKey = "서울 " + district; // JSON에서 찾을 이름
+
+            // API 호출
+            String jsonString = callApi();
+            if (jsonString == null) return;
+
+            // JSON (파싱)
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(jsonString);
+            JsonNode items = rootNode.get("data");
+
+            // 모든 범죄 종목을 임시로 담을 리스트
+            List<Map<String, Object>> allCrimes = new ArrayList<>();
+
+            if (items != null && items.isArray()) {
+                for (JsonNode item : items) {
+                    String crimeName = item.get("범죄중분류").asText();
+                    int myCount = item.get(targetKey) != null ? item.get(targetKey).asInt() : 0;
+
+                    // 서울 1위 찾기 로직
+                    boolean isNo1 = checkIsSeoulNo1(item, targetKey, myCount);
+
+                    // 한 줄의 정보를 바구니에 담기
+                    Map<String, Object> info = new HashMap<>();
+                    info.put("name", crimeName);
+                    info.put("count", myCount);
+                    info.put("isNo1", isNo1);
+                    allCrimes.add(info);
+                }
+            }
+
+            // 건수 많은 순서로 정렬 (내림차순)
+            allCrimes.sort((a, b) -> (int)b.get("count") - (int)a.get("count"));
+
+            List<String> top3Names = new ArrayList<>();
+            List<Integer> top3Counts = new ArrayList<>();
+            String warning = "";
+
+            // 상위 3개 데이터 추출 및 1위 확인
+            int limit = Math.min(3, allCrimes.size());
+            for (int i = 0; i < limit; i++) {
+                Map<String, Object> crime = allCrimes.get(i);
+                String name = (String) crime.get("name");
+                int count = (int) crime.get("count");
+                boolean isNo1 = (boolean) crime.get("isNo1");
+
+                top3Names.add(name);
+                top3Counts.add(count);
+
+                // 만약 이 종목이 서울 전체 1위라면 경고 문구 생성
+                if (isNo1) {
+                    warning = "이 지역은 서울 내 [" + name + "] 발생 건수가 가장 높은 구입니다.";
+                }
+            }
+
+            // 6. 드디어 ReviewDTO의 칸(Field)에 배달 완료!
+            reviewDto.setTopCrimes(top3Names);
+            reviewDto.setCrimeCounts(top3Counts);
+            reviewDto.setSafetyWarning(warning);
+
+        } catch (Exception e) {
+            log.error("범죄 데이터 분석 중 에러 발생", e);
+        }
+    }
+
+    /**
+     * 해당 범죄 종목에서 우리 구가 서울 전체 1위인지 확인하는 헬퍼 메서드
+     */
+    private boolean checkIsSeoulNo1(JsonNode item, String targetKey, int myCount) {
+        if (myCount == 0) return false;
+
+        Iterator<Map.Entry<String, JsonNode>> fields = item.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            // "서울 "로 시작하는 다른 구들의 점수와 해당 지역구 점수를 비교
+            if (field.getKey().startsWith("서울 ") && !field.getKey().equals(targetKey)) {
+                if (field.getValue().asInt() > myCount) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+
 }
