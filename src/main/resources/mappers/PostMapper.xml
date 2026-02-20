@@ -175,19 +175,19 @@
         )
     </insert>
 
-    <!--    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostReplyDTO">-->
-    <!--        SELECT-->
-    <!--        r.id,-->
-    <!--        r.post_id as postId,-->
-    <!--        r.user_id as userId,-->
-    <!--        u.login_id as loginId,-->
-    <!--        r.content,-->
-    <!--        r.created_at as createdAt,-->
-    <!--        r.updated_at as updatedAt-->
-    <!--        FROM post_reply r-->
-    <!--        JOIN user u ON r.user_id = u.id-->
-    <!--        WHERE r.id = #{id}-->
-    <!--    </select>-->
+    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+        r.id,
+        r.post_id as postId,
+        r.user_id as userId,
+        u.login_id as loginId,
+        r.content,
+        r.created_at as createdAt,
+        r.updated_at as updatedAt
+        FROM reply r
+        JOIN user u ON r.user_id = u.id
+        WHERE r.id = #{id}
+    </select>
 
     <update id="updateReply">
         UPDATE reply
@@ -296,10 +296,10 @@
     <!--        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}-->
     <!--    </select>-->
 
-    <select id="countRepliesByUserId" resultType="int">
-        SELECT COUNT(*) FROM post_reply
-        WHERE user_id = #{userId}
-    </select>
+<!--    <select id="countRepliesByUserId" resultType="int">-->
+<!--        SELECT COUNT(*) FROM post_reply-->
+<!--        WHERE user_id = #{userId}-->
+<!--    </select>-->
 
     <select id="findMainpagePost" resultType="com.daedong.zipmap.domain.PostDTO">
         <![CDATA[

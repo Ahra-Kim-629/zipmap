@@ -122,6 +122,42 @@
                     <p><small>(로그인 후 좋아요를 누를 수 있습니다)</small></p>
                 </div>
 
+                <!-- 범죄 현황 -->
+                <div class="crime-info-section mt-4" th:if="${reviewDTO.topCrimes != null and !#lists.isEmpty(reviewDTO.topCrimes)}">
+
+                    <div th:if="${reviewDTO.safetyWarning != null and reviewDTO.safetyWarning != ''}"
+                         style="background-color: #FFF5F5; border-left: 4px solid #FF8E8E; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
+        <span style="color: #D63031; font-size: 0.9rem; font-weight: 600;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${reviewDTO.safetyWarning}">경고 문구</span>
+        </span>
+                    </div>
+
+                    <div style="background: #FAFAFA; border-radius: 12px; padding: 20px; border: 1px solid #F1F1F1;">
+                        <h6 class="fw-bold mb-3" style="font-size: 0.95rem; color: #555;">
+                            <i class="bi bi-shield-lock me-2"></i>이 지역 주요 범죄 현황 (TOP 3)
+                        </h6>
+
+                        <div class="d-flex flex-column gap-2">
+                            <div th:each="crime, stat : ${reviewDTO.topCrimes}"
+                                 class="d-flex justify-content-between align-items-center"
+                                 style="font-size: 0.85rem; padding: 8px 0; border-bottom: 1px dashed #EEE;">
+
+                <span style="color: #666;">
+                    <span class="badge bg-secondary me-2" style="font-weight: 400; opacity: 0.8;" th:text="${stat.count} + '위'">1위</span>
+                    <span th:text="${crime}" style="font-weight: 500;">범죄명</span>
+                </span>
+
+                                <span th:if="${reviewDTO.crimeCounts != null and reviewDTO.crimeCounts.size() > stat.index}"
+                                      style="color: #999; font-variant-numeric: tabular-nums;">
+                    약 <span th:text="${reviewDTO.crimeCounts[stat.index]}">0</span>건
+                </span>
+                            </div>
+                        </div>
+                        <p class="mt-2 mb-0" style="font-size: 0.75rem; color: #BBB;">* 해당 통계는 2024년 인근 경찰서 데이터 기준입니다.</p>
+                    </div>
+                </div>
+
                 <div class="reply-section">
                     <h5 class="fw-bold mb-4"><i class="bi bi-chat-left-text me-2"></i>댓글 <span class="text-orange"
                                                                                                th:text="${reviewDTO.replyList.size()}">0</span>
