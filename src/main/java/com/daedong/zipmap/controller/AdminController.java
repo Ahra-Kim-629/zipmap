@@ -10,6 +10,7 @@ import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -202,5 +203,16 @@ public class AdminController {
             return "redirect:/admin/postnotice";
         }
     }
+// 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
+@GetMapping("/reviewcertification")
+public String reviewCertificationList(Model model,
+                                      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+    // AdminService를 통해 BANNED 리뷰만 가져옴
+    Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
+
+    model.addAttribute("reviews", reviews);
+    return "/admin/reviewcertification";
+}
 }
 

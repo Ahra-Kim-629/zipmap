@@ -5,6 +5,8 @@ import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ public class AdminService {
     private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
     private final PostMapper postMapper;
-
+    private final ReviewMapper reviewMapper;
 
     private final FileUtilService fileUtilService;
     private final FileMapper fileMapper;
@@ -114,8 +116,6 @@ public class AdminService {
     }
 
     //review 관리자 접근을 위한 방법
-// 1. 기존 변수 선언 아래에 추가
-    private final ReviewMapper reviewMapper;
 
     public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
         // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.
@@ -135,4 +135,18 @@ public class AdminService {
         // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
         reviewMapper.updateReviewStatusToBanned(id, targetStatus);
     }
+    @Transactional
+    public Page<ReviewDTO> getPendingCertifications(Pageable pageable) {
+        // XML 쿼리를 호출해서 리스트를 가져옵니다.
+        List<ReviewDTO> content = reviewMapper.findBannedReviews(
+                pageable.getPageSize(),
+                (int) pageable.getOffset()
+        );
+
+// XML의 id="countBannedReviews" 호출
+        int total = reviewMapper.countBannedReviews();
+
+        return new PageImpl<>(content, pageable, total);
+    }
 }
+

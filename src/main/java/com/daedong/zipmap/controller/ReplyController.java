@@ -23,7 +23,7 @@ public class ReplyController {
 
         repliesService.saveReply(reply);
 
-        return "redirect:/" + reply.getTargetType() + "/detail/" + reply.getTargetId();
+        return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
     }
 
     // 댓글 수정
@@ -31,7 +31,7 @@ public class ReplyController {
     public String edit(Reply reply) {
         repliesService.updateReply(reply);
 
-        return "redirect:/" + reply.getTargetType() + "/detail/" + reply.getTargetId();
+        return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
     }
 
     // 댓글 삭제
@@ -43,7 +43,7 @@ public class ReplyController {
 
         repliesService.deleteReply(replyId);
 
-        return "redirect:/" + reply.getTargetType() + "/detail/" + reply.getTargetId();
+        return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
     }
 
 }
