@@ -76,7 +76,7 @@ public class ReviewService {
 
             // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
             try {
-                statsUtil.updateViewCount("post", id, identifier);
+                statsUtil.updateViewCount("review", id, identifier);
             } catch (Exception e) {
                 System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
             }
