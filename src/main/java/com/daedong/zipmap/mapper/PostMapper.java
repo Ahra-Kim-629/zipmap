@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface PostMapper {
@@ -41,6 +42,8 @@ public interface PostMapper {
                           @Param("location") String location,
                           @Param("pageable") Pageable pageable);
 
+    List<PostDTO> findAllByIdList(List<Long> postIdList);
+
     // UPDATE 커뮤니티 게시글 보이게 하기, 숨기게 하기 기능
     void updatePostStatus(@Param("id") Long id, @Param("status") String status);
 
@@ -72,4 +75,8 @@ public interface PostMapper {
 //    List<PostDTO> findMainpagePost();
 
     void updateContent(Post post);
+
+    void updatePostStatsBatch(List<Post> syncList);
+
+    List<Map<String, Object>> getTopPostList(int i);
 }

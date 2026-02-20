@@ -63,7 +63,7 @@
                     <p class="guide-text mt-2 mb-0 text-orange">※ 주소가 다를 경우 마이페이지에서 먼저 수정해 주세요.</p>
                 </div>
 
-                <form th:action="@{/users/certification}" method="post" enctype="multipart/form-data">
+                <form th:action="@{/review/certification}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="reviewId" th:value="${reviewId}">
                     <div class="mb-4">
                         <label class="form-label fw-bold mb-2">임대차계약서 첨부</label>
@@ -87,7 +87,7 @@
                         <button type="submit" class="btn btn-orange py-3 fw-bold rounded-pill shadow-sm">
                             인증 신청하기
                         </button>
-                        <a th:href="@{/users/mypage}" class="btn btn-link text-muted text-decoration-none small">
+                        <a th:href="@{/review}" class="btn btn-link text-muted text-decoration-none small">
                             취소하고 돌아가기
                         </a>
                     </div>

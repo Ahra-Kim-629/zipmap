@@ -6,6 +6,7 @@ import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.ReactionService;
 import com.daedong.zipmap.util.RepliesService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,8 +65,10 @@ public class PostController {
     }
 
     @GetMapping("/detail/{id}")
-    public String boardDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        PostDTO postDTO = postService.getPostDetail(id);
+    public String boardDetail(@PathVariable Long id, Model model,
+                              @AuthenticationPrincipal UserDetails userDetails,
+                              HttpServletRequest request) {
+        PostDTO postDTO = postService.getPostDetail(id, request, userDetails);
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
 
         Reaction reaction = new Reaction();
@@ -181,7 +184,9 @@ public class PostController {
 
     // 좋아요 싫어요
     @PostMapping("/reaction")
-    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal UserDetails userDetails) {
+    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type,
+                       @AuthenticationPrincipal UserDetails userDetails,
+                       HttpServletRequest request) {
         User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         Reaction like = new Reaction();
         like.setTargetType("post");

@@ -73,17 +73,29 @@
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
                 <if test="pros != null and pros.size() > 0">
-                    <foreach collection="pros" item="p" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{p}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute pa
+                    WHERE pa.review_id = r.id AND pa.type = 'PRO'
+                    AND pa.content IN
+                    <foreach collection="pros" item="p" open="(" separator="," close=")">
+                        #{p}
                     </foreach>
+                    )
                 </if>
+
+                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                    OR
+                </if>
+
                 <if test="cons != null and cons.size() > 0">
-                    <if test="pros != null and pros.size() > 0">
-                        OR
-                    </if>
-                    <foreach collection="cons" item="c" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{c}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute ca
+                    WHERE ca.review_id = r.id AND ca.type = 'CON'
+                    AND ca.content IN
+                    <foreach collection="cons" item="c" open="(" separator="," close=")">
+                        #{c}
                     </foreach>
+                    )
                 </if>
                 )
             </if>
@@ -113,17 +125,29 @@
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
                 <if test="pros != null and pros.size() > 0">
-                    <foreach collection="pros" item="p" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{p}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute pa
+                    WHERE pa.review_id = r.id AND pa.type = 'PRO'
+                    AND pa.content IN
+                    <foreach collection="pros" item="p" open="(" separator="," close=")">
+                        #{p}
                     </foreach>
+                    )
                 </if>
+
+                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                    OR
+                </if>
+
                 <if test="cons != null and cons.size() > 0">
-                    <if test="pros != null and pros.size() > 0">
-                        OR
-                    </if>
-                    <foreach collection="cons" item="c" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{c}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute ca
+                    WHERE ca.review_id = r.id AND ca.type = 'CON'
+                    AND ca.content IN
+                    <foreach collection="cons" item="c" open="(" separator="," close=")">
+                        #{c}
                     </foreach>
+                    )
                 </if>
                 )
             </if>
@@ -259,51 +283,22 @@
     <!--        WHERE user_id = #{userId}-->
     <!--    </select>-->
 
-    <!--    <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">-->
-    <!--        SELECT-->
-    <!--        r.id,-->
-    <!--        r.title,-->
-    <!--        r.content,-->
-    <!--        r.address,-->
-    <!--        r.user_id,-->
-    <!--        u.login_id AS loginId,-->
-    <!--        r.point,-->
-    <!--        r.review_status,-->
-    <!--        r.created_at,-->
-    <!--        r.updated_at-->
-    <!--        FROM review r-->
-    <!--        LEFT JOIN user u ON r.user_id = u.id-->
-    <!--        WHERE r.review_status = 'ACTIVE'-->
-    <!--        ORDER BY r.created_at DESC-->
-    <!--        LIMIT 4-->
-    <!--    </select>-->
+    <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.created_at,
+        r.updated_at
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.review_status = 'ACTIVE'
+        ORDER BY r.created_at DESC
+        LIMIT 4
+    </select>
 
     <!--    추가 2/13 -->
     <update id="updateContent">
         UPDATE review
         SET content = #{content}
         WHERE id = #{id}
-    </update>
-
-    <!-- 실거주 인증 -->
-    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
-            useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO certification (
-        user_id, status, created_at
-        ) VALUES (
-        #{userId}, 'PENDING', NOW()
-        )
-    </insert>
-
-    <update id="updateCertificationPath">
-        UPDATE certification
-        SET original_name = #{originalName},
-        stored_path = #{storedPath}
-        WHERE id = #{id}
-    </update>
-
-    <update id="updateReviewStatusToBanned">
-        UPDATE review SET review_status = #{status} WHERE id = #{reviewId}
     </update>
 
     <select id="adminFindAll" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="map">
@@ -335,4 +330,19 @@
         </where>
     </select>
 
+    <!-- 실거주 인증 -->
+    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certification (
+        user_id, review_id, certification_status, created_at
+        ) VALUES (
+        #{userId}, #{reviewId}, 'PENDING', NOW()
+        )
+    </insert>
+
+    <update id="updateReviewStatusToBanned">
+        UPDATE review
+        SET review_status = #{status}
+        WHERE id = #{reviewId}
+    </update>
 </mapper>

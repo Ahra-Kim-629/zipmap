@@ -125,6 +125,7 @@ public class AdminController {
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
+
     // 1. 기존 리스트 메서드들 아래에 추가
     @GetMapping("/reviews")
     public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -147,6 +148,7 @@ public class AdminController {
         rttr.addFlashAttribute("message", "리뷰가 삭제되었습니다.");
         return "redirect:/admin/reviews";
     }
+
     @PostMapping("/reviews/toggle-status")
     public String toggleReviewStatus(@RequestParam("id") Long id,
                                      @RequestParam("status") String status,

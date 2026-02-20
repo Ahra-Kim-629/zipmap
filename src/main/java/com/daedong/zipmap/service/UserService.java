@@ -1,12 +1,8 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Certification;
-import com.daedong.zipmap.domain.File;
 import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.mapper.FileMapper;
 import com.daedong.zipmap.mapper.UserMapper;
-import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

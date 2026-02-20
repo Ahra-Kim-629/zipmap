@@ -4,19 +4,25 @@ import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.mapper.PostMapper;
+import com.daedong.zipmap.util.NetworkUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostMapper postMapper;
+    private final PostStatsService postStatsService;
     //   private final FileService fileService;
 
     public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
@@ -27,7 +33,25 @@ public class PostService {
         return new PageImpl<PostDTO>(posts, pageable, totalCount);
     }
 
-    public PostDTO getPostDetail(Long id) {
+    public PostDTO getPostDetail(Long id, HttpServletRequest request, UserDetails userDetails) {
+        PostDTO postDTO = postMapper.findById(id);
+
+        if (postDTO != null) {
+            // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
+            String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
+
+            // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
+            try {
+                postStatsService.updateViewCount(id, identifier);
+            } catch (Exception e) {
+                System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
+            }
+        }
+
+        return postDTO;
+    }
+
+    public PostDTO getPostDetail(long id) {
         return postMapper.findById(id);
     }
 
@@ -89,12 +113,22 @@ public class PostService {
         return new PageImpl<>(posts, pageable, totalCount);
     }
 
-//    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
+    //    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
 //        int totalCount = postMapper.countRepliesByUserId(userId);
 //        List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
 //        return new PageImpl<>(replies, pageable, totalCount);
 //    }
 //
+    @Cacheable(value = "mainPostList")
+    public List<PostDTO> getMainpagePost() {
+        List<Long> topPostIdList = postStatsService.getTopPostIds(5);
+
+        if (topPostIdList == null || topPostIdList.isEmpty()) {
+            return new ArrayList<>(); // 빈 리스트 반환하여 쿼리 실행 방지
+        }
+
+        return postMapper.findAllByIdList(topPostIdList);
+    }
 //    @Cacheable(value = "mainPostList")
 //    public List<PostDTO> getMainpagePost() {
 //        return postMapper.findMainpagePost();

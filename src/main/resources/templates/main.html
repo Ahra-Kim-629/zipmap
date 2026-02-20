@@ -40,7 +40,7 @@
                                      th:classappend="${stat.first} ? 'active'"
                                      class="carousel-item">
                                     <a th:href="${notice.linkUrl}" target="_blank">
-                                        <img th:src="@{/files/notice/{name}(name=${notice.imagePath})}"
+                                        <img th:src="@{/files/{name}(name=${notice.filePath})}"
                                              class="d-block w-100" th:alt="${notice.title}">
                                     </a>
                                     <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 py-1">
@@ -110,8 +110,11 @@
                                  class="card-img-top" style="height:200px; object-fit:cover;">
                             <div class="card-body">
                                 <span class="badge badge-daedong mb-2" th:text="${review.address}">관악구 봉천동</span>
-                                <h5 class="card-title fw-bold" th:text="${review.title}">채광 맛집 분리형 원룸</h5>
-                                <p class="card-text text-muted small text-truncate" th:utext="${review.content}">집주인분
+                                <h5 class="card-title fw-bold"
+                                    th:text="${review.title}">채광 맛집 분리형 원룸</h5>
+                                <p class="card-text text-muted small ellipsis-2"
+                                   th:text="${review.content.replaceAll('<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>', '').replaceAll('&nbsp;', ' ')}">
+                                    집주인분
                                     친절하시고 수압 좋습니다...</p>
                             </div>
                         </div>
@@ -124,7 +127,7 @@
                         <h5 class="fw-bold mb-0">커뮤니티 활성글</h5>
                     </div>
                     <div class="list-group list-group-flush">
-                        <a th:each="post : ${postDTOList}" th:href="@{/board/detail/{id}(id=${post.id})}"
+                        <a th:each="post : ${postDTOList}" th:href="@{/post/detail/{id}(id=${post.id})}"
                            class="list-group-item list-group-item-action py-3">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <h6 class="mb-1 fw-bold"
@@ -145,7 +148,7 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <a class="btn btn-dark btn-lg fw-bold shadow-sm py-3" th:href="@{/board/write}">
+                    <a class="btn btn-dark btn-lg fw-bold shadow-sm py-3" th:href="@{/post/write}">
                         <i class="bi bi-pencil-square me-2"></i>글쓰기
                     </a>
                 </div>

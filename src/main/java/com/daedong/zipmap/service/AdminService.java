@@ -1,8 +1,6 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Notice;
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.domain.File;
+
 import java.util.List;
 
 import java.io.IOException;
@@ -84,9 +82,8 @@ public class AdminService {
     }
 
     @Cacheable(value = "mainNotices")
-    public List<Notice> getCurrentNoticeList() {
+    public List<NoticeDTO> getCurrentNoticeList() {
         return noticeMapper.findCurrentNoticeList();
-
     }
 
 

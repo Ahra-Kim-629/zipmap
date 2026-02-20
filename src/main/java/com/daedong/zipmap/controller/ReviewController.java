@@ -4,6 +4,7 @@ import com.daedong.zipmap.domain.Reaction;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.service.CrimeStatsService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
@@ -36,6 +37,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReactionService reactionService;
     private final UserService userService;
+    private final CrimeStatsService crimeStatsService;
 
     // [New] ★ 새로 만든 파일 유틸 서비스
     private final FileUtilService fileUtilService;
@@ -85,6 +87,7 @@ public class ReviewController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
+
         model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
