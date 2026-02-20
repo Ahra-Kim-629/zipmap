@@ -31,7 +31,7 @@ public class ReactionService {
             } else if (reaction.getTargetType().equals("post")) {
                 // 포스트의 반응이라면
                 reactionMapper.update(existingLike.getId(), reaction.getType()); // DB 수정
-                // 차이마늠 반영
+                // 차이만큼 반영
                 statsUtil.updateReactionCount("post", reaction.getTargetId(), reaction.getType() - existingLike.getType());
             }
         }

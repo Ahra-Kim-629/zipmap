@@ -25,10 +25,6 @@ public class StatsUtil {
     private final ReviewMapper reviewMapper;
 
     // Redis Key 설계
-    private String getStatsKey(String domain, Long id) {
-        return "stats:" + domain + ":" + id;
-    } // Hash: stats:domain:id -> {viewCount, likeCount}
-
     private static final String KEY_RANKING = "post:ranking";   // Sorted Set: post:ranking -> {postId, score}
 
     /**
@@ -92,6 +88,7 @@ public class StatsUtil {
         syncDomainStats("post");
         // 2. Review 동기화
         syncDomainStats("review");
+        System.out.println("Redis -> DB 동기화 완료");
     }
 
     private void syncDomainStats(String domain) {
