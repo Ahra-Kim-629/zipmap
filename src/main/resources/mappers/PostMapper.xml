@@ -78,6 +78,9 @@
         LEFT JOIN user u ON p.user_id = u.id
         <where>
             AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
+            <if test="category != null and category != ''">
+                AND p.category = #{category}
+            </if>
 
             <if test="keyword != null and keyword != ''">
                 <choose>
@@ -113,8 +116,11 @@
                 </choose>
             </if>
         </where>
-        ORDER BY p.id DESC
+        ORDER BY
+        (CASE WHEN p.category = 'NOTICE' THEN 0 ELSE 1 END) ASC,
+        p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+
     </select>
 
     <select id="countAll" resultType="int">
@@ -152,11 +158,12 @@
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO post (
             title, content, user_id, category, location,
-            like_count, dislike_count, view_count, post_status, created_at, updated_at
+<!--            like_count, dislike_count, view_count, -->
+        post_status, created_at, updated_at
         )
         VALUES (
                    #{title}, #{content}, #{userId}, #{category}, #{location},
-                   0, 0, 0, 'ACTIVE', NOW(), NOW()
+                    'ACTIVE', NOW(), NOW()
                )
     </insert>
 

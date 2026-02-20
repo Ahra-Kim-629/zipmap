@@ -113,7 +113,7 @@ public class PostController {
             }
 
             rttr.addFlashAttribute("message", "글 작성이 완료되었습니다.");
-            return "redirect:/board";
+            return "redirect:/post";
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "글 작성 중 오류가 발생했습니다: " + e.getMessage());
             return "redirect:/post/write";
@@ -228,5 +228,7 @@ public class PostController {
             return "fail";
         }
     }
+
+
 }
 

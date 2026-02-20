@@ -53,6 +53,7 @@ public class AdminService {
 
             // (1) 실제 폴더(c:/upload/notice)에 파일 저장
             String filePath = fileUtilService.saveFile(imageFile, "notice");
+            String storedPath = fileUtilService.saveFile(imageFile, "notice");
 
             // (2) ★ [핵심] 공통 파일 테이블(file_attachment)에 정보 저장!
             com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
@@ -60,9 +61,11 @@ public class AdminService {
             file.setTargetId(notice.getId());    // 방금 만든 공지사항 ID
             file.setFilePath(filePath);          // notice/uuid_파일명.jpg
             file.setFileSize(imageFile.getSize());
+            notice.setImagePath(storedPath);
 
             fileMapper.insertFile(file);
         }
+        noticeMapper.insertNotice(notice);
     }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정

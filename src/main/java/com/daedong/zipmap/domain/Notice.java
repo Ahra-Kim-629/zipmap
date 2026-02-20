@@ -1,6 +1,7 @@
 package com.daedong.zipmap.domain;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,8 +13,10 @@ public class Notice {
     private String imagePath;
     private String linkUrl;
     private String status;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime endDate;
     private int priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
