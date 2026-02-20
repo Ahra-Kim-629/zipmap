@@ -51,8 +51,8 @@ public class PostController {
             int likeCount = reactionService.countReaction("post", post.getId(), 1);
             int dislikeCount = reactionService.countReaction("post", post.getId(), -1);
 
-            post.setLikeCount(likeCount);
-            post.setDislikeCount(dislikeCount);
+//            post.setLikeCount(likeCount);
+//            post.setDislikeCount(dislikeCount);
         }
 
         model.addAttribute("posts", posts);
@@ -81,8 +81,8 @@ public class PostController {
         model.addAttribute("myReaction", myReaction);
 
         // 좋아요, 싫어요 표시
-        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
-        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
+//        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
+//        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
 
         model.addAttribute("post", postDTO);
 

@@ -26,7 +26,7 @@
         <!--        </collection>-->
 
         <collection property="fileList" ofType="com.daedong.zipmap.domain.File">
-            <result property="id" column="file_id"/>
+            <id property="id" column="file_id"/>
             <result property="filePath" column="file_path"/>
             <result property="createdAt" column="file_created_at"/>
             <result property="updatedAt" column="file_updated_at"/>
@@ -34,8 +34,8 @@
 
         <collection property="replyList" ofType="com.daedong.zipmap.domain.ReplyDTO">
             <id property="id" column="reply_id"/>
-            <result property="targetType" column="target_type"/>
-            <result property="targetId" column="target_id"/>
+            <result property="targetType" column="reply_target_type"/>
+            <result property="targetId" column="reply_target_id"/>
             <result property="userId" column="reply_user_id"/>
             <result property="content" column="reply_content"/>
             <result property="createdAt" column="reply_created_at"/>
@@ -54,7 +54,7 @@
         f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
 
         <!-- 리플 관련 -->
-        rep.id as reply_id, rep.target_type, rep.target_id, rep.user_id as reply_user_id, rep.content as reply_content,
+        rep.id as reply_id, rep.target_type as reply_target_type, rep.target_id as reply_target_id, rep.user_id as reply_user_id, rep.content as reply_content,
         rep.created_at as reply_created_at, rep.updated_at as reply_updated_at, u2.login_id as reply_login_id
 
         FROM post p

@@ -53,8 +53,6 @@ public interface ReviewMapper {
      */
     void insertCertification(Certification certification);
 
-//    void updateReviewStatusToBanned(Long reviewId, String banned);
-
     void updateReviewStatusToBanned(@Param("reviewId") Long reviewId, @Param("status") String status);
 
     // ReviewMapper.java 인터페이스 내에 추가
