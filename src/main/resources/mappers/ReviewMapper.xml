@@ -259,24 +259,16 @@
     <!--        WHERE user_id = #{userId}-->
     <!--    </select>-->
 
-    <!--    <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">-->
-    <!--        SELECT-->
-    <!--        r.id,-->
-    <!--        r.title,-->
-    <!--        r.content,-->
-    <!--        r.address,-->
-    <!--        r.user_id,-->
-    <!--        u.login_id AS loginId,-->
-    <!--        r.point,-->
-    <!--        r.review_status,-->
-    <!--        r.created_at,-->
-    <!--        r.updated_at-->
-    <!--        FROM review r-->
-    <!--        LEFT JOIN user u ON r.user_id = u.id-->
-    <!--        WHERE r.review_status = 'ACTIVE'-->
-    <!--        ORDER BY r.created_at DESC-->
-    <!--        LIMIT 4-->
-    <!--    </select>-->
+    <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.created_at,
+        r.updated_at
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.review_status = 'ACTIVE'
+        ORDER BY r.created_at DESC
+        LIMIT 4
+    </select>
 
     <!--    추가 2/13 -->
     <update id="updateContent">

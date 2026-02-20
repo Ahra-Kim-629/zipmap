@@ -170,3 +170,32 @@
 .alert .btn-close:focus {
     box-shadow: none;
 }
+
+/* 본문 2줄 고정 및 말줄임 스타일 */
+.ellipsis-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* 2줄 높이 엄격 고정 */
+    line-height: 1.5;
+    height: 3em;
+
+    /* 텍스트 정렬 및 줄바꿈 설정 */
+    word-break: break-all;
+    white-space: normal;
+}
+
+/* [추가] 내부의 모든 HTML 태그(p, img 등)를 텍스트처럼 취급하고 이미지는 숨김 */
+.ellipsis-2 p, .ellipsis-2 div, .ellipsis-2 span {
+    display: inline !important; /* 문단 바꿈 무시 */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ellipsis-2 img {
+    display: none !important; /* 메인 카드 본문에서는 이미지 숨김 */
+}
+
