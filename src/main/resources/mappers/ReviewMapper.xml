@@ -97,6 +97,7 @@
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         <where>
+            AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'titleAddress'">
@@ -300,5 +301,38 @@
         stored_path = #{storedPath}
         WHERE id = #{id}
     </update>
+
+    <update id="updateReviewStatusToBanned">
+        UPDATE review SET review_status = #{status} WHERE id = #{reviewId}
+    </update>
+
+    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="map">
+        SELECT
+        r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.like_count,
+        r.view_count, r.created_at, r.updated_at
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'titleAddress'">
+                        AND (LOWER(r.title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+                        OR LOWER(r.address) LIKE CONCAT('%', LOWER(#{keyword}), '%'))
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="adminCountTotal" resultType="int">
+        SELECT COUNT(id) FROM review
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%') OR address LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
 
 </mapper>

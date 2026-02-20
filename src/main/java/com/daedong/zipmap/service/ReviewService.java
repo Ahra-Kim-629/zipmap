@@ -170,5 +170,17 @@ public class ReviewService {
 
         reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
     }
+    // 2. 클래스 내부에 아래 메서드 추가
+    public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
+        // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.
+        return reviewMapper.countTotal(searchType, keyword, pros, cons);
+    }
+
+    // ReviewService.java 내에 추가
+    public Page<ReviewDTO> adminFindAll(String searchType, String keyword, Pageable pageable) {
+        List<ReviewDTO> content = reviewMapper.adminFindAll(searchType, keyword, pageable);
+        int total = reviewMapper.adminCountTotal(searchType, keyword);
+        return new PageImpl<>(content, pageable, total);
+    }
 
 }

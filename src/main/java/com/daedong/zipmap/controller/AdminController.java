@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.ReviewService;
@@ -115,4 +116,42 @@ public class AdminController {
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
+    // 1. 기존 리스트 메서드들 아래에 추가
+    @GetMapping("/reviews")
+    public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                                  @RequestParam(required = false) String searchType,
+                                  @RequestParam(required = false) String keyword,
+                                  Model model) {
+        // 리뷰 목록과 개수 가져오기
+        org.springframework.data.domain.Page<ReviewDTO> reviewPage = reviewService.adminFindAll(searchType, keyword, pageable);
+        int totalCount = reviewService.countTotal(searchType, keyword, null, null);
+
+        model.addAttribute("reviews", reviewPage);
+        model.addAttribute("totalCount", totalCount);
+        return "admin/reviews"; // templates/admin/reviews.html 파일로 연결
+    }
+
+    // 2. 삭제 처리 기능 추가
+    @GetMapping("/reviews/delete/{id}")
+    public String deleteReview(@PathVariable("id") Long id, RedirectAttributes rttr) {
+        adminService.deleteReview(id);
+        rttr.addFlashAttribute("message", "리뷰가 삭제되었습니다.");
+        return "redirect:/admin/reviews";
+    }
+    @PostMapping("/reviews/toggle-status")
+    public String toggleReviewStatus(@RequestParam("id") Long id,
+                                     @RequestParam("status") String status,
+                                     RedirectAttributes rttr) {
+        try {
+            // 서비스의 토글 로직 실행
+            adminService.toggleReviewStatus(id, status);
+            rttr.addFlashAttribute("message", "리뷰 상태가 성공적으로 변경되었습니다.");
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
+        }
+
+        // 처리가 끝나면 다시 리뷰 목록 페이지로 새로고침(리다이렉트)
+        return "redirect:/admin/reviews";
+    }
+
 }

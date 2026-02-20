@@ -64,6 +64,7 @@
         SELECT
         id, target_type, target_id, file_path, file_size, created_at, updated_at
         FROM file
+    </select>
 
     <select id="findAttachments" resultType="com.daedong.zipmap.domain.File">
         SELECT * FROM file_attachment
