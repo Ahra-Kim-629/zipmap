@@ -4,10 +4,11 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.NoticeMapper">
 
-    <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.Notice">
+    <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.NoticeDTO">
         SELECT
-        id, title, image_path, link_url, status, start_date, end_date, priority, created_at, updated_at
-        FROM notice
+        n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at, n.updated_at
+        FROM notice n
+        LEFT JOIN file f ON n.id = f.target_id AND f.target_type = 'NOTICE'
         WHERE status='Y' AND NOW() BETWEEN start_date AND end_date
         ORDER BY priority DESC, id DESC
     </select>

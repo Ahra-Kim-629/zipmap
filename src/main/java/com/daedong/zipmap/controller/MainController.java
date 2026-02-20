@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Notice;
+import com.daedong.zipmap.domain.NoticeDTO;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.service.AdminService;
@@ -23,7 +24,7 @@ public class MainController {
 
     @GetMapping("/")
     public String main(Model model) {
-        List<Notice> noticeList = adminService.getCurrentNoticeList();
+        List<NoticeDTO> noticeList = adminService.getCurrentNoticeList();
         List<PostDTO> postDTOList = postService.getMainpagePost();
         List<ReviewDTO> reviewDTOList = reviewService.getMainpageReview();
 
