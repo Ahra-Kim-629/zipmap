@@ -5,6 +5,7 @@ import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.NetworkUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +76,7 @@ public class UserController {
 
     @PostMapping("/users/find/password")
     public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr, HttpServletRequest request) {
-        String clientIp = getClientIp(request);
+        String clientIp = NetworkUtil.getClientIp(request);
         try {
             userService.passwordReset(loginId, name, email, clientIp);
             rttr.addFlashAttribute("success", "비밀번호 재설정 메일을 발송했습니다.");
@@ -103,7 +104,7 @@ public class UserController {
 
     @PostMapping("/users/reset-password")
     public String resetPassword(@RequestParam String token, String newPassword, RedirectAttributes rttr, HttpServletRequest request) {
-        String usedIp = getClientIp(request);
+        String usedIp = NetworkUtil.getClientIp(request);
         try {
             userService.confirmReset(token, newPassword, usedIp);
             rttr.addFlashAttribute("success", "비밀번호가 재설정되었습니다.");
@@ -196,32 +197,6 @@ public class UserController {
         }
     }
 
-    private String getClientIp(HttpServletRequest request) {
-        String clientIp = request.getHeader("X-Forwarded-For");
-
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("Proxy-Client-IP");
-        }
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getRemoteAddr();
-        }
-
-        if (clientIp != null && clientIp.contains(",")) {
-            clientIp = clientIp.split(",")[0].trim();
-        }
-
-        return clientIp;
-    }
-
     // --- [실거주 인증 기능 추가  ---
 
     /**
@@ -258,7 +233,7 @@ public class UserController {
 //
 //            // 2. UserService에 만든 파일 저장 로직을 실행.
 //            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-//            userService.registerCertification(user, file);
+//            reviewService.registerCertification(user, file);
 //
 //            // 3. 성공 메시지를 담아서 마이페이지로 보냄.
 //            rttr.addFlashAttribute("message", "실거주 인증 신청이 완료되었습니다. 관리자 승인을 기다려주세요.");

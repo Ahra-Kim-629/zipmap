@@ -9,6 +9,9 @@ import com.daedong.zipmap.mapper.ReplyMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -99,7 +102,8 @@ public class ReviewService {
         reviewMapper.deleteAttributeByReviewId(id);
         fileUtilService.deleteFilesByTargetTypeAndTargetId("REVIEW", id);
     }
-//
+
+    //
 //    // 내가 쓴 리뷰 조회
 //    public Page<ReviewDTO> findMyReviews(Long userId, Pageable pageable) {
 //        List<ReviewDTO> content = reviewMapper.findByUserId(userId, pageable);
@@ -114,10 +118,20 @@ public class ReviewService {
 //        return new PageImpl<>(content, pageable, total);
 //    }
 //
-//    @Cacheable(value = "mainReviewList")
-//    public List<ReviewDTO> getMainpageReview() {
-//        return reviewMapper.findOrderByCreatedAtDescLimit4();
-//    }
+    @Cacheable(value = "mainReviewList")
+    public List<ReviewDTO> getMainpageReview() {
+        List<ReviewDTO> reviewDTOList = reviewMapper.findOrderByCreatedAtDescLimit4();
+        for (ReviewDTO review : reviewDTOList) {
+            // HTML 태그 제거
+            String cleanText = Jsoup.clean(review.getContent(), Safelist.none());
+
+            // HTML 엔티티 (&lt, &gt) 를 실제 기호 (<, >)로 변환
+            cleanText = Jsoup.parse(cleanText).text();
+
+            review.setContent(cleanText);
+        }
+        return reviewDTOList;
+    }
 
     // [추가] 글 내용(HTML)만 업데이트하는 메서드
 //    public void updateContent(Long id, String content) {
