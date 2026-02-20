@@ -83,6 +83,7 @@
         <th>작성자 ID</th>
         <th>평점</th>
         <th>작성일</th>
+        <th>관리</th>
     </tr>
     </thead>
     <tbody>
@@ -102,7 +103,36 @@
         <td th:text="${review.loginId}"></td>
         <td th:text="${review.point}"></td>
         <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+        <td>
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                <form th:action="@{/admin/reviews/toggle-status}" method="post" style="margin: 0;">
+                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+
+                    <input type="hidden" name="id" th:value="${review.id}">
+
+                    <input type="hidden" name="status"
+                           th:value="${review.reviewStatus == 'ACTIVE' ? 'BANNED' : 'ACTIVE'}">
+
+                    <button type="submit" th:if="${review.reviewStatus == 'ACTIVE'}"
+                            class="btn btn-warning btn-toggle text-white">
+                        <i class="bi bi-eye-slash me-1"></i>숨기기
+                    </button>
+
+                    <button type="submit" th:if="${review.reviewStatus == 'BANNED'}"
+                            class="btn btn-secondary btn-toggle">
+                        <i class="bi bi-eye me-1"></i>노출하기
+                    </button>
+                </form>
+
+                <a th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
+                   onclick="return confirm('정말 영구 삭제하시겠습니까?');"
+                   style="color: white; background: #dc3545; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold;">
+                    삭제
+                </a>
+            </div>
+        </td>
     </tr>
+
     </tbody>
 </table>
 

@@ -3,9 +3,7 @@ package com.daedong.zipmap.service;
 import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.mapper.NoticeMapper;
-import com.daedong.zipmap.mapper.PostMapper;
-import com.daedong.zipmap.mapper.UserMapper;
+import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.domain.File;
-import com.daedong.zipmap.mapper.FileMapper;
+import java.util.List;
 
 import java.io.IOException;
 import java.util.List;
@@ -113,5 +111,28 @@ public class AdminService {
 
         String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
         postMapper.updatePostStatus(id, newStatus);
+    }
+
+    //review 관리자 접근을 위한 방법
+// 1. 기존 변수 선언 아래에 추가
+    private final ReviewMapper reviewMapper;
+
+    public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
+        // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.
+        return reviewMapper.countTotal(searchType, keyword, pros, cons);
+    }
+
+    // 2. 클래스 맨 아래에 삭제 메서드 추가
+    @Transactional
+    public void deleteReview(Long id) {
+        reviewMapper.deleteAttributeByReviewId(id); // 장단점 삭제
+        reviewMapper.deleteReplyByReviewId(id);     // 댓글 삭제
+        reviewMapper.deleteReactionByReviewId(id);  // 반응 삭제
+        reviewMapper.deleteReviewById(id);          // 최종 리뷰 삭제
+    }
+    @Transactional
+    public void toggleReviewStatus(Long id, String targetStatus) {
+        // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
+        reviewMapper.updateReviewStatusToBanned(id, targetStatus);
     }
 }

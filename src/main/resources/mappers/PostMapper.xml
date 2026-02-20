@@ -271,14 +271,14 @@
     </select>
 
     <!-- 내가 쓴 댓글 조회 -->
-    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain.PostReply">
-        SELECT r.id, r.post_id, r.user_id, r.content, r.created_at, r.updated_at, p.title as postTitle
-        FROM post_reply r
-        JOIN post p ON r.post_id = p.id
-        WHERE r.user_id = #{userId}
-        ORDER BY r.id DESC
-        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
-    </select>
+<!--    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain.PostReply">-->
+<!--        SELECT r.id, r.post_id, r.user_id, r.content, r.created_at, r.updated_at, p.title as postTitle-->
+<!--        FROM post_reply r-->
+<!--        JOIN post p ON r.post_id = p.id-->
+<!--        WHERE r.user_id = #{userId}-->
+<!--        ORDER BY r.id DESC-->
+<!--        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}-->
+<!--    </select>-->
 
     <select id="countRepliesByUserId" resultType="int">
         SELECT COUNT(*) FROM post_reply
