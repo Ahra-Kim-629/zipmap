@@ -81,7 +81,7 @@ public class StatsUtil {
     /**
      * 4. [Write-Back] Redis 데이터를 DB(MyBatis)로 정기 동기화
      */
-    @Scheduled(fixedDelay = 600000) // 10분마다 실행
+    @Scheduled(fixedDelay = 60000) // 10분마다 실행
     @Transactional
     public void syncRedisToDb() {
         // 1. Post 동기화

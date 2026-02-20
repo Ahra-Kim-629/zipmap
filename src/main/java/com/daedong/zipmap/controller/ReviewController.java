@@ -5,10 +5,11 @@ import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.CrimeStatsService;
+import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.service.ReactionService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,8 +86,10 @@ public class ReviewController {
     // 2. 리뷰 상세 조회
     // =====================================================================
     @GetMapping("/detail/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        ReviewDTO reviewDTO = reviewService.findById(id);
+    public String detail(@PathVariable Long id, Model model,
+                         @AuthenticationPrincipal UserDetails userDetails,
+                         HttpServletRequest request) {
+        ReviewDTO reviewDTO = reviewService.findById(id, request, userDetails);
 
         crimeStatsService.analyzeCrimeForReview(reviewDTO);
 
