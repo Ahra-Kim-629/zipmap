@@ -123,7 +123,8 @@
                 </div>
 
                 <!-- 범죄 현황 -->
-                <div class="crime-info-section mt-4" th:if="${reviewDTO.topCrimes != null and !#lists.isEmpty(reviewDTO.topCrimes)}">
+                <div class="crime-info-section mt-4"
+                     th:if="${reviewDTO.topCrimes != null and !#lists.isEmpty(reviewDTO.topCrimes)}">
 
                     <div th:if="${reviewDTO.safetyWarning != null and reviewDTO.safetyWarning != ''}"
                          style="background-color: #FFF5F5; border-left: 4px solid #FF8E8E; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
@@ -144,7 +145,8 @@
                                  style="font-size: 0.85rem; padding: 8px 0; border-bottom: 1px dashed #EEE;">
 
                 <span style="color: #666;">
-                    <span class="badge bg-secondary me-2" style="font-weight: 400; opacity: 0.8;" th:text="${stat.count} + '위'">1위</span>
+                    <span class="badge bg-secondary me-2" style="font-weight: 400; opacity: 0.8;"
+                          th:text="${stat.count} + '위'">1위</span>
                     <span th:text="${crime}" style="font-weight: 500;">범죄명</span>
                 </span>
 
@@ -154,7 +156,8 @@
                 </span>
                             </div>
                         </div>
-                        <p class="mt-2 mb-0" style="font-size: 0.75rem; color: #BBB;">* 해당 통계는 2024년 인근 경찰서 데이터 기준입니다.</p>
+                        <p class="mt-2 mb-0" style="font-size: 0.75rem; color: #BBB;">* 해당 통계는 2024년 인근 경찰서 데이터
+                            기준입니다.</p>
                     </div>
                 </div>
 
