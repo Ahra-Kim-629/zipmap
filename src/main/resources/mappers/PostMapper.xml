@@ -250,25 +250,25 @@
         WHERE p.id = #{postId}
     </update>
 
-    <select id="findReaction" resultType="Integer">
-        SELECT type
-        FROM post_reaction
-        WHERE post_id = #{postId} AND user_id = #{userId}
-    </select>
+<!--    <select id="findReaction" resultType="Integer">-->
+<!--        SELECT type-->
+<!--        FROM post_reaction-->
+<!--        WHERE post_id = #{postId} AND user_id = #{userId}-->
+<!--    </select>-->
 
 
     <!-- 내가 쓴 글 조회 -->
-    <select id="findByUserId" resultType="com.daedong.zipmap.domain.Post">
-        SELECT * FROM post
-        WHERE user_id = #{userId}
-        ORDER BY id DESC
-        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
-    </select>
+<!--    <select id="findByUserId" resultType="com.daedong.zipmap.domain.Post">-->
+<!--        SELECT * FROM post-->
+<!--        WHERE user_id = #{userId}-->
+<!--        ORDER BY id DESC-->
+<!--        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}-->
+<!--    </select>-->
 
-    <select id="countByUserId" resultType="int">
-        SELECT COUNT(*) FROM post
-        WHERE user_id = #{userId}
-    </select>
+<!--    <select id="countByUserId" resultType="int">-->
+<!--        SELECT COUNT(*) FROM post-->
+<!--        WHERE user_id = #{userId}-->
+<!--    </select>-->
 
     <!-- 내가 쓴 댓글 조회 -->
 <!--    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain.PostReply">-->

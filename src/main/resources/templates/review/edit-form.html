@@ -72,10 +72,12 @@
                                 <input type="text" class="form-control rounded-3 py-2" id="title" name="title"
                                        th:value="${reviewDTO.title}" required>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-8" style="position:relative;">
                                 <label for="address" class="form-label small fw-bold text-muted">주소</label>
                                 <input type="text" class="form-control rounded-3 py-2" id="address" name="address"
                                        th:value="${reviewDTO.address}" required>
+                                <ul id="addressList" style="display:none; position:absolute; width: calc(100% - 24px); background:white; border:1px solid #ccc; list-style:none; padding:0; margin:0; z-index:100; top: 100%;">
+                                </ul>
                             </div>
                             <div class="col-md-4">
                                 <label for="point" class="form-label small fw-bold text-muted">종합 평점</label>
@@ -131,6 +133,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
+
     <script th:inline="javascript">
         $(document).ready(function() {
             $('#content').summernote({
@@ -205,6 +209,41 @@
                 }
             });
         }
+
+        // 1. 카카오 주소 검색 서비스(Geocoder) 객체를 생성합니다.
+ var geocoder = new kakao.maps.services.Geocoder();
+
+ $('#address').on('keyup', function() {
+     var query = $(this).val();
+
+     if (query.length > 1) {
+         // 2. 주소로 검색을 요청합니다.
+         geocoder.addressSearch(query, function(result, status) {
+
+             // 3. 검색이 성공적으로 끝났다면(OK)
+             if (status === kakao.maps.services.Status.OK) {
+                 let $list = $('#addressList');
+                 $list.empty().show();
+
+                 // 4. 결과값(result)을 반복문 돌려서 리스트로 만듭니다.
+                 result.forEach(function(item) {
+                     let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
+                              .text(item.address_name)
+                              .on('click', function() {
+                                  $('#address').val(item.address_name);
+                                  $list.hide();
+
+                                  // (옵션) 선택한 곳의 위도(y), 경도(x)를 확인해볼 수 있어요!
+                                  console.log("위도:", item.y, "경도:", item.x);
+                              });
+                     $list.append(li);
+                 });
+             }
+         });
+     } else {
+         $('#addressList').hide();
+     }
+ });
     </script>
 </div>
 </html>
