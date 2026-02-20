@@ -88,8 +88,6 @@ public class ReviewController {
     public String detail(@PathVariable Long id, Model model) {
         ReviewDTO reviewDTO = reviewService.findById(id);
 
-        crimeStatsService.analyzeCrimeForReview(reviewDTO);
-
         model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";

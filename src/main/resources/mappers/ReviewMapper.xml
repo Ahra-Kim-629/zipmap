@@ -301,26 +301,6 @@
         WHERE id = #{id}
     </update>
 
-    <!-- 실거주 인증 -->
-    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
-            useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO certification (
-        user_id, review_id, certification_status, created_at
-        ) VALUES (
-        #{userId}, #{reviewId}, 'PENDING', NOW()
-        )
-    </insert>
-
-    <update id="updateReviewStatusToBanned">
-        UPDATE review
-        SET review_status = #{status}
-        WHERE id = #{reviewId}
-    </update>
-
-    <update id="updateReviewStatusToBanned">
-        UPDATE review SET review_status = #{status} WHERE id = #{reviewId}
-    </update>
-
     <select id="adminFindAll" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="map">
         SELECT
         r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.like_count,
@@ -350,4 +330,19 @@
         </where>
     </select>
 
+    <!-- 실거주 인증 -->
+    <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certification (
+        user_id, review_id, certification_status, created_at
+        ) VALUES (
+        #{userId}, #{reviewId}, 'PENDING', NOW()
+        )
+    </insert>
+
+    <update id="updateReviewStatusToBanned">
+        UPDATE review
+        SET review_status = #{status}
+        WHERE id = #{reviewId}
+    </update>
 </mapper>
