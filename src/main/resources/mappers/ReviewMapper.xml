@@ -73,17 +73,29 @@
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
                 <if test="pros != null and pros.size() > 0">
-                    <foreach collection="pros" item="p" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{p}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute pa
+                    WHERE pa.review_id = r.id AND pa.type = 'PRO'
+                    AND pa.content IN
+                    <foreach collection="pros" item="p" open="(" separator="," close=")">
+                        #{p}
                     </foreach>
+                    )
                 </if>
+
+                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                    OR
+                </if>
+
                 <if test="cons != null and cons.size() > 0">
-                    <if test="pros != null and pros.size() > 0">
-                        OR
-                    </if>
-                    <foreach collection="cons" item="c" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{c}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute ca
+                    WHERE ca.review_id = r.id AND ca.type = 'CON'
+                    AND ca.content IN
+                    <foreach collection="cons" item="c" open="(" separator="," close=")">
+                        #{c}
                     </foreach>
+                    )
                 </if>
                 )
             </if>
@@ -112,17 +124,29 @@
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
                 <if test="pros != null and pros.size() > 0">
-                    <foreach collection="pros" item="p" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{p}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute pa
+                    WHERE pa.review_id = r.id AND pa.type = 'PRO'
+                    AND pa.content IN
+                    <foreach collection="pros" item="p" open="(" separator="," close=")">
+                        #{p}
                     </foreach>
+                    )
                 </if>
+
+                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                    OR
+                </if>
+
                 <if test="cons != null and cons.size() > 0">
-                    <if test="pros != null and pros.size() > 0">
-                        OR
-                    </if>
-                    <foreach collection="cons" item="c" open="(" separator=" OR " close=")">
-                        LOWER(r.content) LIKE CONCAT('%', LOWER(#{c}), '%')
+                    EXISTS (
+                    SELECT 1 FROM review_attribute ca
+                    WHERE ca.review_id = r.id AND ca.type = 'CON'
+                    AND ca.content IN
+                    <foreach collection="cons" item="c" open="(" separator="," close=")">
+                        #{c}
                     </foreach>
+                    )
                 </if>
                 )
             </if>

@@ -143,7 +143,7 @@
                         </td>
                         <td>
                             <span class="badge bg-light text-dark fw-normal rounded-pill px-3"
-                                  th:text="${review.address != null && review.address.contains('구 ') ? review.address.split(' ')[1] : '서울'}"></span>
+                                  th:text="${review.address != null and review.address.split(' ').length > 1 ? review.address.split(' ')[1] : review.address}"></span>
                         </td>
                         <td>
                             <span class="text-warning fw-bold" th:text="'★ ' + ${review.point}"></span>
