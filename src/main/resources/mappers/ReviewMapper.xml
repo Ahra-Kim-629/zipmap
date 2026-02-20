@@ -352,4 +352,14 @@
         </where>
     </select>
 
+    <update id="updateReviewStatsBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE post
+            SET
+            like_count = like_count + #{item.likeCount},
+            view_count = view_count + #{item.viewCount}
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+
 </mapper>

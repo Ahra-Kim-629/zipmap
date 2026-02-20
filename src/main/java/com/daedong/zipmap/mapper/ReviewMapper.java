@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Certification;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.StatsUpdateDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -62,4 +63,6 @@ public interface ReviewMapper {
 
     int adminCountTotal(@Param("searchType") String searchType,
                         @Param("keyword") String keyword);
+
+    void updateReviewStatsBatch(List<StatsUpdateDTO> updateList);
 }

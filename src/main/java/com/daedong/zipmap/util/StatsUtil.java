@@ -1,7 +1,8 @@
-package com.daedong.zipmap.service;
+package com.daedong.zipmap.util;
 
-import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.StatsUpdateDTO;
 import com.daedong.zipmap.mapper.PostMapper;
+import com.daedong.zipmap.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,21 +18,25 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostStatsService {
+public class StatsUtil {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final PostMapper postMapper; // MyBatis Mapper
+    private final PostMapper postMapper;
+    private final ReviewMapper reviewMapper;
 
     // Redis Key 설계
-    private static final String KEY_STATS = "post:stats:";      // Hash: post:stats:{id} -> {viewCount, likeCount}
+    private String getStatsKey(String domain, Long id) {
+        return "stats:" + domain + ":" + id;
+    } // Hash: stats:domain:id -> {viewCount, likeCount}
+
     private static final String KEY_RANKING = "post:ranking";   // Sorted Set: post:ranking -> {postId, score}
 
     /**
      * 1. 조회수 증가 (사용자 액션 시 호출)
      */
-    public void updateViewCount(Long postId, String identifier) {
+    public void updateViewCount(String domain, Long id, String identifier) {
         // 새로고침으로 조회수 폭발 방지 로직 : identifier 는 ip or userId
-        String viewLimitKey = "post:view:limit:" + postId + ":" + identifier;
+        String viewLimitKey = "view:limit:" + domain + ":" + id + ":" + identifier;
 
         // 6시간 동안 키가 유지되도록 설정
         Boolean isFirstView = redisTemplate.opsForValue().setIfAbsent(viewLimitKey, "v", 6, TimeUnit.HOURS);
@@ -41,20 +46,25 @@ public class PostStatsService {
         }
 
         // Redis Hash에 카운트 누적
-        redisTemplate.opsForHash().increment(KEY_STATS + postId, "viewCount", 1);
-        redisTemplate.opsForZSet().incrementScore(KEY_RANKING, postId.toString(), 1);
+        redisTemplate.opsForHash().increment("stats:" + domain + ":" + id, "viewCount", 1);
+
+        if (domain.equals("post")) {
+            redisTemplate.opsForZSet().incrementScore(KEY_RANKING, id.toString(), 1);
+        }
     }
 
     /**
      * 2. 추천수 증감 (사용자 액션 시 호출)
      */
-    public void updateReactionCount(Long postId, int delta) {
+    public void updateReactionCount(String domain, Long id, int delta) {
         // Redis Hash에 카운트 누적
-        redisTemplate.opsForHash().increment(KEY_STATS + postId, "likeCount", delta);
+        redisTemplate.opsForHash().increment("stats:" + domain + ":" + id, "likeCount", delta);
 
-        // Redis Sorted Set에 실시간 점수 반영 (메인페이지 노출용)
-        double weight = 10.0 * delta;
-        redisTemplate.opsForZSet().incrementScore(KEY_RANKING, postId.toString(), weight);
+        if (domain.equals("post")) {
+            // Redis Sorted Set에 실시간 점수 반영 (메인페이지 노출용)
+            double weight = 10.0 * delta;
+            redisTemplate.opsForZSet().incrementScore(KEY_RANKING, id.toString(), weight);
+        }
     }
 
     /**
@@ -78,36 +88,42 @@ public class PostStatsService {
     @Scheduled(fixedDelay = 600000) // 10분마다 실행
     @Transactional
     public void syncRedisToDb() {
-        // "post:stats:*" 패턴의 모든 키 조회
-        Set<String> keys = redisTemplate.keys(KEY_STATS + "*");
+        // 1. Post 동기화
+        syncDomainStats("post");
+        // 2. Review 동기화
+        syncDomainStats("review");
+    }
+
+    private void syncDomainStats(String domain) {
+        // "stats:domain:*" 패턴의 모든 키 조회
+        Set<String> keys = redisTemplate.keys("stats:" + domain + ":*");
         if (keys == null || keys.isEmpty()) {
             return;
         }
 
-        List<Post> updateList = new ArrayList<>();
+        List<StatsUpdateDTO> updateList = new ArrayList<>();
 
         for (String key : keys) {
-            long id = Long.parseLong(key.replace(KEY_STATS, ""));
+            long id = Long.parseLong(key.split(":")[2]);
 
             // Hash 데이터 읽기 (null 처리를 위해 NumberUtils 또는 기본값 활용)
             Object likeObj = redisTemplate.opsForHash().get(key, "likeCount");
             Object viewObj = redisTemplate.opsForHash().get(key, "viewCount");
 
-            int likeCount = (likeObj != null) ? Integer.parseInt(likeObj.toString()) : 0;
-            int viewCount = (viewObj != null) ? Integer.parseInt(viewObj.toString()) : 0;
+            long likeCount = (likeObj != null) ? Integer.parseInt(likeObj.toString()) : 0;
+            long viewCount = (viewObj != null) ? Integer.parseInt(viewObj.toString()) : 0;
 
-            Post post = new Post();
-            post.setId(id);
-            post.setLikeCount(likeCount);
-            post.setViewCount(viewCount);
-            updateList.add(post);
-
+            updateList.add(new StatsUpdateDTO(id, likeCount, viewCount));
             // DB 반영 준비가 끝난 데이터는 Redis에서 삭제 (중복 반영 방지)
             redisTemplate.delete(key);
         }
 
         // MyBatis 벌크 업데이트 실행
-        postMapper.updatePostStatsBatch(updateList);
+        if (domain.equals("post")) {
+            postMapper.updatePostStatsBatch(updateList);
+        } else if (domain.equals("review")) {
+            reviewMapper.updateReviewStatsBatch(updateList);
+        }
     }
 
     /**

@@ -8,7 +8,7 @@ import com.daedong.zipmap.service.CrimeStatsService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.util.ReactionService;
+import com.daedong.zipmap.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -260,7 +260,8 @@ public class ReviewController {
 
     // 좋아요
     @PostMapping("/reaction")
-    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type, @AuthenticationPrincipal User user) {
+    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type,
+                       @AuthenticationPrincipal User user) {
         Reaction reaction = new Reaction();
         reaction.setTargetType("review");
         reaction.setTargetId(targetId);

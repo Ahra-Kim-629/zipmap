@@ -4,7 +4,7 @@ import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.util.ReactionService;
+import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.util.RepliesService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
