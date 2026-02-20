@@ -222,55 +222,6 @@ public class UserController {
         return clientIp;
     }
 
-    // --- [실거주 인증 기능 추가  ---
-
-    /**
-     * 실거주 인증 신청 페이지로 이동.
-     *
-     * @return 인증 신청 폼 HTML 경로
-     */
-    @GetMapping("/users/certification")
-    public String certificationForm(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
-        try {
-            User user = userService.findByLoginId(userDetails.getUsername());
-            model.addAttribute("user", user);
-            return "/users/certification";
-        } catch (Exception e) {
-            return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로
-        }
-    }
-
-//    /**
-//     * 사용자가 업로드한 임대차계약서 파일을 처리.
-//     * @param file 사용자가 선택한 파일 (MultipartFile)
-//     * @param userDetails 현재 로그인한 유저 정보 (Spring Security)
-//     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
-//     * @return 처리가 완료된 후 이동할 주소
-//     */
-//    @PostMapping("/users/certification")
-//    public String submitCertification(@RequestParam("contractFile") org.springframework.web.multipart.MultipartFile file,
-//                                      @AuthenticationPrincipal UserDetails userDetails,
-//                                      RedirectAttributes rttr) {
-//        try {
-//            // 1. 현재 로그인한 유저의 정보를 가져옴. (userDetails 기반)
-//            User user = userService.findByLoginId(userDetails.getUsername());
-//
-//            // 2. UserService에 만든 파일 저장 로직을 실행.
-//            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-//            userService.registerCertification(user, file);
-//
-//            // 3. 성공 메시지를 담아서 마이페이지로 보냄.
-//            rttr.addFlashAttribute("message", "실거주 인증 신청이 완료되었습니다. 관리자 승인을 기다려주세요.");
-//            return "redirect:/users/mypage";
-//
-//        } catch (Exception e) {
-//            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
-//            e.printStackTrace();
-//            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
-//            return "redirect:/users/certification";
-//        }
-//    }
 
 //    @GetMapping("/users/articles")
 //    public String articles(@AuthenticationPrincipal UserDetails userDetails,

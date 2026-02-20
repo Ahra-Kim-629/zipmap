@@ -288,17 +288,16 @@
     <insert id="insertCertification" parameterType="com.daedong.zipmap.domain.Certification"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO certification (
-        user_id, status, created_at
+        user_id, review_id, certification_status, created_at
         ) VALUES (
-        #{userId}, 'PENDING', NOW()
+        #{userId}, #{reviewId}, 'PENDING', NOW()
         )
     </insert>
 
-    <update id="updateCertificationPath">
-        UPDATE certification
-        SET original_name = #{originalName},
-        stored_path = #{storedPath}
-        WHERE id = #{id}
+    <update id="updateReviewStatusToBanned">
+        UPDATE review
+        SET review_status = #{status}
+        WHERE id = #{reviewId}
     </update>
 
 </mapper>
