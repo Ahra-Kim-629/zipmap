@@ -1,5 +1,6 @@
 package com.daedong.zipmap.controller;
 
+import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
@@ -13,8 +14,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -35,17 +38,17 @@ public class AdminController {
         return "/admin/notice-form";
     }
 
-//    @PostMapping("/notice")
-//    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
-//        try {
-//            adminService.insertNotice(notice, imageFile);
-//            rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
-//        } catch (IOException e) {
-//            rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
-//        }
-//
-//        return "redirect:/admin";
-//    }
+    @PostMapping("/notice")
+    public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
+        try {
+            adminService.insertNotice(notice, imageFile);
+            rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
+        } catch (IOException e) {
+            rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/admin";
+    }
 
     // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성
     @GetMapping("/members")
@@ -116,6 +119,7 @@ public class AdminController {
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
+
     // 1. 기존 리스트 메서드들 아래에 추가
     @GetMapping("/reviews")
     public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -138,6 +142,7 @@ public class AdminController {
         rttr.addFlashAttribute("message", "리뷰가 삭제되었습니다.");
         return "redirect:/admin/reviews";
     }
+
     @PostMapping("/reviews/toggle-status")
     public String toggleReviewStatus(@RequestParam("id") Long id,
                                      @RequestParam("status") String status,

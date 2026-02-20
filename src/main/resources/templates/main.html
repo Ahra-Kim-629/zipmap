@@ -40,7 +40,7 @@
                                      th:classappend="${stat.first} ? 'active'"
                                      class="carousel-item">
                                     <a th:href="${notice.linkUrl}" target="_blank">
-                                        <img th:src="@{/files/notice/{name}(name=${notice.imagePath})}"
+                                        <img th:src="@{/files/{name}(name=${notice.filePath})}"
                                              class="d-block w-100" th:alt="${notice.title}">
                                     </a>
                                     <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 py-1">
@@ -148,7 +148,7 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <a class="btn btn-dark btn-lg fw-bold shadow-sm py-3" th:href="@{/board/write}">
+                    <a class="btn btn-dark btn-lg fw-bold shadow-sm py-3" th:href="@{/post/write}">
                         <i class="bi bi-pencil-square me-2"></i>글쓰기
                     </a>
                 </div>
