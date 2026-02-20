@@ -81,7 +81,7 @@ public class StatsUtil {
     /**
      * 4. [Write-Back] Redis 데이터를 DB(MyBatis)로 정기 동기화
      */
-    @Scheduled(fixedDelay = 60000) // 10분마다 실행
+    @Scheduled(fixedDelay = 600000) // 10분마다 실행
     @Transactional
     public void syncRedisToDb() {
         // 1. Post 동기화
@@ -107,8 +107,8 @@ public class StatsUtil {
             Object likeObj = redisTemplate.opsForHash().get(key, "likeCount");
             Object viewObj = redisTemplate.opsForHash().get(key, "viewCount");
 
-            long likeCount = (likeObj != null) ? Integer.parseInt(likeObj.toString()) : 0;
-            long viewCount = (viewObj != null) ? Integer.parseInt(viewObj.toString()) : 0;
+            long likeCount = (likeObj != null) ? Long.parseLong(likeObj.toString()) : 0;
+            long viewCount = (viewObj != null) ? Long.parseLong(viewObj.toString()) : 0;
 
             updateList.add(new StatsUpdateDTO(id, likeCount, viewCount));
             // DB 반영 준비가 끝난 데이터는 Redis에서 삭제 (중복 반영 방지)

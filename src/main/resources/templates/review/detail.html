@@ -225,7 +225,7 @@
                                     </button>
                                 </div>
                             </form>
-                    </div>
+                        </div>
                     </div>
 
 
@@ -251,4 +251,9 @@
         </div>
     </div>
 </div>
+
+<script layout:fragment="script">
+    function showEditForm(id) { document.getElementById('editForm-' + id).style.display = 'block'; }
+    function hideEditForm(id) { document.getElementById('editForm-' + id).style.display = 'none'; }
+</script>
 </html>

@@ -354,7 +354,7 @@
 
     <update id="updateReviewStatsBatch" parameterType="java.util.List">
         <foreach collection="list" item="item" separator=";">
-            UPDATE post
+            UPDATE review
             SET
             like_count = like_count + #{item.likeCount},
             view_count = view_count + #{item.viewCount}
