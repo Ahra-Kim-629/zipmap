@@ -32,4 +32,6 @@ public class ReviewDTO {
     private List<Integer> crimeCounts; // TOP 3 범죄 건수
     private String safetyWarning; // "이 구는 서울 내 절도 1위 지역입니다" 같은 안내 문구
     private List<Map<String, Object>> topCrimeList;
+
+    private String prosStr;
 }
