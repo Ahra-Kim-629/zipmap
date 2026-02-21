@@ -145,12 +145,14 @@
                                placeholder="example@seoulroom.com" required>
                     </div>
 
-                    <div class="col-12 mb-3">
-                        <label for="address" class="form-label">주소</label>
+                    <div class="col-12 mb-3" style="position:relative;"><label for="address" class="form-label">주소</label>
                         <div class="input-group">
                             <input type="text" id="address" name="address" class="form-control"
-                                   placeholder="거주하시는 지역(구, 동)을 입력하세요" required>
+                                   placeholder="거주하시는 지역(구, 동)을 입력하세요" required autocomplete="off">
                         </div>
+
+                        <ul id="addressList" style="display:none; position:absolute; width: calc(100% - 24px); background:white; border:1px solid #ccc; list-style:none; padding:0; margin:0; z-index:100; top: 100%;">
+                        </ul>
                     </div>
                 </div>
 
@@ -183,5 +185,42 @@
             </div>
         </div>
     </div>
+
+    <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
+
+    <script th:inline="javascript">
+        // 카카오 주소 검색 서비스(Geocoder) 객체를 생성
+ var geocoder = new kakao.maps.services.Geocoder();
+
+ $('#address').on('keyup', function() {
+     var query = $(this).val();
+
+     if (query.length > 1) {
+         // 주소로 검색을 요청
+         geocoder.addressSearch(query, function(result, status) {
+
+             // 검색 성공 시(OK)
+             if (status === kakao.maps.services.Status.OK) {
+                 let $list = $('#addressList');
+                 $list.empty().show();
+
+                 // 결과값(result) 리스트 생성
+                 result.forEach(function(item) {
+                     let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
+                              .text(item.address_name)
+                              .on('click', function() {
+                                  $('#address').val(item.address_name);
+                                  $list.hide();
+
+                              });
+                     $list.append(li);
+                 });
+             }
+         });
+     } else {
+         $('#addressList').hide();
+     }
+ });
+    </script>
 </div>
 </html>
