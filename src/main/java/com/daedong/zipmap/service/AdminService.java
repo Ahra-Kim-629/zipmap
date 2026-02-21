@@ -5,6 +5,8 @@ import com.daedong.zipmap.mapper.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ public class AdminService {
     private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
     private final PostMapper postMapper;
-
+    private final ReviewMapper reviewMapper;
 
     private final FileUtilService fileUtilService;
     private final FileMapper fileMapper;
@@ -51,6 +53,7 @@ public class AdminService {
 
             // (1) 실제 폴더(c:/upload/notice)에 파일 저장
             String filePath = fileUtilService.saveFile(imageFile, "notice");
+            String storedPath = fileUtilService.saveFile(imageFile, "notice");
 
             // (2) ★ [핵심] 공통 파일 테이블(file_attachment)에 정보 저장!
             com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
@@ -58,9 +61,11 @@ public class AdminService {
             file.setTargetId(notice.getId());    // 방금 만든 공지사항 ID
             file.setFilePath(filePath);          // notice/uuid_파일명.jpg
             file.setFileSize(imageFile.getSize());
+            notice.setImagePath(storedPath);
 
             fileMapper.insertFile(file);
         }
+        noticeMapper.insertNotice(notice);
     }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정
@@ -111,8 +116,6 @@ public class AdminService {
     }
 
     //review 관리자 접근을 위한 방법
-// 1. 기존 변수 선언 아래에 추가
-    private final ReviewMapper reviewMapper;
 
     public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
         // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.
@@ -132,4 +135,18 @@ public class AdminService {
         // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
         reviewMapper.updateReviewStatusToBanned(id, targetStatus);
     }
+    @Transactional
+    public Page<ReviewDTO> getPendingCertifications(Pageable pageable) {
+        // XML 쿼리를 호출해서 리스트를 가져옵니다.
+        List<ReviewDTO> content = reviewMapper.findBannedReviews(
+                pageable.getPageSize(),
+                (int) pageable.getOffset()
+        );
+
+// XML의 id="countBannedReviews" 호출
+        int total = reviewMapper.countBannedReviews();
+
+        return new PageImpl<>(content, pageable, total);
+    }
 }
+

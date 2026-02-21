@@ -5,12 +5,16 @@ import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.AdminService;
+import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,9 @@ public class AdminController {
     private final AdminService adminService;
     private final UserService userService;
     private final ReviewService reviewService;
+    private final FileUtilService fileUtilService;
+    private final PostService postService;
+
 
     @GetMapping
     public String adminMain() {
@@ -158,5 +165,54 @@ public class AdminController {
         // 처리가 끝나면 다시 리뷰 목록 페이지로 새로고침(리다이렉트)
         return "redirect:/admin/reviews";
     }
+    @GetMapping("/postnotice")
+    public String postNoticeForm() {
+        // templates/admin/postnotice.html 로 이동 (파일 위치 확인하세요!)
+        return "admin/postnotice";
+    }
 
+    @PostMapping("/postnotice")
+    public String writePostNotice(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
+        try {
+            // 1. 작성자를 관리자 ID로 설정
+            post.setUserId(user.getId());
+
+            // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
+            // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.
+            post.setCategory("NOTICE");
+
+            // ★ 2. 핵심 해결책: 비어있는 location에 기본값 넣어주기
+            // DB 테이블 설정에 따라 'ALL' 또는 '서울' 등 적절한 값을 넣어주세요.
+            if (post.getLocation() == null || post.getLocation().isEmpty()) {
+                post.setLocation("ALL");
+            }
+
+            // 3. 게시글 저장
+            Long savedId = postService.write(post);
+
+            // 4. 써머노트 이미지 처리 (기존 로직 활용)
+            if (post.getContent() != null && post.getContent().contains("src=")) {
+                String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
+                postService.updateContent(savedId, newContent);
+            }
+
+            rttr.addFlashAttribute("message", "커뮤니티 공지사항이 등록되었습니다.");
+            return "redirect:/admin";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "등록 실패: " + e.getMessage());
+            return "redirect:/admin/postnotice";
+        }
+    }
+// 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
+@GetMapping("/reviewcertification")
+public String reviewCertificationList(Model model,
+                                      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+    // AdminService를 통해 BANNED 리뷰만 가져옴
+    Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
+
+    model.addAttribute("reviews", reviews);
+    return "/admin/reviewcertification";
 }
+}
+

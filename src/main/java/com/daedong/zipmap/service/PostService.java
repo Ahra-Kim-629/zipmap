@@ -1,5 +1,6 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.mapper.PostMapper;
@@ -128,4 +129,9 @@ public class PostService {
 
         return postMapper.findAllByIdList(topPostIdList);
     }
+//    @Cacheable(value = "mainPostList")
+//    public List<PostDTO> getMainpagePost() {
+//        return postMapper.findMainpagePost();
+//    }
+
 }

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        .write-container { padding: 60px 0; background-color: #fdfcf9; }
+        .write-card { background: #fff; padding: 40px; border-radius: 20px; border: none; }
+        .write-title {  font-weight: 800; color: #3E362E; }
+
+        .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
+        .section-label { font-weight: 700; color: #3E362E; margin-bottom: 15px; display: block; font-size: 1.1rem; }
+
+        /* Summernote 커스텀 (모달 레이아웃 보정 포함) */
+        .note-editor.note-frame { border: 1px solid #eee !important; border-radius: 12px !important; overflow: hidden; }
+        .note-toolbar { background-color: #f8f9fa !important; border-bottom: 1px solid #eee !important; }
+        .note-modal { z-index: 10050 !important; }
+        .note-modal-backdrop { display: none !important; }
+        .note-modal-content { margin-top: 100px !important; border-radius: 15px !important; border: none !important; box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important; overflow: hidden; }
+        .note-modal-footer { height: auto !important; padding: 15px 20px !important; display: flex !important; justify-content: center; gap: 10px; }
+        .note-modal-footer .btn { padding: 8px 25px !important; border-radius: 50px !important; font-weight: bold !important; }
+        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; }
+
+        /* 전체화면 보정 */
+        .note-editor.note-frame.fullscreen { z-index: 9999 !important; background-color: white !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="write-container">
+        <div class="container">
+            <div class="write-card daedong-shadow">
+                <div class="text-center mb-5">
+                    <h2 class="write-title mb-2">커뮤니티 공지사항</h2>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger rounded-3 small py-2 mb-3" th:text="${error}"></div>
+                <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3"
+                     th:text="${message}"></div>
+
+                <form th:action="@{/admin/postnotice}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="form-section">
+                        <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>커뮤니티 공지사항 작성</span>
+                        <div class="mb-4">
+                            <label for="title" class="form-label small fw-bold text-muted">제목</label>
+                            <input type="text" id="title" name="title" class="form-control rounded-3 py-2"
+                                   placeholder="제목을 입력하세요" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">내용</label>
+                            <textarea id="content" name="content" required></textarea>
+                        </div>
+                        <div>
+                            <input type="file" id="file" name="file" class="form-control rounded-3">
+                            <label for="file" class="form-label small fw-bold text-muted">첨부파일</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center mt-5">
+                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기
+                        </button>
+                        <a th:href="@{/post-notice}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        $('#content').summernote({
+            height: 400,
+            lang: 'ko-KR',
+            placeholder: '공지사항을 입력해주세요.',
+            dialogsInBody: true,
+            dialogsFade: false,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link', 'picture', 'hr']],
+                ['view', ['fullscreen', 'codeview']]
+            ],
+            callbacks: {
+                onImageUpload: function(files) {
+                    for (let i = 0; i < files.length; i++) { uploadSummernoteImage(files[i], this); }
+                }
+            },
+            // 2. 이미지 삭제 시
+            onMediaDelete: function(target) {
+                deleteSummernoteImage(target[0].src);
+            }
+        });
+    });
+
+
+// [이미지 업로드]
+function uploadSummernoteImage(file, editor) {
+    let data = new FormData();
+    data.append("file", file);
+
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+        $.ajax({
+            url: "/post/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                $(editor).summernote('insertImage', response.url);
+            }
+        });
+    }
+
+// [이미지 삭제]
+function deleteSummernoteImage(src) {
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            data: {src: src},
+            type: "POST",
+            url: "/post/deleteSummernoteImage", // ★ 주소 변경됨
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            }
+        });
+    }
+</script>
+</html>

@@ -103,32 +103,36 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="post : ${posts}">
-                        <td class="text-muted small" th:text="${post.id}"></td>
-                        <td class="text-start ps-4">
-                            <span th:if="${post.category == 'GROUP'}"
-                                  class="badge badge-group rounded-pill me-1">공구</span>
-                            <span th:if="${post.category == 'SHARE'}"
-                                  class="badge badge-share rounded-pill me-1">나눔</span>
-                            <span th:if="${post.category == 'FREE'}"
-                                  class="badge badge-free rounded-pill me-1">자유</span>
+                    <tr th:each="post : ${posts}" th:style="${post.category == 'NOTICE'} ? 'background-color: #fff9f5;' : ''">
 
-                            <a th:href="@{/post/detail/{id}(id=${post.id})}" class="post-link"
-                               th:text="${post.title}"></a>
+                        <td class="text-center">
+                            <span th:if="${post.category == 'NOTICE'}" class="badge bg-danger rounded-pill">공지</span>
+                            <span th:unless="${post.category == 'NOTICE'}" class="text-muted small" th:text="${post.id}"></span>
                         </td>
+
+                        <td class="text-start ps-4">
+                            <span th:if="${post.category == 'GROUP'}" class="badge badge-group rounded-pill me-1">공구</span>
+                            <span th:if="${post.category == 'SHARE'}" class="badge badge-share rounded-pill me-1">나눔</span>
+                            <span th:if="${post.category == 'FREE'}" class="badge badge-free rounded-pill me-1">자유</span>
+
+                            <a th:href="@{/post/detail/{id}(id=${post.id})}"
+                               class="post-link"
+                               th:classappend="${post.category == 'NOTICE'} ? 'fw-bold' : ''"
+                               th:text="${post.title}">게시글 제목</a>
+                        </td>
+
                         <td>
                             <span class="small" th:text="${post.loginId}">작성자</span>
                         </td>
+
                         <td class="text-muted small" th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd')}"></td>
-                        <td>
-                            <span class="like-count" th:text="${post.likeCount}">0</span>
-                        </td>
-                        <td>
-                            <span class="like-count" th:text="${post.dislikeCount}">0</span>
-                        </td>
+
+                        <td><span class="like-count" th:text="${post.likeCount}">0</span></td>
+                        <td><span class="like-count" th:text="${post.dislikeCount}">0</span></td>
                     </tr>
+
                     <tr th:if="${posts.empty}">
-                        <td colspan="5" class="py-5 text-muted">등록된 게시글이 없습니다.</td>
+                        <td colspan="6" class="py-5 text-muted text-center">등록된 게시글이 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>

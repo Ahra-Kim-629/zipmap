@@ -63,5 +63,7 @@ public interface ReviewMapper {
     int adminCountTotal(@Param("searchType") String searchType,
                         @Param("keyword") String keyword);
 
-
+    // admin 에서 BANNED된 리뷰 목록 볼수 있도록 추가
+    List<ReviewDTO> findBannedReviews(@Param("pageSize") int pageSize, @Param("offset") int offset);
+    int countBannedReviews();
 }
