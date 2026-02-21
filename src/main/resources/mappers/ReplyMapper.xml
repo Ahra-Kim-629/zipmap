@@ -15,37 +15,68 @@
 
     <!-- 댓글 작성 -->
     <insert id="insertReply" parameterType="com.daedong.zipmap.domain.Reply">
-            INSERT INTO reply
-            (target_type, target_id, user_id, content)
-            VALUES
-            (#{targetType}, #{targetId}, #{userId}, #{content})
+        INSERT INTO reply
+        (target_type, target_id, user_id, content)
+        VALUES
+        (#{targetType}, #{targetId}, #{userId}, #{content})
     </insert>
 
     <!-- 댓글 수정 -->
     <update id="updateReply" parameterType="com.daedong.zipmap.domain.Reply">
         UPDATE reply
         SET content = #{content},
-            updated_at = NOW()
+        updated_at = NOW()
         WHERE id = #{id}
     </update>
 
     <!-- 댓글 삭제 -->
+    <delete id="deleteByTargetTypeAndTargetId" parameterType="map">
+        DELETE FROM reply
+        WHERE target_type = #{targetType} AND target_id = #{targetId}
+    </delete>
+
     <delete id="deleteReply" parameterType="long">
-            DELETE FROM reply
-            WHERE id = #{id}
+        DELETE FROM reply
+        WHERE id = #{id}
     </delete>
 
     <!-- 댓글 아이디로 찾기 -->
     <select id="findReplyById" resultType="com.daedong.zipmap.domain.Reply">
-            SELECT
-            r.id,
-            r.target_type AS target_type,
-            r.target_id AS target_id,
-            r.user_id AS userId,
-            u.login_id AS loginId,  r.content,
-            r.created_at AS createdAt
-            FROM reply r
-            LEFT JOIN user u ON r.user_id = u.id WHERE r.id = #{id}
+        SELECT
+        r.id,
+        r.target_type AS target_type,
+        r.target_id AS target_id,
+        r.user_id AS userId,
+        u.login_id AS loginId, r.content,
+        r.created_at AS createdAt
+        FROM reply r
+        LEFT JOIN user u ON r.user_id = u.id WHERE r.id = #{id}
+    </select>
+
+    <!-- 내가 쓴 댓글 조회 -->
+    <select id="findByTargetTypeAndUserId" resultType="com.daedong.zipmap.domain.ReplyDTO">
+        SELECT
+        r.id, r.target_type, r.target_id, r.user_id, r.content, r.created_at, r.updated_at, t.title AS articleTitle
+        FROM reply r
+        <choose>
+            <when test="targetType == 'review'">
+                LEFT JOIN review t ON r.target_id = t.id
+            </when>
+            <when test="targetType == 'post'">
+                LEFT JOIN post t ON r.target_id = t.id
+            </when>
+        </choose>
+        WHERE r.target_type = #{targetType}
+        AND r.user_id = #{userId}
+        ORDER BY r.id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countByTargetTypeAndUserId" resultType="int">
+        SELECT COUNT(id)
+        FROM reply
+        WHERE target_type = #{targetType}
+        AND user_id = #{userId}
     </select>
 
 </mapper>

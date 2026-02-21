@@ -32,8 +32,8 @@ public interface ReviewMapper {
     void deleteReviewById(Long id);
 
     // 내가 쓴 리뷰 조회
-//    List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
-//    int countByUserId(@Param("userId") Long userId);
+    List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    int countByUserId(@Param("userId") Long userId);
 
     List<ReviewDTO> findOrderByCreatedAtDescLimit4();
 

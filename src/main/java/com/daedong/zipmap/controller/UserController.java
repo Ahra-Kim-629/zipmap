@@ -1,19 +1,19 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Token;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.NetworkUtil;
+import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +28,7 @@ public class UserController {
     private final UserService userService;
     private final PostService postService;
     private final ReviewService reviewService;
+    private final ReplyService replyService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signUp")
@@ -119,9 +120,8 @@ public class UserController {
     }
 
     @GetMapping("/users/mypage")
-    public String mypage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+    public String mypage(Model model, @AuthenticationPrincipal User user) {
         try {
-            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
             model.addAttribute("user", user);
         } catch (Exception e) {
             return "redirect:/";
@@ -174,9 +174,8 @@ public class UserController {
     }
 
     @GetMapping("/users/unregister")
-    public String unregister(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+    public String unregister(Model model, @AuthenticationPrincipal User user) {
         try {
-            User user = userService.findByLoginId(userDetails.getUsername());
             model.addAttribute("user", user);
         } catch (Exception e) {
             return "redirect:/";
@@ -197,97 +196,43 @@ public class UserController {
         }
     }
 
-    // --- [실거주 인증 기능 추가  ---
+    @GetMapping("/users/articles")
+    public String myReviews(@AuthenticationPrincipal User user,
+                            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                            @RequestParam(required = false, defaultValue = "reviews") String type,
+                            Model model) {
+        model.addAttribute("type", type);
 
-    /**
-     * 실거주 인증 신청 페이지로 이동.
-     *
-     * @return 인증 신청 폼 HTML 경로
-     */
-    @GetMapping("/users/certification")
-    public String certificationForm(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
-        try {
-            User user = userService.findByLoginId(userDetails.getUsername());
-            model.addAttribute("user", user);
-            return "/users/certification";
-        } catch (Exception e) {
-            return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로
+        if ("reviews".equals(type)) {
+            Page<ReviewDTO> reviewList = reviewService.findMyReviews(user.getId(), pageable);
+            model.addAttribute("reviews", reviewList);
+            model.addAttribute("posts", Page.empty(pageable));
+        } else if ("posts".equals(type)) {
+            Page<PostDTO> postList = postService.findMyPosts(user.getId(), pageable);
+            model.addAttribute("posts", postList);
+            model.addAttribute("reviews", Page.empty(pageable));
         }
+
+        return "/users/articles";
     }
 
-//    /**
-//     * 사용자가 업로드한 임대차계약서 파일을 처리.
-//     * @param file 사용자가 선택한 파일 (MultipartFile)
-//     * @param userDetails 현재 로그인한 유저 정보 (Spring Security)
-//     * @param rttr 화면에 일회성 메시지를 전달하기 위한 객체
-//     * @return 처리가 완료된 후 이동할 주소
-//     */
-//    @PostMapping("/users/certification")
-//    public String submitCertification(@RequestParam("contractFile") org.springframework.web.multipart.MultipartFile file,
-//                                      @AuthenticationPrincipal UserDetails userDetails,
-//                                      RedirectAttributes rttr) {
-//        try {
-//            // 1. 현재 로그인한 유저의 정보를 가져옴. (userDetails 기반)
-//            User user = userService.findByLoginId(userDetails.getUsername());
-//
-//            // 2. UserService에 만든 파일 저장 로직을 실행.
-//            // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-//            reviewService.registerCertification(user, file);
-//
-//            // 3. 성공 메시지를 담아서 마이페이지로 보냄.
-//            rttr.addFlashAttribute("message", "실거주 인증 신청이 완료되었습니다. 관리자 승인을 기다려주세요.");
-//            return "redirect:/users/mypage";
-//
-//        } catch (Exception e) {
-//            // 에러가 발생하면 에러 메시지를 담아 다시 인증 페이지로 보냄.
-//            e.printStackTrace();
-//            rttr.addFlashAttribute("error", "인증 신청 중 오류가 발생했습니다: " + e.getMessage());
-//            return "redirect:/users/certification";
-//        }
-//    }
-
-//    @GetMapping("/users/articles")
-//    public String articles(@AuthenticationPrincipal UserDetails userDetails,
-//                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-//                           @RequestParam(required = false, defaultValue = "reviews") String type,
-//                           Model model) {
-//        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-//
-//        model.addAttribute("type", type);
-//
-//        if ("reviews".equals(type)) {
-//            Page<ReviewDTO> reviews = reviewService.findMyReviews(user.getId(), pageable);
-//            model.addAttribute("reviews", reviews);
-//            model.addAttribute("posts", Page.empty(pageable));
-//        } else {
-//            Page<Post> posts = postService.findMyPosts(user.getId(), pageable);
-//            model.addAttribute("posts", posts);
-//            model.addAttribute("reviews", Page.empty(pageable));
-//        }
-//
-//        return "/users/articles";
-//    }
-
     @GetMapping("/users/comments")
-    public String comments(@AuthenticationPrincipal UserDetails userDetails,
+    public String comments(@AuthenticationPrincipal User user,
                            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                            @RequestParam(required = false, defaultValue = "reviews") String type,
                            Model model) {
 
-        User user = userService.findByLoginId(userDetails.getUsername());
-
         model.addAttribute("type", type);
 
-//        if ("reviews".equals(type)) {
-//            Page<ReviewReply> replies = reviewService.findMyReplies(user.getId(), pageable);
-//            model.addAttribute("replies", replies);
-//            model.addAttribute("postReplies", Page.empty(pageable));
-//        } else {
-//            Page<PostReply> replies = postService.findMyReplies(user.getId(), pageable);
-//            model.addAttribute("postReplies", replies);
-//            model.addAttribute("replies", Page.empty(pageable));
-//        }
+        if ("reviews".equals(type)) {
+            Page<ReplyDTO> reviewReplyList = replyService.findByTargetTypeAndUserId("review", user.getId(), pageable);
+            model.addAttribute("reviewReplies", reviewReplyList);
+            model.addAttribute("postReplies", Page.empty(pageable));
+        } else {
+            Page<ReplyDTO> postReplies = replyService.findByTargetTypeAndUserId("post", user.getId(), pageable);
+            model.addAttribute("postReplies", postReplies);
+            model.addAttribute("reviewReplyList", Page.empty(pageable));
+        }
 
         return "/users/comments";
     }

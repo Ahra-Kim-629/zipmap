@@ -39,4 +39,7 @@ public interface FileMapper {
 
     // [수정됨] 통합 파일 전체 삭제 (글 삭제 시)
     void deleteFilesAllByTargetTypeAndTargetId(String targetType, Long targetId);
+
+    // 파일 리스트 가져오기
+    List<File> getFileListByTargetTypeAndTargetId(String targetType, Long targetId);
 }

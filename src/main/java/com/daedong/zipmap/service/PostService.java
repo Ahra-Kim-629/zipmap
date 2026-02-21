@@ -1,10 +1,11 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.mapper.PostMapper;
+import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.NetworkUtil;
+import com.daedong.zipmap.util.ReplyService;
 import com.daedong.zipmap.util.StatsUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,12 @@ import java.util.List;
 public class PostService {
     private final PostMapper postMapper;
     private final StatsUtil statsUtil;
-    //   private final FileService fileService;
+    private final FileUtilService fileUtilService;
+    private final ReplyService replyService;
+    private final ReactionService reactionService;
 
     public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         int totalCount = postMapper.countAll(searchType, keyword, category, location);
-//        List<Post> posts = postMapper.findAll(searchType, keyword, pageable);
-//        return new PageImpl<>(posts, pageable, totalCount);
         List<PostDTO> posts = postMapper.findAll(searchType, keyword, category, location, pageable);
         return new PageImpl<PostDTO>(posts, pageable, totalCount);
     }
@@ -80,7 +81,15 @@ public class PostService {
 
     @Transactional
     public void delete(Long id) {
-        // 기존 파일 삭제 로직 제거 (Controller에서 FileUtilService로 처리)
+        // ★ 파일 전체 삭제 (DB + 실제파일)
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("post", id);
+
+        // 리플 삭제
+        replyService.deleteByTargetTypeAndTargetId("post", id);
+
+        // 리액션 삭제
+        reactionService.deleteByTargetTypeAndTargetId("post", id);
+
         postMapper.deletePost(id);
     }
 
@@ -108,18 +117,12 @@ public class PostService {
         postMapper.updateBoardLikeCount(postId);
     }
 
-    public Page<Post> findMyPosts(Long userId, Pageable pageable) {
-        int totalCount = postMapper.countByUserId(userId);
-        List<Post> posts = postMapper.findByUserId(userId, pageable);
-        return new PageImpl<>(posts, pageable, totalCount);
+    public Page<PostDTO> findMyPosts(Long userId, Pageable pageable) {
+        List<PostDTO> posts = postMapper.findByUserId(userId, pageable);
+        int total = postMapper.countByUserId(userId);
+        return new PageImpl<>(posts, pageable, total);
     }
 
-    //    public Page<PostReply> findMyReplies(Long userId, Pageable pageable) {
-//        int totalCount = postMapper.countRepliesByUserId(userId);
-//        List<PostReply> replies = postMapper.findRepliesByUserId(userId, pageable);
-//        return new PageImpl<>(replies, pageable, totalCount);
-//    }
-//
     @Cacheable(value = "mainPostList")
     public List<PostDTO> getMainpagePost() {
         List<Long> topPostIdList = statsUtil.getTopPostIds(5);
@@ -130,9 +133,4 @@ public class PostService {
 
         return postMapper.findAllByIdList(topPostIdList);
     }
-//    @Cacheable(value = "mainPostList")
-//    public List<PostDTO> getMainpagePost() {
-//        return postMapper.findMainpagePost();
-//    }
-
 }

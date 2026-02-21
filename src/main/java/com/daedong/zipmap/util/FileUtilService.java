@@ -132,6 +132,11 @@ public class FileUtilService {
         return updatedContent;
     }
 
+    public List<com.daedong.zipmap.domain.File> findFileList(String targetType, Long targetId) {
+
+        return fileMapper.getFileListByTargetTypeAndTargetId(targetType, targetId);
+    }
+
     // (단순 삭제 메서드는 그대로 유지)
     public void deleteFileByPath(String filePath) {
         if (filePath == null || filePath.isEmpty()) return;

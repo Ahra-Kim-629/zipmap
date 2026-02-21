@@ -55,7 +55,8 @@
         r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.like_count,
         r.view_count, r.created_at, r.updated_at,
 
-        (SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO') AS prosStr
+        (SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO') AS
+        prosStr
 
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
@@ -169,29 +170,23 @@
         AND target_id = #{id}
     </delete>
 
-    <!--    &lt;!&ndash; 내가 쓴 리뷰 조회 &ndash;&gt;-->
-    <!--    <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">-->
-    <!--        SELECT-->
-    <!--        r.id,-->
-    <!--        r.title,-->
-    <!--        r.content,-->
-    <!--        r.address,-->
-    <!--        r.user_id AS userId,-->
-    <!--        r.point,-->
-    <!--        r.review_status AS reviewStatus,-->
-    <!--        r.created_at AS createdAt,-->
-    <!--        r.updated_at AS updatedAt-->
-    <!--        FROM review r-->
-    <!--        WHERE r.user_id = #{userId}-->
-    <!--        ORDER BY r.id DESC-->
-    <!--        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}-->
-    <!--    </select>-->
+    <!-- 내가 쓴 리뷰 조회 -->
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        id, title, content, address, user_id, point, review_status, created_at, updated_at
+        FROM review
+        WHERE user_id = #{userId}
+        AND review_status = 'ACTIVE'
+        ORDER BY id DESC
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
 
-    <!--    <select id="countByUserId" resultType="int">-->
-    <!--        SELECT COUNT(id)-->
-    <!--        FROM review-->
-    <!--        WHERE user_id = #{userId}-->
-    <!--    </select>-->
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(id)
+        FROM review
+        WHERE user_id = #{userId}
+        AND review_status = 'ACTIVE'
+    </select>
 
     <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
@@ -255,7 +250,7 @@
         SET review_status = #{status}
         WHERE id = #{reviewId}
     </update>
-<!-- 관리자 리뷰 실거주인증, BANNED된 부분들만 보이게 하기 -->
+    <!-- 관리자 리뷰 실거주인증, BANNED된 부분들만 보이게 하기 -->
     <select id="findBannedReviews" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
         r.id,

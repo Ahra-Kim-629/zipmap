@@ -134,12 +134,12 @@ public class AdminController {
                                   @RequestParam(required = false) String keyword,
                                   Model model) {
         // 리뷰 목록과 개수 가져오기
-        org.springframework.data.domain.Page<ReviewDTO> reviewPage = reviewService.adminFindAll(searchType, keyword, pageable);
+        Page<ReviewDTO> reviewPage = reviewService.adminFindAll(searchType, keyword, pageable);
         int totalCount = reviewService.countTotal(searchType, keyword, null, null);
 
         model.addAttribute("reviews", reviewPage);
         model.addAttribute("totalCount", totalCount);
-        return "admin/reviews"; // templates/admin/reviews.html 파일로 연결
+        return "admin/reviews"; // templates/admin/articles.html 파일로 연결
     }
 
     // 2. 삭제 처리 기능 추가

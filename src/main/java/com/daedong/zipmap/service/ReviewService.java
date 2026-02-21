@@ -1,14 +1,11 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Certification;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.FileMapper;
-import com.daedong.zipmap.mapper.ReplyMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.NetworkUtil;
+import com.daedong.zipmap.util.ReplyService;
 import com.daedong.zipmap.util.StatsUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +28,11 @@ import java.util.List;
 public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final FileMapper fileMapper;
-    private final ReplyMapper replyMapper;
     private final FileUtilService fileUtilService;
     private final StatsUtil statsUtil;
-
+    private final ReactionService reactionService;
+    private final ReplyService replyService;
+    private final CrimeStatsService crimeStatsService;
 
     // 페이징 조회
     public Page<ReviewDTO> findAll(String searchType, String keyword, List<String> pros, List<String> cons, Pageable pageable) {
@@ -82,7 +80,18 @@ public class ReviewService {
                 System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
             }
         }
-        
+
+        // 좋아요 표시
+        reviewDTO.setLikeCount(reactionService.countReaction("review", reviewDTO.getId(), 1));
+
+        // 파일 리스트 추가
+        reviewDTO.setFileList(fileUtilService.findFileList("review", reviewDTO.getId()));
+
+        // 리플 리스트 추가
+        reviewDTO.setReplyList(replyService.getReplyDTOList("review", reviewDTO.getId()));
+
+        crimeStatsService.analyzeCrimeForReview(reviewDTO);
+
         return reviewDTO;
     }
 
@@ -117,30 +126,30 @@ public class ReviewService {
         reviewMapper.updateContent(reviewId, newContent);
     }
 
+    // 리뷰 삭제
     @Transactional
     public void deleteReviewById(Long id) {
-        reviewMapper.deleteReviewById(id);
-        reviewMapper.deleteReplyByReviewId(id);
-        reviewMapper.deleteReactionByReviewId(id);
+        // 댓글 삭제
+        replyService.deleteByTargetTypeAndTargetId("review", id);
+        // 리액션 삭제
+        reactionService.deleteByTargetTypeAndTargetId("review", id);
+        // 파일 삭제
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("review", id);
+        // 속성 삭제
         reviewMapper.deleteAttributeByReviewId(id);
+        // 리뷰 삭제
+        reviewMapper.deleteReviewById(id);
+
         fileUtilService.deleteFilesByTargetTypeAndTargetId("REVIEW", id);
     }
 
-    //
-//    // 내가 쓴 리뷰 조회
-//    public Page<ReviewDTO> findMyReviews(Long userId, Pageable pageable) {
-//        List<ReviewDTO> content = reviewMapper.findByUserId(userId, pageable);
-//        int total = reviewMapper.countByUserId(userId);
-//        return new PageImpl<>(content, pageable, total);
-//    }
-//
-//    // 내가 쓴 리뷰 댓글 조회
-//    public Page<ReviewReply> findMyReplies(Long userId, Pageable pageable) {
-//        List<ReviewReply> content = reviewReplyMapper.findByUserId(userId, pageable);
-//        int total = reviewReplyMapper.countByUserId(userId);
-//        return new PageImpl<>(content, pageable, total);
-//    }
-//
+    // 내가 쓴 리뷰 조회
+    public Page<ReviewDTO> findMyReviews(Long userId, Pageable pageable) {
+        List<ReviewDTO> content = reviewMapper.findByUserId(userId, pageable);
+        int total = reviewMapper.countByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
+    }
+
     @Cacheable(value = "mainReviewList")
     public List<ReviewDTO> getMainpageReview() {
         List<ReviewDTO> reviewDTOList = reviewMapper.findOrderByCreatedAtDescLimit4();
@@ -156,7 +165,7 @@ public class ReviewService {
         return reviewDTOList;
     }
 
-    // [추가] 글 내용(HTML)만 업데이트하는 메서드
+//     [추가] 글 내용(HTML)만 업데이트하는 메서드
 //    public void updateContent(Long id, String content) {
 //        // 매퍼에 쿼리 호출 (파라미터가 2개라 Map이나 @Param 필요할 수 있음)
 //        // 여기서는 편의상 DTO를 만들어서 보내거나, Map을 씁니다.

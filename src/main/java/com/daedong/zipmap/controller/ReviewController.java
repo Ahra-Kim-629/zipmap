@@ -1,6 +1,5 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Reaction;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
@@ -92,14 +91,6 @@ public class ReviewController {
                          HttpServletRequest request) {
         ReviewDTO reviewDTO = reviewService.findById(id, request, userDetails);
 
-        // 좋아요 표시
-        reviewDTO.setLikeCount(reactionService.countReaction("review", reviewDTO.getId(), 1));
-
-        // 리플 리스트 추가
-        reviewDTO.setReplyList(replyService.getReplyDTOList("review", reviewDTO.getId()));
-
-        crimeStatsService.analyzeCrimeForReview(reviewDTO);
-
         model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
@@ -119,8 +110,7 @@ public class ReviewController {
     public String write(Review review,
                         @RequestParam("prosList") List<String> prosList,
                         @RequestParam("consList") List<String> consList,
-                        @AuthenticationPrincipal UserDetails userDetails) throws IOException {
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+                        @AuthenticationPrincipal User user) throws IOException {
         review.setUserId(user.getId());
 
         long savedId = reviewService.save(review, prosList, consList);
@@ -139,10 +129,9 @@ public class ReviewController {
      * @return 인증 신청 폼 HTML 경로
      */
     @GetMapping("/certification")
-    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal User user) {
         // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
         try {
-            User user = (User) userDetails;
             model.addAttribute("user", user);
             model.addAttribute("reviewId", reviewId);
             return "/users/certification";
@@ -200,7 +189,7 @@ public class ReviewController {
     public String edit(@PathVariable Long id, Review review,
                        @RequestParam("prosList") List<String> prosList,
                        @RequestParam("consList") List<String> consList,
-                       @AuthenticationPrincipal User user) throws IOException {
+                       @AuthenticationPrincipal User user) {
         ReviewDTO original = reviewService.findById(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
@@ -266,20 +255,5 @@ public class ReviewController {
         } catch (Exception e) {
             return "fail";
         }
-    }
-
-    // 좋아요
-    @PostMapping("/reaction")
-    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type,
-                       @AuthenticationPrincipal User user) {
-        Reaction reaction = new Reaction();
-        reaction.setTargetType("review");
-        reaction.setTargetId(targetId);
-        reaction.setUserId(user.getId());
-        reaction.setType(type);
-
-        reactionService.save(reaction);
-
-        return "redirect:/review/detail/" + targetId;
     }
 }

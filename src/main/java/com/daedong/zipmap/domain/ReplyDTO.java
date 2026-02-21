@@ -15,4 +15,6 @@ public class ReplyDTO {
     private LocalDateTime updatedAt;
 
     private String loginId;
+
+    private String articleTitle;
 }

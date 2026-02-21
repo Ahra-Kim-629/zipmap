@@ -22,6 +22,12 @@
     </insert>
 
     <!-- 반응 삭제 -->
+    <delete id="deleteByTargetTypeAndTargetId">
+        DELETE FROM reaction
+        WHERE target_type = #{targetType} AND target_id = #{targetId}
+    </delete>
+
+
     <delete id="delete" parameterType="long">
         DELETE FROM reaction
         WHERE id = #{id}

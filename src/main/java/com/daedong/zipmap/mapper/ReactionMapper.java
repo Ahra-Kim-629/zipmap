@@ -18,4 +18,5 @@ public interface ReactionMapper {
                    @Param("targetId") Long targetId,
                    @Param("type") int type);
 
+    void deleteByTargetTypeAndTargetId(String targetType, Long targetId);
 }

@@ -21,12 +21,12 @@ public class MainController {
     private final PostService postService;
 
     @GetMapping("/")
-    public String main(Model model) {
-        List<NoticeDTO> noticeList = adminService.getCurrentNoticeList();
+    public String frontpage(Model model) {
+        List<NoticeDTO> noticeDTOList = adminService.getCurrentNoticeList();
         List<PostDTO> postDTOList = postService.getMainpagePost();
         List<ReviewDTO> reviewDTOList = reviewService.getMainpageReview();
 
-        model.addAttribute("noticeList", noticeList);
+        model.addAttribute("noticeDTOList", noticeDTOList);
         model.addAttribute("reviewDTOList", reviewDTOList);
         model.addAttribute("postDTOList", postDTOList);
         return "main";

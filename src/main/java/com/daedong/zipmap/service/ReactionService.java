@@ -47,4 +47,8 @@ public class ReactionService {
         Reaction existingLike = reactionMapper.findByUserAndTarget(reaction);
         return (existingLike != null) ? existingLike.getType() : 0;
     }
+
+    public void deleteByTargetTypeAndTargetId(String targetType, Long targetId) {
+        reactionMapper.deleteByTargetTypeAndTargetId(targetType, targetId);
+    }
 }

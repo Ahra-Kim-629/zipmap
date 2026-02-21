@@ -19,7 +19,6 @@
 </head>
 <body>
 
-
 <div class="tabs">
     <a th:href="@{/users/comments(type='reviews')}" th:classappend="${type == 'reviews'} ? 'active'">리뷰 댓글</a>
     <a th:href="@{/users/comments(type='posts')}" th:classappend="${type == 'posts' } ? 'active'">게시글 댓글</a>
@@ -35,29 +34,31 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="reply : ${replies}">
-            <td><a th:href="@{/review/detail/{id}(id=${reply.reviewId})}" th:text="${reply.reviewTitle}"></a></td>
+        <tr th:each="reply : ${reviewReplies.content}">
+            <td><a th:href="@{/review/detail/{id}(id=${reply.targetId})}" th:text="${reply.articleTitle}"></a></td>
             <td th:text="${reply.content}"></td>
             <td th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
-        <tr th:if="${replies.empty}">
+        <tr th:if="${reviewReplies.empty}">
             <td colspan="3">작성한 댓글이 없습니다.</td>
         </tr>
         </tbody>
     </table>
 
     <!-- 리뷰 댓글 페이징 -->
-    <nav th:if="${replies.totalPages > 0}" aria-label="Page navigation">
+    <nav th:if="${reviewReplies.totalPages > 0}" aria-label="Page navigation">
         <ul class="pagination">
-            <li class="page-item" th:classappend="${replies.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/users/comments(type='reviews', page=${replies.number-1})}">&lt;</a>
+            <li class="page-item" th:classappend="${reviewReplies.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/users/comments(type='reviews', page=${reviewReplies.number-1})}">&lt;</a>
             </li>
-            <li class="page-item" th:each="page : ${#numbers.sequence(0, replies.totalPages-1)}"
-                th:classappend="${page == replies.number} ? 'active'">
+            <li class="page-item" th:each="page : ${#numbers.sequence(0, reviewReplies.totalPages-1)}"
+                th:classappend="${page == reviewReplies.number} ? 'active'">
                 <a class="page-link" th:href="@{/users/comments(type='reviews', page=${page})}" th:text="${page+1}"></a>
             </li>
-            <li class="page-item" th:classappend="${replies.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/users/comments(type='reviews', page=${replies.number+1})}">&gt;</a>
+            <li class="page-item" th:classappend="${reviewReplies.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/users/comments(type='reviews', page=${reviewReplies.number+1})}">&gt;</a>
             </li>
         </ul>
     </nav>
@@ -73,8 +74,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="reply : ${postReplies}">
-            <td><a th:href="@{/board/detail/{id}(id=${reply.postId})}" th:text="${reply.postTitle}"></a></td>
+        <tr th:each="reply : ${postReplies.content}">
+            <td><a th:href="@{/post/detail/{id}(id=${reply.targetId})}" th:text="${reply.articleTitle}"></a></td>
             <td th:text="${reply.content}"></td>
             <td th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
@@ -100,7 +101,6 @@
         </ul>
     </nav>
 </div>
-
 
 <a href="/users/mypage">마이페이지로 돌아가기</a>
 

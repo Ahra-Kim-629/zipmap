@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -63,10 +62,9 @@ public class PostController {
 
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model,
-                              @AuthenticationPrincipal UserDetails userDetails,
+                              @AuthenticationPrincipal User user,
                               HttpServletRequest request) {
-        PostDTO postDTO = postService.getPostDetail(id, request, userDetails);
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
+        PostDTO postDTO = postService.getPostDetail(id, request, user);
 
         Reaction reaction = new Reaction();
         reaction.setTargetId(id);
@@ -96,8 +94,6 @@ public class PostController {
         return "post/write-form";
     }
 
-    //@RequestParam("file") List<MultipartFile> files
-
     @PostMapping("/write")
     public String write(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
         try {
@@ -120,9 +116,8 @@ public class PostController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, Model model, RedirectAttributes rttr) {
+    public String edit(@PathVariable Long id, @AuthenticationPrincipal User user, Model model, RedirectAttributes rttr) {
         PostDTO postDTO = postService.getPostDetail(id);
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
         if (!postDTO.getUserId().equals(user.getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/post";
@@ -132,13 +127,9 @@ public class PostController {
         return "post/edit-form";
     }
 
-
-    // @RequestParam("file") List<MultipartFile> files
     @PostMapping("/edit/{id}")
-    public String update(@PathVariable Long id, Post post, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
+    public String update(@PathVariable Long id, Post post, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
         try {
-            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-
             // 1. ★ 이미지 동기화 (temp -> post 이동, 삭제된 건 제거)
             String newContent = fileUtilService.updateImagesFromContent(post.getContent(), "POST", id);
 
@@ -157,42 +148,21 @@ public class PostController {
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails, RedirectAttributes rttr) {
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
+        PostDTO postDTO = postService.getPostDetail(id);
+        if (!postDTO.getUserId().equals(user.getId())) {
+            rttr.addFlashAttribute("message", "권한이 없습니다.");
+            return "redirect:/post";
+        }
+
         try {
-            PostDTO postDTO = postService.getPostDetail(id);
-            User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-            if (!postDTO.getUserId().equals(user.getId())) {
-                rttr.addFlashAttribute("message", "권한이 없습니다.");
-                return "redirect:/post";
-            }
-
-            // ★ 파일 전체 삭제 (DB + 실제파일)
-            fileUtilService.deleteFilesByTargetTypeAndTargetId("POST", id);
-
             postService.delete(id);
-
             rttr.addFlashAttribute("message", "게시글이 삭제되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
         }
+
         return "redirect:/post";
-    }
-
-    // 좋아요 싫어요
-    @PostMapping("/reaction")
-    public String like(@RequestParam("targetId") Long targetId, @RequestParam("type") int type,
-                       @AuthenticationPrincipal UserDetails userDetails,
-                       HttpServletRequest request) {
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-        Reaction like = new Reaction();
-        like.setTargetType("post");
-        like.setTargetId(targetId);
-        like.setUserId(user.getId());
-        like.setType(type);
-
-        reactionService.save(like);
-
-        return "redirect:/post/detail/" + targetId;
     }
 
     // =====================================================================

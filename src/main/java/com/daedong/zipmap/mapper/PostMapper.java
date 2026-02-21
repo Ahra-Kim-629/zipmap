@@ -57,7 +57,7 @@ public interface PostMapper {
     void insertReaction(@Param("postId") Long postId, @Param("userId") String userId, @Param("type") int type);
 
     // 내가 쓴 글 조회
-    List<Post> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+    List<PostDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
 
     int countByUserId(@Param("userId") Long userId);
 
