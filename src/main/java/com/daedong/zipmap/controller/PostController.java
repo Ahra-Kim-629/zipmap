@@ -29,7 +29,6 @@ import java.util.Map;
 @RequestMapping("/post")
 public class PostController {
     private final PostService postService;
-    private final UserService userService;
     private final ReplyService replyService;
     private final ReactionService reactionService;
 
@@ -66,25 +65,7 @@ public class PostController {
                               HttpServletRequest request) {
         PostDTO postDTO = postService.getPostDetail(id, request, user);
 
-        Reaction reaction = new Reaction();
-        reaction.setTargetId(id);
-        reaction.setTargetType("post");
-        reaction.setUserId(user.getId());
-
-        // 내가 누른 반응(1, -1 혹은 0)을 가져오는 서비스 메서드
-        int myReaction = reactionService.getMyReaction(reaction);
-        model.addAttribute("myReaction", myReaction);
-
-        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
-        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
-
-        model.addAttribute("post", postDTO);
-
-        model.addAttribute("currentUserId", user.getId());
-
-        // 해당 게시글에 달린 댓글 목록 보여주기
-        List<ReplyDTO> replyList = replyService.getReplyDTOList("post", id);
-        model.addAttribute("replyList", replyList);
+        model.addAttribute("postDTO", postDTO);
 
         return "post/detail";
     }
@@ -165,9 +146,7 @@ public class PostController {
         return "redirect:/post";
     }
 
-    // =====================================================================
     // 썸머노트 이미지 업로드 (Ajax) - 무조건 temp 폴더 사용
-    // =====================================================================
     @PostMapping("/uploadSummernoteImage")
     @ResponseBody
     public Map<String, Object> uploadSummernoteImage(@RequestParam("file") MultipartFile file) {
@@ -182,9 +161,7 @@ public class PostController {
         return response;
     }
 
-    // =====================================================================
     // 썸머노트 이미지 삭제 (Ajax)
-    // =====================================================================
     @PostMapping("/deleteSummernoteImage")
     @ResponseBody
     public String deleteSummernoteImage(@RequestParam("src") String src) {

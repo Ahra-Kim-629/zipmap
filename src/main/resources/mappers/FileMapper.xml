@@ -88,7 +88,7 @@
         AND target_id = #{targetId}
     </delete>
 
-    <select id="getFileListByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.File">
+    <select id="findFileListByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.File">
         SELECT
         id, target_type, target_id, file_path, file_size, created_at, updated_at
         FROM file

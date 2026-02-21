@@ -3,12 +3,9 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.service.CrimeStatsService;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
-import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,17 +34,9 @@ import java.util.Map;
 public class ReviewController {
     private final ReviewService reviewService;
     private final ReactionService reactionService;
-    private final UserService userService;
-    private final CrimeStatsService crimeStatsService;
-    private final ReplyService replyService;
-
-    // [New] ★ 새로 만든 파일 유틸 서비스
     private final FileUtilService fileUtilService;
 
-
-    // =====================================================================
-    // 1. 리뷰 목록 조회
-    // =====================================================================
+    // 리뷰 목록 조회
     @GetMapping
     public String list(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
@@ -82,23 +71,19 @@ public class ReviewController {
         return "review/list";
     }
 
-    // =====================================================================
-    // 2. 리뷰 상세 조회
-    // =====================================================================
+    // 리뷰 상세 조회
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model,
                          @AuthenticationPrincipal UserDetails userDetails,
                          HttpServletRequest request) {
-        ReviewDTO reviewDTO = reviewService.findById(id, request, userDetails);
+        ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, userDetails);
 
         model.addAttribute("reviewDTO", reviewDTO);
 
         return "review/detail";
     }
 
-    // =====================================================================
-    // 3. 리뷰 작성
-    // =====================================================================
+    // 리뷰 작성
     @GetMapping("/write")
     @PreAuthorize("isAuthenticated()")
     public String write() {
@@ -113,21 +98,12 @@ public class ReviewController {
                         @AuthenticationPrincipal User user) throws IOException {
         review.setUserId(user.getId());
 
-        long savedId = reviewService.save(review, prosList, consList);
+        long savedId = reviewService.write(review, prosList, consList);
 
         return "redirect:/review/certification?reviewId=" + savedId;
     }
 
-    // =====================================================================
-    // 3-1. 리뷰 실거주 인증
-    // =====================================================================
-    // --- [실거주 인증 기능 추가  ---
-
-    /**
-     * 실거주 인증 신청 페이지로 이동.
-     *
-     * @return 인증 신청 폼 HTML 경로
-     */
+    // 리뷰 실거주 인증
     @GetMapping("/certification")
     public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal User user) {
         // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
@@ -176,7 +152,7 @@ public class ReviewController {
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
-        ReviewDTO reviewDTO = reviewService.findById(id);
+        ReviewDTO reviewDTO = reviewService.getReviewDetail(id);
         if (reviewDTO.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
@@ -190,7 +166,7 @@ public class ReviewController {
                        @RequestParam("prosList") List<String> prosList,
                        @RequestParam("consList") List<String> consList,
                        @AuthenticationPrincipal User user) {
-        ReviewDTO original = reviewService.findById(id);
+        ReviewDTO original = reviewService.getReviewDetail(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
         }
@@ -207,7 +183,7 @@ public class ReviewController {
     @PostMapping("/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        ReviewDTO original = reviewService.findById(id);
+        ReviewDTO original = reviewService.getReviewDetail(id);
         if (original.getUserId() != user.getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }

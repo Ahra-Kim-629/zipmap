@@ -204,11 +204,11 @@ public class UserController {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviewList = reviewService.findMyReviews(user.getId(), pageable);
+            Page<ReviewDTO> reviewList = reviewService.getMyReviews(user.getId(), pageable);
             model.addAttribute("reviews", reviewList);
             model.addAttribute("posts", Page.empty(pageable));
         } else if ("posts".equals(type)) {
-            Page<PostDTO> postList = postService.findMyPosts(user.getId(), pageable);
+            Page<PostDTO> postList = postService.getMyPosts(user.getId(), pageable);
             model.addAttribute("posts", postList);
             model.addAttribute("reviews", Page.empty(pageable));
         }

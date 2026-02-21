@@ -23,5 +23,5 @@ public class PostDTO {
     private Long dislikeCount;
 
     private List<File> fileList;
-    private List<Reply> replyList;
+    private List<ReplyDTO> replyList;
 }

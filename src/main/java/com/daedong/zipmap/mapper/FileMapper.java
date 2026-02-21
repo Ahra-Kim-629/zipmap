@@ -41,5 +41,5 @@ public interface FileMapper {
     void deleteFilesAllByTargetTypeAndTargetId(String targetType, Long targetId);
 
     // 파일 리스트 가져오기
-    List<File> getFileListByTargetTypeAndTargetId(String targetType, Long targetId);
+    List<File> findFileListByTargetTypeAndTargetId(String targetType, Long targetId);
 }

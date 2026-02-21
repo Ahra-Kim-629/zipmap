@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface ReplyMapper {
@@ -13,9 +14,11 @@ public interface ReplyMapper {
 
     void updateReply(Reply reply);
 
+    Optional<Reply> findById(Long id);
+
     void deleteReply(Long id);
 
-    List<ReplyDTO> getRepliesByTargetTypeAndTargetId(String targetType, Long targetId);
+    List<ReplyDTO> findRepliesByTargetTypeAndTargetId(String targetType, Long targetId);
 
     void deleteByTargetTypeAndTargetId(String targetType, Long targetId);
 

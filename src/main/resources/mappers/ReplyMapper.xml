@@ -5,7 +5,7 @@
 <mapper namespace="com.daedong.zipmap.mapper.ReplyMapper">
 
     <!-- 댓글 목록 조회 -->
-    <select id="getRepliesByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.ReplyDTO">
+    <select id="findRepliesByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.ReplyDTO">
         SELECT
         r.id, r.target_type, r.target_id, r.user_id, u.login_id, r.content, r.created_at, r.updated_at
         FROM reply r
@@ -28,6 +28,15 @@
         updated_at = NOW()
         WHERE id = #{id}
     </update>
+
+    <!-- 댓글 확인-->
+    <select id="findById" resultType="com.daedong.zipmap.domain.Reply">
+        SELECT
+        r.id, r.target_type, r.target_id, r.user_id, u.login_id, r.content, r.created_at, r.updated_at
+        FROM reply r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.id = #{id}
+    </select>
 
     <!-- 댓글 삭제 -->
     <delete id="deleteByTargetTypeAndTargetId" parameterType="map">
