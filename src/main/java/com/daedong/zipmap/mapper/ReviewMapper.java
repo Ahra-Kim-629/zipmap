@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Certification;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.StatsUpdateDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +19,6 @@ public interface ReviewMapper {
 
     // 리뷰 아이디로 찾기
     ReviewDTO findById(Long id);
-
-    ReviewDTO getReviewDetail(Long id);
 
     // 리뷰 작성
     void insertReview(Review review);
@@ -66,4 +65,6 @@ public interface ReviewMapper {
     // admin 에서 BANNED된 리뷰 목록 볼수 있도록 추가
     List<ReviewDTO> findBannedReviews(@Param("pageSize") int pageSize, @Param("offset") int offset);
     int countBannedReviews();
+
+    void updateReviewStatsBatch(List<StatsUpdateDTO> updateList);
 }

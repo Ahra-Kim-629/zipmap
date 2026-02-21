@@ -5,6 +5,7 @@ import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.mapper.PostMapper;
 import com.daedong.zipmap.util.NetworkUtil;
+import com.daedong.zipmap.util.StatsUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
     private final PostMapper postMapper;
-    private final PostStatsService postStatsService;
+    private final StatsUtil statsUtil;
     //   private final FileService fileService;
 
     public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
@@ -42,7 +43,7 @@ public class PostService {
 
             // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
             try {
-                postStatsService.updateViewCount(id, identifier);
+                statsUtil.updateViewCount("post", id, identifier);
             } catch (Exception e) {
                 System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
             }
@@ -121,7 +122,7 @@ public class PostService {
 //
     @Cacheable(value = "mainPostList")
     public List<PostDTO> getMainpagePost() {
-        List<Long> topPostIdList = postStatsService.getTopPostIds(5);
+        List<Long> topPostIdList = statsUtil.getTopPostIds(5);
 
         if (topPostIdList == null || topPostIdList.isEmpty()) {
             return new ArrayList<>(); // 빈 리스트 반환하여 쿼리 실행 방지

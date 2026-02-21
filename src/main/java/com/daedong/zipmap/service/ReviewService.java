@@ -8,6 +8,9 @@ import com.daedong.zipmap.mapper.FileMapper;
 import com.daedong.zipmap.mapper.ReplyMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import com.daedong.zipmap.util.FileUtilService;
+import com.daedong.zipmap.util.NetworkUtil;
+import com.daedong.zipmap.util.StatsUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
@@ -15,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +33,7 @@ public class ReviewService {
     private final FileMapper fileMapper;
     private final ReplyMapper replyMapper;
     private final FileUtilService fileUtilService;
+    private final StatsUtil statsUtil;
 
 
     // 페이징 조회
@@ -62,9 +67,27 @@ public class ReviewService {
 
     // 리뷰 아이디로 찾기
     @Transactional(readOnly = true)
-    public ReviewDTO findById(Long id) {
+    public ReviewDTO findById(Long id, HttpServletRequest request, UserDetails userDetails) {
+        ReviewDTO reviewDTO = reviewMapper.findById(id);
 
-        return reviewMapper.getReviewDetail(id);
+        // 조회수 증가 위한 redis 처리
+        if (reviewDTO != null) {
+            // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
+            String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
+
+            // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
+            try {
+                statsUtil.updateViewCount("review", id, identifier);
+            } catch (Exception e) {
+                System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
+            }
+        }
+        
+        return reviewDTO;
+    }
+
+    public ReviewDTO findById(long id) {
+        return reviewMapper.findById(id);
     }
 
     // 전체 조회 (지도용)
@@ -184,6 +207,7 @@ public class ReviewService {
 
         reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
     }
+
     // 2. 클래스 내부에 아래 메서드 추가
     public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
         // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.

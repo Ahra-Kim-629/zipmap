@@ -11,11 +11,12 @@
         <result property="category" column="category"/>
         <result property="location" column="location"/>
         <result property="likeCount" column="like_count"/>
-        <result property="dislikeCount" column="dislike_count"/>
+        <result property="viewCount" column="view_count"/>
         <result property="postStatus" column="post_status"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
 
+        <result property="loginId" column="login_id"/>
 
 <!--        <collection property="reactionList" ofType="com.daedong.zipmap.domain.PostReaction">-->
 <!--            <result property="id" column="reaction_id"/>-->
@@ -25,47 +26,42 @@
 <!--        </collection>-->
 
         <collection property="fileList" ofType="com.daedong.zipmap.domain.File">
-            <result property="id" column="file_id"/>
+            <id property="id" column="file_id"/>
             <result property="filePath" column="file_path"/>
             <result property="createdAt" column="file_created_at"/>
             <result property="updatedAt" column="file_updated_at"/>
         </collection>
 
-<!--        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">-->
-<!--            <result property="id" column="reply_id"/>-->
-<!--            <result property="userId" column="reply_user_id"/>-->
-<!--            <result property="content" column="reply_content"/>-->
-<!--            <result property="createdAt" column="reply_created_at"/>-->
-<!--            <result property="updatedAt" column="reply_updated_at"/>-->
-<!--        </collection>-->
-<!--        <collection property="replyList" ofType="com.daedong.zipmap.domain.PostReplyDTO">-->
-<!--            <id property="id" column="reply_id"/>-->
-<!--            <result property="userId" column="reply_user_id"/>-->
-<!--            <result property="loginId" column="reply_login_id"/>-->
-<!--            <result property="content" column="reply_content"/>-->
-<!--            <result property="createdAt" column="reply_created_at"/>-->
-<!--            <result property="updatedAt" column="reply_updated_at"/>-->
-<!--        </collection>-->
+        <collection property="replyList" ofType="com.daedong.zipmap.domain.ReplyDTO">
+            <id property="id" column="reply_id"/>
+            <result property="targetType" column="reply_target_type"/>
+            <result property="targetId" column="reply_target_id"/>
+            <result property="userId" column="reply_user_id"/>
+            <result property="content" column="reply_content"/>
+            <result property="createdAt" column="reply_created_at"/>
+            <result property="updatedAt" column="reply_updated_at"/>
+
+            <result property="loginId" column="reply_login_id"/>
+        </collection>
     </resultMap>
 
     <select id="findById" resultMap="postResultMap">
         SELECT
-        p.id, p.title, p.content, p.user_id, p.category, p.location,
-         p.post_status, p.created_at, p.updated_at,
-<!--        r.id as reaction_id, r.type, r.created_at as reaction_created_at, r.updated_at as reaction_updated_at,-->
+        p.id, p.title, p.content, p.user_id, p.category, p.location, p.like_count, p.view_count, p.post_status,
+        p.created_at, p.updated_at, u1.login_id as login_id,
 
-        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at
+        <!-- 파일 관련 -->
+        f.id as file_id, f.file_path, f.created_at as file_created_at, f.updated_at as file_updated_at,
 
-<!--        c.id as reply_id, c.user_id as reply_user_id, c.content as reply_content, c.created_at as reply_created_at,-->
-<!--        c.updated_at as reply_updated_at-->
-        FROM
-        post p
-<!--        LEFT JOIN post_reaction r ON p.id = r.post_id-->
+        <!-- 리플 관련 -->
+        rep.id as reply_id, rep.target_type as reply_target_type, rep.target_id as reply_target_id, rep.user_id as reply_user_id, rep.content as reply_content,
+        rep.created_at as reply_created_at, rep.updated_at as reply_updated_at, u2.login_id as reply_login_id
 
-        -- ▼▼▼ [수정] 테이블 이름을 정확히 'file'로 변경했습니다! ▼▼▼
+        FROM post p
+        LEFT JOIN user u1 ON p.user_id = u1.id
         LEFT JOIN file f ON p.id = f.target_id AND f.target_type = 'POST'
-
-<!--        LEFT JOIN post_reply c on p.id = c.post_id-->
+        LEFT JOIN reply rep ON p.id = rep.target_id AND rep.target_type = 'POST'
+        LEFT JOIN user u2 ON rep.user_id = u2.id
         WHERE
         p.id = #{id}
     </select>
@@ -198,15 +194,15 @@
     <update id="updateReply">
         UPDATE reply
         SET content = #{content},
-            updated_at = NOW()
+        updated_at = NOW()
         WHERE id = #{id}
     </update>
 
     <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
         UPDATE post
         SET title = #{title},
-            content = #{content},
-            updated_at = NOW()
+        content = #{content},
+        updated_at = NOW()
         WHERE id = #{id}
     </update>
 
@@ -302,10 +298,10 @@
 <!--        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}-->
 <!--    </select>-->
 
-<!--    <select id="countRepliesByUserId" resultType="int">-->
-<!--        SELECT COUNT(*) FROM post_reply-->
-<!--        WHERE user_id = #{userId}-->
-<!--    </select>-->
+    <!--    <select id="countRepliesByUserId" resultType="int">-->
+    <!--        SELECT COUNT(*) FROM post_reply-->
+    <!--        WHERE user_id = #{userId}-->
+    <!--    </select>-->
 
     <select id="findMainpagePost" resultType="com.daedong.zipmap.domain.PostDTO">
         <![CDATA[

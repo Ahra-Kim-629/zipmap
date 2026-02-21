@@ -2,6 +2,7 @@ package com.daedong.zipmap.mapper;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.StatsUpdateDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -76,7 +77,7 @@ public interface PostMapper {
 
     void updateContent(Post post);
 
-    void updatePostStatsBatch(List<Post> syncList);
+    void updatePostStatsBatch(List<StatsUpdateDTO> syncList);
 
     List<Map<String, Object>> getTopPostList(int i);
 }

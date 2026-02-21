@@ -1,12 +1,10 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.NoticeDTO;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.PostService;
-import com.daedong.zipmap.service.PostStatsService;
 import com.daedong.zipmap.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

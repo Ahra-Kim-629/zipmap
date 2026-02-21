@@ -24,7 +24,27 @@
         .review-image:hover { transform: scale(1.02); }
 
         /* 리뷰 본문 */
-        .review-content-body { line-height: 1.8; color: #444; font-size: 1.05rem; white-space: pre-wrap; }
+        .review-content-body {
+            line-height: 1.8;
+            color: #444;
+            font-size: 1.05rem;
+
+            white-space: pre-wrap;    /* 공백과 줄바꿈을 유지하면서 박스 끝에서 자동 줄바꿈 */
+            word-break: break-all;    /* 아주 긴 단어나 URL도 박스 크기에 맞춰 강제 줄바꿈 */
+            overflow-wrap: break-word; /* 텍스트가 넘칠 경우 단어 안에서 줄바꿈 */
+
+            /* 내부 요소(이미지 등)가 삐져나가는 것 방지 */
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        /* 후기 내부에 포함된 이미지 자동 크기 조절 */
+        .review-content-body img {
+            max-width: 100%;          /* 이미지가 부모 너비보다 크면 자동으로 줄어듦 */
+            height: auto;
+            display: block;
+            margin: 20px 0;           /* 이미지 상하 여백 */
+        }
 
         /* 댓글 영역 */
         .reply-section { background: #f8f9fa; border-radius: 15px; padding: 30px; margin-top: 50px; }
@@ -90,7 +110,7 @@
                     <h6 class="fw-bold mb-3"><i class="bi bi-images me-2 text-orange"></i>내부 사진</h6>
                     <div class="row g-3">
                         <div th:each="file : ${reviewDTO.fileList}" class="col-md-4 col-6">
-                            <img th:src="@{/display(fileId=${file.filePath})}" class="review-image daedong-shadow"
+                            <img th:src="@{/files/{path}(path=${file.filePath})}" class="review-image daedong-shadow"
                                  alt="리뷰 이미지">
                         </div>
                     </div>
@@ -108,7 +128,8 @@
                 </div>
 
                 <div class="like-section" style="margin-top: 20px; text-align: center;">
-                    <form th:action="@{/review/reaction}" method="post">
+                    <form th:action="@{/reaction}" method="post">
+                        <input type="hidden" name="targetType" value="review">
                         <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                         <input type="hidden" name="type" value="1">
                         <button type="submit"
@@ -171,19 +192,30 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="reply-author" th:text="${reply.loginId}">사용자</span>
                                 <div class="d-flex gap-2">
-                                    <th:block sec:authorize="isAuthenticated()"
-                                              th:if="${#authentication.name == reply.loginId}">
-                                        <button class="btn btn-link btn-sm p-0 text-muted"
-                                                th:onclick="|showEditForm(${reply.id})|">수정
-                                        </button>
-                                        <form th:action="@{/reply/delete}" method="post" class="d-inline">
-                                            <input type="hidden" name="replyId" th:value="${reply.id}">
-                                            <input type="hidden" name="targetType" value="review">
-                                            <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                                            <button type="submit" class="btn btn-link btn-sm p-0 text-danger"
-                                                    onclick="return confirm('삭제하시겠습니까?')">삭제
+                                    <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}">
+                                        <div class="d-flex align-items-center justify-content-end" style="gap: 10px;">
+
+                                            <button type="button"
+                                                    class="btn btn-link btn-sm p-0 text-muted border-0"
+                                                    th:onclick="|toggleEditForm(${reply.id})|"
+                                                    style="display: inline-flex; align-items: center; font-size: 0.8rem; line-height: 1; vertical-align: middle;">
+                                                수정
                                             </button>
-                                        </form>
+
+                                            <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex align-items-center">
+                                                <input type="hidden" name="id" th:value="${reply.id}">
+                                                <input type="hidden" name="userId" th:value="${reply.userId}">
+                                                <input type="hidden" name="targetType" th:value="review">
+                                                <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
+                                                <button type="submit"
+                                                        class="btn btn-link btn-sm p-0 text-danger border-0"
+                                                        onclick="return confirm('삭제하시겠습니까?')"
+                                                        style="display: inline-flex; align-items: center; font-size: 0.8rem; line-height: 1; vertical-align: middle;">
+                                                    삭제
+                                                </button>
+                                            </form>
+
+                                        </div>
                                     </th:block>
                                 </div>
                             </div>
@@ -200,7 +232,7 @@
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
                                     <button type="button" class="btn btn-light btn-sm rounded-pill px-3"
-                                            th:onclick="|hideEditForm(${reply.id})|">취소
+                                            th:onclick="|toggleEditForm(${reply.id})|">취소
                                     </button>
                                 </div>
                             </form>
@@ -210,7 +242,7 @@
 
                     <div class="mt-4" sec:authorize="isAuthenticated()">
                         <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-3 shadow-sm">
-                            <input type="hidden" name="targetType" value="REVIEW">
+                            <input type="hidden" name="targetType" value="review">
                             <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                             <textarea name="content" class="form-control border-0 mb-2" rows="3"
                                       placeholder="작성자에게 따뜻한 댓글을 남겨주세요." style="resize: none;"></textarea>
@@ -230,4 +262,20 @@
         </div>
     </div>
 </div>
+
+<script layout:fragment="script">
+    // 토글 기능으로 수정 (열려있으면 닫고, 닫혀있으면 여는 방식)
+    function toggleEditForm(id) {
+        const form = document.getElementById('editForm-' + id);
+        const display = document.getElementById('display-' + id);
+
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            display.style.opacity = '0.5'; // 수정 중임을 시각적으로 표현
+        } else {
+            form.style.display = 'none';
+            display.style.opacity = '1';
+        }
+    }
+</script>
 </html>

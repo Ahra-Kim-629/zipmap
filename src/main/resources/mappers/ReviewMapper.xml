@@ -4,60 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
-    <resultMap id="ReviewDetailMap" type="com.daedong.zipmap.domain.ReviewDTO">
-        <id property="id" column="review_id"/>
-        <result property="title" column="title"/>
-        <result property="content" column="content"/>
-        <result property="address" column="address"/>
-        <result property="userId" column="user_id"/>
-        <result property="point" column="point"/>
-        <result property="reviewStatus" column="review_status"/>
-        <result property="likeCount" column="like_count"/>
-        <result property="viewCount" column="view_count"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-        <result property="loginId" column="login_id"/>
-
-        <collection property="reactionList" ofType="com.daedong.zipmap.domain.Reaction">
-            <id property="id" column="reaction_id"/>
-            <result property="targetType" column="re_target_type"/>
-            <result property="targetId" column="re_target_id"/>
-            <result property="userId" column="re_user_id"/>
-            <result property="type" column="re_type"/>
-            <result property="createdAt" column="re_created_at"/>
-        </collection>
-
-        <collection property="fileList" ofType="com.daedong.zipmap.domain.File">
-            <id property="id" column="file_id"/>
-            <result property="targetType" column="f_target_type"/>
-            <result property="targetId" column="f_target_id"/>
-            <result property="filePath" column="file_path"/>
-            <result property="fileSize" column="file_size"/>
-        </collection>
-
-        <collection property="replyList" ofType="com.daedong.zipmap.domain.ReplyDTO">
-            <id property="id" column="reply_id"/>
-            <result property="userId" column="rep_user_id"/>
-            <result property="content" column="rep_content"/>
-            <result property="createdAt" column="rep_created_at"/>
-
-            <result property="loginId" column="rep_login_id"/>
-        </collection>
-
-        <collection property="prosList" ofType="java.lang.String">
-            <result column="pro_content"/>
-        </collection>
-
-        <collection property="consList" ofType="java.lang.String">
-            <result column="con_content"/>
-        </collection>
-    </resultMap>
-
     <select id="countTotal" resultType="int">
         SELECT COUNT(r.id)
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         <where>
+            AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
                 <choose>
                     <when test="searchType == 'titleAddress'">
@@ -81,10 +33,6 @@
                         #{p}
                     </foreach>
                     )
-                </if>
-
-                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
-                    OR
                 </if>
 
                 <if test="cons != null and cons.size() > 0">
@@ -161,39 +109,6 @@
         </if>
     </select>
 
-    <select id="getReviewDetail" resultMap="ReviewDetailMap">
-        SELECT
-        r.id AS review_id, r.title, r.content, r.address, r.user_id, r.point,
-        r.review_status, r.like_count, r.view_count, r.created_at, r.updated_at,
-        u.login_id,
-
-        re.id AS reaction_id, re.target_type AS re_target_type, re.target_id AS re_target_id,
-        re.user_id AS re_user_id, re.type AS re_type, re.created_at AS re_created_at,
-
-        f.id AS file_id, f.target_type AS f_target_type, f.target_id AS f_target_id,
-        f.file_path, f.file_size,
-
-        rep.id AS reply_id, rep.user_id AS rep_user_id, rep.content AS rep_content,
-        rep.created_at AS rep_created_at, u2.login_id AS rep_login_id,
-
-        -- 장단점 분리 조인
-        pa.content AS pro_content,
-        ca.content AS con_content
-
-        FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
-        LEFT JOIN reaction re ON r.id = re.target_id AND re.target_type = 'REVIEW'
-        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW'
-        LEFT JOIN reply rep ON r.id = rep.target_id AND rep.target_type = 'REVIEW'
-        LEFT JOIN user u2 ON rep.user_id = u2.id
-        -- 장점(PRO) 조인
-        LEFT JOIN review_attribute pa ON r.id = pa.review_id AND pa.type = 'PRO'
-        -- 단점(CON) 조인
-        LEFT JOIN review_attribute ca ON r.id = ca.review_id AND ca.type = 'CON'
-
-        WHERE r.id = #{id}
-    </select>
-
     <!-- 리뷰 작성 -->
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO review
@@ -211,23 +126,15 @@
         </foreach>
     </insert>
 
-    <!--    &lt;!&ndash; 리뷰글 아이디로 찾기 &ndash;&gt;-->
-    <!--    <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">-->
-    <!--        SELECT-->
-    <!--        r.id,-->
-    <!--        r.title,-->
-    <!--        r.content,-->
-    <!--        r.address,-->
-    <!--        r.user_id AS userId,-->
-    <!--        r.point,-->
-    <!--        r.review_status AS reviewStatus,-->
-    <!--        r.created_at AS createdAt,-->
-    <!--        r.updated_at AS updatedAt,-->
-    <!--        u.login_id AS loginId-->
-    <!--        FROM review r-->
-    <!--        LEFT JOIN user u ON r.user_id = u.id-->
-    <!--        WHERE r.id = #{id}-->
-    <!--    </select>-->
+    <!-- 리뷰글 아이디로 찾기 -->
+    <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+        r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status, r.created_at, r.updated_at, u.login_id
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE review_status = 'ACTIVE'
+        AND r.id = #{id}
+    </select>
 
     <!-- 리뷰 수정 -->
     <update id="update" parameterType="com.daedong.zipmap.domain.Review">
@@ -371,5 +278,15 @@
     <select id="countBannedReviews" resultType="int">
         SELECT COUNT(*) FROM review WHERE review_status = 'BANNED'
     </select>
+
+    <update id="updateReviewStatsBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE review
+            SET
+            like_count = like_count + #{item.likeCount},
+            view_count = view_count + #{item.viewCount}
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
 
 </mapper>
