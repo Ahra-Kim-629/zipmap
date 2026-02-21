@@ -38,7 +38,7 @@ public class ReactionService {
     }
 
     // 반응 개수 세기
-    public int countReaction(String targetType, Long targetId, int type) {
+    public long countReaction(String targetType, Long targetId, int type) {
         return reactionMapper.countReaction(targetType, targetId, type);
     }
 

@@ -20,8 +20,6 @@ public interface ReviewMapper {
     // 리뷰 아이디로 찾기
     ReviewDTO findById(Long id);
 
-    ReviewDTO getReviewDetail(Long id);
-
     // 리뷰 작성
     void insertReview(Review review);
 

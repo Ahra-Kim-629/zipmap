@@ -88,7 +88,6 @@ public class StatsUtil {
         syncDomainStats("post");
         // 2. Review 동기화
         syncDomainStats("review");
-        System.out.println("Redis -> DB 동기화 완료");
     }
 
     private void syncDomainStats(String domain) {

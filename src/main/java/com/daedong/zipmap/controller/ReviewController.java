@@ -9,6 +9,7 @@ import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
+import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class ReviewController {
     private final ReactionService reactionService;
     private final UserService userService;
     private final CrimeStatsService crimeStatsService;
+    private final ReplyService replyService;
 
     // [New] ★ 새로 만든 파일 유틸 서비스
     private final FileUtilService fileUtilService;
@@ -59,8 +61,7 @@ public class ReviewController {
 
         // 좋아요 표시
         for (ReviewDTO review : reviews) {
-            int count = reactionService.countReaction("review", review.getId(), 1);
-            review.setLikeCount(count);
+            review.setLikeCount(reactionService.countReaction("review", review.getId(), 1));
         }
 
         // 지도 표시용 전체 리뷰
@@ -90,6 +91,12 @@ public class ReviewController {
                          @AuthenticationPrincipal UserDetails userDetails,
                          HttpServletRequest request) {
         ReviewDTO reviewDTO = reviewService.findById(id, request, userDetails);
+
+        // 좋아요 표시
+        reviewDTO.setLikeCount(reactionService.countReaction("review", reviewDTO.getId(), 1));
+
+        // 리플 리스트 추가
+        reviewDTO.setReplyList(replyService.getReplyDTOList("review", reviewDTO.getId()));
 
         crimeStatsService.analyzeCrimeForReview(reviewDTO);
 

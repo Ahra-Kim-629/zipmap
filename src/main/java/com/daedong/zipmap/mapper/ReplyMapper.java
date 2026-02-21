@@ -1,6 +1,7 @@
 package com.daedong.zipmap.mapper;
 
 import com.daedong.zipmap.domain.Reply;
+import com.daedong.zipmap.domain.ReplyDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public interface ReplyMapper {
 
     void deleteReply(Long id);
 
-    List<Reply> getRepliesByTarget(String targetType, Long targetId);
+    List<ReplyDTO> getRepliesByTargetTypeAndTargetId(String targetType, Long targetId);
 }

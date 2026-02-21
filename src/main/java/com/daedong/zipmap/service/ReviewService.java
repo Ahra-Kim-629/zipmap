@@ -68,8 +68,9 @@ public class ReviewService {
     // 리뷰 아이디로 찾기
     @Transactional(readOnly = true)
     public ReviewDTO findById(Long id, HttpServletRequest request, UserDetails userDetails) {
-        ReviewDTO reviewDTO = reviewMapper.getReviewDetail(id);
+        ReviewDTO reviewDTO = reviewMapper.findById(id);
 
+        // 조회수 증가 위한 redis 처리
         if (reviewDTO != null) {
             // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
             String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
@@ -81,7 +82,8 @@ public class ReviewService {
                 System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
             }
         }
-        return reviewMapper.getReviewDetail(id);
+        
+        return reviewDTO;
     }
 
     public ReviewDTO findById(long id) {

@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import com.daedong.zipmap.domain.File;
 
 @Data
 public class PostDTO {
@@ -21,6 +20,7 @@ public class PostDTO {
     private LocalDateTime updatedAt;
 
     private String loginId; // 로그인 아이디로 커뮤니티 글에 나오게 하기 위해 추가
+    private Long dislikeCount;
 
     private List<File> fileList;
     private List<Reply> replyList;

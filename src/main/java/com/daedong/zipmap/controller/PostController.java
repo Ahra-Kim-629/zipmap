@@ -2,10 +2,10 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
-import com.daedong.zipmap.service.ReactionService;
-import com.daedong.zipmap.util.RepliesService;
+import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ import java.util.Map;
 public class PostController {
     private final PostService postService;
     private final UserService userService;
-    private final RepliesService repliesService;
+    private final ReplyService replyService;
     private final ReactionService reactionService;
 
     private final FileUtilService fileUtilService;
@@ -48,11 +48,8 @@ public class PostController {
 
         // 좋아요 싫어요 표시
         for (PostDTO post : posts.getContent()) {
-            int likeCount = reactionService.countReaction("post", post.getId(), 1);
-            int dislikeCount = reactionService.countReaction("post", post.getId(), -1);
-
-//            post.setLikeCount(likeCount);
-//            post.setDislikeCount(dislikeCount);
+            post.setLikeCount(reactionService.countReaction("post", post.getId(), 1));
+            post.setDislikeCount(reactionService.countReaction("post", post.getId(), -1));
         }
 
         model.addAttribute("posts", posts);
@@ -80,16 +77,15 @@ public class PostController {
         int myReaction = reactionService.getMyReaction(reaction);
         model.addAttribute("myReaction", myReaction);
 
-        // 좋아요, 싫어요 표시
-//        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
-//        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
+        postDTO.setLikeCount(reactionService.countReaction("post", id, 1));
+        postDTO.setDislikeCount(reactionService.countReaction("post", id, -1));
 
         model.addAttribute("post", postDTO);
 
         model.addAttribute("currentUserId", user.getId());
 
         // 해당 게시글에 달린 댓글 목록 보여주기
-        List<Reply> replyList = repliesService.getReplyList("post", id);
+        List<ReplyDTO> replyList = replyService.getReplyDTOList("post", id);
         model.addAttribute("replyList", replyList);
 
         return "post/detail";

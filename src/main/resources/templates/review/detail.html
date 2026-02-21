@@ -192,19 +192,30 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="reply-author" th:text="${reply.loginId}">사용자</span>
                                 <div class="d-flex gap-2">
-                                    <th:block sec:authorize="isAuthenticated()"
-                                              th:if="${#authentication.name == reply.loginId}">
-                                        <button class="btn btn-link btn-sm p-0 text-muted"
-                                                th:onclick="|showEditForm(${reply.id})|">수정
-                                        </button>
-                                        <form th:action="@{/reply/delete}" method="post" class="d-inline">
-                                            <input type="hidden" name="replyId" th:value="${reply.id}">
-                                            <input type="hidden" name="targetType" value="review">
-                                            <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                                            <button type="submit" class="btn btn-link btn-sm p-0 text-danger"
-                                                    onclick="return confirm('삭제하시겠습니까?')">삭제
+                                    <th:block sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}">
+                                        <div class="d-flex align-items-center justify-content-end" style="gap: 10px;">
+
+                                            <button type="button"
+                                                    class="btn btn-link btn-sm p-0 text-muted border-0"
+                                                    th:onclick="|toggleEditForm(${reply.id})|"
+                                                    style="display: inline-flex; align-items: center; font-size: 0.8rem; line-height: 1; vertical-align: middle;">
+                                                수정
                                             </button>
-                                        </form>
+
+                                            <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex align-items-center">
+                                                <input type="hidden" name="id" th:value="${reply.id}">
+                                                <input type="hidden" name="userId" th:value="${reply.userId}">
+                                                <input type="hidden" name="targetType" th:value="review">
+                                                <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
+                                                <button type="submit"
+                                                        class="btn btn-link btn-sm p-0 text-danger border-0"
+                                                        onclick="return confirm('삭제하시겠습니까?')"
+                                                        style="display: inline-flex; align-items: center; font-size: 0.8rem; line-height: 1; vertical-align: middle;">
+                                                    삭제
+                                                </button>
+                                            </form>
+
+                                        </div>
                                     </th:block>
                                 </div>
                             </div>
@@ -221,7 +232,7 @@
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
                                     <button type="button" class="btn btn-light btn-sm rounded-pill px-3"
-                                            th:onclick="|hideEditForm(${reply.id})|">취소
+                                            th:onclick="|toggleEditForm(${reply.id})|">취소
                                     </button>
                                 </div>
                             </form>
@@ -253,7 +264,18 @@
 </div>
 
 <script layout:fragment="script">
-    function showEditForm(id) { document.getElementById('editForm-' + id).style.display = 'block'; }
-    function hideEditForm(id) { document.getElementById('editForm-' + id).style.display = 'none'; }
+    // 토글 기능으로 수정 (열려있으면 닫고, 닫혀있으면 여는 방식)
+    function toggleEditForm(id) {
+        const form = document.getElementById('editForm-' + id);
+        const display = document.getElementById('display-' + id);
+
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            display.style.opacity = '0.5'; // 수정 중임을 시각적으로 표현
+        } else {
+            form.style.display = 'none';
+            display.style.opacity = '1';
+        }
+    }
 </script>
 </html>
