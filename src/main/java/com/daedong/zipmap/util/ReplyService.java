@@ -48,13 +48,6 @@ public class ReplyService {
         replyMapper.deleteByTargetTypeAndTargetId(targetType, targetId);
     }
 
-    // 내가 쓴 리뷰 댓글 조회
-    public Page<ReplyDTO> findMyReplies(Long userId, Pageable pageable) {
-        List<ReplyDTO> content = replyMapper.findByUserId(userId, pageable);
-        int total = replyMapper.countByUserId(userId);
-        return new PageImpl<>(content, pageable, total);
-    }
-
     public Page<ReplyDTO> findByTargetTypeAndUserId(String targetType, Long userId, Pageable pageable) {
         List<ReplyDTO> content = replyMapper.findByTargetTypeAndUserId(targetType, userId, pageable);
         int total = replyMapper.countByTargetTypeAndUserId(targetType, userId);

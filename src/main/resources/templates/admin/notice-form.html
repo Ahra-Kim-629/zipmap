@@ -87,7 +87,7 @@
                             <div class="col-md-4">
                                 <label for="priority" class="form-label">노출 우선순위</label>
                                 <input type="number" id="priority" name="priority"
-                                       class="form-control text-center fw-bold" value="0">
+                                       class="form-control text-center fw-bold" value="0" min="0">
                                 <div class="guide-text text-end">※ 숫자가 높을수록 먼저 노출</div>
                             </div>
                         </div>
@@ -134,20 +134,33 @@
 
     <script th:inline="javascript">
         $(document).ready(function() {
-            // 기간 선택기 설정
-            const fpConfig = {
-                enableTime: true,
-                dateFormat: "Y-m-d",
+            const commonConfig = {
                 locale: "ko",
-                time_24hr: true,
-                minDate: "today"
+                minDate: "today",
+                altInput: true,
+                altFormat: "Y-m-d", // 사용자에게 보이는 형식
             };
 
-            flatpickr("#startDate", fpConfig);
-            flatpickr("#endDate", fpConfig);
+            // 시작일 설정
+            const startPicker = flatpickr("#startDate", {
+                ...commonConfig,
+                onChange: function(selectedDates, dateStr) {
+                    // 시작일이 선택되면 종료일의 최소 날짜(minDate)를 시작일로 제한
+                    endPicker.set("minDate", dateStr);
+                }
+            });
+
+            // 종료일 설정
+            const endPicker = flatpickr("#endDate", {
+                ...commonConfig,
+                onChange: function(selectedDates, dateStr) {
+                    // 종료일이 선택되면 시작일의 최대 날짜(maxDate)를 종료일로 제한
+                    startPicker.set("maxDate", dateStr);
+                }
+            });
         });
 
-        // 이미지 미리보기 함수
+        // 이미지 미리보기
         function previewImage(input) {
             const preview = document.getElementById('imagePreview');
             if (input.files && input.files[0]) {
@@ -156,10 +169,25 @@
                     preview.innerHTML = `<img src="${e.target.result}" alt="미리보기">`;
                 }
                 reader.readAsDataURL(input.files[0]);
-            } else {
-                preview.innerHTML = `<span class="text-muted small">이미지를 선택하세요</span>`;
             }
         }
+
+        // 우선순위 음수 입력 방지
+        const priorityInput = document.getElementById('priority');
+
+        priorityInput.addEventListener('input', function() {
+            if (this.value < 0) {
+                alert('우선순위는 0 이상의 숫자만 입력 가능합니다.');
+                this.value = 0; // 음수일 경우 0으로 강제 초기화
+            }
+        });
+
+        // 키보드로 마이너스(-) 입력 자체를 차단하고 싶을 때
+        priorityInput.addEventListener('keydown', function(e) {
+            if (e.key === '-' || e.key === 'e') { // 'e'는 지수 표기법 방지
+                e.preventDefault();
+            }
+        });
     </script>
 </div>
 </html>

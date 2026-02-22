@@ -17,7 +17,7 @@ public interface UserMapper {
 
     void save(User user);
 
-    User findByLoginIdNameEmail(String loginId, String name, String email);
+    User findByLoginIdAndNameAndEmail(String loginId, String name, String email);
 
     void delete(User user);
 
@@ -27,7 +27,6 @@ public interface UserMapper {
     List<User> findAllUsers();
 
     // 추가: 관리자 전용 수정 메서드(Status , Role 만 수정 하도록 하는 기능)
-    // 2026.02.11 종빈 생성
     void updateUserStatusAndRole(User user);
 
     void insertToken(Token token);

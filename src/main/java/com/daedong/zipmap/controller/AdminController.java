@@ -47,6 +47,11 @@ public class AdminController {
 
     @PostMapping("/notice")
     public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
+        if (notice.getPriority() < 0) {
+            rttr.addFlashAttribute("error", "우선순위는 0 이상의 숫자만 입력 가능합니다.");
+            return "redirect:/admin/notice";
+        }
+
         try {
             adminService.insertNotice(notice, imageFile);
             rttr.addFlashAttribute("message", "공지사항이 등록되었습니다.");
@@ -105,7 +110,6 @@ public class AdminController {
     }
 
     // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
-
     @GetMapping("/posts/delete/{id}")
     public String deletePost(@PathVariable("id") Long id, RedirectAttributes rttr) {
         try {
@@ -127,7 +131,6 @@ public class AdminController {
         return "redirect:/admin/posts";
     }
 
-    // 1. 기존 리스트 메서드들 아래에 추가
     @GetMapping("/reviews")
     public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(required = false) String searchType,
@@ -165,6 +168,7 @@ public class AdminController {
         // 처리가 끝나면 다시 리뷰 목록 페이지로 새로고침(리다이렉트)
         return "redirect:/admin/reviews";
     }
+
     @GetMapping("/postnotice")
     public String postNoticeForm() {
         // templates/admin/postnotice.html 로 이동 (파일 위치 확인하세요!)
@@ -203,16 +207,17 @@ public class AdminController {
             return "redirect:/admin/postnotice";
         }
     }
-// 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
-@GetMapping("/reviewcertification")
-public String reviewCertificationList(Model model,
-                                      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-    // AdminService를 통해 BANNED 리뷰만 가져옴
-    Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
+    // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
+    @GetMapping("/reviewcertification")
+    public String reviewCertificationList(Model model,
+                                          @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-    model.addAttribute("reviews", reviews);
-    return "/admin/reviewcertification";
-}
+        // AdminService를 통해 BANNED 리뷰만 가져옴
+        Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
+
+        model.addAttribute("reviews", reviews);
+        return "/admin/reviewcertification";
+    }
 }
 

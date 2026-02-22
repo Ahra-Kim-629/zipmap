@@ -12,4 +12,5 @@ public interface NoticeMapper {
 
     void insertNotice(Notice notice);
 
+    void updateNotice(Notice notice);
 }

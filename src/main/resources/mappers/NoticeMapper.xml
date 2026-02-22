@@ -6,10 +6,11 @@
 
     <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.NoticeDTO">
         SELECT
-        n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at, n.updated_at
+        n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,
+        n.updated_at
         FROM notice n
         LEFT JOIN file f ON n.id = f.target_id AND f.target_type = 'NOTICE'
-        WHERE status='Y' AND NOW() BETWEEN start_date AND end_date
+        WHERE n.status='Y' AND NOW() BETWEEN start_date AND end_date
         ORDER BY priority DESC, id DESC
     </select>
 
@@ -21,4 +22,12 @@
         (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{priority}, NOW(),
         NOW())
     </insert>
+
+    <update id="updateNotice" parameterType="com.daedong.zipmap.domain.Notice">
+        UPDATE notice
+        SET title = #{title}, image_path = #{imagePath}, link_url = #{linkUrl},
+        status = #{status}, start_date = #{startDate}, end_date = #{endDate},
+        priority = #{priority}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
 </mapper>

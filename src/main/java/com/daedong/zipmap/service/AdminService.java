@@ -2,6 +2,7 @@ package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.*;
+import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -11,10 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.daedong.zipmap.util.FileUtilService;
-
-import java.util.List;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,46 +23,34 @@ public class AdminService {
     private final NoticeMapper noticeMapper;
     private final PostMapper postMapper;
     private final ReviewMapper reviewMapper;
-
     private final FileUtilService fileUtilService;
     private final FileMapper fileMapper;
-
-//    @Transactional
-//    @CacheEvict(value = "mainNotices", allEntries = true)
-//    public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
-//        noticeMapper.insertNotice(notice);
-//
-//        String fileName = fileService.saveNoticeImage(notice.getId(), imageFile);
-//
-//        notice.setImagePath(fileName);
-//        noticeMapper.updateNoticeImagePath(notice);
-//    }
 
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
     public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
 
         // 1. 먼저 공지사항 글부터 저장 (그래야 ID가 생김)
+        notice.setStatus("Y");
+        notice.setEndDate(notice.getEndDate().plusDays(1));
         noticeMapper.insertNotice(notice);
 
-        // 2. 파일이 있으면 -> 디스크 저장 -> 'file_attachment' 테이블에 저장
+        // 2. 파일이 있으면 -> 디스크 저장 -> 'file' 테이블에 저장
         if (imageFile != null && !imageFile.isEmpty()) {
 
             // (1) 실제 폴더(c:/upload/notice)에 파일 저장
             String filePath = fileUtilService.saveFile(imageFile, "notice");
-            String storedPath = fileUtilService.saveFile(imageFile, "notice");
 
-            // (2) ★ [핵심] 공통 파일 테이블(file_attachment)에 정보 저장!
+            // (2) ★ [핵심] 공통 파일 테이블(file)에 정보 저장!
             com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
             file.setTargetType("NOTICE");        // 구분값
             file.setTargetId(notice.getId());    // 방금 만든 공지사항 ID
             file.setFilePath(filePath);          // notice/uuid_파일명.jpg
             file.setFileSize(imageFile.getSize());
-            notice.setImagePath(storedPath);
 
             fileMapper.insertFile(file);
         }
-        noticeMapper.insertNotice(notice);
+        noticeMapper.updateNotice(notice);
     }
 
     // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정
@@ -88,10 +73,8 @@ public class AdminService {
         return noticeMapper.findCurrentNoticeList();
     }
 
-
     public List<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         return postMapper.adminFindAll(searchType, keyword, category, location, pageable);
-
     }
 
     public int getTotalCount(String searchType, String keyword, String category, String location) {
@@ -99,7 +82,6 @@ public class AdminService {
     }
 
     // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
-
     @Transactional
     public void deletePost(Long id) {
         // 1. 필요한 경우 관련 파일이나 댓글을 먼저 삭제하는 로직을 넣을 수 있습니다.
@@ -115,14 +97,6 @@ public class AdminService {
         postMapper.updatePostStatus(id, newStatus);
     }
 
-    //review 관리자 접근을 위한 방법
-
-    public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {
-        // 서비스는 단순히 매퍼에게 일을 시키는 '징검다리' 역할을 합니다.
-        return reviewMapper.countTotal(searchType, keyword, pros, cons);
-    }
-
-    // 2. 클래스 맨 아래에 삭제 메서드 추가
     @Transactional
     public void deleteReview(Long id) {
         reviewMapper.deleteAttributeByReviewId(id); // 장단점 삭제
@@ -130,20 +104,20 @@ public class AdminService {
         reviewMapper.deleteReactionByReviewId(id);  // 반응 삭제
         reviewMapper.deleteReviewById(id);          // 최종 리뷰 삭제
     }
+
     @Transactional
     public void toggleReviewStatus(Long id, String targetStatus) {
         // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
         reviewMapper.updateReviewStatusToBanned(id, targetStatus);
     }
+
     @Transactional
     public Page<ReviewDTO> getPendingCertifications(Pageable pageable) {
-        // XML 쿼리를 호출해서 리스트를 가져옵니다.
         List<ReviewDTO> content = reviewMapper.findBannedReviews(
                 pageable.getPageSize(),
                 (int) pageable.getOffset()
         );
 
-// XML의 id="countBannedReviews" 호출
         int total = reviewMapper.countBannedReviews();
 
         return new PageImpl<>(content, pageable, total);

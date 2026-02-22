@@ -33,11 +33,11 @@ public interface ReviewMapper {
 
     // 내가 쓴 리뷰 조회
     List<ReviewDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
+
     int countByUserId(@Param("userId") Long userId);
 
     List<ReviewDTO> findOrderByCreatedAtDescLimit4();
 
-    //    // 추가 2/13
     void updateContent(long id, String content);
 
     void deleteAttributeByReviewId(long id);
@@ -54,7 +54,6 @@ public interface ReviewMapper {
 
     void updateReviewStatusToBanned(@Param("reviewId") Long reviewId, @Param("status") String status);
 
-    // ReviewMapper.java 인터페이스 내에 추가
     List<ReviewDTO> adminFindAll(@Param("searchType") String searchType,
                                  @Param("keyword") String keyword,
                                  @Param("pageable") Pageable pageable);
@@ -64,6 +63,7 @@ public interface ReviewMapper {
 
     // admin 에서 BANNED된 리뷰 목록 볼수 있도록 추가
     List<ReviewDTO> findBannedReviews(@Param("pageSize") int pageSize, @Param("offset") int offset);
+
     int countBannedReviews();
 
     void updateReviewStatsBatch(List<StatsUpdateDTO> updateList);

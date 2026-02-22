@@ -22,10 +22,6 @@ public interface ReplyMapper {
 
     void deleteByTargetTypeAndTargetId(String targetType, Long targetId);
 
-    List<ReplyDTO> findByUserId(Long userId, Pageable pageable);
-
-    int countByUserId(Long userId);
-
     List<ReplyDTO> findByTargetTypeAndUserId(String targetType, Long userId, Pageable pageable);
 
     int countByTargetTypeAndUserId(String targetType, Long userId);

@@ -82,7 +82,7 @@ public class PostController {
 
             Long savedId = postService.write(post);
 
-            // 2. 파일 이사 (이미지가 없을 때를 대비해 null 체크가 필요할 수 있음)
+            // 파일 이사 (이미지가 없을 때를 대비해 null 체크가 필요할 수 있음)
             if (post.getContent() != null && post.getContent().contains("src=")) {
                 String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
                 postService.updateContent(savedId, newContent);

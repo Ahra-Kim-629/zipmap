@@ -10,9 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,10 +26,6 @@ public class UserService implements UserDetailsService {
         return userMapper.findByNameAndEmail(name, email)
                 .orElseThrow(() -> new RuntimeException("해당 정보로 가입된 회원을 찾을 수 없습니다."));
     }
-
-//    public User findById(long id) {
-//        return userMapper.findById(id).orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));
-//    }
 
     @Override
     public UserDetails loadUserByUsername(String login_id) throws UsernameNotFoundException {
@@ -61,7 +55,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void passwordReset(String loginId, String name, String email, String clientIp) throws Exception {
-        User user = userMapper.findByLoginIdNameEmail(loginId, name, email);
+        User user = userMapper.findByLoginIdAndNameAndEmail(loginId, name, email);
         if (user == null) {
             throw new RuntimeException("해당 정보로 가입된 회원을 찾을 수 없습니다.");
         }

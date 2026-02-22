@@ -14,7 +14,7 @@
              th:text="${success}"></div>
     </div>
 
-    <th:block th:if="${noticeList != null && noticeList.size() > 0}">
+    <th:block th:if="${noticeDTOList != null && noticeDTOList.size() > 0}">
         <div class="modal fade" id="noticeCarouselModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content daedong-modal-content">
@@ -27,7 +27,7 @@
                     <div class="modal-body p-0">
                         <div id="noticeCarousel" class="carousel slide" data-bs-ride="false">
                             <div class="carousel-indicators">
-                                <button th:each="notice, stat : ${noticeList}"
+                                <button th:each="notice, stat : ${noticeDTOList}"
                                         type="button"
                                         data-bs-target="#noticeCarousel"
                                         th:data-bs-slide-to="${stat.index}"
@@ -36,7 +36,7 @@
                             </div>
 
                             <div class="carousel-inner">
-                                <div th:each="notice, stat : ${noticeList}"
+                                <div th:each="notice, stat : ${noticeDTOList}"
                                      th:classappend="${stat.first} ? 'active'"
                                      class="carousel-item">
                                     <a th:href="${notice.linkUrl}" target="_blank">

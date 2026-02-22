@@ -13,10 +13,10 @@ public class Notice {
     private String imagePath;
     private String linkUrl;
     private String status;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime startDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
     private int priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
