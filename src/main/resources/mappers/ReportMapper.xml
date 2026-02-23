@@ -7,17 +7,14 @@
     <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO">
         INSERT INTO report (
         post_id,
-        reporter_id,  reason_type,
+        reporter_id,
+        reason_type,
         content,
         file_path,
         status,
         created_at
         ) VALUES (
-        #{postId},
-        #{userId},    #{reasonType},
-        #{content},
-        #{filePath},
-        'PENDING',
+        #{postId},    #{userId},    #{reasonType},#{content},   #{filePath},  'PENDING',
         NOW()
         )
     </insert>

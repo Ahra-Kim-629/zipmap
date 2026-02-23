@@ -22,13 +22,24 @@ public class ReportService {
 
     @Transactional
     public void saveReport(ReportDTO reportDTO, MultipartFile file) {
-        // 1. 파일 업로드 처리 (외부 경로 사용으로 로그아웃 방지)
+        // 💡 로그를 찍어 실제 데이터가 서비스까지 도달했는지 확인합니다.
+        log.info("### DB 저장 직전 데이터 확인: postId={}, userId={}", reportDTO.getPostId(), reportDTO.getUserId());
+
         if (file != null && !file.isEmpty()) {
             reportDTO.setFilePath(uploadFile(file));
         }
 
-        // 2. DB 저장 (여기서 오류가 난다면 매퍼의 #{userId} 확인 필요)
-        reportMapper.insertReport(reportDTO);
+        try {
+            reportMapper.insertReport(reportDTO);
+            log.info("### 쿼리 실행 직후 - 성공 메시지가 보이나요?");
+            log.info("### DB 저장 쿼리 실행 성공!");
+            if (file != null && !file.isEmpty()) {
+                reportDTO.setFilePath(uploadFile(file));
+            }
+        } catch (Exception e) {
+            log.error("### DB 저장 실패 원인: ", e); // 에러의 상세 원인(Stacktrace)을 찍습니다.
+            throw new RuntimeException("DB 저장 에러", e);
+        }
     }
 
     private String uploadFile(MultipartFile file) {

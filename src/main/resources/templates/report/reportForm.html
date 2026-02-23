@@ -37,17 +37,14 @@
                     </ul>
                 </div>
 
-                <form th:action="@{/report/submit}" method="post" enctype="multipart/form-data">
-
-                    <!-- CSRF 토큰이 있다면 전송, 없다면 무시 -->
+                <form th:action="@{/report/submit}" th:object="${reportDTO}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-                    <!-- postId를 hidden 필드로 추가 -->
-                    <input type="hidden" name="postId" th:value="${reportDTO.postId}"/>
+                    <input type="hidden" th:field="*{postId}"/>
 
                     <div class="mb-4">
                         <label class="form-label">신고 사유 선택</label>
-                        <select name="reasonType" class="form-select" required>
+                        <select th:field="*{reasonType}" class="form-select" required>
                             <option value="" disabled selected>사유를 선택해 주세요</option>
                             <option value="SPAM">스팸/영리목적 홍보</option>
                             <option value="ABUSE">욕설/비하발언/인신공격</option>
@@ -58,7 +55,7 @@
 
                     <div class="mb-4">
                         <label class="form-label">상세 신고 내용</label>
-                        <textarea name="content" class="form-control" rows="6"
+                        <textarea th:field="*{content}" class="form-control" rows="6"
                                   placeholder="신고 사유에 대해 구체적으로 적어주세요. (최소 10자 이상)" required></textarea>
                     </div>
 
@@ -69,7 +66,7 @@
                     </div>
 
                     <div class="d-flex justify-content-center gap-3">
-                        <a th:href="@{/post/detail/{id}(id=${postId})}" class="btn btn-cancel">취소</a>
+                        <a th:href="@{/post/detail/{id}(id=*{postId})}" class="btn btn-cancel">취소</a>
                         <button type="submit" class="btn btn-submit shadow-sm">신고 접수하기</button>
                     </div>
                 </form>
