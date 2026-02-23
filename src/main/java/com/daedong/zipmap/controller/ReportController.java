@@ -37,18 +37,18 @@ public class ReportController {
 
         log.info("### [신고접수 시작] postId: {}", reportDTO.getPostId());
 
-        // 💡 세션에서 직접 현재 유저 정보를 꺼내오는 가장 확실한 방법
-        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-
-        if (principal instanceof UserPrincipalDetails) {
-            UserPrincipalDetails userDetails = (UserPrincipalDetails) principal;
-            reportDTO.setUserId(userDetails.getUser().getId());
-            log.info("### [로그인유저 확인 성공] ID: {}, 이름: {}", reportDTO.getUserId(), userDetails.getUsername());
-        } else {
-            log.warn("### [로그인정보 없음] 로그인 페이지로 이동합니다.");
-            return "redirect:/login";
-        }
+//        // 💡 세션에서 직접 현재 유저 정보를 꺼내오는 가장 확실한 방법
+//        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext()
+//                .getAuthentication().getPrincipal();
+//
+//        if (principal instanceof UserPrincipalDetails) {
+//            UserPrincipalDetails userDetails = (UserPrincipalDetails) principal;
+//            reportDTO.setUserId(userDetails.getUser().getId());
+//            log.info("### [로그인유저 확인 성공] ID: {}, 이름: {}", reportDTO.getUserId(), userDetails.getUsername());
+//        } else {
+//            log.warn("### [로그인정보 없음] 로그인 페이지로 이동합니다.");
+//            return "redirect:/login";
+//        }
 
         // 이제 진짜 저장하러 갑니다!
         reportService.saveReport(reportDTO, file);

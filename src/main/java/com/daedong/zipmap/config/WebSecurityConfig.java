@@ -47,7 +47,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         .requestMatchers("/find/**", "/users/**",
-                                "/review/**").hasRole("WRITER")
+                                "/review/**","/report/**").hasRole("WRITER")
 
                         .anyRequest().authenticated()
                 )
@@ -77,5 +77,5 @@ public class WebSecurityConfig {
 
         return http.build();
     }
-    
+
 }
