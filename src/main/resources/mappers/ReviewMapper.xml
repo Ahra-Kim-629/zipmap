@@ -82,6 +82,8 @@
 
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
+                <trim prefixOverrides="OR">
+
                 <if test="pros != null and pros.size() > 0">
                     EXISTS (
                     SELECT 1 FROM review_attribute pa
@@ -107,6 +109,8 @@
                     </foreach>
                     )
                 </if>
+
+                </trim>
                 )
             </if>
         </where>
@@ -134,14 +138,39 @@
         </foreach>
     </insert>
 
+    <!-- 리뷰 detail -->
+    <resultMap id="reviewDetailMap" type="com.daedong.zipmap.domain.ReviewDTO">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="address" column="address" />
+        <result property="userId" column="user_id" />
+        <result property="loginId" column="login_id" />
+        <result property="point" column="point" />
+        <result property="reviewStatus" column="review_status" />
+        <result property="likeCount" column="like_count" />
+        <result property="viewCount" column="view_count" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+
     <!-- 리뷰글 아이디로 찾기 -->
-    <select id="findById" resultType="com.daedong.zipmap.domain.ReviewDTO">
+    <select id="findById" resultMap="reviewDetailMap">
         SELECT
-        r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status, r.created_at, r.updated_at, u.login_id
+        r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status, r.like_count, r.view_count, r.created_at, r.updated_at,
+        u.login_id
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         WHERE review_status = 'ACTIVE'
         AND r.id = #{id}
+    </select>
+
+    <!-- 장단점 -->
+    <select id="findAttributesByReviewId" resultType="com.daedong.zipmap.domain.ReviewAttribute">
+        SELECT
+        id, review_id, type, content
+        FROM review_attribute
+        WHERE review_id = #{id}
     </select>
 
     <!-- 리뷰 수정 -->

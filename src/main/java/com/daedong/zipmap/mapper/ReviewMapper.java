@@ -1,9 +1,6 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.Certification;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.StatsUpdateDTO;
+import com.daedong.zipmap.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -70,4 +67,6 @@ public interface ReviewMapper {
 
     // AI 요약을 위해 특정 지역의 리뷰 내용만 모두 가져오는 메서드 2/23 추가
     List<String> findContentsByRegion(String region);
+
+    List<ReviewAttribute> findAttributesByReviewId(long id);
 }

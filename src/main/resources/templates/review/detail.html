@@ -216,6 +216,13 @@
     </div>
 </div>
 
+<!-- 수정 사용자 권한 체크 -->
+<script th:if="${errorMessage}">
+    alert([[${errorMessage}]]);
+</script>
+<script th:if="${successMessage}">
+    alert([[${successMessage}]]);
+</script>
 <script layout:fragment="script">
     function toggleEditForm(id) {
         const form = document.getElementById('editForm-' + id);

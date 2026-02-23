@@ -215,6 +215,21 @@
                         </div>
                     </div>
 
+                    <!-- 알림받기 버튼 -->
+                    <div th:if="${keyword != null and keyword != ''}">
+                        <div th:if="${!isSubscribed}" id="alertSettingArea">
+                            <p> 찾으시는 키워드 '[[${keyword}]]'에 대한 새 리뷰 알림을 받으시겠어요? </p>
+                            <button type="button" id="btnSaveKeyword" class="btn btn-primary">알림 받기</button>
+                        </div>
+
+                        <div th:if="${isSubscribed}" id="alreadySubscribed" style="display: block !important;">
+                            <span class="badge badge-success" style="background-color: green; color: white; padding: 5px;">
+                                '[[${keyword}]]'는 알림 설정되어 있습니다.
+                            </span>
+                        </div>
+                    </div>
+
+
                     <div class="filter-section">
                         <div class="d-flex align-items-start mb-2">
                             <span class="filter-label">장점</span>
@@ -561,6 +576,85 @@
                 });
                 if (guKeys.length === 1) { map.setCenter(new kakao.maps.LatLng(SEOUL_COORDS[guKeys[0]].lat, SEOUL_COORDS[guKeys[0]].lng)); map.setLevel(5); } else { map.setBounds(bounds); }
             }
+
+    // -------------- 알림 받기 ---------------
+    /* <![CDATA[ */
+    $(document).ready(function() {
+
+        // 페이지 로드 시 알림 버튼 표시 여부 결정
+        function checkSearchFilters() {
+            let keywords = [];
+
+            // 검색어(id="keyword") 가져오기
+            let searchText = $('#keyword').val() ? $('#keyword').val().trim() : "";
+            if(searchText) keywords.push(searchText);
+
+            // 체크박스(name="pros", name="cons") 가져오기
+            $('input[name="pros"]:checked, input[name="cons"]:checked').each(function() {
+                keywords.push($(this).val());
+            });
+
+            // 키워드가 하나라도 있다면 알림 설정 영역 표시
+            if(keywords.length > 0 && $('#alertSettingArea').length > 0) {
+                $('#appliedKeywords').text(keywords.join(", "));
+                $('#alertSettingArea').show(); // 새로고침 후에는 바로 보이게 show()
+            }
+        }
+
+        // 페이지가 열리자마자 바로 실행
+        checkSearchFilters();
+
+        // 알림 받기 버튼 클릭 시 서버로 전송
+        $('#btnSaveKeyword').on('click', function() {
+            let keywordList = [];
+
+            // 현재 입력/체크된 값들 다시 수집
+            let searchText = $('#keyword').val().trim();
+            if(searchText) keywordList.push(searchText);
+
+            $('input[name="pros"]:checked, input[name="cons"]:checked').each(function() {
+                keywordList.push($(this).val());
+            });
+
+            let uniqueKeywords = [...new Set(keywordList)];
+
+            // 로그인 사용자 확인 (타임리프 문법)
+            let loginUserId = /*[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.id : null}]]*/ null;
+
+            if (!loginUserId) {
+                alert("로그인 후 이용 가능한 서비스입니다.");
+                return;
+            }
+
+            // AJAX 전송
+            $.ajax({
+                url: '/subscription/save',
+                type: 'POST',
+                contentType: 'application/json',
+                beforeSend: function(xhr) {
+                    const token = $("meta[name='_csrf']").attr("content");
+                    const header = $("meta[name='_csrf_header']").attr("content");
+                    if (token && header) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                },
+                data: JSON.stringify({
+                    userId: loginUserId,
+                    keywords: uniqueKeywords,
+                    targetType: 'review'
+                }),
+                success: function(response) {
+                    alert("알림 설정이 완료되었습니다!");
+                    // 버튼 영역 찾기
+                    const area = $('#alertSettingArea');
+                    // 영역 내용 변환
+                    area.html('<span class="badge badge-success">이미 구독 중인 키워드입니다!</span>');
+                    area.fadeIn();
+                }
+            });
+        });
+    });
+    /* ]]> */
         </script>
     </div>
 </div>
