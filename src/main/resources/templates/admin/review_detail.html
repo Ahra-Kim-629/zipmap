@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <style>
+        .detail-container { padding: 60px 0; background-color: #fdfcf9; }
+        .detail-card { background: #fff; padding: 50px; border-radius: 24px; border: none; }
+        .detail-header { border-bottom: 1px solid #eee; padding-bottom: 30px; margin-bottom: 40px; }
+        .detail-title { font-weight: 800; color: #3E362E; line-height: 1.4; }
+
+        /* 실거주 인증 서류 전용 스타일 */
+        .cert-verify-section {
+            background-color: #fff5f5; border: 2px dashed #ff4757;
+            border-radius: 20px; padding: 30px; margin-bottom: 50px;
+        }
+        .cert-image {
+            width: 100%; max-height: 500px; object-fit: contain;
+            border-radius: 12px; cursor: zoom-in; background: #000;
+        }
+        .admin-action-bar {
+            position: sticky; bottom: 20px; background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px); padding: 20px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1000;
+        }
+
+        /* 기존 스타일 유지 */
+        .star-rating { color: #ffc107; font-size: 1.2rem; font-weight: bold; }
+        .content-body { line-height: 1.8; color: #444; white-space: pre-wrap; }
+        .badge-pros { background-color: rgba(40, 167, 69, 0.08); color: #28a745; padding: 5px 12px; }
+        .badge-cons { background-color: rgba(220, 53, 69, 0.08); color: #dc3545; padding: 5px 12px; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="detail-container">
+        <div class="container">
+
+            <div class="cert-verify-section daedong-shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-danger m-0">
+                        <i class="bi bi-file-earmark-check-fill me-2"></i>실거주 인증 서류 확인
+                    </h4>
+                    <span class="badge bg-danger">승인 대기 중 (BANNED)</span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7">
+                        <div th:if="${reviewDTO.filePath != null}" class="text-center">
+                            <img th:src="@{/files/{path}(path=${reviewDTO.filePath})}"
+                                 class="cert-image shadow" alt="임대차계약서"
+                                 onclick="window.open(this.src)">
+                            <p class="mt-2 text-muted small">* 이미지를 클릭하면 크게 볼 수 있습니다.</p>
+                        </div>
+                        <div th:unless="${reviewDTO.filePath != null}" class="py-5 text-center text-muted">
+                            <i class="bi bi-exclamation-circle fs-1 d-block mb-2"></i>
+                            첨부된 인증 서류가 없습니다.
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-white p-4 rounded-4 h-100 border">
+                            <h6 class="fw-bold mb-3">검토 가이드라인</h6>
+                            <ul class="small text-secondary lh-lg">
+                                <li>계약서의 <strong>주소</strong>가 리뷰 주소와 일치하는가?</li>
+                                <li><strong>임대 기간</strong>이 유효한 범위 내에 있는가?</li>
+                                <li>문서가 위조되거나 식별 불가능하지 않은가?</li>
+                            </ul>
+                            <hr>
+                            <div class="alert alert-light border-0 small">
+                                <strong>신청자 ID:</strong> <span th:text="${reviewDTO.loginId}">user01</span><br>
+                                <strong>신청 일시:</strong> <span th:text="${#temporals.format(reviewDTO.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card daedong-shadow">
+                <div class="detail-header">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge rounded-pill bg-light text-dark px-3 py-2 border">
+                            <i class="bi bi-geo-alt-fill text-orange me-1"></i>
+                            <span th:text="${reviewDTO.address}">주소</span>
+                        </span>
+                        <span class="star-rating ms-2">
+                            <i class="bi bi-star-fill"></i> <span th:text="${reviewDTO.point}">4.5</span>
+                        </span>
+                    </div>
+                    <h2 class="detail-title mb-3" th:text="${reviewDTO.title}">후기 제목</h2>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background-color: #f8fff9; border: 1px solid #e1f5e5;">
+                            <h6 class="fw-bold text-success mb-3">이 집의 장점</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="pros : ${reviewDTO.prosList}" class="badge badge-pros rounded-pill shadow-sm" th:text="${pros}">장점</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4" style="background-color: #fff9f9; border: 1px solid #f5e1e1;">
+                            <h6 class="fw-bold text-danger mb-3">이 집의 단점</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="cons : ${reviewDTO.consList}" class="badge badge-cons rounded-pill shadow-sm" th:text="${cons}">단점</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="py-4 border-top mb-5">
+                    <h6 class="fw-bold mb-4 text-muted small">상세 내용</h6>
+                    <div th:utext="${reviewDTO.content}" class="content-body"></div>
+                </div>
+
+                <div class="admin-action-bar d-flex justify-content-center gap-3">
+                    <form th:action="@{/admin/reviews/toggle-status}" method="post">
+                        <input type="hidden" name="id" th:value="${reviewDTO.id}">
+                        <input type="hidden" name="status" value="ACTIVE">
+                        <button type="submit" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i>인증 승인 (공개)
+                        </button>
+                    </form>
+
+                    <a th:href="@{/admin/reviews/delete/{id}(id=${reviewDTO.id})}"
+                       class="btn btn-outline-danger rounded-pill px-5 py-2 fw-bold"
+                       onclick="return confirm('서류 미비로 삭제 처리하시겠습니까?')">
+                        <i class="bi bi-x-circle me-2"></i>인증 반려 (삭제)
+                    </a>
+
+                    <a th:href="@{/admin/reviewcertification}" class="btn btn-light rounded-pill px-4 py-2 border">
+                        목록으로
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

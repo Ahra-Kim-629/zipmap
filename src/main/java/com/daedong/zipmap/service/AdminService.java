@@ -122,5 +122,31 @@ public class AdminService {
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Transactional(readOnly = true)
+    public ReviewDTO getAdminReviewDetail(Long id) {
+        // 1. 리뷰 기본 정보 조회
+        ReviewDTO reviewDTO = reviewMapper.findById(id);
+
+        // 2. [NPE 방지] 데이터가 없으면 예외 발생 (컨트롤러로 가기 전에 차단)
+        if (reviewDTO == null) {
+            throw new RuntimeException("해당 리뷰를 찾을 수 없습니다. ID: " + id);
+        }
+
+        // 3. 좋아요 개수 설정 (기본 로직 유지)
+        // reactionMapper가 주입되어 있어야 합니다. (안되어 있다면 위에 private final로 추가)
+        // long likeCount = reactionMapper.countLikes("review", id);
+        // reviewDTO.setLikeCount(likeCount);
+
+        // 4. 실거주 인증 파일 경로 가져오기 (핵심!)
+        // 이미 Mapper SQL에서 f.file_path AS filePath로 조인을 해두었다면 자동으로 담기지만,
+        // 만약 안 나온다면 아래처럼 직접 조회해서 넣어줄 수도 있습니다.
+        List<com.daedong.zipmap.domain.File> certFiles = fileMapper.findAllByTargetTypeAndTargetId("CERTIFICATION", id);
+        if (!certFiles.isEmpty()) {
+            reviewDTO.setFilePath(certFiles.get(0).getFilePath());
+        }
+
+        return reviewDTO;
+    }
 }
 

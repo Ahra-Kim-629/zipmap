@@ -219,5 +219,13 @@ public class AdminController {
         model.addAttribute("reviews", reviews);
         return "/admin/reviewcertification";
     }
+
+    @GetMapping("/detail/{id}") // "/review/detail/{id}"에서 "review"를 제거
+    public String adminReviewDetail(@PathVariable("id") Long id, Model model) {
+        ReviewDTO reviewDTO = adminService.getAdminReviewDetail(id);
+        model.addAttribute("reviewDTO", reviewDTO);
+        return "admin/review_detail";
+    }
+
 }
 
