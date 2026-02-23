@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -86,6 +87,7 @@ public class ReviewService {
     }
 
     // 리뷰 작성
+    @CacheEvict(value = "aiSummaryCache", allEntries = true)
     @Transactional
     public long write(Review review, List<String> prosList, List<String> consList) {
         reviewMapper.insertReview(review);
@@ -108,6 +110,7 @@ public class ReviewService {
     }
 
     // 리뷰 수정
+    @CacheEvict(value = "aiSummaryCache", allEntries = true)
     @Transactional
     public void update(Review review, List<String> prosList, List<String> consList) {
         reviewMapper.update(review);
@@ -130,6 +133,7 @@ public class ReviewService {
     }
 
     // 리뷰 삭제
+    @CacheEvict(value = "aiSummaryCache", allEntries = true)
     @Transactional
     public void deleteReviewById(Long id) {
         // 댓글 삭제
@@ -211,6 +215,11 @@ public class ReviewService {
         List<ReviewDTO> content = reviewMapper.adminFindAll(searchType, keyword, pageable);
         int total = reviewMapper.adminCountTotal(searchType, keyword);
         return new PageImpl<>(content, pageable, total);
+    }
+
+    // 💡 [AI 요약용] 특정 지역의 리뷰 내용만 DB에서 가져오는 기능
+    public List<String> findContentsByRegion(String region) {
+        return reviewMapper.findContentsByRegion(region);
     }
 
 }

@@ -67,4 +67,7 @@ public interface ReviewMapper {
     int countBannedReviews();
 
     void updateReviewStatsBatch(List<StatsUpdateDTO> updateList);
+
+    // AI 요약을 위해 특정 지역의 리뷰 내용만 모두 가져오는 메서드 2/23 추가
+    List<String> findContentsByRegion(String region);
 }

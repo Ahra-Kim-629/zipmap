@@ -3,11 +3,13 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.service.GeminiService;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.util.FileUtilService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +38,9 @@ public class ReviewController {
     private final ReactionService reactionService;
     private final FileUtilService fileUtilService;
 
+
+    private final GeminiService geminiService;
+
     // 리뷰 목록 조회
     @GetMapping
     public String list(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -47,10 +52,10 @@ public class ReviewController {
 
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
-        // 좋아요 표시
-        for (ReviewDTO review : reviews) {
-            review.setLikeCount(reactionService.countReaction("review", review.getId(), 1));
-        }
+//        // 좋아요 표시
+//        for (ReviewDTO review : reviews) {
+//            review.setLikeCount(reactionService.countReaction("review", review.getId(), 1));
+//        }
 
         // 지도 표시용 전체 리뷰
         List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
@@ -232,4 +237,31 @@ public class ReviewController {
             return "fail";
         }
     }
+
+    /**
+     * [AI 기능] 화면에서 지역명을 주면, 요약본 텍스트를 리턴합니다.
+     */
+    @ResponseBody
+    @GetMapping("/ai-summary")
+    public String getAiSummary(@RequestParam("region") String region) {
+
+        List<String> reviewContents = reviewService.findContentsByRegion(region);
+
+        if (reviewContents == null || reviewContents.isEmpty()) {
+            return region + "에는 아직 등록된 리뷰가 부족해서 AI가 분석할 수 없어요! 😅 조금 더 기다려주세요.";
+        }
+
+        // 💡 HTML 태그 제거 및 텍스트 정제 (속도 향상 및 AI 정확도 상승)
+        java.util.List<String> cleanContents = new java.util.ArrayList<>();
+        for (String content : reviewContents) {
+            String cleanText = org.jsoup.Jsoup.parse(content).text();
+            if (cleanText.length() > 300) {
+                cleanText = cleanText.substring(0, 300);
+            }
+            cleanContents.add(cleanText);
+        }
+
+        return geminiService.summarizeReviews(region, cleanContents);
+    }
+
 }

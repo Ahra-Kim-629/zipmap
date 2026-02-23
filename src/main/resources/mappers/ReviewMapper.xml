@@ -35,6 +35,10 @@
                     )
                 </if>
 
+                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                    OR
+                </if>
+
                 <if test="cons != null and cons.size() > 0">
                     EXISTS (
                     SELECT 1 FROM review_attribute ca
@@ -286,5 +290,22 @@
             WHERE id = #{item.id}
         </foreach>
     </update>
+
+    <!-- AI 요약을 위해 특정 지역의 리뷰 내용만 모두 가져오는 메서드 2/23 추가 -->
+    <select id="findContentsByRegion" resultType="string" parameterType="string">
+        SELECT CONCAT(
+        '[장점: ',
+        IFNULL((SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO'), '없음'),
+        '] [단점: ',
+        IFNULL((SELECT GROUP_CONCAT(ca.content) FROM review_attribute ca WHERE ca.review_id = r.id AND ca.type = 'CON'), '없음'),
+        '] 리뷰 내용: ',
+        r.content
+        )
+        FROM review r
+        WHERE r.address LIKE CONCAT('%', #{region}, '%')
+        AND r.review_status = 'ACTIVE'
+        ORDER BY r.created_at DESC
+        LIMIT 10
+    </select>
 
 </mapper>

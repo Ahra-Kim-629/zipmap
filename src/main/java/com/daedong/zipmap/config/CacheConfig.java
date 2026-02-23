@@ -15,7 +15,7 @@ public class CacheConfig {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
 
         // 사용할 캐시 이름들을 미리 등록해두면 좋대요.
-        cacheManager.setCacheNames(List.of("mainNotices", "mainReviewList", "mainPostList"));
+        cacheManager.setCacheNames(List.of("mainNotices", "mainReviewList", "mainPostList", "aiSummaryCache"));
 
         return cacheManager;
     }
