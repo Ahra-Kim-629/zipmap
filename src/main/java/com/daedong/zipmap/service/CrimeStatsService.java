@@ -332,7 +332,7 @@ public class CrimeStatsService {
                 }
             }
 
-            // 6. 드디어 ReviewDTO의 칸(Field)에 배달 완료!
+            // ReviewDTO의 칸(Field)에 배달 완료
             reviewDto.setTopCrimes(top3Names);
             reviewDto.setCrimeCounts(top3Counts);
             reviewDto.setSafetyWarning(warning);

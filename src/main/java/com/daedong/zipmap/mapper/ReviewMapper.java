@@ -1,9 +1,6 @@
 package com.daedong.zipmap.mapper;
 
-import com.daedong.zipmap.domain.Certification;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.StatsUpdateDTO;
+import com.daedong.zipmap.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -67,4 +64,6 @@ public interface ReviewMapper {
     int countBannedReviews();
 
     void updateReviewStatsBatch(List<StatsUpdateDTO> updateList);
+
+    List<ReviewAttribute> findAttributesByReviewId(long id);
 }

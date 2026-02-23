@@ -1,9 +1,6 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Certification;
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.FileMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import com.daedong.zipmap.util.FileUtilService;
@@ -24,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,33 +46,57 @@ public class ReviewService {
     @Transactional
     public ReviewDTO getReviewDetail(Long id, HttpServletRequest request, UserDetails userDetails) {
         ReviewDTO reviewDTO = reviewMapper.findById(id);
+        if(reviewDTO == null) return null;
 
-        // 조회수 증가 위한 redis 처리
-        if (reviewDTO != null) {
-            // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
-            String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
+        // 외부 연동 데이터 처리 (Redis 조회수)
+        // 조회수는 '검증'과 '외부 저장소' 접근이 필요하므로 서비스에서 호출하는 것이 적절
+        handleViewCount(reviewDTO, request, userDetails);
 
-            // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
-            try {
-                statsUtil.updateViewCount("review", id, identifier);
-            } catch (Exception e) {
-                System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
-            }
-        }
-
-        // 좋아요 표시
-        reviewDTO.setLikeCount(reactionService.countReaction("review", id, 1));
-
-        // 파일 리스트 추가
-        reviewDTO.setFileList(fileUtilService.getFileList("review", id));
-
-        // 댓글 리스트 추가
-        reviewDTO.setReplyList(replyService.getReplyDTOList("review", id));
-
-        crimeStatsService.analyzeCrimeForReview(reviewDTO);
+        // 추가 데이터 (좋아요, 파일, 댓글, 통계)
+        fillReviewRelatedData(reviewDTO);
 
         return reviewDTO;
     }
+
+    // 추가 데이터 채우는 메서드
+    private void fillReviewRelatedData(ReviewDTO reviewDTO) {
+        long id = reviewDTO.getId();
+
+        // 좋아요, 파일, 댓글 리스트
+        reviewDTO.setLikeCount(reactionService.countReaction("review", id, 1));
+        reviewDTO.setFileList(fileUtilService.getFileList("review", id));
+        reviewDTO.setReplyList(replyService.getReplyDTOList("review", id));
+
+        // 장단점
+        List<ReviewAttribute> attributes = reviewMapper.findAttributesByReviewId(id);
+
+        List<String> pros = new ArrayList<>();
+        List<String> cons = new ArrayList<>();
+
+        for (ReviewAttribute attr : attributes) {
+            if ("PRO".equals(attr.getType())) {
+                pros.add(attr.getContent());
+            } else if ("CON".equals(attr.getType())) {
+                cons.add(attr.getContent());
+            }
+        }
+        reviewDTO.setProsList(pros);
+        reviewDTO.setConsList(cons);
+
+        // 범죄 통계 분석
+        crimeStatsService.analyzeCrimeForReview(reviewDTO);
+    }
+
+    // 조회수 로직 분리
+    private void handleViewCount(ReviewDTO reviewDTO, HttpServletRequest request, UserDetails userDetails) {
+        String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
+        try {
+            statsUtil.updateViewCount("review", reviewDTO.getId(), identifier);
+        } catch (Exception e) {
+            System.out.println("Redis 조회수 증가 실패 : " + e.getMessage());
+        }
+    }
+
 
     public ReviewDTO getReviewDetail(long id) {
         return reviewMapper.findById(id);
