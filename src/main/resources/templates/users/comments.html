@@ -1,108 +1,133 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>내가 쓴 댓글</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
     <style>
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .pagination { display: flex; justify-content: center; gap: 10px; list-style: none; padding: 0; }
-        .pagination li { display: inline; }
-        .pagination a { text-decoration: none; color: black; padding: 5px 10px; border: 1px solid #ddd; }
-        .pagination .active a { background-color: #007bff; color: white; border-color: #007bff; }
-        .pagination .disabled a { color: #ccc; pointer-events: none; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tabs a { text-decoration: none; padding: 10px 20px; border: 1px solid #ddd; color: black; }
-        .tabs a.active { background-color: #007bff; color: white; border-color: #007bff; }
+        .board-container { padding: 40px 0; background-color: #fdfcf9; min-height: 80vh; }
+        .page-title { font-weight: 800; color: #3E362E; }
+
+        /* 탭 디자인 커스텀 */
+        .nav-tabs-custom { border-bottom: none; gap: 10px; margin-bottom: 25px; }
+        .nav-tabs-custom .nav-link {
+            border: none;
+            background: #eee;
+            color: #777;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .nav-tabs-custom .nav-link.active {
+            background-color: var(--main-orange);
+            color: white;
+            box-shadow: 0 4px 10px rgba(230,126,34,0.2);
+        }
+
+        /* 테이블 및 카드 디자인 */
+        .board-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; }
+        .table thead { background-color: #f8f9fa; border-bottom: 2px solid #eee; }
+        .table th { font-weight: 700; color: #555; font-size: 0.9rem; border: none; padding: 15px; }
+        .table td { vertical-align: middle; padding: 15px; font-size: 0.95rem; border-bottom: 1px solid #f1f1f1; }
+
+        /* 링크 및 텍스트 스타일 */
+        .post-link { text-decoration: none; color: #333; font-weight: 600; transition: 0.2s; }
+        .post-link:hover { color: var(--main-orange); }
+
+        .comment-content { color: #555; font-size: 0.9rem; line-height: 1.4; }
+        .text-truncate-custom {
+            display: inline-block;
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+
+        /* 페이징 */
+        .pagination .page-link { color: #555; border: none; margin: 0 3px; border-radius: 8px !important; }
+        .pagination .page-item.active .page-link { background-color: var(--main-orange); color: white; }
     </style>
-</head>
-<body>
+</th:block>
 
-<div class="tabs">
-    <a th:href="@{/users/comments(type='reviews')}" th:classappend="${type == 'reviews'} ? 'active'">리뷰 댓글</a>
-    <a th:href="@{/users/comments(type='posts')}" th:classappend="${type == 'posts' } ? 'active'">게시글 댓글</a>
+<div layout:fragment="content">
+    <div class="board-container">
+        <div class="container">
+            <div class="mb-4">
+                <h2 class="page-title mb-1">내 댓글 활동</h2>
+                <p class="text-muted small">내가 작성한 댓글들을 확인하고 해당 게시글로 바로 이동하세요.</p>
+            </div>
+
+            <ul class="nav nav-tabs nav-tabs-custom">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${type == 'reviews'} ? 'active'"
+                       th:href="@{/users/comments(type='reviews')}">리뷰 댓글</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${type == 'posts'} ? 'active'"
+                       th:href="@{/users/comments(type='posts')}">게시글 댓글</a>
+                </li>
+            </ul>
+
+            <th:block th:with="list=${type == 'reviews' ? reviewReplies : postReplies}">
+
+                <div class="board-table-card daedong-shadow">
+                    <table class="table mb-0 text-center">
+                        <thead>
+                        <tr>
+                            <th style="width: 25%;">원문 제목</th>
+                            <th style="width: 55%;">댓글 내용</th>
+                            <th style="width: 20%;">작성일</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="reply : ${list.content}">
+                            <td class="text-start ps-4">
+                                <a th:href="@{/${type == 'reviews' ? 'review' : 'post'}/detail/{id}(id=${reply.targetId})} + '#reply-' + ${reply.id}">
+
+                                    <a th:href="@{/{path}/detail/{id}(path=${type == 'reviews' ? 'review' : 'post'}, id=${reply.targetId})} + '#reply-' + ${reply.id}"
+                                       class="post-link small text-muted"
+                                       th:text="${reply.articleTitle}">원문 제목</a>
+                            </td>
+                            <td class="text-start">
+                                <span class="comment-content text-truncate-custom" th:text="${reply.content}">댓글 내용</span>
+                            </td>
+                            <td class="text-muted small" th:text="${#temporals.format(reply.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
+                        </tr>
+                        <tr th:if="${list.empty}">
+                            <td colspan="3" class="py-5 text-muted">작성한 댓글이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav th:if="${list.totalPages > 0}" class="mt-5 d-flex justify-content-center">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${list.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${list.number-1})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:each="page : ${#numbers.sequence(0, list.totalPages-1)}"
+                            th:classappend="${page == list.number} ? 'active'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${page})}" th:text="${page+1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${list.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${list.number+1})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </th:block>
+
+            <div class="text-center mt-5">
+                <a href="/users/mypage" class="text-muted text-decoration-none small">
+                    <i class="bi bi-arrow-left"></i> 마이페이지로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- 리뷰 댓글 목록 -->
-<div th:if="${type == 'reviews'}">
-    <table>
-        <thead>
-        <tr>
-            <th>리뷰 제목</th>
-            <th>댓글 내용</th>
-            <th>작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="reply : ${reviewReplies.content}">
-            <td><a th:href="@{/review/detail/{id}(id=${reply.targetId})}" th:text="${reply.articleTitle}"></a></td>
-            <td th:text="${reply.content}"></td>
-            <td th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        </tr>
-        <tr th:if="${reviewReplies.empty}">
-            <td colspan="3">작성한 댓글이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 리뷰 댓글 페이징 -->
-    <nav th:if="${reviewReplies.totalPages > 0}" aria-label="Page navigation">
-        <ul class="pagination">
-            <li class="page-item" th:classappend="${reviewReplies.first} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/users/comments(type='reviews', page=${reviewReplies.number-1})}">&lt;</a>
-            </li>
-            <li class="page-item" th:each="page : ${#numbers.sequence(0, reviewReplies.totalPages-1)}"
-                th:classappend="${page == reviewReplies.number} ? 'active'">
-                <a class="page-link" th:href="@{/users/comments(type='reviews', page=${page})}" th:text="${page+1}"></a>
-            </li>
-            <li class="page-item" th:classappend="${reviewReplies.last} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/users/comments(type='reviews', page=${reviewReplies.number+1})}">&gt;</a>
-            </li>
-        </ul>
-    </nav>
-</div>
-<!-- 게시글 댓글 목록 -->
-<div th:if="${type == 'posts'}">
-    <table>
-        <thead>
-        <tr>
-            <th>게시글 제목</th>
-            <th>댓글 내용</th>
-            <th>작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="reply : ${postReplies.content}">
-            <td><a th:href="@{/post/detail/{id}(id=${reply.targetId})}" th:text="${reply.articleTitle}"></a></td>
-            <td th:text="${reply.content}"></td>
-            <td th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        </tr>
-        <tr th:if="${postReplies.empty}">
-            <td colspan="3">작성한 댓글이 없습니다.</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 게시글 댓글 페이징 -->
-    <nav th:if="${postReplies.totalPages > 0}" aria-label="Page navigation">
-        <ul class="pagination">
-            <li class="page-item" th:classappend="${postReplies.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/users/comments(type='posts', page=${postReplies.number-1})}">&lt;</a>
-            </li>
-            <li class="page-item" th:each="page : ${#numbers.sequence(0, postReplies.totalPages-1)}"
-                th:classappend="${page == postReplies.number} ? 'active'">
-                <a class="page-link" th:href="@{/users/comments(type='posts', page=${page})}" th:text="${page+1}"></a>
-            </li>
-            <li class="page-item" th:classappend="${postReplies.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/users/comments(type='posts', page=${postReplies.number+1})}">&gt;</a>
-            </li>
-        </ul>
-    </nav>
-</div>
-
-<a href="/users/mypage">마이페이지로 돌아가기</a>
-
-</body>
 </html>

@@ -2,6 +2,7 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
 import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.NetworkUtil;
@@ -29,6 +30,7 @@ public class UserController {
     private final PostService postService;
     private final ReviewService reviewService;
     private final ReplyService replyService;
+    private final ReactionService reactionService;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/signUp")
@@ -235,5 +237,25 @@ public class UserController {
         }
 
         return "/users/comments";
+    }
+
+    @GetMapping("/users/liked")
+    public String liked(@AuthenticationPrincipal User user,
+                        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                        @RequestParam(required = false, defaultValue = "reviews") String type,
+                        Model model) {
+        model.addAttribute("type", type);
+
+        if ("reviews".equals(type)) {
+            Page<ReviewDTO> reviewList = reactionService.getLikedReviews(user.getId(), pageable);
+            model.addAttribute("reviews", reviewList);
+            model.addAttribute("posts", Page.empty(pageable));
+        } else if ("posts".equals(type)) {
+            Page<PostDTO> postList = reactionService.getLikedPosts(user.getId(), pageable);
+            model.addAttribute("posts", postList);
+            model.addAttribute("reviews", Page.empty(pageable));
+        }
+
+        return "/users/liked";
     }
 }
