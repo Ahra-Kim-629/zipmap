@@ -76,7 +76,7 @@ public class PostController {
     }
 
     @PostMapping("/write")
-    public String write(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
+    public String write(@AuthenticationPrincipal User user, Post post, @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes rttr) {
         try {
             post.setUserId(user.getId());
 
@@ -86,6 +86,32 @@ public class PostController {
             if (post.getContent() != null && post.getContent().contains("src=")) {
                 String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
                 postService.updateContent(savedId, newContent);
+            }
+
+            // 2. 일반 첨부파일 처리 (file input으로 들어온 파일)
+            if (file != null && !file.isEmpty()) {
+                String filePath = fileUtilService.saveFile(file, "post"); // post 폴더에 저장
+
+                // DB에 파일 정보 저장
+                com.daedong.zipmap.domain.File fileEntity = new com.daedong.zipmap.domain.File();
+                fileEntity.setTargetType("POST");
+                fileEntity.setTargetId(savedId);
+                fileEntity.setFilePath(filePath);
+                fileEntity.setFileSize(file.getSize());
+                
+                // FileMapper를 직접 호출하거나 Service를 통해 저장해야 함.
+                // 여기서는 FileUtilService에 저장 로직이 없으므로, FileUtilService에 메서드를 추가하거나
+                // PostService를 통해 저장하도록 수정해야 합니다. 
+                // 하지만 FileUtilService.moveTempFilesToPermanent 내부에서 fileMapper.insertFile을 호출하고 있으므로
+                // 유사하게 처리할 수 있는 메서드를 FileUtilService에 추가하는 것이 좋습니다.
+                // 일단 여기서는 FileUtilService에 saveFileAndInsertDB 메서드를 추가했다고 가정하거나
+                // 기존 saveFile 메서드 호출 후 별도로 DB 저장을 수행해야 합니다.
+                
+                // 임시 방편: FileUtilService에 의존하지 않고 직접 매퍼를 부를 수 없으니
+                // PostService에 파일 저장 위임 메서드를 만드는 것이 정석이나,
+                // 현재 구조상 FileUtilService를 수정하여 DB 저장까지 처리하도록 유도하겠습니다.
+                // (아래 FileUtilService 수정 참고)
+                fileUtilService.saveFileToDB(fileEntity); 
             }
 
             rttr.addFlashAttribute("message", "글 작성이 완료되었습니다.");
@@ -179,4 +205,3 @@ public class PostController {
 
 
 }
-

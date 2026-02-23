@@ -1,161 +1,123 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
-<head>
-    <meta charset="UTF-8">
-    <title>리뷰 목록</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-    <!-- CSS: 테이블, 검색, 체크박스, 지도 -->
+<th:block layout:fragment="css">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        /* 배경 및 컨테이너 스타일 */
+        .admin-list-container { padding: 60px 0; background-color: #fdfcf9; min-height: 80vh; }
+        .list-card { background: #fff; padding: 40px; border-radius: 24px; border: none; }
+        .list-title { font-weight: 800; color: #3E362E; margin-bottom: 30px; }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
+        /* 테이블 래퍼 및 테이블 디자인 */
+        .table-wrapper { border-radius: 15px; overflow: hidden; border: 1px solid #eee; }
+        .table { margin-bottom: 0; width: 100%; border-collapse: collapse; }
+        .table thead { background-color: #f8f9fa; }
+        .table th { font-weight: 700; color: #555; font-size: 0.9rem; padding: 15px; border-bottom: 2px solid #eee; text-align: center; }
+        .table td { vertical-align: middle; padding: 15px; font-size: 0.95rem; border-bottom: 1px solid #f1f1f1; text-align: center; }
 
-        th {
-            background-color: #f2f2f2;
-        }
+        /* 버튼 공통 스타일 */
+        .btn-toggle { padding: 6px 16px; font-weight: 600; font-size: 0.85rem; border-radius: 50px; border: none; transition: 0.3s; }
+        .btn-delete { background-color: #dc3545; color: white; padding: 6px 16px; font-size: 0.85rem; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .btn-delete:hover { background-color: #c82333; color: white; }
 
-        .pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .pagination a, .pagination strong {
-            margin: 0 5px;
-            text-decoration: none;
-            color: black;
-        }
-
-        .pagination strong {
-            font-weight: bold;
-            color: red;
-        }
-
-        .search-container {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        .checkbox-group {
-            margin: 5px 0;
-        }
-
-        .checkbox-group label {
-            margin-right: 10px;
-        }
-
-        #map {
-            width: 100%;
-            height: 400px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-        }
+        /* 페이징 디자인 */
+        .pagination { margin-top: 40px; text-align: center; display: flex; justify-content: center; align-items: center; list-style: none; }
+        .pagination a, .pagination strong { margin: 0 5px; padding: 8px 16px; text-decoration: none; color: #555; border-radius: 8px; }
+        .pagination strong { background-color: var(--main-orange); color: white; font-weight: bold; }
+        .pagination a:hover { background-color: #f1f1f1; }
     </style>
+</th:block>
 
-</head>
+<div layout:fragment="content">
+    <div class="admin-list-container">
+        <div class="container">
+            <div class="list-card daedong-shadow">
+                <h2 class="list-title text-center">리뷰 목록</h2>
 
-<body>
+                <div class="table-wrapper shadow-sm">
+                    <table class="table">
+                        <colgroup>
+                            <col style="width: 40%">
+                            <col style="width: 20%">
+                            <col style="width: 15%">
+                            <col style="width: 10%">
+                            <col style="width: 15%">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>주소</th>
+                            <th>작성자 ID</th>
+                            <th>평점</th>
+                            <th>작성일</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="review : ${reviews.content}" class="review-item"
+                            th:data-address="${review.address}"
+                            th:data-title="${review.title}"
+                            th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
+                            th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
 
-<h1>리뷰 목록</h1>
+                            <td style="text-align: left; padding-left: 25px;">
+                                <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}" class="text-dark fw-bold text-decoration-none"></a>
+                            </td>
+                            <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+                            <td th:text="${review.loginId}"></td>
+                            <td th:text="${review.point}"></td>
+                            <td class="text-muted small" th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
+                            <td>
+                                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                    <form th:action="@{/admin/reviews/toggle-status}" method="post" style="margin: 0;">
+                                        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                        <input type="hidden" name="id" th:value="${review.id}">
+                                        <input type="hidden" name="status" th:value="${review.reviewStatus == 'ACTIVE' ? 'BANNED' : 'ACTIVE'}">
 
+                                        <button type="submit" th:if="${review.reviewStatus == 'ACTIVE'}"
+                                                class="btn btn-warning btn-toggle text-white">
+                                            <i class="bi bi-eye-slash me-1"></i>숨기기
+                                        </button>
 
-<!-- 리뷰 테이블 -->
-<table>
-    <colgroup>
-        <col style="width: 40%">
-        <col style="width: 20%">
-        <col style="width: 15%">
-        <col style="width: 10%">
-        <col style="width: 15%">
-    </colgroup>
-    <thead>
-    <tr>
-        <th>제목</th>
-        <th>주소</th>
-        <th>작성자 ID</th>
-        <th>평점</th>
-        <th>작성일</th>
-        <th>관리</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- 현재 페이지의 리뷰 목록 반복 -->
-    <tr th:each="review : ${reviews.content}" class="review-item"
-        th:data-address="${review.address}"
-        th:data-title="${review.title}"
-        th:data-pros="${#strings.arrayJoin(review.prosList, ',')}"
-        th:data-cons="${#strings.arrayJoin(review.consList, ',')}">
+                                        <button type="submit" th:if="${review.reviewStatus == 'BANNED'}"
+                                                class="btn btn-secondary btn-toggle">
+                                            <i class="bi bi-eye me-1"></i>노출하기
+                                        </button>
+                                    </form>
 
-        <td style="text-align: left;">
-            <a th:href="@{/review/detail/{id}(id=${review.id})}" th:text="${review.title}"></a>
-        </td>
+                                    <a th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
+                                       onclick="return confirm('정말 영구 삭제하시겠습니까?');"
+                                       class="btn-delete">
+                                        삭제
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <!-- 주소: '동' 단위까지만 표시 -->
-        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-        <td th:text="${review.loginId}"></td>
-        <td th:text="${review.point}"></td>
-        <td th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss') : ''}"></td>
-        <td>
-            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                <form th:action="@{/admin/reviews/toggle-status}" method="post" style="margin: 0;">
-                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <div class="pagination" th:if="${reviews.totalPages > 0}">
+                    <a th:if="${!reviews.first}"
+                       th:href="@{/admin/reviews(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword})}">&laquo; 이전</a>
+                    <span th:if="${reviews.first}" style="color: gray; margin: 0 5px; padding: 8px 16px;">&laquo; 이전</span>
 
-                    <input type="hidden" name="id" th:value="${review.id}">
-
-                    <input type="hidden" name="status"
-                           th:value="${review.reviewStatus == 'ACTIVE' ? 'BANNED' : 'ACTIVE'}">
-
-                    <button type="submit" th:if="${review.reviewStatus == 'ACTIVE'}"
-                            class="btn btn-warning btn-toggle text-white">
-                        <i class="bi bi-eye-slash me-1"></i>숨기기
-                    </button>
-
-                    <button type="submit" th:if="${review.reviewStatus == 'BANNED'}"
-                            class="btn btn-secondary btn-toggle">
-                        <i class="bi bi-eye me-1"></i>노출하기
-                    </button>
-                </form>
-
-                <a th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
-                   onclick="return confirm('정말 영구 삭제하시겠습니까?');"
-                   style="color: white; background: #dc3545; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold;">
-                    삭제
-                </a>
-            </div>
-        </td>
-    </tr>
-
-    </tbody>
-</table>
-
-<!-- 페이징 -->
-<div class="pagination" th:if="${reviews.totalPages > 0}">
-    <a th:if="${!reviews.first}"
-       th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">&laquo;
-        이전</a>
-    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
-
-    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
+                    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
         <a th:if="${page != reviews.number}"
-           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+           th:href="@{/admin/reviews(page=${page}, searchType=${searchType}, keyword=${keyword})}"
            th:text="${page+1}"></a>
         <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
     </span>
 
-    <a th:if="${!reviews.last}"
-       th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">다음
-        &raquo;</a>
-    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
+                    <a th:if="${!reviews.last}"
+                       th:href="@{/admin/reviews(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword})}">다음 &raquo;</a>
+                    <span th:if="${reviews.last}" style="color: gray; margin: 0 5px; padding: 8px 16px;">다음 &raquo;</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
-
-
-</body>
 </html>
