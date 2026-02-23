@@ -151,10 +151,11 @@ public class ReviewController {
     // =====================================================================
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
+    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id);
         if (reviewDTO.getUserId() != user.getId()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+            rttr.addFlashAttribute("errorMessage", "본인이 작성한 글만 수정할 수 있습니다.");
+            return "redirect:/review/detail/" + id;
         }
         model.addAttribute("reviewDTO", reviewDTO);
         return "review/edit-form";
@@ -165,15 +166,18 @@ public class ReviewController {
     public String edit(@PathVariable Long id, Review review,
                        @RequestParam("prosList") List<String> prosList,
                        @RequestParam("consList") List<String> consList,
-                       @AuthenticationPrincipal User user) {
+                       @AuthenticationPrincipal User user,
+                       RedirectAttributes rttr) {
         ReviewDTO original = reviewService.getReviewDetail(id);
         if (original.getUserId() != user.getId()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
+            rttr.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
+            return "redirect:/review/detail/" + id;
         }
 
         review.setId(id);
         reviewService.update(review, prosList, consList);
 
+        rttr.addFlashAttribute("successMessage", "리뷰가 성공적으로 수정되었습니다.");
         return "redirect:/review/detail/" + id;
     }
 

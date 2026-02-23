@@ -43,6 +43,15 @@ public class ReviewService {
     }
 
     // 리뷰 아이디로 찾기
+    public ReviewDTO getReviewDetail(long id) {
+        ReviewDTO reviewDTO = reviewMapper.findById(id);
+        if (reviewDTO != null) {
+            fillReviewRelatedData(reviewDTO);
+        }
+        return reviewDTO;
+    }
+
+    // 리뷰 아이디로 찾기
     @Transactional
     public ReviewDTO getReviewDetail(Long id, HttpServletRequest request, UserDetails userDetails) {
         ReviewDTO reviewDTO = reviewMapper.findById(id);
@@ -67,6 +76,8 @@ public class ReviewService {
         reviewDTO.setFileList(fileUtilService.getFileList("review", id));
         reviewDTO.setReplyList(replyService.getReplyDTOList("review", id));
 
+        reviewDTO.setProsList(new ArrayList<>());
+        reviewDTO.setConsList(new ArrayList<>());
         // 장단점
         List<ReviewAttribute> attributes = reviewMapper.findAttributesByReviewId(id);
 
@@ -95,11 +106,6 @@ public class ReviewService {
         } catch (Exception e) {
             System.out.println("Redis 조회수 증가 실패 : " + e.getMessage());
         }
-    }
-
-
-    public ReviewDTO getReviewDetail(long id) {
-        return reviewMapper.findById(id);
     }
 
     // 전체 조회 (지도용)
