@@ -2,9 +2,11 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.SubscriptionRequest;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.service.SubscriptionService;
 import com.daedong.zipmap.util.FileUtilService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +38,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReactionService reactionService;
     private final FileUtilService fileUtilService;
+    private final SubscriptionService subscriptionService;
 
     // 리뷰 목록 조회
     @GetMapping
@@ -43,7 +47,8 @@ public class ReviewController {
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) List<String> pros,
                        @RequestParam(required = false) List<String> cons,
-                       Model model) {
+                       Model model,
+                       @AuthenticationPrincipal User user) {
 
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
@@ -67,6 +72,21 @@ public class ReviewController {
         model.addAttribute("cons", cons);
         model.addAttribute("prosList", prosList);
         model.addAttribute("consList", consList);
+
+        // 로그인한 사용자의 구독 목록
+        boolean isSubscribed = false;
+        if (user != null && keyword != null && !keyword.isEmpty()) {
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "review");
+
+            for (String myKeyword : myKeywords) {
+                if (myKeyword.trim().equals(keyword.trim())) {
+                    isSubscribed = true;
+                    break;
+                }
+            }
+            model.addAttribute("myKeywords", myKeywords);
+        }
+        model.addAttribute("isSubscribed", isSubscribed);
 
         return "review/list";
     }
@@ -236,4 +256,5 @@ public class ReviewController {
             return "fail";
         }
     }
+
 }

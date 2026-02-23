@@ -76,6 +76,8 @@
 
             <if test="(pros != null and pros.size() > 0) or (cons != null and cons.size() > 0)">
                 AND (
+                <trim prefixOverrides="OR">
+
                 <if test="pros != null and pros.size() > 0">
                     EXISTS (
                     SELECT 1 FROM review_attribute pa
@@ -101,6 +103,8 @@
                     </foreach>
                     )
                 </if>
+
+                </trim>
                 )
             </if>
         </where>
