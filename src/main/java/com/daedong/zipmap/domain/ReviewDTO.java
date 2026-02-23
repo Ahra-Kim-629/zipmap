@@ -35,4 +35,5 @@ public class ReviewDTO {
     private String filePath;
 
     private String prosStr;
+
 }

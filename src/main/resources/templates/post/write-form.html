@@ -10,21 +10,75 @@
         .write-card { background: #fff; padding: 40px; border-radius: 20px; border: none; }
         .write-title {  font-weight: 800; color: #3E362E; }
 
-        .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
+        /* 섹션 구분 (리뷰 폼 스타일 100% 동일) */
+        .form-section { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
         .section-label { font-weight: 700; color: #3E362E; margin-bottom: 15px; display: block; font-size: 1.1rem; }
 
-        /* Summernote 커스텀 (모달 레이아웃 보정 포함) */
+        /* Summernote 커스텀 및 모달 수정 (리뷰 폼 CSS 100% 동일) */
         .note-editor.note-frame { border: 1px solid #eee !important; border-radius: 12px !important; overflow: hidden; }
         .note-toolbar { background-color: #f8f9fa !important; border-bottom: 1px solid #eee !important; }
-        .note-modal { z-index: 10050 !important; }
-        .note-modal-backdrop { display: none !important; }
-        .note-modal-content { margin-top: 100px !important; border-radius: 15px !important; border: none !important; box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important; overflow: hidden; }
-        .note-modal-footer { height: auto !important; padding: 15px 20px !important; display: flex !important; justify-content: center; gap: 10px; }
-        .note-modal-footer .btn { padding: 8px 25px !important; border-radius: 50px !important; font-weight: bold !important; }
-        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; }
 
-        /* 전체화면 보정 */
-        .note-editor.note-frame.fullscreen { z-index: 9999 !important; background-color: white !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; }
+        .note-modal { z-index: 10050 !important; }
+        .note-modal-backdrop { z-index: 10040 !important; display: none !important; }
+        .note-modal-content {
+            margin-top: 80px !important;
+            border: none !important;
+            border-radius: 15px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important;
+            overflow: hidden;
+        }
+
+        .note-modal-header { border-bottom: 1px solid #eee !important; padding: 15px 20px !important; }
+        .note-modal-title { font-weight: bold; color: #333; }
+        .note-modal-body { padding: 20px !important; }
+
+        .note-modal-footer {
+            height: auto !important;
+            padding: 20px !important;
+            display: flex !important;
+            justify-content: center;
+            gap: 10px;
+            border-top: 1px solid #eee !important;
+        }
+
+        .note-modal-footer .btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            padding: 10px 25px !important;
+            border-radius: 50px !important;
+            font-weight: bold !important;
+            font-size: 0.9rem !important;
+            text-transform: none !important;
+        }
+
+        .note-modal-footer .btn-primary {
+            background-color: var(--main-orange) !important;
+            border-color: var(--main-orange) !important;
+            color: #fff !important;
+        }
+
+        .note-modal-footer .btn-default,
+        .note-modal-footer .btn-light {
+            background-color: #eee !important;
+            border-color: #ddd !important;
+            color: #333 !important;
+        }
+
+        .note-modal-footer .btn-primary:hover {
+            background-color: #d35400 !important;
+            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+        }
+
+        .note-editor.note-frame.fullscreen {
+            z-index: 9999 !important;
+            background-color: white !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+        }
+
+        .note-btn { background-color: white !important; border: 1px solid #eee !important; }
     </style>
 </th:block>
 
@@ -38,10 +92,9 @@
                 </div>
 
                 <div th:if="${error}" class="alert alert-danger rounded-3 small py-2 mb-3" th:text="${error}"></div>
-                <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3"
-                     th:text="${message}"></div>
+                <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3" th:text="${message}"></div>
 
-                <form th:action="@{/post/write}" method="post" enctype="multipart/form-data">
+                <form id="postForm" th:action="@{/post/write}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                     <div class="form-section">
@@ -49,8 +102,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="category" class="form-label small fw-bold text-muted">카테고리</label>
-                                <select id="category" name="category" class="form-select rounded-3 form-control"
-                                        required>
+                                <select id="category" name="category" class="form-select rounded-3 py-2 form-control" required>
                                     <option value="">카테고리 선택</option>
                                     <option value="GROUP">공구</option>
                                     <option value="SHARE">나눔</option>
@@ -59,8 +111,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="location" class="form-label small fw-bold text-muted">지역</label>
-                                <select id="location" name="location" class="form-select rounded-3 form-control"
-                                        required>
+                                <select id="location" name="location" class="form-select rounded-3 py-2 form-control" required>
                                     <option value="">지역 선택</option>
                                     <option value="SEOUL_CENTER">서울 중앙 (종로,용산 등)</option>
                                     <option value="SEOUL_EAST">서울 동부 (강동,송파 등)</option>
@@ -72,103 +123,111 @@
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>게시글 작성</span>
+                    <div class="form-section border-0 mb-0">
+                        <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>상세 내용</span>
+
                         <div class="mb-4">
                             <label for="title" class="form-label small fw-bold text-muted">제목</label>
-                            <input type="text" id="title" name="title" class="form-control rounded-3 py-2"
-                                   placeholder="제목을 입력하세요" required>
+                            <input type="text" id="title" name="title" class="form-control rounded-3 py-2" placeholder="제목을 입력하세요" required>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted">내용</label>
-                            <textarea id="content" name="content" required></textarea>
-                        </div>
-                        <div>
-                            <input type="file" id="file" name="file" class="form-control rounded-3">
-                            <label for="file" class="form-label small fw-bold text-muted">첨부파일</label>
-                        </div>
+
+                        <textarea id="content" name="content" required></textarea>
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기
-                        </button>
+                        <button type="submit" id="submitBtn" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기</button>
                         <a th:href="@{/post}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-<script th:inline="javascript">
-    $(document).ready(function() {
-        $('#content').summernote({
-            height: 400,
-            lang: 'ko-KR',
-            placeholder: '이웃과 나누고 싶은 내용을 작성해주세요.',
-            dialogsInBody: true,
-            dialogsFade: false,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'hr']],
-                ['view', ['fullscreen', 'codeview']]
-            ],
-            callbacks: {
-                onImageUpload: function(files) {
-                    for (let i = 0; i < files.length; i++) { uploadSummernoteImage(files[i], this); }
-                }
-            },
-            // 2. 이미지 삭제 시
-            onMediaDelete: function(target) {
-                deleteSummernoteImage(target[0].src);
+        <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                $('#content').summernote({
+                    height: 400,
+                    lang: 'ko-KR',
+                    placeholder: '이웃과 나누고 싶은 내용을 자유롭게 작성해주세요.',
+                    dialogsInBody: true,
+                    dialogsFade: false,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'hr']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ],
+                    callbacks: {
+                        onImageUpload: function(files) {
+                            for (let i = 0; i < files.length; i++) {
+                                uploadSummernoteImage(files[i], this);
+                            }
+                        },
+                        onMediaDelete: function(target) {
+                            deleteSummernoteImage(target[0].src);
+                        }
+                    }
+                });
+            });
+
+            // [이미지 업로드]
+            function uploadSummernoteImage(file, editor) {
+                let data = new FormData();
+                data.append("file", file);
+
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                $.ajax({
+                    url: "/post/uploadSummernoteImage", // 포스트용 이미지 업로드 URL
+                    type: "POST",
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(xhr) {
+                        if (token && header) {
+                            xhr.setRequestHeader(header, token);
+                        }
+                    },
+                    success: function(response) {
+                        $(editor).summernote('insertImage', response.url);
+                    },
+                    error: function(e) {
+                        console.log("에러 내용:", e);
+                        alert("이미지 업로드 실패");
+                    }
+                });
             }
-        });
-    });
 
+            // [이미지 삭제]
+            function deleteSummernoteImage(src) {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
 
-// [이미지 업로드]
-function uploadSummernoteImage(file, editor) {
-    let data = new FormData();
-    data.append("file", file);
-
-        let token = $("meta[name='_csrf']").attr("content");
-        let header = $("meta[name='_csrf_header']").attr("content");
-        $.ajax({
-            url: "/post/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
-            type: "POST",
-            data: data,
-            contentType: false,
-            processData: false,
-            beforeSend: function(xhr) {
-                if (token && header) {
-                    xhr.setRequestHeader(header, token);
-                }
-            },
-            success: function(response) {
-                $(editor).summernote('insertImage', response.url);
+                $.ajax({
+                    data: {src: src},
+                    type: "POST",
+                    url: "/post/deleteSummernoteImage",
+                    beforeSend: function(xhr) {
+                        if (token && header) {
+                            xhr.setRequestHeader(header, token);
+                        }
+                    }
+                });
             }
-        });
-    }
 
-// [이미지 삭제]
-function deleteSummernoteImage(src) {
-    let token = $("meta[name='_csrf']").attr("content");
-    let header = $("meta[name='_csrf_header']").attr("content");
+            // 리뷰 폼처럼 제출 시 빈 내용 체크 방어 로직 추가
+            $('#submitBtn').on('click', function() {
+                let content = $('#content').summernote('code');
+                let pureText = content.replace(/<[^>]*>?/gm, '').trim();
 
-        $.ajax({
-            data: {src: src},
-            type: "POST",
-            url: "/post/deleteSummernoteImage", // ★ 주소 변경됨
-            beforeSend: function(xhr) {
-                if (token && header) {
-                    xhr.setRequestHeader(header, token);
+                if(pureText.length < 5) {
+                    alert("내용을 최소 5자 이상 작성해주세요.");
+                    return false;
                 }
-            }
-        });
-    }
-</script>
-</html>
+                $('#postForm').submit();
+            });
+        </script>
+    </div> </div> </html>

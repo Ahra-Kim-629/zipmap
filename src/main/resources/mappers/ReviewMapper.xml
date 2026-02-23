@@ -56,7 +56,9 @@
         r.view_count, r.created_at, r.updated_at,
 
         (SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO') AS
-        prosStr
+        prosStr,
+
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1) AS filePath
 
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
@@ -104,8 +106,9 @@
                 )
             </if>
         </where>
+        ORDER BY r.id DESC
+
         <if test="pageable != null">
-            ORDER BY r.id DESC
             LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
         </if>
     </select>
