@@ -1,11 +1,18 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.Reaction;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.mapper.ReactionMapper;
 import com.daedong.zipmap.util.StatsUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +51,17 @@ public class ReactionService {
 
     public void deleteByTargetTypeAndTargetId(String targetType, Long targetId) {
         reactionMapper.deleteByTargetTypeAndTargetId(targetType, targetId);
+    }
+
+    public Page<ReviewDTO> getLikedReviews(Long userId, Pageable pageable) {
+        List<ReviewDTO> content = reactionMapper.findLikedReviewsByUserId(userId, pageable);
+        int total = reactionMapper.countLikedReviewsByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    public Page<PostDTO> getLikedPosts(Long userId, Pageable pageable) {
+        List<PostDTO> content = reactionMapper.findLikedPostsByUserId(userId, pageable);
+        int total = reactionMapper.countLikedPostsByUserId(userId);
+        return new PageImpl<>(content, pageable, total);
     }
 }

@@ -49,4 +49,62 @@
         AND type = #{type}
     </select>
 
+    <!-- 내가 좋아요한 리뷰 조회 -->
+    <select id="findLikedReviewsByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
+        SELECT
+            r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status,
+            r.view_count, r.created_at, r.updated_at,
+            (SELECT COUNT(*) FROM reaction WHERE target_type = 'review' AND target_id = r.id AND type = 1) AS likeCount,
+            (SELECT COUNT(*) FROM reaction WHERE target_type = 'review' AND target_id = r.id AND type = -1) AS dislikeCount
+        FROM reaction l
+                 JOIN review r ON l.target_id = r.id
+                 LEFT JOIN user u ON r.user_id = u.id
+        WHERE l.user_id = #{userId}
+          AND l.target_type = 'review'
+          AND l.type = 1
+          AND r.review_status = 'ACTIVE'
+        ORDER BY l.created_at DESC
+            LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <!-- 내가 좋아요한 리뷰 개수 세기 (페이징 위해 필요) -->
+    <select id="countLikedReviewsByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM reaction l
+        JOIN review r ON l.target_id = r.id
+        WHERE l.user_id = #{userId}
+        AND l.target_type = 'review'
+        AND l.type = 1
+        AND r.review_status = 'ACTIVE'
+    </select>
+
+    <!-- 내가 좋아요한 게시글 조회 -->
+    <select id="findLikedPostsByUserId" resultType="com.daedong.zipmap.domain.PostDTO">
+        SELECT
+            p.id, p.title, p.content, p.user_id, p.category, p.location, p.view_count, p.post_status,
+            p.created_at, p.updated_at, u.login_id as loginId,
+            (SELECT COUNT(*) FROM reaction WHERE target_type = 'post' AND target_id = p.id AND type = 1) AS likeCount,
+            (SELECT COUNT(*) FROM reaction WHERE target_type = 'post' AND target_id = p.id AND type = -1) AS dislikeCount
+        FROM reaction l
+                 JOIN post p ON l.target_id = p.id
+                 LEFT JOIN user u ON p.user_id = u.id
+        WHERE l.user_id = #{userId}
+          AND l.target_type = 'post'
+          AND l.type = 1
+          AND p.post_status = 'ACTIVE'
+        ORDER BY l.created_at DESC
+            LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <!-- 내가 좋아요한 게시글 개수 세기 (페이징 위해 필요) -->
+    <select id="countLikedPostsByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM reaction l
+        JOIN post p ON l.target_id = p.id
+        WHERE l.user_id = #{userId}
+        AND l.target_type = 'post'
+        AND l.type = 1
+        AND p.post_status = 'ACTIVE'
+    </select>
+
 </mapper>

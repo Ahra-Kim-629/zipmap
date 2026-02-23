@@ -158,7 +158,7 @@
                         <span class="text-orange" th:text="${reviewDTO.replyList.size()}">0</span>
                     </h5>
 
-                    <div th:each="reply : ${reviewDTO.replyList}" class="reply-item shadow-sm">
+                    <div th:each="reply : ${reviewDTO.replyList}" class="reply-item shadow-sm" th:id="|reply-${reply.id}|">
                         <div th:id="|display-${reply.id}|">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span class="reply-author" th:text="${reply.loginId}">사용자</span>
@@ -235,5 +235,19 @@
             display.style.opacity = '1';
         }
     }
+    //내가 쓴 댓글 스크롤(포커싱)
+    $(document).ready(function() {
+        if (window.location.hash) {
+            var target = $(window.location.hash);
+            if (target.length) {
+                $(window).scrollTop(target.offset().top - 100);
+
+                target.css('background-color', '#f4f4f4');
+                setTimeout(function() {
+                    target.css('background-color', '#fff');
+                }, 2000);
+            }
+        }
+    });
 </script>
 </html>
