@@ -178,4 +178,10 @@ public class FileUtilService {
         return targetFolder + "/" + saveFileName;
     }
 
+    // ★ 추가: DB에 파일 정보 저장 (PostController에서 호출)
+    @Transactional
+    public void saveFileToDB(com.daedong.zipmap.domain.File file) {
+        fileMapper.insertFile(file);
+    }
+
 }

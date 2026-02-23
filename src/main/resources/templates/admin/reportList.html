@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<div layout:fragment="content">
+  <div class="container mt-5">
+    <h2 class="mb-4">🚨 신고 내역 관리</h2>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <table class="table table-hover text-center">
+          <thead class="table-light">
+          <tr>
+            <th>번호</th>
+            <th>게시글ID</th>
+            <th>신고자ID</th>
+            <th>사유</th>
+            <th>상태</th>
+            <th>날짜</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="report : ${reports}">
+            <td th:text="${report.id}"></td>
+            <td th:text="${report.postId}"></td>
+            <td th:text="${report.userId}"></td>
+            <td th:text="${report.reasonType}"></td>
+            <td>
+                                <span class="badge"
+                                      th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+                                      th:text="${report.status}"></span>
+            </td>
+            <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(reports)}">
+            <td colspan="6">신고 내역이 없습니다.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</html>
