@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Reply;
 import com.daedong.zipmap.domain.ReplyDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -25,4 +26,11 @@ public interface ReplyMapper {
     List<ReplyDTO> findByTargetTypeAndUserId(String targetType, Long userId, Pageable pageable);
 
     int countByTargetTypeAndUserId(String targetType, Long userId);
+
+    List<ReplyDTO> findRepliesWithPaging(
+            @Param("targetType") String targetType,
+            @Param("targetId") Long targetId,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
 }

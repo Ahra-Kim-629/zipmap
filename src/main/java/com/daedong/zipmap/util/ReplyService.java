@@ -53,4 +53,8 @@ public class ReplyService {
         int total = replyMapper.countByTargetTypeAndUserId(targetType, userId);
         return new PageImpl<>(content, pageable, total);
     }
+    public List<ReplyDTO> getReplies(String targetType, Long targetId, int page, int size) {
+        int offset = page * size;
+        return replyMapper.findRepliesWithPaging(targetType, targetId, size, offset);
+    }
 }

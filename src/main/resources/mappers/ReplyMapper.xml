@@ -87,5 +87,15 @@
         WHERE target_type = #{targetType}
         AND user_id = #{userId}
     </select>
+    <!-- 댓글 페이징 관련 무한 스크롤 -->
+    <select id="findRepliesWithPaging" resultType="com.daedong.zipmap.domain.ReplyDTO">
+        SELECT
+        r.id, r.target_type, r.target_id, r.user_id, u.login_id, r.content, r.created_at, r.updated_at
+        FROM reply r
+        LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.target_type = #{targetType} AND r.target_id = #{targetId}
+        ORDER BY r.id DESC  /* 최신 댓글이 위로 오게 정렬 */
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
 
 </mapper>

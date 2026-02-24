@@ -1,17 +1,17 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Reply;
+import com.daedong.zipmap.domain.ReplyDTO;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.util.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Controller
@@ -59,6 +59,16 @@ public class ReplyController {
 
         // 상세 페이지로 다시 리다이렉트
         return "redirect:/" + targetType + "/detail/" + targetId;
+    }
+    @GetMapping("/list") // 전체 주소: /reply/list
+    @ResponseBody        // 중요: HTML 페이지가 아닌 '데이터'만 보낸다는 뜻
+    public List<ReplyDTO> getReplyList(
+            @RequestParam String targetType,
+            @RequestParam Long targetId,
+            @RequestParam(defaultValue = "0") int page) {
+
+        int size = 10;
+        return replyService.getReplies(targetType, targetId, page, size);
     }
 
 }
