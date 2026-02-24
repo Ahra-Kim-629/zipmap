@@ -33,14 +33,15 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/signUp", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/board/**"
+                        .requestMatchers("/", "/signUp", "/check-id", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/board/**"
                                 , "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
 
                         .requestMatchers("/css/**", "/js/**", "/files/**",
                                 "/review/uploadSummernoteImage",
                                 "/board/uploadSummernoteImage",
                                 "/notice/uploadSummernoteImage",      // 나중에 할 공지사항용
-                                "/certification/uploadSummernoteImage").permitAll()
+                                "/certification/uploadSummernoteImage",
+                                "/search/**").permitAll()
 
                         .requestMatchers("/error", "/favicon.ico").permitAll()
 
@@ -55,13 +56,13 @@ public class WebSecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/", false)
                         .failureHandler(loginFailureHandler)
 
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/",false)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService)
                         )

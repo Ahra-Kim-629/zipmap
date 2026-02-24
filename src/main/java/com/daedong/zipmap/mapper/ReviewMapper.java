@@ -69,4 +69,6 @@ public interface ReviewMapper {
     List<String> findContentsByRegion(String region);
 
     List<ReviewAttribute> findAttributesByReviewId(long id);
+
+    List<ReviewDTO> findByKeywordReviews(@Param("keyword") String keyword);
 }

@@ -371,4 +371,14 @@
         LIMIT 100
     </select>
 
+    <select id="findByKeywordPosts" resultType="com.daedong.zipmap.domain.PostDTO" parameterType="string">
+        SELECT id,title,content,category,created_at AS createdAt,like_count AS likeCount
+        FROM post
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+        OR content LIKE CONCAT('%', #{keyword}, '%')
+        AND post_status = 'ACTIVE'
+        ORDER BY created_at DESC
+        LIMIT 3
+    </select>
+
 </mapper>

@@ -2,6 +2,7 @@ package com.daedong.zipmap.mapper;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.ReviewDTO;
 import com.daedong.zipmap.domain.StatsUpdateDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -54,4 +55,6 @@ public interface PostMapper {
     void updatePostStatsBatch(List<StatsUpdateDTO> syncList);
 
     List<Map<String, Object>> getTopPostList(int i);
+
+    List<PostDTO> findByKeywordPosts(@Param("keyword") String keyword);
 }

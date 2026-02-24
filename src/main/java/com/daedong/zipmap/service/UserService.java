@@ -49,6 +49,11 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public boolean isLoginIdDuplicate(String loginId) {
+        User user = userMapper.findByLoginId(loginId.trim());
+        return user != null;
+    }
+
     public User findByLoginId(String login_id) {
         return userMapper.findByLoginId(login_id);
     }
@@ -104,5 +109,4 @@ public class UserService implements UserDetailsService {
     public void update(User user) {
         userMapper.update(user);
     }
-
 }

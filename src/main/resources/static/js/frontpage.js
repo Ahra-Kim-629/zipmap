@@ -81,3 +81,12 @@ function getCookie(name) {
     const parts = value.split("; " + name + "=");
     if (parts.length === 2) return parts.pop().split(";").shift();
 }
+
+/* =========================================
+    통합검색
+========================================= */
+document.querySelector('.btn-search-hero').addEventListener('click', function() {
+    const keyword = document.querySelector('.hero-input').value;
+    if(!keyword.trim()) return alert("검색어를 입력하세요.");
+    location.href = "/search?q=" + encodeURIComponent(keyword);
+});
