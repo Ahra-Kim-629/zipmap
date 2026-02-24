@@ -1,7 +1,9 @@
 package com.daedong.zipmap.config.security.oauth;
 
+import com.daedong.zipmap.domain.Status;
 import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
+import com.daedong.zipmap.domain.UserRole;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,8 +57,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                             ? gender.charAt(0)
                             : 'M'
             );
-            userEntity.setRole("WRITER");
-            userEntity.setAccountStatus("ACTIVE");
+            // 2-24 수정
+            // userEntity.setRole("WRITER");
+            // userEntity.setAccountStatus("ACTIVE");
+
+            userEntity.setRole(UserRole.WRITER);         //  Enum으로 변경
+            userEntity.setAccountStatus(Status.ACTIVE);  //  Enum으로 변경
             userMapper.save(userEntity);
         }
 

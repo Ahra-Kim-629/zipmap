@@ -14,7 +14,11 @@ public class Post {
     private String location;
     private long likeCount;
     private long viewCount;
-    private String postStatus;
+
+    // 2/24 수정
+    // private String postStatus;
+    private Status postStatus;
+
     private LocalDateTime CreatedAt;
     private LocalDateTime UpdatedAt;
 }

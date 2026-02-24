@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.StatsUpdateDTO;
+import com.daedong.zipmap.domain.Status;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +43,9 @@ public interface PostMapper {
     List<PostDTO> findAllByIdList(List<Long> postIdList);
 
     // UPDATE 커뮤니티 게시글 보이게 하기, 숨기게 하기 기능
-    void updatePostStatus(@Param("id") Long id, @Param("status") String status);
+    // 2/24 수정
+    // void updatePostStatus(@Param("id") Long id, @Param("status") String status);
+    void updatePostStatus(@Param("id") Long id, @Param("status") Status status);
 
     // 내가 쓴 글 조회
     List<PostDTO> findByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);

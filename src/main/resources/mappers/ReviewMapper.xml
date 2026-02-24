@@ -126,7 +126,7 @@
         INSERT INTO review
         (title, content, address, user_id, point, review_status)
         VALUES
-        (#{title}, #{content}, #{address}, #{userId}, #{point}, 'ACTIVE')
+        (#{title}, #{content}, #{address}, #{userId}, #{point}, #{reviewStatus})
     </insert>
 
     <insert id="insertAttributesAll">
@@ -282,11 +282,11 @@
         INSERT INTO certification (
         user_id, review_id, certification_status, created_at
         ) VALUES (
-        #{userId}, #{reviewId}, 'PENDING', NOW()
+        #{userId}, #{reviewId}, #{certificationStatus}, NOW()
         )
     </insert>
 
-    <update id="updateReviewStatusToBanned">
+    <update id="updateReviewStatus">
         UPDATE review
         SET review_status = #{status}
         WHERE id = #{reviewId}

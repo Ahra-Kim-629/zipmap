@@ -18,14 +18,21 @@ public class User implements UserDetails {
     private char gender;
     private String email;
     private String address;
-    private String role;
-    private String accountStatus;
+
+    // 2-24 수정
+    //private String role;
+    //private String accountStatus;
+
+    private UserRole role;
+    private Status accountStatus;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role));
+        // return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     @Override
@@ -54,6 +61,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         //계정이 활성화되었는지 여부 반환 (true : 활성화됨)
-        return "ACTIVE".equals(this.accountStatus);
+        //return "ACTIVE".equals(this.accountStatus);
+
+        return this.accountStatus == Status.ACTIVE;
+
     }
 }

@@ -2,6 +2,7 @@ package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.Status;
 import com.daedong.zipmap.mapper.PostMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.NetworkUtil;
@@ -71,6 +72,10 @@ public class PostService {
 
     @Transactional(rollbackFor = Exception.class)
     public Long write(Post post) { // 리턴타입 void -> Long (ID 반환)
+
+        //  게시글 작성 시 기본 상태를 'ACTIVE(정상)'로 강력하게 고정
+        post.setPostStatus(Status.ACTIVE);
+
         postMapper.insertPost(post);
         return post.getId(); // XML에서 keyProperty="id"로 세팅된 ID 반환
     }

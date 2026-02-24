@@ -19,8 +19,16 @@
     </select>
 
     <insert id="save">
+        <!--
         INSERT INTO user (login_id, password, name, gender, email, address, role)
-        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{email}, #{address}, "VIEWER")
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{email}, #{address}, "VIEWER") -->
+
+        <!-- 2/24 수정-->
+
+        INSERT INTO user (login_id, password, name, gender, email, address, role, account_status)
+        VALUES (#{loginId}, #{password}, #{name}, #{gender}, #{email}, #{address}, #{role}, #{accountStatus})
+
+
     </insert>
 
     <select id="findById" resultType="com.daedong.zipmap.domain.User">
