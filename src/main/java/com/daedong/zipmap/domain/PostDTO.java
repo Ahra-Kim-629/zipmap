@@ -15,7 +15,11 @@ public class PostDTO {
     private String location;
     private Long likeCount;
     private Long viewCount;
-    private String postStatus;
+
+    // 2/24 수정
+    // private String postStatus;
+    private Status postStatus;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

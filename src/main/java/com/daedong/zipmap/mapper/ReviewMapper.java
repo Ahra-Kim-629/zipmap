@@ -49,7 +49,12 @@ public interface ReviewMapper {
      */
     void insertCertification(Certification certification);
 
-    void updateReviewStatusToBanned(@Param("reviewId") Long reviewId, @Param("status") String status);
+
+    // 2-24 수정
+    // void updateReviewStatusToBanned(@Param("reviewId") Long reviewId, @Param("status") String status);
+
+    void updateReviewStatus(@Param("reviewId") Long reviewId, @Param("status") Status status);
+
 
     List<ReviewDTO> adminFindAll(@Param("searchType") String searchType,
                                  @Param("keyword") String keyword,

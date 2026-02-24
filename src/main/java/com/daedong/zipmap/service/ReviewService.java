@@ -118,6 +118,10 @@ public class ReviewService {
     @CacheEvict(value = "aiSummaryCache", allEntries = true)
     @Transactional
     public long write(Review review, List<String> prosList, List<String> consList) {
+
+        // ✨ 추가: 리뷰 작성 시 무조건 '대기중(PENDING)' 상태로 세팅
+        review.setReviewStatus(Status.PENDING);
+
         reviewMapper.insertReview(review);
         long reviewId = review.getId();
 
@@ -214,6 +218,10 @@ public class ReviewService {
         cert.setUserId(user.getId());
         cert.setReviewId(reviewId);
 
+        // 2/24 추가: 인증 객체에도 초기 상태값을 명시적으로 세팅해 줍니다!
+        cert.setCertificationStatus(Status.PENDING);
+
+
         reviewMapper.insertCertification(cert); // DB 저장 (ID 생성)
 
 
@@ -231,7 +239,11 @@ public class ReviewService {
 
         fileMapper.insertFile(file);
 
-        reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
+        // 2-24 수정
+        // reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
+
+        // ✅ 수정 후 (메서드 이름도 범용적으로 번경, 상태도 PENDING으로 올바르게 수정)
+        reviewMapper.updateReviewStatus(reviewId, Status.PENDING);
     }
 
     public int countTotal(String searchType, String keyword, List<String> pros, List<String> cons) {

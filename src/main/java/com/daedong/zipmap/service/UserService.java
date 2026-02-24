@@ -1,7 +1,9 @@
 package com.daedong.zipmap.service;
 
+import com.daedong.zipmap.domain.Status;
 import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserRole;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,6 +42,11 @@ public class UserService implements UserDetailsService {
     public void signUp(User user) {
         validateDuplicateUser(user.getLoginId());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // ✨ 새로 추가된 부분: 회원가입 시 초기 상태와 권한을 명확하게 Enum으로 꽂아줌
+        user.setAccountStatus(Status.ACTIVE); // 가입하자마자 정상 활동 상태
+        user.setRole(UserRole.VIEWER);        // 기본 권한 설정 (만약 가입 즉시 리뷰를 쓰게 하려면 WRITER로 변경)
+
         userMapper.save(user);
     }
 

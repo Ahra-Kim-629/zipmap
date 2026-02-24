@@ -12,7 +12,11 @@ public class Review {
     private String address;
     private long userId;
     private int point;
-    private String reviewStatus;
+
+    // 2/24 수정
+    // private String reviewStatus;
+    private Status reviewStatus;
+
     private long likeCount;
     private long viewCount;
     private LocalDateTime CreatedAt;

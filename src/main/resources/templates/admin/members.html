@@ -60,7 +60,11 @@
                             </td>
 
                             <td>
+                                <!-- 전부 여성으로 조회돼서 코드 수정 2/24
                                 <span class="small" th:text="${user.gender == 'M' ? '남성' : '여성'}">성별</span>
+                                -->
+
+                                <span class="small" th:text="${#strings.toString(user.gender) == 'M' ? '남성' : '여성'}">성별</span>
                             </td>
 
                             <td>
@@ -80,19 +84,19 @@
                                     <input type="hidden" name="id" th:value="${user.id}">
 
                                     <select name="role" class="form-select form-select-sm" style="width: 100px;">
-                                        <option value="VIEWER" th:selected="${user.role == 'VIEWER'}">VIEWER</option>
-                                        <option value="WRITER" th:selected="${user.role == 'WRITER'}">WRITER</option>
-                                        <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">ADMIN</option>
+                                        <option value="VIEWER" th:selected="${user.role?.name() == 'VIEWER'}">VIEWER</option>
+                                        <option value="WRITER" th:selected="${user.role?.name() == 'WRITER'}">WRITER</option>
+                                        <option value="ADMIN" th:selected="${user.role?.name() == 'ADMIN'}">ADMIN</option>
                                     </select>
 
                                     <select name="accountStatus" class="form-select form-select-sm"
                                             th:classappend="${user.accountStatus == 'ACTIVE' ? 'status-active' : (user.accountStatus == 'BANNED' ? 'status-banned' : '')}"
                                             style="width: 100px;">
-                                        <option value="ACTIVE" th:selected="${user.accountStatus == 'ACTIVE'}">ACTIVE
+                                        <option value="ACTIVE" th:selected="${user.accountStatus?.name() == 'ACTIVE'}">ACTIVE
                                         </option>
-                                        <option value="SLEEP" th:selected="${user.accountStatus == 'SLEEP'}">SLEEP
+                                        <option value="PENDING" th:selected="${user.accountStatus?.name() == 'PENDING'}">PENDING
                                         </option>
-                                        <option value="BANNED" th:selected="${user.accountStatus == 'BANNED'}">BANNED
+                                        <option value="BANNED" th:selected="${user.accountStatus?.name() == 'BANNED'}">BANNED
                                         </option>
                                     </select>
 

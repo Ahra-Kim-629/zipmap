@@ -13,6 +13,11 @@ public class Certification {
     private Long id;              // 인증 PK
     private Long userId;          // 신청자 ID (User 테이블의 id와 매칭)
     private Long reviewId;        // 리뷰글 ID
-    private String certificationStatus;        // 상태 (PENDING, APPROVED, REJECTED)
+
+    // 2/24 수정
+    // private String certificationStatus;        // 상태 (PENDING, APPROVED, REJECTED)
+
+    private Status certificationStatus;
+
     private LocalDateTime createdAt; // 신청 일시
 }

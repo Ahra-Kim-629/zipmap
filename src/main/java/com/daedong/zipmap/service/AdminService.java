@@ -63,8 +63,11 @@ public class AdminService {
     public void updateAccountStatus(long id, String status, String role) {
         User user = new User();
         user.setId(id);
-        user.setAccountStatus(status);
-        user.setRole(role);
+        // 2/24 수정
+        // user.setAccountStatus(status);
+        // user.setRole(role);
+        user.setAccountStatus(Status.valueOf(status));
+        user.setRole(UserRole.valueOf(role));
         userMapper.updateUserStatusAndRole(user);
     }
 
@@ -92,8 +95,11 @@ public class AdminService {
     // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경
     @Transactional
     public void togglePostStatus(Long id, String currentStatus) {
+        // 2/24 수정
+        // String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
 
-        String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
+        // Post 도메인도 Status Enum을 쓰도록 변경
+        Status newStatus = "ACTIVE".equals(currentStatus) ? Status.BANNED : Status.ACTIVE;
         postMapper.updatePostStatus(id, newStatus);
     }
 
@@ -108,7 +114,11 @@ public class AdminService {
     @Transactional
     public void toggleReviewStatus(Long id, String targetStatus) {
         // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
-        reviewMapper.updateReviewStatusToBanned(id, targetStatus);
+        // 2/24 수정
+        // reviewMapper.updateReviewStatusToBanned(id, targetStatus);
+
+        //  메서드 이름 맞추고, 넘어온 글자를 Enum으로 변환해서 매퍼로 던짐
+        reviewMapper.updateReviewStatus(id, Status.valueOf(targetStatus));
     }
 
     @Transactional
