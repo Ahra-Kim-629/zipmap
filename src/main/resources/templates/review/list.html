@@ -217,15 +217,17 @@
 
                     <!-- 알림받기 버튼 -->
                     <div th:if="${keyword != null and keyword != ''}">
-                        <div th:if="${!isSubscribed}" id="alertSettingArea">
-                            <p> 찾으시는 키워드 '[[${keyword}]]'에 대한 새 리뷰 알림을 받으시겠어요? </p>
+                        <div id="alertSettingArea" style="display:none;">
+                            <p id="appliedKeywordsContainer">
+                                선택하신 키워드 <span id="appliedKeywords" style="font-weight: bold; color: #007bff;"></span>
+                            </p>
                             <button type="button" id="btnSaveKeyword" class="btn btn-primary">알림 받기</button>
                         </div>
 
-                        <div th:if="${isSubscribed}" id="alreadySubscribed" style="display: block !important;">
-                            <span class="badge badge-success" style="background-color: green; color: white; padding: 5px;">
-                                '[[${keyword}]]'는 알림 설정되어 있습니다.
-                            </span>
+                        <div id="alreadySubscribed" style="display:none; margin-top: 10px;">
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">구독 중 (클릭 시 취소):</p>
+                            <div id="oldKeywordsList">
+                            </div>
                         </div>
                     </div>
 
@@ -581,9 +583,21 @@
     /* <![CDATA[ */
     $(document).ready(function() {
 
+        // 로그인 사용자 확인 (타임리프 문법)
+        const loginUserId = /*[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.id : null}]]*/ null;
+        // 서버에서 보낸 내 구독 목록
+        const myExistingKeywords = [[${myKeywords}]] || [];
+        // 새로 저장할 키워드
+        let newKeywords = [];
+
+        console.log(myExistingKeywords);
+
         // 페이지 로드 시 알림 버튼 표시 여부 결정
         function checkSearchFilters() {
-            let keywords = [];
+
+            let keywords = []; // 사용자가 현재 화면에서 선택한 모든 것
+            newKeywords = []; // 새로 추가한것 초기화
+            let oldKeywords = []; // 이미 알림설정인것
 
             // 검색어(id="keyword") 가져오기
             let searchText = $('#keyword').val() ? $('#keyword').val().trim() : "";
@@ -594,32 +608,59 @@
                 keywords.push($(this).val());
             });
 
-            // 키워드가 하나라도 있다면 알림 설정 영역 표시
-            if(keywords.length > 0 && $('#alertSettingArea').length > 0) {
-                $('#appliedKeywords').text(keywords.join(", "));
-                $('#alertSettingArea').show(); // 새로고침 후에는 바로 보이게 show()
+            // 선택한 것들을 하나씩 검사
+            keywords.forEach(function(word) {
+                let isExist = myExistingKeywords.some(ex => ex.trim() === word.trim());
+                if (isExist) {
+                    oldKeywords.push(word); // 이미 있는 것
+                } else {
+                    newKeywords.push(word); // 새로운 것
+                }
+            });
+
+
+            // 저장할 새 키워드가 하나라도 있을 때
+            if (newKeywords.length > 0) {
+                $('#appliedKeywords').text(newKeywords.join(", "));
+                $('#alertSettingArea').show();
+            } else {
+                $('#alertSettingArea').hide();
+            }
+
+            // 이미 구독 중인 키워드가 하나라도 선택되었을 때
+            if (oldKeywords.length > 0) {
+                $('#oldKeywordsList').empty(); // 일단 비우고 시작
+
+                oldKeywords.forEach(function(word) {
+                    // 단어마다 삭제 버튼이 달린 배지 HTML을 생성
+                    let badgeHtml = `
+                        <span class="badge rounded-pill btn-unsubscribe"
+                              data-keyword="${word}"
+                              style="background-color: #28a745; color: white; cursor: pointer; margin-right: 5px; padding: 8px 12px;">
+                            ${word} <i class="bi bi-x-lg" style="margin-left: 5px;"></i>
+                        </span>`;
+                    $('#oldKeywordsList').append(badgeHtml);
+                });
+                $('#alreadySubscribed').show();
+            } else {
+                $('#alreadySubscribed').hide();
             }
         }
+
+        // 사용자가 입력하거나 체크를 바꿀 때마다 실행되게 연결
+        $('#keyword').on('input', checkSearchFilters);
+        $('input[type="checkbox"]').on('change', checkSearchFilters);
 
         // 페이지가 열리자마자 바로 실행
         checkSearchFilters();
 
-        // 알림 받기 버튼 클릭 시 서버로 전송
+        // 알림 받기 버튼 클릭 시
         $('#btnSaveKeyword').on('click', function() {
-            let keywordList = [];
 
-            // 현재 입력/체크된 값들 다시 수집
-            let searchText = $('#keyword').val().trim();
-            if(searchText) keywordList.push(searchText);
-
-            $('input[name="pros"]:checked, input[name="cons"]:checked').each(function() {
-                keywordList.push($(this).val());
-            });
-
-            let uniqueKeywords = [...new Set(keywordList)];
-
-            // 로그인 사용자 확인 (타임리프 문법)
-            let loginUserId = /*[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.id : null}]]*/ null;
+            if (newKeywords.length === 0) {
+                alert("저장할 새로운 키워드가 없습니다.");
+                return;
+            }
 
             if (!loginUserId) {
                 alert("로그인 후 이용 가능한 서비스입니다.");
@@ -640,20 +681,61 @@
                 },
                 data: JSON.stringify({
                     userId: loginUserId,
-                    keywords: uniqueKeywords,
+                    keywords: newKeywords,
                     targetType: 'review'
                 }),
                 success: function(response) {
                     alert("알림 설정이 완료되었습니다!");
-                    // 버튼 영역 찾기
-                    const area = $('#alertSettingArea');
-                    // 영역 내용 변환
-                    area.html('<span class="badge badge-success">이미 구독 중인 키워드입니다!</span>');
-                    area.fadeIn();
+
+                    // 저장 성공 후, 방금 저장한 것들을 "기존 목록"에 합쳐줍니다. (새로고침 없이 실시간 반영)
+                    newKeywords.forEach(k => myExistingKeywords.push(k));
+
+                    // 화면을 다시 체크해서 버튼을 숨깁니다.
+                    checkSearchFilters();
                 }
             });
         });
+
+    // 배지를 클릭했을 때 실행될 코드
+    $(document).on('click', '.btn-unsubscribe', function() {
+        const keywordToDelete = $(this).data('keyword'); // 클릭한 배지의 단어 가져오기
+
+        if (!confirm(`'${keywordToDelete}' 알림을 취소하시겠습니까?`)) return;
+
+        const $badge = $(this); // 클릭한 배지 요소를 변수에 담아둠
+
+        $.ajax({
+            url: '/subscription/delete', // 서버에 삭제 요청
+            type: 'POST',
+            contentType: 'application/json',
+            beforeSend: function(xhr) {
+                const token = $("meta[name='_csrf']").attr("content");
+                const header = $("meta[name='_csrf_header']").attr("content");
+                if (token && header) xhr.setRequestHeader(header, token);
+            },
+            data: JSON.stringify({
+                userId: loginUserId,
+                keywords: [keywordToDelete],
+                targetType: 'review'
+            }),
+            success: function(response) {
+                alert("알림 설정이 취소되었습니다.");
+
+                // 메모리에 있는 기존 목록에서도 삭제
+                const index = myExistingKeywords.indexOf(keywordToDelete);
+                if (index > -1) myExistingKeywords.splice(index, 1);
+
+                // 화면에서 해당 배지 삭제
+                $badge.remove();
+
+                // 다시 전체 체크해서 버튼 상태 등 갱신
+                checkSearchFilters();
+            }
+        });
     });
+    });
+
+
     /* ]]> */
         </script>
     </div>

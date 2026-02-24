@@ -26,4 +26,14 @@ public class SubscriptionController {
         return ResponseEntity.ok("알림 설정이 완료되었습니다.");
     }
 
+    // =====================================================================
+    // 알림 취소
+    // =====================================================================
+    @PostMapping("/delete")
+    @ResponseBody
+    public ResponseEntity<String> deleteSubscription(@RequestBody SubscriptionRequest request) {
+        subscriptionService.deleteKeywords(request);
+        return ResponseEntity.ok("알림이 취소되었습니다.");
+    }
+
 }

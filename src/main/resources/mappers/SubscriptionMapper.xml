@@ -25,4 +25,11 @@
         AND target_type = #{targetType}
     </select>
 
+    <delete id="deleteSubscription">
+        DELETE FROM keyword_subscription
+        WHERE user_id = #{userId}
+        AND keyword = #{keyword}
+        AND target_type = #{targetType}
+    </delete>
+
 </mapper>

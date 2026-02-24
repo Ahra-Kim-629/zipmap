@@ -14,4 +14,7 @@ public interface SubscriptionMapper {
     void saveSubscription(@Param("userId") Long userId, @Param("keyword") String keyword, @Param("targetType") String targetType);
 
     List<String> findKeywordsByUserId(@Param("userId") Long userId, @Param("targetType") String targetType);
+
+    // 알림 취소
+    void deleteSubscription(Long userId, String keyword, String targetType);
 }
