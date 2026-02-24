@@ -30,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,19 +82,10 @@ public class ReviewController {
         model.addAttribute("consList", consList);
 
         // 로그인한 사용자의 구독 목록
-        boolean isSubscribed = false;
-        if (user != null && keyword != null && !keyword.isEmpty()) {
+        if (user != null) {
             List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "review");
-
-            for (String myKeyword : myKeywords) {
-                if (myKeyword.trim().equals(keyword.trim())) {
-                    isSubscribed = true;
-                    break;
-                }
-            }
             model.addAttribute("myKeywords", myKeywords);
         }
-        model.addAttribute("isSubscribed", isSubscribed);
 
         return "review/list";
     }

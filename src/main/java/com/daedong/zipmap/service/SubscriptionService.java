@@ -32,4 +32,17 @@ public class SubscriptionService {
     public List<String> getMyKeywords(Long userId, String targetType) {
         return subscriptionMapper.findKeywordsByUserId(userId, targetType);
     }
+
+    @Transactional
+    public void deleteKeywords(SubscriptionRequest request) {
+        Long userId = request.getUserId();
+        String targetType = request.getTargetType();
+        List<String> keywords = request.getKeywords();
+
+        if (keywords != null) {
+            for (String keyword : keywords) {
+                subscriptionMapper.deleteSubscription(userId, keyword, targetType);
+            }
+        }
+    }
 }
