@@ -53,8 +53,8 @@
                     <button type="button" class="btn btn-outline-success px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="summarizeSelected()">
                         <i class="bi bi-check2-square me-1"></i> 선택 글 요약
                     </button>
-                    <!-- AI 요약 버튼 (카테고리 선택 모달 띄움) -->
-                    <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="showCategorySelectionModal()">
+                    <!-- AI 요약 버튼 (스마트 동작) -->
+                    <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="handleAiSummaryClick()">
                         <i class="bi bi-stars me-1"></i> AI 요약 보기
                     </button>
                     <a th:href="@{/post/write}" class="btn btn-orange px-4 py-2 fw-bold rounded-pill shadow-sm">
@@ -152,24 +152,53 @@
                 </table>
             </div>
 
-            <nav th:if="${posts.totalPages > 0}" class="mt-5 d-flex justify-content-center">
+            <!-- 페이징 (5개씩 표시) -->
+            <nav th:if="${posts.totalPages > 0}" class="mt-5 d-flex justify-content-center"
+                 th:with="pageNumber = ${posts.number},
+                          pageSize = 5,
+                          totalPages = ${posts.totalPages},
+                          startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
+                          tempEndPage = ${startPage + pageSize - 1},
+                          endPage = ${tempEndPage > totalPages ? totalPages : tempEndPage}">
+
                 <ul class="pagination">
+                    <!-- 이전 그룹으로 이동 -->
+                    <li class="page-item" th:classappend="${startPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/post(page=${startPage - 2}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+
+                    <!-- 이전 페이지로 이동 -->
                     <li class="page-item" th:classappend="${posts.first} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${posts.number-1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${posts.number - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
-                    <li class="page-item" th:each="page : ${#numbers.sequence(0, posts.totalPages-1)}"
-                        th:classappend="${page == posts.number} ? 'active'">
+
+                    <!-- 페이지 번호 (startPage ~ endPage) -->
+                    <li class="page-item" th:each="page : ${#numbers.sequence(startPage, endPage)}"
+                        th:classappend="${page == posts.number + 1} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/post(page=${page}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}"
-                           th:text="${page+1}"></a>
+                           th:href="@{/post(page=${page - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}"
+                           th:text="${page}"></a>
                     </li>
+
+                    <!-- 다음 페이지로 이동 -->
                     <li class="page-item" th:classappend="${posts.last} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${posts.number+1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${posts.number + 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+
+                    <!-- 다음 그룹으로 이동 -->
+                    <li class="page-item" th:classappend="${endPage == totalPages} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/post(page=${endPage}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                            <i class="bi bi-chevron-double-right"></i>
                         </a>
                     </li>
                 </ul>
@@ -278,18 +307,30 @@
         }
     }
 
-    // 1. 카테고리 선택 모달 띄우기
-    function showCategorySelectionModal() {
-        const modal = new bootstrap.Modal(document.getElementById('categorySelectionModal'));
-        modal.show();
+    // [수정] AI 요약 버튼 클릭 핸들러
+    function handleAiSummaryClick() {
+        // 현재 URL에서 카테고리 파라미터 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentCategory = urlParams.get('category');
+
+        // 카테고리가 선택된 상태라면 바로 요약 요청
+        if (currentCategory && currentCategory.trim() !== '') {
+            summarizeCategory(currentCategory);
+        } else {
+            // 카테고리가 선택되지 않은 상태(전체)라면 모달 띄우기
+            const modal = new bootstrap.Modal(document.getElementById('categorySelectionModal'));
+            modal.show();
+        }
     }
 
     // 2. 선택한 카테고리로 요약 요청
     async function summarizeCategory(selectedCategory) {
-        // 카테고리 선택 모달 닫기
+        // 카테고리 선택 모달이 열려있다면 닫기 (안전하게 처리)
         const selectionModalEl = document.getElementById('categorySelectionModal');
         const selectionModal = bootstrap.Modal.getInstance(selectionModalEl);
-        selectionModal.hide();
+        if (selectionModal) {
+            selectionModal.hide();
+        }
 
         // 현재 검색 조건 가져오기 (카테고리는 선택한 값으로 덮어씀)
         const urlParams = new URLSearchParams(window.location.search);
