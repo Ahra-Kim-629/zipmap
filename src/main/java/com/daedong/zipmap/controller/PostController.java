@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.service.GeminiService;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.UserService;
@@ -31,6 +32,7 @@ public class PostController {
     private final PostService postService;
     private final ReplyService replyService;
     private final ReactionService reactionService;
+    private final GeminiService geminiService; // GeminiService 주입 추가
 
     private final FileUtilService fileUtilService;
 
@@ -203,5 +205,30 @@ public class PostController {
         }
     }
 
+    // 카테고리별 AI 요약 요청 처리
+    @GetMapping("/summarize-category")
+    @ResponseBody
+    public String summarizeCategory(@RequestParam(required = false) String category,
+                                    @RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false) String location,
+                                    @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        
+        // 현재 필터 조건에 맞는 게시글 목록 조회 (최신 10개만)
+        Page<PostDTO> posts = postService.findAll("title", keyword, category, location, pageable);
+        
+        // GeminiService를 통해 요약 요청
+        return geminiService.summarizeCategory(category, posts.getContent());
+    }
+
+    // [추가] 선택된 게시글 요약 요청 처리
+    @PostMapping("/summarize-selected")
+    @ResponseBody
+    public String summarizeSelected(@RequestBody List<Long> postIds) {
+        // 선택된 ID로 게시글 조회
+        List<PostDTO> posts = postService.getPostsByIds(postIds);
+        
+        // GeminiService를 통해 요약 요청
+        return geminiService.summarizeSelectedPosts(posts);
+    }
 
 }

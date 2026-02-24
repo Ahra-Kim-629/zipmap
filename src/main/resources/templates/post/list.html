@@ -33,6 +33,10 @@
         /* 페이징 */
         .pagination .page-link { color: #555; border: none; margin: 0 3px; border-radius: 8px !important; }
         .pagination .page-item.active .page-link { background-color: var(--main-orange); color: white; }
+
+        /* 카테고리 선택 버튼 스타일 */
+        .category-btn { width: 100%; padding: 15px; font-weight: bold; border-radius: 12px; transition: 0.2s; }
+        .category-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </th:block>
 
@@ -44,9 +48,19 @@
                     <h2 class="page-title mb-1">커뮤니티</h2>
                     <p class="text-muted small mb-0">자취생들의 꿀팁 공유부터 공동구매까지 함께해요.</p>
                 </div>
-                <a th:href="@{/post/write}" class="btn btn-orange px-4 py-2 fw-bold rounded-pill shadow-sm">
-                    <i class="bi bi-pencil-fill me-1"></i> 글쓰기
-                </a>
+                <div class="d-flex gap-2">
+                    <!-- 선택 글 요약 버튼 -->
+                    <button type="button" class="btn btn-outline-success px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="summarizeSelected()">
+                        <i class="bi bi-check2-square me-1"></i> 선택 글 요약
+                    </button>
+                    <!-- AI 요약 버튼 (카테고리 선택 모달 띄움) -->
+                    <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="showCategorySelectionModal()">
+                        <i class="bi bi-stars me-1"></i> AI 요약 보기
+                    </button>
+                    <a th:href="@{/post/write}" class="btn btn-orange px-4 py-2 fw-bold rounded-pill shadow-sm">
+                        <i class="bi bi-pencil-fill me-1"></i> 글쓰기
+                    </a>
+                </div>
             </div>
 
             <div th:if="${message}" class="alert alert-primary border-0 rounded-3 mb-4" th:text="${message}"></div>
@@ -94,6 +108,9 @@
                 <table class="table mb-0 text-center">
                     <thead>
                     <tr>
+                        <th style="width: 5%;">
+                            <input type="checkbox" id="checkAll" class="form-check-input" onclick="toggleAllCheckboxes()">
+                        </th>
                         <th style="width: 8%;">번호</th>
                         <th style="width: 50%;">제목</th>
                         <th style="width: 15%;">작성자</th>
@@ -104,35 +121,32 @@
                     </thead>
                     <tbody>
                     <tr th:each="post : ${posts}" th:style="${post.category == 'NOTICE'} ? 'background-color: #fff9f5;' : ''">
-
+                        <td>
+                            <input type="checkbox" name="selectedPosts" th:value="${post.id}" class="form-check-input post-checkbox">
+                        </td>
                         <td class="text-center">
                             <span th:if="${post.category == 'NOTICE'}" class="badge bg-danger rounded-pill">공지</span>
                             <span th:unless="${post.category == 'NOTICE'}" class="text-muted small" th:text="${post.id}"></span>
                         </td>
-
                         <td class="text-start ps-4">
                             <span th:if="${post.category == 'GROUP'}" class="badge badge-group rounded-pill me-1">공구</span>
                             <span th:if="${post.category == 'SHARE'}" class="badge badge-share rounded-pill me-1">나눔</span>
                             <span th:if="${post.category == 'FREE'}" class="badge badge-free rounded-pill me-1">자유</span>
-
                             <a th:href="@{/post/detail/{id}(id=${post.id})}"
                                class="post-link"
                                th:classappend="${post.category == 'NOTICE'} ? 'fw-bold' : ''"
                                th:text="${post.title}">게시글 제목</a>
                         </td>
-
                         <td>
                             <span class="small" th:text="${post.loginId}">작성자</span>
                         </td>
-
                         <td class="text-muted small" th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd')}"></td>
-
                         <td><span class="like-count" th:text="${post.likeCount}">0</span></td>
                         <td><span class="like-count" th:text="${post.dislikeCount}">0</span></td>
                     </tr>
 
                     <tr th:if="${posts.empty}">
-                        <td colspan="6" class="py-5 text-muted text-center">등록된 게시글이 없습니다.</td>
+                        <td colspan="7" class="py-5 text-muted text-center">등록된 게시글이 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -162,5 +176,184 @@
             </nav>
         </div>
     </div>
+
+    <!-- 1. 카테고리 선택 모달 -->
+    <div class="modal fade" id="categorySelectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold ps-2">어떤 글을 요약해 드릴까요? 🤖</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <button class="btn btn-light category-btn text-primary" onclick="summarizeCategory('GROUP')">
+                                <i class="bi bi-cart-fill fs-3 d-block mb-2"></i> 공구
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-light category-btn text-success" onclick="summarizeCategory('SHARE')">
+                                <i class="bi bi-gift-fill fs-3 d-block mb-2"></i> 나눔
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-light category-btn text-warning" onclick="summarizeCategory('FREE')">
+                                <i class="bi bi-chat-dots-fill fs-3 d-block mb-2"></i> 자유
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-light category-btn text-secondary" onclick="summarizeCategory('')">
+                                <i class="bi bi-grid-fill fs-3 d-block mb-2"></i> 전체
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. AI 요약 결과 모달 -->
+    <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="border-radius: 15px; border: none;">
+                <div class="modal-header" style="background-color: #fdfcf9; border-bottom: 1px solid #eee;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-stars me-2 text-primary"></i>AI 게시판 요약</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="summaryContent" class="text-muted">
+                        <!-- 로딩 중 또는 결과가 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script layout:fragment="script">
+    // 전체 선택/해제
+    function toggleAllCheckboxes() {
+        const checkAll = document.getElementById('checkAll');
+        const checkboxes = document.querySelectorAll('.post-checkbox');
+        checkboxes.forEach(cb => cb.checked = checkAll.checked);
+    }
+
+    // 선택된 글 요약 요청
+    async function summarizeSelected() {
+        const checkboxes = document.querySelectorAll('.post-checkbox:checked');
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+        if (selectedIds.length === 0) {
+            alert("요약할 게시글을 하나 이상 선택해주세요.");
+            return;
+        }
+
+        showLoading("선택하신 게시글들을 분석하고 있어요...");
+
+        try {
+            // CSRF 토큰 가져오기
+            const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+            const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+            const response = await fetch('/post/summarize-selected', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify(selectedIds)
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const result = await response.text();
+            showResult(result);
+        } catch (error) {
+            console.error('Error:', error);
+            showError();
+        }
+    }
+
+    // 1. 카테고리 선택 모달 띄우기
+    function showCategorySelectionModal() {
+        const modal = new bootstrap.Modal(document.getElementById('categorySelectionModal'));
+        modal.show();
+    }
+
+    // 2. 선택한 카테고리로 요약 요청
+    async function summarizeCategory(selectedCategory) {
+        // 카테고리 선택 모달 닫기
+        const selectionModalEl = document.getElementById('categorySelectionModal');
+        const selectionModal = bootstrap.Modal.getInstance(selectionModalEl);
+        selectionModal.hide();
+
+        // 현재 검색 조건 가져오기 (카테고리는 선택한 값으로 덮어씀)
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyword = urlParams.get('keyword') || '';
+        const location = urlParams.get('location') || '';
+
+        showLoading(`[${getCategoryName(selectedCategory)}] 게시글을 분석하고 있어요...`);
+
+        try {
+            const response = await fetch(`/post/summarize-category?category=${selectedCategory}&keyword=${keyword}&location=${location}`);
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const result = await response.text();
+            showResult(result);
+        } catch (error) {
+            console.error('Error:', error);
+            showError();
+        }
+    }
+
+    function getCategoryName(code) {
+        if (code === 'GROUP') return '공구';
+        if (code === 'SHARE') return '나눔';
+        if (code === 'FREE') return '자유';
+        return '전체';
+    }
+
+    // 로딩 표시 함수
+    function showLoading(message) {
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="fw-bold text-dark mb-0">${message}</p>
+                <p class="text-muted small">잠시만 기다려주세요! 🤖</p>
+            </div>
+        `;
+        const summaryModal = new bootstrap.Modal(document.getElementById('summaryModal'));
+        summaryModal.show();
+    }
+
+    // 결과 표시 함수
+    function showResult(result) {
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `
+            <div class="p-2" style="line-height:1.8; font-size: 1.05rem; color: #333;">
+                ${result.replace(/\n/g, '<br>')}
+            </div>
+        `;
+    }
+
+    // 에러 표시 함수
+    function showError() {
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `
+            <div class="text-center py-4 text-danger">
+                <i class="bi bi-exclamation-circle fs-1 mb-2"></i>
+                <p class="fw-bold">요약을 가져오는데 실패했습니다.</p>
+                <p class="small text-muted">잠시 후 다시 시도해주세요.</p>
+            </div>
+        `;
+    }
+</script>
 </html>

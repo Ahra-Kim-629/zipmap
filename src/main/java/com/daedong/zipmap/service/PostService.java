@@ -121,4 +121,12 @@ public class PostService {
 
         return postMapper.findAllByIdList(topPostIdList);
     }
+
+    // [추가] 선택된 ID 목록으로 게시글 조회
+    public List<PostDTO> getPostsByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return postMapper.findAllByIdList(ids);
+    }
 }
