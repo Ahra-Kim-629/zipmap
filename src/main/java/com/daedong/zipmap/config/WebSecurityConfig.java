@@ -46,8 +46,11 @@ public class WebSecurityConfig {
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        // 신고 기능은 로그인한 누구나 가능하도록 설정 (403 에러 해결)
+                        .requestMatchers("/report/**").authenticated()
+
                         .requestMatchers("/find/**", "/users/**",
-                                "/review/**","/report/**").hasRole("WRITER")
+                                "/review/**").hasRole("WRITER")
 
                         .anyRequest().authenticated()
                 )
@@ -77,5 +80,4 @@ public class WebSecurityConfig {
 
         return http.build();
     }
-
 }

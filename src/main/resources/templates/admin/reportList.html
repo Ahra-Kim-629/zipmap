@@ -9,32 +9,106 @@
 
     <div class="card shadow-sm">
       <div class="card-body">
-        <table class="table table-hover text-center">
+        <table class="table table-hover text-center align-middle">
           <thead class="table-light">
           <tr>
             <th>번호</th>
-            <th>게시글ID</th>
-            <th>신고자ID</th>
+            <th>유형</th> <!-- 게시글/리뷰 구분 -->
+            <th>바로가기</th>
+            <th>신고자</th>
             <th>사유</th>
             <th>상태</th>
             <th>날짜</th>
+            <th>관리</th> <!-- 상세보기 -> 관리로 변경 -->
           </tr>
           </thead>
           <tbody>
           <tr th:each="report : ${reports}">
             <td th:text="${report.id}"></td>
-            <td th:text="${report.postId}"></td>
-            <td th:text="${report.userId}"></td>
-            <td th:text="${report.reasonType}"></td>
             <td>
-                                <span class="badge"
-                                      th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-                                      th:text="${report.status}"></span>
+              <span class="badge bg-secondary" th:if="${report.targetType == 'POST'}">게시글</span>
+              <span class="badge bg-info" th:if="${report.targetType == 'REVIEW'}">리뷰</span>
+            </td>
+            <td>
+              <!-- 게시글인 경우 -->
+              <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-primary" target="_blank">
+                게시글 보기 <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+              <!-- 리뷰인 경우 -->
+              <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-info" target="_blank">
+                리뷰 보기 <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+            </td>
+            <td th:text="${report.reporterName}"></td> <!-- 신고자 이름 표시 -->
+            <td>
+              <!-- 신고 사유 한글 변환 -->
+              <span th:switch="${report.reasonType}">
+                <span th:case="'SPAM'">스팸/홍보</span>
+                <span th:case="'ABUSE'">욕설/비하</span>
+                <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠</span>
+                <span th:case="'ETC'">기타</span>
+                <span th:case="*" th:text="${report.reasonType}"></span>
+              </span>
+            </td>
+            <td>
+                <span class="badge"
+                      th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+                      th:text="${report.status == 'PENDING' ? '대기중' : '처리완료'}"></span>
             </td>
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+              <div class="d-flex gap-2 justify-content-center">
+                <!-- 상세보기 모달 트리거 버튼 -->
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" th:data-bs-target="'#reportModal' + ${report.id}">
+                  내용 보기
+                </button>
+
+                <!-- 삭제 버튼 추가 -->
+                <a th:href="@{/admin/report/delete/{id}(id=${report.id})}"
+                   class="btn btn-sm btn-danger"
+                   onclick="return confirm('정말 삭제하시겠습니까?');">
+                  삭제
+                </a>
+              </div>
+
+              <!-- 모달 -->
+              <div class="modal fade" th:id="'reportModal' + ${report.id}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">신고 상세 내용</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                      <p><strong>신고 대상:</strong> <span th:text="${report.targetType == 'POST' ? '게시글' : '리뷰'}"></span></p>
+                      <p><strong>신고 사유:</strong>
+                        <span th:switch="${report.reasonType}">
+                          <span th:case="'SPAM'">스팸/영리목적 홍보</span>
+                          <span th:case="'ABUSE'">욕설/비하발언/인신공격</span>
+                          <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠 (음란물/도박)</span>
+                          <span th:case="'ETC'">기타 (직접 입력)</span>
+                          <span th:case="*" th:text="${report.reasonType}"></span>
+                        </span>
+                      </p>
+                      <p><strong>상세 내용:</strong></p>
+                      <div class="p-3 bg-light rounded mb-3" th:text="${report.content}" style="white-space: pre-wrap;"></div>
+
+                      <div th:if="${report.filePath != null}">
+                        <p><strong>첨부 파일:</strong></p>
+                        <!-- 이미지 경로 수정: /files/reports/파일명 -->
+                        <img th:src="|/files/reports/${report.filePath}|" class="img-fluid rounded" alt="증거 사진" style="max-height: 300px;">
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr th:if="${#lists.isEmpty(reports)}">
-            <td colspan="6">신고 내역이 없습니다.</td>
+            <td colspan="8">신고 내역이 없습니다.</td>
           </tr>
           </tbody>
         </table>

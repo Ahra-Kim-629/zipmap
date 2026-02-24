@@ -14,14 +14,25 @@ import java.time.LocalDateTime;
 public class ReportDTO {
 
     private Long id;          // 신고 번호 (PK)
-    private Long postId;      // 신고 대상 게시글 번호 (HTML의 <input name="postId">와 매칭)
-    private Long userId;      // 신고자 고유 번호 (Controller에서 setUserId로 설정)
+    private Long targetId;    // 신고 대상 번호 (게시글 ID 또는 리뷰 ID)
+    private String targetType; // 신고 대상 유형 ('POST' 또는 'REVIEW')
+    private Long userId;      // 신고자 고유 번호
 
-    private String reasonType; // 신고 사유 (HTML의 <select name="reasonType">과 매칭)
-    private String content;    // 상세 내용 (HTML의 <textarea name="content">와 매칭)
-    private String filePath;   // 서버에 저장된 파일명 (Service에서 설정)
+    private String reasonType; // 신고 사유
+    private String content;    // 상세 내용
+    private String filePath;   // 첨부 파일 경로
 
-    private String status = "PENDING"; // 기본값: PENDING, 완료 시: COMPLETED
+    private String status = "PENDING"; // 처리 상태
 
     private LocalDateTime createdAt; // 신고 접수 시간
+
+    private String reporterName; // 신고자 이름
+
+    // 기존 코드 호환성을 위해 유지 (삭제 예정)
+    public Long getPostId() {
+        return targetId;
+    }
+    public void setPostId(Long postId) {
+        this.targetId = postId;
+    }
 }

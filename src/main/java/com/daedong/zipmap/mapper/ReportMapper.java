@@ -14,4 +14,7 @@ public interface ReportMapper {
 
     // 3. 신고 상세 조회 (관리자용)
     ReportDTO selectReportById(Long id);
+
+    // 4. 신고 삭제 (관리자용)
+    void deleteReport(Long id);
 }

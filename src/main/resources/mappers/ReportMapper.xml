@@ -4,9 +4,14 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.ReportMapper">
 
+    <!--
+       [안내] post_id 컬럼을 target_id(신고 대상 번호)로 공용 사용합니다.
+       target_type 컬럼에는 'POST' 또는 'REVIEW'가 저장됩니다.
+    -->
     <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO">
         INSERT INTO report (
-        post_id,
+        post_id,      <!-- 게시글ID 또는 리뷰ID가 여기에 저장됩니다 -->
+        target_type,  <!-- ★ DB에 이 컬럼이 꼭 있어야 합니다! -->
         reporter_id,
         reason_type,
         content,
@@ -14,23 +19,29 @@
         status,
         created_at
         ) VALUES (
-        #{postId},    #{userId},    #{reasonType},#{content},   #{filePath},  'PENDING',
-        NOW()
+        #{targetId}, #{targetType}, #{userId}, #{reasonType}, #{content}, #{filePath}, 'PENDING', NOW()
         )
     </insert>
 
     <select id="selectAllReports" resultType="com.daedong.zipmap.domain.ReportDTO">
         SELECT
-        id,
-        post_id AS postId,
-        reporter_id AS userId,
-        reason_type AS reasonType,
-        content,
-        file_path AS filePath,
-        status,
-        created_at AS createdAt
-        FROM report
-        ORDER BY created_at DESC
+        r.id,
+        r.target_type AS targetType, <!-- POST 또는 REVIEW -->
+        r.post_id AS targetId,       <!-- 공용 ID 컬럼 -->
+        r.reporter_id AS userId,
+        u.login_id AS reporterName,
+        r.reason_type AS reasonType,
+        r.content,
+        r.file_path AS filePath,
+        r.status,
+        r.created_at AS createdAt
+        FROM report r
+        LEFT JOIN user u ON r.reporter_id = u.id
+        ORDER BY r.created_at DESC
     </select>
+
+    <delete id="deleteReport">
+        DELETE FROM report WHERE id = #{id}
+    </delete>
 
 </mapper>

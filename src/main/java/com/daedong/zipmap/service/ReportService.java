@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File; // java.io.File을 써야 합니다! (domain.File 삭제)
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,22 +24,16 @@ public class ReportService {
 
     @Transactional
     public void saveReport(ReportDTO reportDTO, MultipartFile file) {
-        // 💡 로그를 찍어 실제 데이터가 서비스까지 도달했는지 확인합니다.
-        log.info("### DB 저장 직전 데이터 확인: postId={}, userId={}", reportDTO.getPostId(), reportDTO.getUserId());
-
+        // 1. 파일 업로드 처리 (외부 경로 사용으로 로그아웃 방지)
         if (file != null && !file.isEmpty()) {
             reportDTO.setFilePath(uploadFile(file));
         }
 
+        // 2. DB 저장 (여기서 오류가 난다면 매퍼의 #{userId} 확인 필요)
         try {
             reportMapper.insertReport(reportDTO);
-            log.info("### 쿼리 실행 직후 - 성공 메시지가 보이나요?");
-            log.info("### DB 저장 쿼리 실행 성공!");
-            if (file != null && !file.isEmpty()) {
-                reportDTO.setFilePath(uploadFile(file));
-            }
         } catch (Exception e) {
-            log.error("### DB 저장 실패 원인: ", e); // 에러의 상세 원인(Stacktrace)을 찍습니다.
+            log.error("DB 저장 실패: {}", e.getMessage());
             throw new RuntimeException("DB 저장 에러", e);
         }
     }
@@ -47,22 +43,37 @@ public class ReportService {
         // 윈도우라면 아래처럼 외부 폴더를 지정해야 서버가 안 꺼집니다.
         String uploadPath = "C:/zipmap_storage/reports/";
 
-        java.io.File folder = new java.io.File(uploadPath);
-        if (!folder.exists()) folder.mkdirs();
+        File folder = new File(uploadPath);
+        if (!folder.exists()) {
+            boolean created = folder.mkdirs();
+            if (!created) {
+                log.error("폴더 생성 실패: {}", uploadPath);
+            }
+        }
 
         String uuid = UUID.randomUUID().toString();
         String savedFileName = uuid + "_" + file.getOriginalFilename();
+        
+        // Path 객체를 사용하여 경로 문제 방지
+        Path savePath = Paths.get(uploadPath, savedFileName);
 
         try {
-            file.transferTo(new java.io.File(uploadPath, savedFileName));
+            // transferTo에 File 객체 대신 Path를 File로 변환하여 전달하거나, 
+            // 절대 경로를 가진 File 객체를 사용
+            file.transferTo(savePath.toFile());
         } catch (IOException e) {
             log.error("파일 저장 실패: {}", e.getMessage());
-            throw new RuntimeException("파일 저장 에러");
+            throw new RuntimeException("파일 저장 에러", e);
         }
         return savedFileName;
     }
 
     public List<ReportDTO> findAllReports() {
         return reportMapper.selectAllReports();
+    }
+
+    @Transactional
+    public void deleteReport(Long id) {
+        reportMapper.deleteReport(id);
     }
 }
