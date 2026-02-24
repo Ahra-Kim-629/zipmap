@@ -341,5 +341,15 @@
         ORDER BY r.created_at DESC
         LIMIT 10
     </select>
+    
+    <select id="findByKeywordReviews" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="string">
+        SELECT
+        id, title, content, address, user_id, point, review_status
+        FROM review
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+           OR content LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY id DESC
+        LIMIT 3
+    </select>
 
 </mapper>

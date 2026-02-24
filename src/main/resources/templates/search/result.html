@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/frontpage.css}">
+    <style>
+        .search-keyword { color: #FF8A3D; } /* 메인의 orange 테마색 */
+        .empty-box { background-color: #f8f9fa; border: 1px dashed #dee2e6; }
+        .text-muted-date { font-size: 0.85rem; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="container py-5">
+        <h2 class="fw-bold mb-5">
+            '<span th:text="${searchResult.keyword}" class="search-keyword">벌레</span>' 검색 결과
+        </h2>
+
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">리뷰 검색 결과</h4>
+                <a th:if="${!#lists.isEmpty(searchResult.reviews)}"
+                   th:href="@{/review/list(q=${searchResult.keyword})}"
+                   class="text-decoration-none text-muted small">더보기 <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(searchResult.reviews)}" class="row row-cols-1 row-cols-md-3 g-4">
+                <div class="col" th:each="review : ${searchResult.reviews}">
+                    <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
+                         style="cursor: pointer;"
+                         th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500"
+                             class="card-img-top" style="height:180px; object-fit:cover;">
+                        <div class="card-body">
+                            <span class="badge badge-daedong mb-2" th:text="${review.address}">관악구 봉천동</span>
+                            <h5 class="card-title fw-bold small" th:text="${review.title}">리뷰 제목</h5>
+                            <p class="card-text text-muted small ellipsis-2"
+                               th:text="${review.content.replaceAll('<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>', '').replaceAll('&nbsp;', ' ')}">
+                                내용 요약...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(searchResult.reviews)}" class="text-center py-5 empty-box rounded-4">
+                <i class="bi bi-search mb-3 d-block fs-1 text-muted"></i>
+                <p class="text-muted mb-0">검색된 리뷰가 없습니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">커뮤니티 검색 결과</h4>
+                <a th:if="${!#lists.isEmpty(searchResult.posts)}"
+                   th:href="@{/post/list(q=${searchResult.keyword})}"
+                   class="text-decoration-none text-muted small">더보기 <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(searchResult.posts)}" class="card daedong-shadow border-0">
+                <div class="list-group list-group-flush">
+                    <a th:each="post : ${searchResult.posts}"
+                       th:href="@{/post/detail/{id}(id=${post.id})}"
+                       class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1 fw-bold"
+                                th:classappend="${post.category == 'TRADE' ? 'text-orange' : (post.category == 'COMMUNITY' ? 'text-success' : 'text-warning')}"
+                                th:text="'[' + ${post.category} + ']'">
+                            </h6>
+                            <small class="text-muted text-muted-date">최신글</small>
+                        </div>
+                        <div class="d-flex align-items-center mt-1">
+                            <span class="post-title small fw-bold" th:text="${post.title}">게시글 제목</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(searchResult.posts)}" class="text-center py-5 empty-box rounded-4">
+                <i class="bi bi-chat-dots mb-3 d-block fs-1 text-muted"></i>
+                <p class="text-muted mb-0">검색된 게시글이 없습니다.</p>
+            </div>
+        </section>
+    </div>
+</div>
+</html>
