@@ -11,6 +11,7 @@ import com.daedong.zipmap.service.SubscriptionService;
 import com.daedong.zipmap.util.FileUtilService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j; // 로그 추가
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j // 로그 어노테이션 추가
 @Controller
 @RequestMapping("/review")
 @RequiredArgsConstructor
@@ -268,10 +270,12 @@ public class ReviewController {
     @ResponseBody
     @GetMapping("/ai-summary")
     public String getAiSummary(@RequestParam("region") String region) {
+        log.info("AI 리뷰 요약 요청 - 지역: {}", region); // 로그 추가
 
         List<String> reviewContents = reviewService.findContentsByRegion(region);
 
         if (reviewContents == null || reviewContents.isEmpty()) {
+            log.info("해당 지역 리뷰 없음: {}", region);
             return region + "에는 아직 등록된 리뷰가 부족해서 AI가 분석할 수 없어요! 😅 조금 더 기다려주세요.";
         }
 
