@@ -113,6 +113,16 @@
         }
 
         .note-btn { background-color: white !important; border: 1px solid #eee !important; }
+
+        .btn-submit-orange {
+            background-color: #F97316 !important;
+            color: #ffffff !important;
+            border: none !important;
+            transition: background-color 0.2s;
+        }
+        .btn-submit-orange:hover {
+            background-color: #EA580C !important;
+        }
     </style>
 </th:block>
 
@@ -182,8 +192,7 @@
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" id="submitBtn" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">리뷰 등록하기
-                        </button>
+                        <button type="submit" id="submitBtn" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기</button>
                         <a th:href="@{/review}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
                 </form>

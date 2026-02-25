@@ -41,14 +41,64 @@
         .card-info-text { font-size: 0.95rem; color: #666; font-weight: 600; margin-bottom: 20px; }
 
 
-        /* 검색창 카드: 흰색 배경에 살짝 그림자가 들어간 깔끔한 박스 */
-        .search-card { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.03); margin-bottom: 40px; }
-        .search-input-group .form-control, .search-input-group .form-select { background-color: #f4f5f7; border: none; height: 50px; font-weight: 600; color: #333; }
-        .search-input-group .form-control:focus, .search-input-group .form-select:focus { background-color: #fff; box-shadow: 0 0 0 2px var(--main-orange); }
-        .search-input-group .input-group-text { background-color: #f4f5f7; border: none; border-radius: 12px 0 0 12px !important; }
-        .search-input-group .form-control { border-radius: 0 12px 12px 0 !important; }
-        .search-input-group .form-select { border-radius: 12px !important; cursor: pointer; }
-        .btn-search { border-radius: 12px !important; height: 50px; font-size: 1.05rem; }
+        /* 검색창 부모 카드: 살짝 베이지(연한 샴페인 골드) 느낌 */
+        .search-card {
+            background: #FDFBF7; /* 아주 고급스럽고 따뜻한 미색 */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            border: 1px solid #F0EBE1;
+            margin-bottom: 40px;
+        }
+
+        /* --------------------------------------------------- */
+        /* 검색창 내부 조작 (완전 흰색으로 변경) */
+        /* --------------------------------------------------- */
+        .search-input-group { display: flex; align-items: center; }
+
+        /* 돋보기 아이콘 배경 흰색 */
+        .search-input-group .input-group-text {
+            background-color: #ffffff;
+            border: 1px solid #EAEAEA;
+            border-right: none; /* 입력창과 자연스럽게 이어지도록 선 제거 */
+            border-radius: 12px 0 0 12px !important;
+        }
+
+        /* 검색어 입력창 배경 흰색 */
+        .search-input-group .form-control {
+            background-color: #ffffff;
+            border: 1px solid #EAEAEA;
+            border-left: none;
+            height: 50px; font-weight: 600; color: #333;
+            border-radius: 0 12px 12px 0 !important;
+        }
+        .search-input-group .form-control:focus { background-color: #fff; box-shadow: none; border-color: #EAEAEA; }
+
+        /* 셀렉트 박스(제목+주소) 배경 흰색 */
+        .search-input-group .form-select {
+            background-color: #ffffff;
+            border: 1px solid #EAEAEA;
+            height: 50px; font-weight: 600; color: #333;
+            border-radius: 12px !important; cursor: pointer;
+        }
+        .search-input-group .form-select:focus { background-color: #fff; box-shadow: none; border-color: #EAEAEA; }
+
+        /* --------------------------------------------------- */
+        /* 검색하기 버튼 (검은색 색칠 없애기) */
+        /* --------------------------------------------------- */
+
+        .btn-search {
+            background-color: #F97316 !important; /* 선명하고 예쁜 단색 오렌지 */
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            height: 50px;
+            font-size: 1.05rem;
+            transition: background-color 0.2s;
+        }
+        .btn-search:hover {
+            background-color: #EA580C !important; /* 마우스 올렸을 때 살짝 진해짐 */
+        }
 
         .filter-section { border-top: 1px solid #f0f0f0; margin-top: 20px; padding-top: 20px; }
         .filter-label { font-size: 0.85rem; font-weight: 800; color: #888; margin-right: 20px; padding-top: 8px; min-width: 40px; display: inline-block; }
@@ -100,15 +150,27 @@
         /* =========================================================
            ✨ 완벽하게 개선된 AI 버튼형 모달창 전용 UI
            ========================================================= */
+        /* ✨ 2. AI로 리뷰 확인하기 버튼 흰색 배경으로 변경 */
         .btn-ai-summary {
-            background: linear-gradient(135deg, #FF7E5F, #FEB47B);
-            color: white; border: none; font-weight: 800; border-radius: 12px;
-            padding: 12px 24px; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.3);
-            transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px;
+            background: #ffffff !important; /* 배경 흰색 */
+            color: #F97316 !important; /* 글자색 오렌지 */
+            border: 1px solid #F97316 !important; /* 오렌지색 얇은 테두리 */
+            font-weight: 800;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            box-shadow: none !important; /* 기존 그림자 제거 */
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .btn-ai-summary:hover {
-            transform: translateY(-2px); color: white;
-            box-shadow: 0 8px 25px rgba(255, 126, 95, 0.4);
+            background: #FFF7ED !important; /* 마우스 올리면 아주 연한 오렌지 배경 */
+            transform: translateY(-2px);
+        }
+        .btn-ai-summary i {
+            color: #F97316 !important; /* 로봇 아이콘 색상도 오렌지로 변경 */
         }
 
         /* 1. 배경 오버레이 (화면 중앙 정렬 및 안전 구역 확보) */
@@ -172,10 +234,10 @@
                     <button type="button" class="btn btn-white border-end px-4 py-2 fw-bold text-dark" onclick="handleMapClick()">
                         <i class="bi bi-map-fill me-2 text-info"></i>리뷰 지도 보기
                     </button>
-                    <button type="button" class="btn btn-white px-4 py-2 fw-bold text-dark" onclick="viewSafetyMap()">
+                    <button type="button" class="btn btn-white border-end px-4 py-2 fw-bold text-dark" onclick="viewSafetyMap()">
                         <i class="bi bi-shield-fill-check me-2 text-success"></i>지역별 안전율
                     </button>
-                    <a th:href="@{/review/write}" class="btn btn-dark px-4 py-2 fw-bold">
+                    <a th:href="@{/review/write}" class="btn btn-white px-4 py-2 fw-bold text-dark">
                         <i class="bi bi-pencil-fill me-2"></i>리뷰 작성
                     </a>
                 </div>
@@ -329,14 +391,24 @@
                 </div>
             </div>
 
-            <nav id="paginationContainer" class="pagination-container justify-content-center">
+            <nav id="paginationContainer" class="pagination-container justify-content-center"
+                 th:if="${reviews.totalPages > 0}"
+                 th:with="pageNumber = ${reviews.number},
+                          pageSize = 5,
+                          totalPages = ${reviews.totalPages},
+                          startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize},
+                          tempEndPage = ${startPage + pageSize - 1},
+                          endPage = ${tempEndPage >= totalPages ? totalPages - 1 : tempEndPage}">
+
                 <ul class="pagination">
                     <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
                         <a class="page-link" th:href="@{/review(page=${reviews.number}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-left"></i></a>
                     </li>
-                    <li class="page-item" th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}" th:classappend="${page == reviews.number} ? 'active'">
-                        <a class="page-link" th:href="@{/review(page=${page+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+
+                    <li class="page-item" th:each="page: ${#numbers.sequence(startPage, endPage)}" th:classappend="${page == reviews.number} ? 'active'">
+                        <a class="page-link" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
                     </li>
+
                     <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
                         <a class="page-link" th:href="@{/review(page=${reviews.number+2}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-right"></i></a>
                     </li>

@@ -24,8 +24,7 @@ public class WebSecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy(){
         return RoleHierarchyImpl.withDefaultRolePrefix()
-                .role("ADMIN").implies("WRITER")
-                .role("WRITER").implies("VIEWER")
+                .role("ADMIN").implies("USER")
                 .build();
     }
 
@@ -34,7 +33,7 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/signUp", "/check-id", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/board/**"
-                                , "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
+                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
 
                         .requestMatchers("/css/**", "/js/**", "/files/**",
                                 "/review/uploadSummernoteImage",
@@ -51,7 +50,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/report/**").authenticated()
 
                         .requestMatchers("/find/**", "/users/**",
-                                "/review/**").hasRole("WRITER")
+                                "/review/**").hasRole("USER")
 
                         .anyRequest().authenticated()
                 )

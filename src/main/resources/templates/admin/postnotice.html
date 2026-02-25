@@ -13,18 +13,81 @@
         .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f1f1f1; }
         .section-label { font-weight: 700; color: #3E362E; margin-bottom: 15px; display: block; font-size: 1.1rem; }
 
-        /* Summernote 커스텀 (모달 레이아웃 보정 포함) */
+        /* Summernote 커스텀 및 모달 수정 (리뷰 페이지와 100% 동일) */
         .note-editor.note-frame { border: 1px solid #eee !important; border-radius: 12px !important; overflow: hidden; }
         .note-toolbar { background-color: #f8f9fa !important; border-bottom: 1px solid #eee !important; }
-        .note-modal { z-index: 10050 !important; }
-        .note-modal-backdrop { display: none !important; }
-        .note-modal-content { margin-top: 100px !important; border-radius: 15px !important; border: none !important; box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important; overflow: hidden; }
-        .note-modal-footer { height: auto !important; padding: 15px 20px !important; display: flex !important; justify-content: center; gap: 10px; }
-        .note-modal-footer .btn { padding: 8px 25px !important; border-radius: 50px !important; font-weight: bold !important; }
-        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; }
 
-        /* 전체화면 보정 */
-        .note-editor.note-frame.fullscreen { z-index: 9999 !important; background-color: white !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; }
+        .note-modal { z-index: 10050 !important; }
+        .note-modal-backdrop { z-index: 10040 !important; display: none !important; }
+        .note-modal-content {
+            margin-top: 80px !important;
+            border: none !important;
+            border-radius: 15px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2) !important;
+            overflow: hidden;
+        }
+
+        .note-modal-header { border-bottom: 1px solid #eee !important; padding: 15px 20px !important; }
+        .note-modal-title { font-weight: bold; color: #333; }
+        .note-modal-body { padding: 20px !important; }
+
+        .note-modal-footer {
+            height: auto !important;
+            padding: 20px !important;
+            display: flex !important;
+            justify-content: center;
+            gap: 10px;
+            border-top: 1px solid #eee !important;
+        }
+
+        .note-modal-footer .btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            padding: 10px 25px !important;
+            border-radius: 50px !important;
+            font-weight: bold !important;
+            font-size: 0.9rem !important;
+            text-transform: none !important;
+        }
+
+        .note-modal-footer .btn-primary {
+            background-color: #F97316 !important;
+            border-color: #F97316 !important;
+            color: #fff !important;
+        }
+
+        .note-modal-footer .btn-default,
+        .note-modal-footer .btn-light {
+            background-color: #eee !important;
+            border-color: #ddd !important;
+            color: #333 !important;
+        }
+
+        .note-modal-footer .btn-primary:hover {
+            background-color: #EA580C !important;
+        }
+
+        .note-editor.note-frame.fullscreen {
+            z-index: 9999 !important;
+            background-color: white !important;
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+        }
+
+        .note-btn { background-color: white !important; border: 1px solid #eee !important; }
+
+        /* ✨ 등록하기 버튼 (오렌지 단색) */
+        .btn-submit-orange {
+            background-color: #F97316 !important;
+            color: #ffffff !important;
+            border: none !important;
+            transition: background-color 0.2s;
+        }
+        .btn-submit-orange:hover {
+            background-color: #EA580C !important;
+        }
     </style>
 </th:block>
 
@@ -56,14 +119,13 @@
                         </div>
                         <div>
                             <input type="file" id="file" name="file" class="form-control rounded-3">
-                            <label for="file" class="form-label small fw-bold text-muted">첨부파일</label>
+                            <label for="file" class="form-label small fw-bold text-muted"></label>
                         </div>
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" class="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기
-                        </button>
-                        <a th:href="@{/post-notice}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
+                        <button type="submit" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기</button>
+                        <a th:href="@{/post-notice}" class="btn btn-outline-secondary px-5 py-3 rounded-pill bg-white">취소</a>
                     </div>
                 </form>
             </div>
@@ -72,8 +134,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-<script th:inline="javascript">
-    $(document).ready(function() {
+
+<script layout:fragment="script" th:inline="javascript">
+
+    /* ✨ 여기에 Summernote 라이브러리를 직접 삽입 (동적 로딩) */
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js";
+    script.onload = function() {
+        // 라이브러리가 완전히 로드된 후 에디터 초기화
         $('#content').summernote({
             height: 400,
             lang: 'ko-KR',
@@ -85,31 +153,31 @@
                 ['font', ['bold', 'underline', 'clear']],
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
                 ['insert', ['link', 'picture', 'hr']],
-                ['view', ['fullscreen', 'codeview']]
+                ['view', ['fullscreen', 'codeview', 'help']]
             ],
             callbacks: {
                 onImageUpload: function(files) {
                     for (let i = 0; i < files.length; i++) { uploadSummernoteImage(files[i], this); }
+                },
+                onMediaDelete: function(target) {
+                    deleteSummernoteImage(target[0].src);
                 }
-            },
-            // 2. 이미지 삭제 시
-            onMediaDelete: function(target) {
-                deleteSummernoteImage(target[0].src);
             }
         });
-    });
+    };
+    document.head.appendChild(script);
 
-
-// [이미지 업로드]
-function uploadSummernoteImage(file, editor) {
-    let data = new FormData();
-    data.append("file", file);
+    // [이미지 업로드]
+    function uploadSummernoteImage(file, editor) {
+        let data = new FormData();
+        data.append("file", file);
 
         let token = $("meta[name='_csrf']").attr("content");
         let header = $("meta[name='_csrf_header']").attr("content");
         $.ajax({
-            url: "/post/uploadSummernoteImage", // ★ 주소 변경됨 (Review -> Board)
+            url: "/post/uploadSummernoteImage",
             type: "POST",
             data: data,
             contentType: false,
@@ -125,15 +193,15 @@ function uploadSummernoteImage(file, editor) {
         });
     }
 
-// [이미지 삭제]
-function deleteSummernoteImage(src) {
-    let token = $("meta[name='_csrf']").attr("content");
-    let header = $("meta[name='_csrf_header']").attr("content");
+    // [이미지 삭제]
+    function deleteSummernoteImage(src) {
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
 
         $.ajax({
             data: {src: src},
             type: "POST",
-            url: "/post/deleteSummernoteImage", // ★ 주소 변경됨
+            url: "/post/deleteSummernoteImage",
             beforeSend: function(xhr) {
                 if (token && header) {
                     xhr.setRequestHeader(header, token);

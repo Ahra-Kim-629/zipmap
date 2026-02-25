@@ -61,7 +61,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             // userEntity.setRole("WRITER");
             // userEntity.setAccountStatus("ACTIVE");
 
-            userEntity.setRole(UserRole.WRITER);         //  Enum으로 변경
+            userEntity.setRole(UserRole.USER);         //  Enum으로 변경
             userEntity.setAccountStatus(Status.ACTIVE);  //  Enum으로 변경
             userMapper.save(userEntity);
         }
