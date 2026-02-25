@@ -39,7 +39,9 @@
                             <button id="btn-ai-summary" class="btn btn-outline-primary rounded-pill btn-sm px-3">
                                 <i class="bi bi-robot"></i> AI 요약하기
                             </button>
-
+                            <a th:href="@{/report/write/POST/{id}(id=${postDTO.id})}" class="btn btn-outline-danger rounded-pill btn-sm px-3">
+                                <i class="bi bi-megaphone"></i> 신고하기
+                            </a>
                             <div sec:authorize="isAuthenticated()">
                                 <div th:if="${#authentication.principal.id == postDTO.userId}">
                                     <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>

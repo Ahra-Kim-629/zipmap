@@ -2,6 +2,7 @@ package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.ReportDTO;
 import com.daedong.zipmap.mapper.ReportMapper;
+import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,50 @@ import java.util.UUID;
 public class ReportService {
 
     private final ReportMapper reportMapper;
+    private final FileUtilService fileUtilService; // 공용 파일 유틸리티 주입
 
     @Transactional
     public void saveReport(ReportDTO reportDTO, MultipartFile file) {
         // 1. 파일 업로드 처리 (외부 경로 사용으로 로그아웃 방지)
-        if (file != null && !file.isEmpty()) {
-            reportDTO.setFilePath(uploadFile(file));
-        }
-
-
-        // 2. DB 저장 (여기서 오류가 난다면 매퍼의 #{userId} 확인 필요)
+// 1. 먼저 신고 내역을 DB에 저장합니다. (신고 번호 ID가 생성됨)
         try {
             reportMapper.insertReport(reportDTO);
+            Long reportId = reportDTO.getId(); // MyBatis의 useGeneratedKeys="true" 설정 필요
+
+
+// 2. 첨부 파일이 있다면 공용 파일 시스템(FileUtilService)을 이용해 저장합니다.
+            if (file != null && !file.isEmpty()) {
+                // (1) 실제 물리 파일 저장 (C:/upload/reports/ 폴더 생성 및 저장)
+                String savedPath = fileUtilService.saveFile(file, "reports");
+                // (2) 공용 File 도메인 객체 생성 (com.daedong.zipmap.domain.File)
+                com.daedong.zipmap.domain.File fileEntity = new com.daedong.zipmap.domain.File();
+                fileEntity.setTargetType("REPORT"); // 타겟 타입을 REPORT로 고정
+                fileEntity.setTargetId(reportId);   // 방금 생성된 신고 번호와 연결
+                fileEntity.setFilePath(savedPath);  // 저장된 상대 경로 (reports/uuid_파일명)
+                fileEntity.setFileSize(file.getSize());
+
+                // (3) 공용 file 테이블에 정보 기록
+                fileUtilService.saveFileToDB(fileEntity);
+            }
         } catch (Exception e) {
-            log.error("DB 저장 실패: {}", e.getMessage());
-            throw new RuntimeException("DB 저장 에러", e);
+            log.error("신고 접수 실패: {}", e.getMessage());
+            throw new RuntimeException("신고 처리 중 오류가 발생했습니다.", e);
         }
     }
+
+    @Transactional
+    public void deleteReport(Long id) {
+        // [수정] 삭제 시에도 공용 file 테이블의 데이터와 실제 파일을 먼저 지웁니다.
+        List<com.daedong.zipmap.domain.File> files = fileUtilService.getFileList("REPORT", id);
+        for (com.daedong.zipmap.domain.File f : files) {
+            fileUtilService.deleteFileByPath(f.getFilePath());
+        }
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("REPORT", id);
+
+        // 최종적으로 신고 내역 삭제
+        reportMapper.deleteReport(id);
+    }
+
 
     private String uploadFile(MultipartFile file) {
         // [수정] 절대 프로젝트 내부(src/main...)를 쓰지 마세요!
@@ -83,8 +111,8 @@ public class ReportService {
     public void updateReportStatus(Long id, String status) {
         reportMapper.updateStatus(id, status);
     }
-    @Transactional
-    public void deleteReport(Long id) {
-        reportMapper.deleteReport(id);
-    }
+//    @Transactional
+//    public void deleteReport(Long id) {
+//        reportMapper.deleteReport(id);
+//    }
 }
