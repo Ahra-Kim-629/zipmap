@@ -272,4 +272,10 @@ public class UserController {
 
         return "/users/liked";
     }
+
+//    @GetMapping("/trigger-500-error")
+//    public String triggerError() {
+//        // 이 지점에서 의도적으로 RuntimeException을 발생시킵니다.
+//        throw new RuntimeException("의도적으로 발생시킨 500 에러입니다.");
+//    }
 }
