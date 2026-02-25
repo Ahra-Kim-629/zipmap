@@ -165,7 +165,7 @@
                     <!-- 이전 그룹으로 이동 -->
                     <li class="page-item" th:classappend="${startPage == 1} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${startPage - 2}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${startPage - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-double-left"></i>
                         </a>
                     </li>
@@ -173,7 +173,7 @@
                     <!-- 이전 페이지로 이동 -->
                     <li class="page-item" th:classappend="${posts.first} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${posts.number - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${posts.number}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -182,14 +182,14 @@
                     <li class="page-item" th:each="page : ${#numbers.sequence(startPage, endPage)}"
                         th:classappend="${page == posts.number + 1} ? 'active'">
                         <a class="page-link"
-                           th:href="@{/post(page=${page - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}"
+                           th:href="@{/post(page=${page}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}"
                            th:text="${page}"></a>
                     </li>
 
                     <!-- 다음 페이지로 이동 -->
                     <li class="page-item" th:classappend="${posts.last} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${posts.number + 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${posts.number + 2}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
@@ -197,7 +197,7 @@
                     <!-- 다음 그룹으로 이동 -->
                     <li class="page-item" th:classappend="${endPage == totalPages} ? 'disabled'">
                         <a class="page-link"
-                           th:href="@{/post(page=${endPage}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                           th:href="@{/post(page=${endPage+1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-double-right"></i>
                         </a>
                     </li>
