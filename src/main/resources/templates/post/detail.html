@@ -43,8 +43,18 @@
                                 <i class="bi bi-megaphone"></i> 신고하기
                             </a>
                             <div sec:authorize="isAuthenticated()">
-                                <div th:if="${#authentication.principal.id == postDTO.userId}">
+                                <div th:if="${#authentication.principal.id == postDTO.userId}" class="d-flex gap-2">
+
                                     <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+
+                                    <form th:action="@{/post/delete/{id}(id=${postDTO.id})}" method="post"
+                                          onsubmit="return confirm('정말로 삭제하시겠습니까?');" style="display:inline;">
+
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">삭제</button>
+                                    </form>
+
                                 </div>
                             </div>
                         </div>
