@@ -25,6 +25,7 @@ public class AdminService {
     private final ReviewMapper reviewMapper;
     private final FileUtilService fileUtilService;
     private final FileMapper fileMapper;
+    private final AlarmService alarmService;
 
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
@@ -117,8 +118,18 @@ public class AdminService {
         // 2/24 수정
         // reviewMapper.updateReviewStatusToBanned(id, targetStatus);
 
+        // targetStatus를 Enum으로 변환
+        Status statusEnum = Status.valueOf(targetStatus);
+
         //  메서드 이름 맞추고, 넘어온 글자를 Enum으로 변환해서 매퍼로 던짐
-        reviewMapper.updateReviewStatus(id, Status.valueOf(targetStatus));
+        reviewMapper.updateReviewStatus(id, statusEnum);
+
+        // 만약 바뀐 상태가 ACTIVE(승인)라면 알림 전송
+        if (statusEnum == Status.ACTIVE) {
+            ReviewDTO reviewDTO = reviewMapper.findById(id);
+            alarmService.sendReviewAlarm(reviewDTO);
+        }
+
     }
 
     @Transactional

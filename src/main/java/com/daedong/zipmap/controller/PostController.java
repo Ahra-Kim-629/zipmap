@@ -1,10 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
-import com.daedong.zipmap.service.GeminiService;
-import com.daedong.zipmap.service.PostService;
-import com.daedong.zipmap.service.ReactionService;
-import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.service.*;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,6 +30,7 @@ public class PostController {
     private final ReplyService replyService;
     private final ReactionService reactionService;
     private final GeminiService geminiService; // GeminiService 주입 추가
+    private final SubscriptionService subscriptionService;
 
     private final FileUtilService fileUtilService;
 
@@ -42,7 +40,8 @@ public class PostController {
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
-                       Model model) {
+                       Model model,
+                       @AuthenticationPrincipal User user) {
         // 전체 게시판 게시글 리스트
         Page<PostDTO> posts = postService.findAll(searchType, keyword, category, location, pageable);
 
@@ -57,6 +56,12 @@ public class PostController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("category", category);
         model.addAttribute("location", location);
+
+        // 로그인한 사용자의 구독 목록
+        if (user != null) {
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "post");
+            model.addAttribute("myKeywords", myKeywords);
+        }
 
         return "post/list";
     }

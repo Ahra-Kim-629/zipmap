@@ -29,6 +29,7 @@ public class PostService {
     private final FileUtilService fileUtilService;
     private final ReplyService replyService;
     private final ReactionService reactionService;
+    private final AlarmService alarmService;
 
     public Page<PostDTO> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
         int totalCount = postMapper.countAll(searchType, keyword, category, location);
@@ -77,6 +78,10 @@ public class PostService {
         post.setPostStatus(Status.ACTIVE);
 
         postMapper.insertPost(post);
+
+        // 알림 서비스에게 글 정보 전달
+        alarmService.sendPostAlarm(post);
+
         return post.getId(); // XML에서 keyProperty="id"로 세팅된 ID 반환
     }
 
