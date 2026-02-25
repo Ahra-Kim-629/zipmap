@@ -16,8 +16,7 @@
         /* 권한 및 상태 배지 스타일 */
         .role-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; }
         .role-admin { background-color: #e8f5e9; color: #2e7d32; }
-        .role-writer { background-color: #e3f2fd; color: #1565c0; }
-        .role-viewer { background-color: #f5f5f5; color: #616161; }
+        .role-user { background-color: #e3f2fd; color: #1565c0; }
 
         .status-active { color: #28a745; font-weight: bold; }
         .status-banned { color: #dc3545; font-weight: bold; }
@@ -84,8 +83,7 @@
                                     <input type="hidden" name="id" th:value="${user.id}">
 
                                     <select name="role" class="form-select form-select-sm" style="width: 100px;">
-                                        <option value="VIEWER" th:selected="${user.role?.name() == 'VIEWER'}">VIEWER</option>
-                                        <option value="WRITER" th:selected="${user.role?.name() == 'WRITER'}">WRITER</option>
+                                        <option value="USER" th:selected="${user.role?.name() == 'USER'}">USER</option>
                                         <option value="ADMIN" th:selected="${user.role?.name() == 'ADMIN'}">ADMIN</option>
                                     </select>
 
