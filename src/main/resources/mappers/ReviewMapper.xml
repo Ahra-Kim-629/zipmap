@@ -217,7 +217,6 @@
         id, title, content, address, user_id, point, review_status, created_at, updated_at
         FROM review
         WHERE user_id = #{userId}
-        AND review_status = 'ACTIVE'
         ORDER BY id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>

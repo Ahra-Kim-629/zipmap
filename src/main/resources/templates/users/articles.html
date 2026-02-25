@@ -56,7 +56,7 @@
 
             <ul class="nav nav-tabs nav-tabs-custom">
                 <li class="nav-item">
-                    <a class="nav-link" th:classappend="${type == 'reviews'} ? 'active'"
+                    <a class="nav-link"
                        th:href="@{/users/articles(type='reviews')}">리뷰글</a>
                 </li>
                 <li class="nav-item">
@@ -70,9 +70,10 @@
                     <thead>
                     <tr>
                         <th style="width: 10%;">번호</th>
-                        <th style="width: 40%;">제목</th>
-                        <th style="width: 35%;">주소</th>
+                        <th style="width: 35%;">제목</th>
+                        <th style="width: 30%;">주소</th>
                         <th style="width: 15%;">평점</th>
+                        <th style="width: 10%;">관리자 승인</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -86,9 +87,14 @@
                             <span class="point-star">★</span>
                             <span th:text="${review.point}">0.0</span>
                         </td>
+                        <td>
+                            <span th:if="${review.reviewStatus.name() == 'ACTIVE'}">승인</span>
+                            <span th:if="${review.reviewStatus.name() == 'PENDING'}">대기</span>
+                            <span th:if="${review.reviewStatus.name() == 'BANNED'}">차단</span>
+                        </td>
                     </tr>
                     <tr th:if="${reviews.empty}">
-                        <td colspan="4" class="py-5 text-muted">작성한 리뷰가 없습니다.</td>
+                        <td colspan="5" class="py-5 text-muted">작성한 리뷰가 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>
