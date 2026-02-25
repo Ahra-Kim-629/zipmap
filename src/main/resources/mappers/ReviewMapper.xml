@@ -12,7 +12,7 @@
             AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
                 <choose>
-                    <when test="searchType == 'titleAddress'">
+                    <when test="searchType == 'titleAddress' or searchType == null">
                         AND (LOWER(r.title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
                         OR LOWER(r.address) LIKE CONCAT('%', LOWER(#{keyword}), '%'))
                     </when>
@@ -70,7 +70,7 @@
             AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
                 <choose>
-                    <when test="searchType == 'titleAddress'">
+                    <when test="searchType == 'titleAddress' or searchType == null" >
                         AND (LOWER(r.title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
                         OR LOWER(r.address) LIKE CONCAT('%', LOWER(#{keyword}), '%'))
                     </when>

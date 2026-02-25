@@ -332,13 +332,13 @@
             <nav id="paginationContainer" class="pagination-container justify-content-center">
                 <ul class="pagination">
                     <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-                        <a class="page-link" th:href="@{/review(page=${reviews.number-1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-left"></i></a>
+                        <a class="page-link" th:href="@{/review(page=${reviews.number}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-left"></i></a>
                     </li>
                     <li class="page-item" th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}" th:classappend="${page == reviews.number} ? 'active'">
-                        <a class="page-link" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+                        <a class="page-link" th:href="@{/review(page=${page+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
                     </li>
                     <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-                        <a class="page-link" th:href="@{/review(page=${reviews.number+1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-right"></i></a>
+                        <a class="page-link" th:href="@{/review(page=${reviews.number+2}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-right"></i></a>
                     </li>
                 </ul>
             </nav>

@@ -49,16 +49,20 @@ public class ReviewController {
     private final GeminiService geminiService;
 
     // 리뷰 목록 조회
-    @GetMapping
+    @GetMapping({"","/list"})
     public String list(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
+                       @RequestParam(required = false, name="q") String q,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) List<String> pros,
                        @RequestParam(required = false) List<String> cons,
                        Model model,
                        @AuthenticationPrincipal User user) {
 
+
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
+
+        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
 //        // 좋아요 표시
 //        for (ReviewDTO review : reviews) {
@@ -66,7 +70,7 @@ public class ReviewController {
 //        }
 
         // 지도 표시용 전체 리뷰
-        List<ReviewDTO> allReviews = reviewService.findAll(searchType, keyword, pros, cons);
+        List<ReviewDTO> allReviews = reviewService.findAll(searchType, searchKeyword, pros, cons);
 
         // 장점/단점 체크박스 항목
         List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
@@ -75,11 +79,13 @@ public class ReviewController {
         model.addAttribute("reviews", reviews);
         model.addAttribute("allReviews", allReviews);
         model.addAttribute("searchType", searchType);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("keyword", searchKeyword);
         model.addAttribute("pros", pros);
         model.addAttribute("cons", cons);
         model.addAttribute("prosList", prosList);
         model.addAttribute("consList", consList);
+
+        //log.info("검색 요청 감지 - q: {}, keyword: {}, 최종결정: {}", q, keyword, searchKeyword);
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
