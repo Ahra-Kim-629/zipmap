@@ -62,7 +62,7 @@ public class ReportController {
     public String adminReportList(@RequestParam(value = "status", required = false) String status,
                                   Model model) {
         model.addAttribute("reports", reportService.findAllReports(status));
-        model.addAttribute("currentStatus", status); // 현재 선택된 필터 강조용
+        model.addAttribute("currentFilter", status); // 현재 선택된 필터 강조용
         return "admin/reportList";
     }
 

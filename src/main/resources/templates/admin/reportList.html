@@ -61,11 +61,11 @@
               </span>
             </td>
             <td>
-              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentStatus})}"
+              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter})}"
                  style="text-decoration: none;">
         <span class="badge"
               th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-              th:text="${report.status == 'PENDING' ? '대기중' : '확인됨'}"
+              th:text="${report.status.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
               style="cursor: pointer;">
         </span>
               </a>

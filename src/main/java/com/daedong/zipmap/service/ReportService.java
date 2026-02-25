@@ -1,6 +1,7 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.ReportDTO;
+import com.daedong.zipmap.domain.ReportStatus;
 import com.daedong.zipmap.mapper.ReportMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,8 +74,11 @@ public class ReportService {
         ReportDTO report = reportMapper.selectReportById(id);
         if (report != null) {
             // PENDING -> CONFIRMED, CONFIRMED -> PENDING으로 스위칭
-            String newStatus = "PENDING".equals(report.getStatus()) ? "CONFIRMED" : "PENDING";
-            reportMapper.updateStatus(id, newStatus);
+//            String newStatus = "PENDING".equals(report.getStatus()) ? "CONFIRMED" : "PENDING";
+            ReportStatus newStatus = (report.getStatus() == ReportStatus.PENDING)
+                    ? ReportStatus.CONFIRMED
+                    : ReportStatus.PENDING;
+            reportMapper.updateStatus(id, newStatus.name());
         }
     }
 
