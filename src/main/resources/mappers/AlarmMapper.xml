@@ -7,10 +7,9 @@
     <select id="selectSubscribersByPostContent" resultType="string">
         SELECT user_id
         FROM keyword_subscription
-        WHERE target_type = 'post'
+        WHERE UPPER(target_type) = 'POST'
         AND ( #{title} LIKE CONCAT('%', keyword, '%')
             OR #{content} LIKE CONCAT('%', keyword, '%') )
-        AND created_at <![CDATA[ <= ]]> #{createdAt}
     </select>
 
 </mapper>

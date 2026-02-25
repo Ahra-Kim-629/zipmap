@@ -1,5 +1,7 @@
 package com.daedong.zipmap.handler;
 
+import com.daedong.zipmap.domain.User;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -20,14 +22,16 @@ public class MyAlarmHandler extends TextWebSocketHandler {
     // 사용자가 로그인하여 연결됐을때 실행
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        // Principal 객체에서 로그인한 사용자의 아이디 추출
-        Principal principal = session.getPrincipal();
+        // Spring Security의 Authentication 객체로 형변환하여 상세 정보 꺼내기
+        Authentication authentication = (Authentication) session.getPrincipal();
 
         // 로그인 여부 확인
-        if (principal != null) {
-            String userId = principal.getName();  // 로그인 한 ID
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
+            String userId = String.valueOf(user.getId()); // 숫자 ID를 문자열로 변환
+
             userSessions.put(userId, session);
-            System.out.println(userId + "님 알림 서버 연결 성공");
+            System.out.println(userId + "번 사용자 알림 서버 연결 성공");
         }
 
     }

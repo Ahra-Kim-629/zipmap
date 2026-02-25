@@ -9,5 +9,5 @@ import java.util.List;
 @Mapper
 public interface AlarmMapper {
 
-    List<String> selectSubscribersByPostContent(@Param("title") String title, @Param("content") String content, @Param("createdAt") LocalDateTime createdAt);
+    List<String> selectSubscribersByPostContent(@Param("title") String title, @Param("content") String content);
 }

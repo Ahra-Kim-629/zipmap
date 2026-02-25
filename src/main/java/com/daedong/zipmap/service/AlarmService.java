@@ -21,8 +21,7 @@ public class AlarmService {
         // DB에서 키워드를 구독중인 사람들의 리스트를 가져옴
         List<String> subscriberIds = alarmMapper.selectSubscribersByPostContent(
                 post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt()
+                post.getContent()
         );
         System.out.println("조회된 구독자 수: " + subscriberIds.size());
         // 리스트에 한명이라도 있을시 알림 전송
@@ -42,8 +41,7 @@ public class AlarmService {
         // DB에서 키워드를 구독중인 사람들의 리스트를 가져옴
         List<String> subscriberIds = alarmMapper.selectSubscribersByPostContent(
                 review.getTitle(),
-                review.getContent(),
-                review.getCreatedAt()
+                review.getContent()
         );
 
         // 리스트에 있는 사람들에게 알림 전송
