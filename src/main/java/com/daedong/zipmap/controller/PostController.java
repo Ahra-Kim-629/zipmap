@@ -231,4 +231,15 @@ public class PostController {
         return geminiService.summarizeSelectedPosts(posts);
     }
 
+    // [추가] 상세 페이지 AI 요약 요청 처리
+    @GetMapping("/summarize-detail/{id}")
+    @ResponseBody
+    public String summarizeDetail(@PathVariable Long id, HttpServletRequest request, @AuthenticationPrincipal User user) {
+        // 기존 상세조회 로직 재사용
+        PostDTO postDTO = postService.getPostDetail(id, request, user);
+
+        // postDTO에 담긴 댓글 리스트와 함께 Gemini 호출
+        return geminiService.summarizePostDetail(postDTO);
+    }
+
 }

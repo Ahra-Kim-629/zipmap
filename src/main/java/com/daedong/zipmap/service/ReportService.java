@@ -68,10 +68,24 @@ public class ReportService {
         return savedFileName;
     }
 
-    public List<ReportDTO> findAllReports() {
-        return reportMapper.selectAllReports();
+    @Transactional
+    public void toggleReportStatus(Long id) {
+        ReportDTO report = reportMapper.selectReportById(id);
+        if (report != null) {
+            // PENDING -> CONFIRMED, CONFIRMED -> PENDING으로 스위칭
+            String newStatus = "PENDING".equals(report.getStatus()) ? "CONFIRMED" : "PENDING";
+            reportMapper.updateStatus(id, newStatus);
+        }
     }
 
+    public List<ReportDTO> findAllReports(String status) {
+        return reportMapper.selectAllReports(status);
+    }
+
+    @Transactional
+    public void updateReportStatus(Long id, String status) {
+        reportMapper.updateStatus(id, status);
+    }
     @Transactional
     public void deleteReport(Long id) {
         reportMapper.deleteReport(id);

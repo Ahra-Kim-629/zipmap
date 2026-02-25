@@ -27,20 +27,29 @@
     <div class="detail-container">
         <div class="container" th:if="${postDTO != null}">
             <div class="detail-card daedong-shadow">
+
                 <div class="detail-header">
                     <div class="mb-3">
                         <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category}">카테고리</span>
                         <span class="badge badge-location rounded-pill" th:text="${postDTO.location}">지역 정보</span>
                     </div>
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h2 class="detail-title mb-3" th:text="${postDTO.title}">제목</h2>
-                        <div class="d-flex gap-2" sec:authorize="isAuthenticated()">
-                            <div th:if="${#authentication.principal.id == postDTO.userId}" class="d-flex gap-2">
-                                <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="detail-title m-0" th:text="${postDTO.title}">제목</h2>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button id="btn-ai-summary" class="btn btn-outline-primary rounded-pill btn-sm px-3">
+                                <i class="bi bi-robot"></i> AI 요약하기
+                            </button>
+
+                            <div sec:authorize="isAuthenticated()">
+                                <div th:if="${#authentication.principal.id == postDTO.userId}">
+                                    <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-2">
+
+                    <div class="text-muted small mt-3">
                         <span class="me-3"><i class="bi bi-person me-1"></i>[[${postDTO.loginId}]]</span>
                         <span><i class="bi bi-clock me-1"></i>[[${#temporals.format(postDTO.createdAt, 'yyyy.MM.dd HH:mm')}]]</span>
                     </div>
@@ -70,11 +79,27 @@
                             </div>
                         </form>
                     </div>
+                </div> </div> </div>
+    </div>
+
+    <div class="modal fade" id="aiSummaryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-primary">🤖 AI 본문 요약</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4" id="ai-summary-content" style="white-space: pre-line; line-height: 1.7; color: #444;">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 
 <script layout:fragment="script">
     // 전역 변수 설정
@@ -97,6 +122,23 @@
                 }
             }
         });
+         // [추가] AI 요약 버튼 이벤트
+        $("#btn-ai-summary").click(function() {
+            const summaryModal = new bootstrap.Modal(document.getElementById('aiSummaryModal'));
+            $("#ai-summary-content").html('<div class="text-center p-3"><div class="spinner-border text-primary"></div><p>AI가 글을 읽는 중...</p></div>');
+            summaryModal.show();
+
+         $.ajax({
+            url: "/post/summarize-detail/" + targetId, // targetId는 이미 선언되어 있죠?
+            type: "GET",
+            success: function(res) {
+            $("#ai-summary-content").html(res);
+        },
+        error: function() {
+            $("#ai-summary-content").html("요약에 실패했습니다.");
+        }
+    });
+});
     });
 
     // 데이터 가져오기 함수
@@ -160,5 +202,7 @@
                 <p class="mb-0 text-secondary small">${reply.content}</p>
             </div>`;
     }
+
+
 </script>
 </html>

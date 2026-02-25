@@ -57,22 +57,28 @@ public class ReportController {
         }
     }
 
-    // 3. 관리자 목록
+    // 3. 관리자 목록 (필터링 추가)
     @GetMapping("/admin/report/list")
-    public String adminReportList(Model model) {
-        model.addAttribute("reports", reportService.findAllReports());
+    public String adminReportList(@RequestParam(value = "status", required = false) String status,
+                                  Model model) {
+        model.addAttribute("reports", reportService.findAllReports(status));
+        model.addAttribute("currentStatus", status); // 현재 선택된 필터 강조용
         return "admin/reportList";
     }
 
-    // 4. 신고 삭제 기능 추가
-    @GetMapping("/admin/report/delete/{id}")
-    public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
-        try {
-            reportService.deleteReport(id);
-            rttr.addFlashAttribute("message", "신고 내역이 삭제되었습니다.");
-        } catch (Exception e) {
-            rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+    // 5. 신고 상태 변경 (읽음 처리)
+    @GetMapping("/admin/report/toggleStatus/{id}")
+    public String toggleStatus(@PathVariable("id") Long id,
+                               @RequestParam(value = "currentFilter", required = false) String currentFilter) {
+
+        // 현재 상태를 확인 후 반대 상태로 변경 (Service에서 처리 권장)
+        reportService.toggleReportStatus(id);
+
+        // 이전에 보고 있던 필터 상태를 유지하며 리다이렉트
+        String redirectUrl = "redirect:/admin/report/list";
+        if (currentFilter != null && !currentFilter.isEmpty()) {
+            redirectUrl += "?status=" + currentFilter;
         }
-        return "redirect:/admin/report/list";
+        return redirectUrl;
     }
 }

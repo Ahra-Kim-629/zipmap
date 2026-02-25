@@ -1,6 +1,7 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.ReplyDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -257,6 +258,24 @@ public class GeminiService {
             System.err.println("AI 통신 중 상세 에러: " + e.getMessage());
             return "AI 요약을 불러오는 중 오류가 발생했습니다. (관리자에게 문의하세요)";
         }
+    }
+
+    // [추가] 상세 페이지 전용 요약 메서드
+    public String summarizePostDetail(PostDTO post) {
+        if (post == null) return "요약할 게시글 정보가 없습니다.";
+
+        StringBuilder promptBuilder = new StringBuilder();
+        //1. 페르소나 부여
+        promptBuilder.append("너는 게시글의 핵심 내용과 댓글 반응을 요약해주는 '스마트 게시판 비서'야.\n\n");
+        //2. 댓글 유무에 따른 출력 양식 분기
+        promptBuilder.append("[출력 양식]\n")
+                .append("📝 한줄 요약 : (글의 핵심 주제)\n")
+                .append("🔍 주요 내용 : (본문 핵심 포인트 2~3개)\n");
+        // 3. 본문 데이터 주입 해주는 기능
+        String cleanContent = post.getContent().replaceAll("<[^>]*>", ""); // HTML 태그 제거
+        promptBuilder.append("[본문]\n").append(cleanContent).append("\n\n");
+
+        return callGemini(promptBuilder.toString());
     }
 
 }
