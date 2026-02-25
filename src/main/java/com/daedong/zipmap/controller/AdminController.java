@@ -1,9 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Notice;
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.PostService;
 import com.daedong.zipmap.service.ReviewService;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,16 +40,27 @@ public class AdminController {
         return "/admin/main";
     }
 
-    @GetMapping("/notice")
-    public String notice() {
-        return "/admin/notice-form";
+    @GetMapping("/notice/list")
+    public String noticeList(Model model) {
+        // 전체 게시판 게시글 리스트
+        List<NoticeDTO> noticeDTOList = adminService.getNoticeAll();
+
+        model.addAttribute("notices", noticeDTOList);
+
+        return "admin/notice/list";
     }
 
-    @PostMapping("/notice")
+
+    @GetMapping("/notice/write")
+    public String notice() {
+        return "/admin/notice/write-form";
+    }
+
+    @PostMapping("/notice/write")
     public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
         if (notice.getPriority() < 0) {
             rttr.addFlashAttribute("error", "우선순위는 0 이상의 숫자만 입력 가능합니다.");
-            return "redirect:/admin/notice";
+            return "redirect:/admin/notice/list";
         }
 
         try {
@@ -59,7 +70,29 @@ public class AdminController {
             rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
         }
 
-        return "redirect:/admin";
+        return "redirect:/admin/notice/list";
+    }
+
+    @PostMapping("/notice/toggle-status/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> toggleNoticeStatus(
+            @PathVariable("id") Long id,
+            @RequestParam("status") String status) {
+
+        boolean result = adminService.toggleNoticeStatus(id, status);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("result", result);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/notice/edit/{id}")
+    public String noticeEdit(@PathVariable("id") Long id,
+                             Model model) {
+        NoticeDTO noticeDTO = adminService.getNoticeById(id);
+        model.addAttribute("notice", noticeDTO);
+        return "/admin/notice/edit-form";
     }
 
     // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성

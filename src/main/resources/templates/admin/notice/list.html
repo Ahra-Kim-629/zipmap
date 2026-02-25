@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+
+<th:block layout:fragment="css">
+    <style>
+        .board-container { padding: 40px 0; background-color: #fdfcf9; }
+        .board-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .table td { vertical-align: middle; }
+
+        /* 썸네일 스타일 */
+        .thumb-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
+        .thumb-preview:hover { transform: scale(1.1); }
+
+        /* 상태 토글 스위치 */
+        .form-check-input { cursor: pointer; width: 2.5em; height: 1.25em; }
+        .form-check-input:checked { background-color: #e67e22; border-color: #e67e22; }
+
+        /* 기간 배지 */
+        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; }
+        .badge-active { background-color: #e3f2fd; color: #0d47a1; }
+        .badge-wait { background-color: #f5f5f5; color: #616161; }
+        .badge-end { background-color: #ffebee; color: #c62828; }
+
+        .btn-orange { background-color: #e67e22; color: white; border: none; }
+        .btn-orange:hover { background-color: #d35400; color: white; }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="board-container">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">공지사항 관리</h2>
+                    <p class="text-muted small mb-0">노출 기간 및 활성 상태를 제어합니다.</p>
+                </div>
+                <a th:href="@{/post/write}" class="btn btn-orange px-4 fw-bold rounded-pill">
+                    <i class="bi bi-pencil-fill"></i> 신규 등록
+                </a>
+            </div>
+
+            <div class="board-table-card daedong-shadow">
+                <table class="table mb-0 text-center">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 5%;">ID</th>
+                        <th style="width: 10%;">이미지</th>
+                        <th style="width: 25%;">제목/링크</th>
+                        <th style="width: 20%;">노출 기간</th>
+                        <th style="width: 10%;">노출여부</th>
+                        <th style="width: 15%;">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="notice : ${notices}">
+                        <td th:text="${notice.id}">101</td>
+
+                        <td>
+                            <img th:if="${notice.filePath != null}"
+                                 th:src="@{/files/{name}(name=${notice.filePath})}"
+                                 class="thumb-preview shadow-sm"
+                                 th:data-file="${notice.filePath}"
+                                 onclick="openImageModal(this.getAttribute('data-file'))">
+                            <span th:unless="${notice.filePath != null}" class="text-muted small">-</span>
+                        </td>
+
+                        <td class="text-start">
+                            <div class="fw-bold text-truncate" style="max-width: 200px;" th:text="${notice.title}">공지사항
+                                제목
+                            </div>
+                            <a th:if="${notice.linkUrl != null}" th:href="${notice.linkUrl}" target="_blank"
+                               class="small text-primary text-decoration-none">
+                                <i class="bi bi-link-45deg"></i> 바로가기
+                            </a>
+                        </td>
+
+                        <td>
+                            <div class="small">
+                                <span th:text="${notice.startDate}">2024-01-01</span> ~
+                                <span th:text="${notice.endDate}">2024-12-31</span>
+                            </div>
+                            <th:block th:with="today=${T(java.time.LocalDate).now()}">
+                                <span th:if="${notice.status == 'N'}"
+                                      class="status-badge bg-secondary text-white">꺼짐</span>
+                                <th:block th:unless="${notice.status == 'N'}">
+                                    <span th:if="${today.isBefore(notice.startDate)}"
+                                          class="status-badge badge-wait">대기</span>
+                                    <span th:if="${!today.isBefore(notice.startDate) && !today.isAfter(notice.endDate)}"
+                                          class="status-badge badge-active">진행중</span>
+                                    <span th:if="${today.isAfter(notice.endDate)}"
+                                          class="status-badge badge-end">종료</span>
+                                </th:block>
+                            </th:block>
+                        </td>
+
+                        <td>
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox"
+                                       th:checked="${notice.status == 'Y'}"
+                                       th:onchange="toggleStatus([[${notice.id}]], this.checked)">
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="btn-group shadow-sm">
+                                <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        th:onclick="deleteNotice([[${notice.id}]])">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${notices.empty}">
+                        <td colspan="6" class="py-5 text-muted">등록된 공지사항이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold">이미지 미리보기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img src="" id="modalImage" class="img-fluid" style="max-height: 80vh;" alt="공지 이미지">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    // 전역 모달 객체
+    let imgModal;
+
+    $(document).ready(function() {
+        const modalEl = document.getElementById('imageModal');
+        if (modalEl) {
+            imgModal = new bootstrap.Modal(modalEl);
+        }
+    });
+
+    function openImageModal(fileName) {
+        if (!fileName) return;
+        const modalImg = document.getElementById('modalImage');
+        modalImg.src = '/files/' + fileName;
+        imgModal.show();
+    }
+
+    function toggleStatus(id, isChecked) {
+        const status = isChecked ? 'Y' : 'N';
+        const $targetCheckbox = $(event.target); // jQuery 객체로 변환
+
+        // CSRF 토큰 및 헤더 가져오기
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: `[[@{/admin/notice/toggle-status/}]]${id}?status=${status}`,
+            type: "POST",
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                // 성공 시 별도 처리 없음 (이미 스위치가 변해 있음)
+                console.log("상태 변경 성공:", response);
+            },
+            error: function(xhr) {
+                if (xhr.status === 403) {
+                    alert("권한이 없습니다. 관리자 계정으로 로그인해주세요.");
+                } else {
+                    alert("상태 변경에 실패했습니다.");
+                }
+                // 실패 시 스위치 원상복구
+                $targetCheckbox.prop('checked', !isChecked);
+            }
+        });
+    }
+
+    function deleteNotice(id) {
+        if (!confirm("정말로 이 공지사항을 삭제하시겠습니까?")) return;
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: `/admin/notice/${id}`,
+            type: "DELETE",
+            beforeSend: function(xhr) {
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
+                }
+            },
+            success: function(response) {
+                alert("삭제되었습니다.");
+                location.reload(); // 리스트 새로고침
+            },
+            error: function(xhr) {
+                if (xhr.status === 403) {
+                    alert("삭제 권한이 없습니다.");
+                } else {
+                    alert("삭제 중 오류가 발생했습니다.");
+                }
+            }
+        });
+    }
+</script>
+</html>

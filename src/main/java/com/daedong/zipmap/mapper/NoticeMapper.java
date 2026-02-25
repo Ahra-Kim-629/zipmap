@@ -13,4 +13,10 @@ public interface NoticeMapper {
     void insertNotice(Notice notice);
 
     void updateNotice(Notice notice);
+
+    List<NoticeDTO> findNoticeAll();
+
+    int updateNoticeStatus(Long id, String status);
+
+    NoticeDTO findById(Long id);
 }

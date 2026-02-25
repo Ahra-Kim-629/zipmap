@@ -26,6 +26,10 @@ public class AdminService {
     private final FileUtilService fileUtilService;
     private final FileMapper fileMapper;
 
+    public List<NoticeDTO> getNoticeAll() {
+        return noticeMapper.findNoticeAll();
+    }
+
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
     public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
@@ -157,6 +161,14 @@ public class AdminService {
         }
 
         return reviewDTO;
+    }
+
+    public boolean toggleNoticeStatus(Long id, String status) {
+        return noticeMapper.updateNoticeStatus(id, status) == 1;
+    }
+
+    public NoticeDTO getNoticeById(Long id) {
+        return noticeMapper.findById(id);
     }
 }
 
