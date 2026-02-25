@@ -78,30 +78,12 @@
             <if test="category != null and category != ''">
                 AND p.category = #{category}
             </if>
-
-            <if test="keyword != null and keyword != ''">
-                <choose>
-                    <when test="searchType == 'title'">
-                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <when test="searchType == 'content'">
-                        AND p.content LIKE CONCAT('%', #{keyword}, '%')
-                    </when>
-                    <otherwise>
-                        AND p.title LIKE CONCAT('%', #{keyword}, '%')
-                    </otherwise>
-                </choose>
-                <!--     이 부분을 수정을 해서 주석 처리 해두었습니다.            AND title LIKE CONCAT('%', #{keyword}, '%')-->
-            </if>
-            <if test="category != null and category != ''">
-                AND p.category = #{category}
-            </if>
             <if test="location != null and location != ''">
                 AND p.location = #{location}
             </if>
             <if test="keyword != null and keyword != ''">
                 <choose>
-                    <when test="searchType == 'title'">
+                    <when test="searchType == 'title' or searchType == null">
                         AND p.title LIKE CONCAT('%', #{keyword}, '%')
                     </when>
                     <when test="searchType == 'content'">
@@ -117,15 +99,11 @@
         (CASE WHEN p.category = 'NOTICE' THEN 0 ELSE 1 END) ASC,
         p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
-
     </select>
 
     <select id="countAll" resultType="int">
         SELECT COUNT(*) FROM POST
         <where>
-            <if test="keyword != null and keyword != ''">
-                AND title LIKE CONCAT('%', #{keyword}, '%')
-            </if>
             <if test="category != null and category != ''">
                 AND category = #{category}
             </if>

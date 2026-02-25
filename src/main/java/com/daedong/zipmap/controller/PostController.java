@@ -9,6 +9,7 @@ import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j //로그어노테이션
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/post")
@@ -36,15 +37,21 @@ public class PostController {
 
     private final FileUtilService fileUtilService;
 
-    @GetMapping
+    @GetMapping({"", "/list"})
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
+                       @RequestParam(required = false, name="q") String q,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
                        Model model) {
+
+        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
+
         // 전체 게시판 게시글 리스트
-        Page<PostDTO> posts = postService.findAll(searchType, keyword, category, location, pageable);
+        Page<PostDTO> posts = postService.findAll(searchType, searchKeyword, category, location, pageable);
+
+
 
         // 좋아요 싫어요 표시
         for (PostDTO post : posts.getContent()) {
@@ -54,9 +61,11 @@ public class PostController {
 
         model.addAttribute("posts", posts);
         model.addAttribute("searchType", searchType);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("keyword", searchKeyword);
         model.addAttribute("category", category);
         model.addAttribute("location", location);
+
+        log.info("검색 요청 감지 - q: {}, keyword: {}, 최종결정: {}", q, keyword, searchKeyword);
 
         return "post/list";
     }
