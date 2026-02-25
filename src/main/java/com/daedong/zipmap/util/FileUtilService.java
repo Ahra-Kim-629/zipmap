@@ -151,9 +151,6 @@ public class FileUtilService {
         fileMapper.deleteFilesAllByTargetTypeAndTargetId(targetType, targetId);
     }
 
-
-    // ... 기존 메서드들 아래에 추가 ...
-
     /**
      * [단일 파일 즉시 저장]
      * 썸머노트 같은 거 안 쓰고, 그냥 첨부파일 1개를 바로 특정 폴더에 저장할 때 씁니다.

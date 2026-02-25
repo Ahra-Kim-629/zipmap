@@ -111,8 +111,8 @@ public class ReportService {
     public void updateReportStatus(Long id, String status) {
         reportMapper.updateStatus(id, status);
     }
-//    @Transactional
-//    public void deleteReport(Long id) {
-//        reportMapper.deleteReport(id);
-//    }
+
+    public int countPendingReports() {
+        return reportMapper.countPendingReports();
+    }
 }

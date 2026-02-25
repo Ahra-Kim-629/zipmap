@@ -84,31 +84,31 @@
                 AND (
                 <trim prefixOverrides="OR">
 
-                <if test="pros != null and pros.size() > 0">
-                    EXISTS (
-                    SELECT 1 FROM review_attribute pa
-                    WHERE pa.review_id = r.id AND pa.type = 'PRO'
-                    AND pa.content IN
-                    <foreach collection="pros" item="p" open="(" separator="," close=")">
-                        #{p}
-                    </foreach>
-                    )
-                </if>
+                    <if test="pros != null and pros.size() > 0">
+                        EXISTS (
+                        SELECT 1 FROM review_attribute pa
+                        WHERE pa.review_id = r.id AND pa.type = 'PRO'
+                        AND pa.content IN
+                        <foreach collection="pros" item="p" open="(" separator="," close=")">
+                            #{p}
+                        </foreach>
+                        )
+                    </if>
 
-                <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
-                    OR
-                </if>
+                    <if test="pros != null and pros.size() > 0 and cons != null and cons.size() > 0">
+                        OR
+                    </if>
 
-                <if test="cons != null and cons.size() > 0">
-                    EXISTS (
-                    SELECT 1 FROM review_attribute ca
-                    WHERE ca.review_id = r.id AND ca.type = 'CON'
-                    AND ca.content IN
-                    <foreach collection="cons" item="c" open="(" separator="," close=")">
-                        #{c}
-                    </foreach>
-                    )
-                </if>
+                    <if test="cons != null and cons.size() > 0">
+                        EXISTS (
+                        SELECT 1 FROM review_attribute ca
+                        WHERE ca.review_id = r.id AND ca.type = 'CON'
+                        AND ca.content IN
+                        <foreach collection="cons" item="c" open="(" separator="," close=")">
+                            #{c}
+                        </foreach>
+                        )
+                    </if>
 
                 </trim>
                 )
@@ -140,18 +140,18 @@
 
     <!-- 리뷰 detail -->
     <resultMap id="reviewDetailMap" type="com.daedong.zipmap.domain.ReviewDTO">
-        <id property="id" column="id" />
-        <result property="title" column="title" />
-        <result property="content" column="content" />
-        <result property="address" column="address" />
-        <result property="userId" column="user_id" />
-        <result property="loginId" column="login_id" />
-        <result property="point" column="point" />
-        <result property="reviewStatus" column="review_status" />
-        <result property="likeCount" column="like_count" />
-        <result property="viewCount" column="view_count" />
-        <result property="createdAt" column="created_at" />
-        <result property="updatedAt" column="updated_at" />
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="address" column="address"/>
+        <result property="userId" column="user_id"/>
+        <result property="loginId" column="login_id"/>
+        <result property="point" column="point"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
     <!-- 리뷰글 아이디로 찾기 -->
@@ -328,9 +328,11 @@
     <select id="findContentsByRegion" resultType="string" parameterType="string">
         SELECT CONCAT(
         '[장점: ',
-        IFNULL((SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO'), '없음'),
+        IFNULL((SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO'),
+        '없음'),
         '] [단점: ',
-        IFNULL((SELECT GROUP_CONCAT(ca.content) FROM review_attribute ca WHERE ca.review_id = r.id AND ca.type = 'CON'), '없음'),
+        IFNULL((SELECT GROUP_CONCAT(ca.content) FROM review_attribute ca WHERE ca.review_id = r.id AND ca.type = 'CON'),
+        '없음'),
         '] 리뷰 내용: ',
         r.content
         )
@@ -340,15 +342,19 @@
         ORDER BY r.created_at DESC
         LIMIT 10
     </select>
-    
+
     <select id="findByKeywordReviews" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="string">
         SELECT
         id, title, content, address, user_id, point, review_status
         FROM review
         WHERE title LIKE CONCAT('%', #{keyword}, '%')
-           OR content LIKE CONCAT('%', #{keyword}, '%')
+        OR content LIKE CONCAT('%', #{keyword}, '%')
         ORDER BY id DESC
         LIMIT 3
+    </select>
+
+    <select id="countPendingCertifications">
+        SELECT COUNT(*) FROM certification WHERE certification_status = 'PENDING'
     </select>
 
 </mapper>

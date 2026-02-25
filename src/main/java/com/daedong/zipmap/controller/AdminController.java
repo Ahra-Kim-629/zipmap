@@ -1,19 +1,17 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Notice;
-import com.daedong.zipmap.domain.Post;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReportService;
 import com.daedong.zipmap.service.ReviewService;
-import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,17 +20,19 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminService adminService;
-    private final UserService userService;
     private final ReviewService reviewService;
     private final FileUtilService fileUtilService;
     private final PostService postService;
+    private final ReportService reportService;
 
 
     @GetMapping
@@ -40,16 +40,27 @@ public class AdminController {
         return "/admin/main";
     }
 
-    @GetMapping("/notice")
-    public String notice() {
-        return "/admin/notice-form";
+    @GetMapping("/notice/list")
+    public String noticeList(Model model) {
+        // 전체 게시판 게시글 리스트
+        List<NoticeDTO> noticeDTOList = adminService.getNoticeAll();
+
+        model.addAttribute("notices", noticeDTOList);
+
+        return "admin/notice/list";
     }
 
-    @PostMapping("/notice")
+
+    @GetMapping("/notice/write")
+    public String notice() {
+        return "/admin/notice/write-form";
+    }
+
+    @PostMapping("/notice/write")
     public String writeNotice(Notice notice, MultipartFile imageFile, RedirectAttributes rttr) {
         if (notice.getPriority() < 0) {
             rttr.addFlashAttribute("error", "우선순위는 0 이상의 숫자만 입력 가능합니다.");
-            return "redirect:/admin/notice";
+            return "redirect:/admin/notice/list";
         }
 
         try {
@@ -59,7 +70,54 @@ public class AdminController {
             rttr.addFlashAttribute("error", "공지사항 등록 중 오류가 발생했습니다.");
         }
 
-        return "redirect:/admin";
+        return "redirect:/admin/notice/list";
+    }
+
+    @PostMapping("/notice/toggle-status/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> toggleNoticeStatus(
+            @PathVariable("id") Long id,
+            @RequestParam("status") String status) {
+
+        boolean result = adminService.toggleNoticeStatus(id, status);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("result", result);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/notice/edit/{id}")
+    public String editNotice(@PathVariable("id") Long id,
+                             Model model) {
+        NoticeDTO noticeDTO = adminService.getNoticeById(id);
+        model.addAttribute("notice", noticeDTO);
+        return "/admin/notice/edit-form";
+    }
+
+    @PostMapping("/notice/edit/{id}")
+    public String editNotice(@PathVariable("id") Long id, Notice notice,
+                             MultipartFile imageFile, RedirectAttributes rttr) {
+        try {
+            adminService.updateNotice(id, notice, imageFile);
+            rttr.addFlashAttribute("message", "공지사항이 수정되었습니다.");
+        } catch (IOException e) {
+            rttr.addFlashAttribute("error", "공지사항 수정 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/admin/notice/list";
+    }
+
+    @PostMapping("/notice/delete/{id}")
+    public String deleteNotice(@PathVariable Long id, RedirectAttributes rttr) {
+        try {
+            adminService.deleteNoticeById(id);
+            rttr.addFlashAttribute("message", "공지사항이 삭제되었습니다.");
+        } catch (RuntimeException e) {
+            rttr.addFlashAttribute("error", "공지사항 삭제 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/admin/notice/list";
     }
 
     // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성
@@ -220,6 +278,13 @@ public class AdminController {
         return "/admin/reviewcertification";
     }
 
+    @GetMapping("/certification/pending-certifications")
+    @ResponseBody
+    public ResponseEntity<Integer> pendingCertificationBadge() {
+        int count = adminService.countPendingCertifications();
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/detail/{id}") // "/review/detail/{id}"에서 "review"를 제거
     public String adminReviewDetail(@PathVariable("id") Long id, Model model) {
         ReviewDTO reviewDTO = adminService.getAdminReviewDetail(id);
@@ -227,5 +292,29 @@ public class AdminController {
         return "admin/review_detail";
     }
 
+    @GetMapping("/report/list")
+    public String adminReportList(Model model) {
+        model.addAttribute("reports", reportService.findAllReports());
+        return "admin/report/list";
+    }
+
+    @GetMapping("/report/delete/{id}")
+    public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
+        try {
+            reportService.deleteReport(id);
+            rttr.addFlashAttribute("message", "신고 내역이 삭제되었습니다.");
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/report/list";
+    }
+
+    @GetMapping("/report/pending-reports")
+    @ResponseBody
+    public ResponseEntity<Integer> pendingReportBadge() {
+        int count = reportService.countPendingReports();
+        return ResponseEntity.ok(count);
+    }
 }
+
 

@@ -27,6 +27,10 @@ public class AdminService {
     private final FileMapper fileMapper;
     private final AlarmService alarmService;
 
+    public List<NoticeDTO> getNoticeAll() {
+        return noticeMapper.findNoticeAll();
+    }
+
     @Transactional
     @CacheEvict(value = "mainNotices", allEntries = true)
     public void insertNotice(Notice notice, MultipartFile imageFile) throws IOException {
@@ -168,6 +172,61 @@ public class AdminService {
         }
 
         return reviewDTO;
+    }
+
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public boolean toggleNoticeStatus(Long id, String status) {
+        return noticeMapper.updateNoticeStatus(id, status) == 1;
+    }
+
+    public NoticeDTO getNoticeById(Long id) {
+        return noticeMapper.findNoticeById(id);
+    }
+
+    @Transactional
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public void updateNotice(Long id, Notice notice, MultipartFile imageFile) throws IOException {
+        NoticeDTO existingNotice = noticeMapper.findNoticeById(id);
+        notice.setId(id);
+        notice.setStatus(existingNotice.getStatus());
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (existingNotice.getFilePath() != null) {
+                fileUtilService.deleteFileByPath(existingNotice.getFilePath());
+                fileUtilService.deleteFilesByTargetTypeAndTargetId("notice", id);
+            }
+
+            String newFilePath = fileUtilService.saveFile(imageFile, "notice");
+            File file = new File();
+            file.setTargetType("notice");
+            file.setTargetId(id);
+            file.setFilePath(newFilePath);
+            file.setFileSize(imageFile.getSize());
+
+            fileUtilService.saveFileToDB(file);
+        }
+
+        noticeMapper.updateNotice(notice);
+    }
+
+    @Transactional
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public void deleteNoticeById(Long id) {
+        NoticeDTO noticeDTO = noticeMapper.findNoticeById(id);
+        if (noticeDTO == null) {
+            throw new RuntimeException("해당 공지사항을 찾을 수 없습니다. ID: " + id);
+        }
+
+        noticeMapper.deleteNoticeById(id);
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("notice", id);
+
+        if (noticeDTO.getFilePath() != null && !noticeDTO.getFilePath().isEmpty()) {
+            fileUtilService.deleteFileByPath(noticeDTO.getFilePath());
+        }
+    }
+
+    public int countPendingCertifications() {
+        return reviewMapper.countPendingCertifications();
     }
 }
 

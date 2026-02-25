@@ -56,23 +56,4 @@ public class ReportController {
             return "redirect:/post/detail/" + reportDTO.getTargetId() + "?success=report";
         }
     }
-
-    // 3. 관리자 목록
-    @GetMapping("/admin/report/list")
-    public String adminReportList(Model model) {
-        model.addAttribute("reports", reportService.findAllReports());
-        return "admin/reportList";
-    }
-
-    // 4. 신고 삭제 기능 추가
-    @GetMapping("/admin/report/delete/{id}")
-    public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
-        try {
-            reportService.deleteReport(id);
-            rttr.addFlashAttribute("message", "신고 내역이 삭제되었습니다.");
-        } catch (Exception e) {
-            rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
-        }
-        return "redirect:/admin/report/list";
-    }
 }
