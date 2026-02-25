@@ -88,11 +88,36 @@ public class AdminController {
     }
 
     @GetMapping("/notice/edit/{id}")
-    public String noticeEdit(@PathVariable("id") Long id,
+    public String editNotice(@PathVariable("id") Long id,
                              Model model) {
         NoticeDTO noticeDTO = adminService.getNoticeById(id);
         model.addAttribute("notice", noticeDTO);
         return "/admin/notice/edit-form";
+    }
+
+    @PostMapping("/notice/edit/{id}")
+    public String editNotice(@PathVariable("id") Long id, Notice notice,
+                             MultipartFile imageFile, RedirectAttributes rttr) {
+        try {
+            adminService.updateNotice(id, notice, imageFile);
+            rttr.addFlashAttribute("message", "공지사항이 수정되었습니다.");
+        } catch (IOException e) {
+            rttr.addFlashAttribute("error", "공지사항 수정 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/admin/notice/list";
+    }
+
+    @PostMapping("/notice/delete/{id}")
+    public String deleteNotice(@PathVariable Long id, RedirectAttributes rttr) {
+        try {
+            adminService.deleteNoticeById(id);
+            rttr.addFlashAttribute("messeage", "공지사항이 삭제되었습니다.");
+        } catch (RuntimeException e) {
+            rttr.addFlashAttribute("error", "공지사항 삭제 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/admin/notice/list";
     }
 
     // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성

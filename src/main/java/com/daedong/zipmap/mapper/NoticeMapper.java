@@ -18,5 +18,7 @@ public interface NoticeMapper {
 
     int updateNoticeStatus(Long id, String status);
 
-    NoticeDTO findById(Long id);
+    NoticeDTO findNoticeById(Long id);
+
+    void deleteNoticeById(Long id);
 }

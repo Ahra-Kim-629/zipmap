@@ -46,12 +46,16 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findById" resultType="com.daedong.zipmap.domain.NoticeDTO">
+    <select id="findNoticeById" resultType="com.daedong.zipmap.domain.NoticeDTO">
         SELECT
-        n.id, n.title, n.link_url, n.status, n.start_date, n.end_date, n.priority
+        n.id, n.title, n.link_url, n.status, n.start_date, n.end_date, n.priority,
         n.created_at, n.updated_at, f.file_path
         FROM notice n
         LEFT JOIN file f ON n.id = f.target_id AND f.target_type = 'NOTICE'
         WHERE n.id = #{id}
     </select>
+
+    <delete id="deleteNoticeById">
+        DELETE FROM notice WHERE id = #{id}
+    </delete>
 </mapper>

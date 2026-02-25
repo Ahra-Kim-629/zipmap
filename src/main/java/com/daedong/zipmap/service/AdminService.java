@@ -168,7 +168,49 @@ public class AdminService {
     }
 
     public NoticeDTO getNoticeById(Long id) {
-        return noticeMapper.findById(id);
+        return noticeMapper.findNoticeById(id);
+    }
+
+    @Transactional
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public void updateNotice(Long id, Notice notice, MultipartFile imageFile) throws IOException {
+        NoticeDTO existingNotice = noticeMapper.findNoticeById(id);
+        notice.setId(id);
+        notice.setStatus(existingNotice.getStatus());
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            if (existingNotice.getFilePath() != null) {
+                fileUtilService.deleteFileByPath(existingNotice.getFilePath());
+                fileUtilService.deleteFilesByTargetTypeAndTargetId("notice", id);
+            }
+
+            String newFilePath = fileUtilService.saveFile(imageFile, "notice");
+            File file = new File();
+            file.setTargetType("notice");
+            file.setTargetId(id);
+            file.setFilePath(newFilePath);
+            file.setFileSize(imageFile.getSize());
+
+            fileUtilService.saveFileToDB(file);
+        }
+
+        noticeMapper.updateNotice(notice);
+    }
+
+    @Transactional
+    @CacheEvict(value = "mainNotices", allEntries = true)
+    public void deleteNoticeById(Long id) {
+        NoticeDTO noticeDTO = noticeMapper.findNoticeById(id);
+        if (noticeDTO == null) {
+            throw new RuntimeException("해당 공지사항을 찾을 수 없습니다. ID: " + id);
+        }
+
+        noticeMapper.deleteNoticeById(id);
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("notice", id);
+
+        if (noticeDTO.getFilePath() != null && !noticeDTO.getFilePath().isEmpty()) {
+            fileUtilService.deleteFileByPath(noticeDTO.getFilePath());
+        }
     }
 }
 

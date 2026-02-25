@@ -56,7 +56,7 @@ public class ReviewService {
     @Transactional
     public ReviewDTO getReviewDetail(Long id, HttpServletRequest request, UserDetails userDetails) {
         ReviewDTO reviewDTO = reviewMapper.findById(id);
-        if(reviewDTO == null) return null;
+        if (reviewDTO == null) return null;
 
         // 외부 연동 데이터 처리 (Redis 조회수)
         // 조회수는 '검증'과 '외부 저장소' 접근이 필요하므로 서비스에서 호출하는 것이 적절
@@ -237,7 +237,7 @@ public class ReviewService {
         file.setFilePath(filePath);
         file.setFileSize(image.getSize());
 
-        fileMapper.insertFile(file);
+        fileUtilService.saveFileToDB(file);
 
         // 2-24 수정
         // reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
