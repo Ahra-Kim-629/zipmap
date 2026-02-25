@@ -17,4 +17,6 @@ public interface ReportMapper {
 
     // 4. 신고 삭제 (관리자용)
     void deleteReport(Long id);
+
+    int countPendingReports();
 }

@@ -76,4 +76,6 @@ public interface ReviewMapper {
     List<ReviewAttribute> findAttributesByReviewId(long id);
 
     List<ReviewDTO> findByKeywordReviews(@Param("keyword") String keyword);
+
+    int countPendingCertifications();
 }

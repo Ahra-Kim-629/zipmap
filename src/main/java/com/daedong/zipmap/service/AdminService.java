@@ -213,5 +213,9 @@ public class AdminService {
             fileUtilService.deleteFileByPath(noticeDTO.getFilePath());
         }
     }
+
+    public int countPendingCertifications() {
+        return reviewMapper.countPendingCertifications();
+    }
 }
 

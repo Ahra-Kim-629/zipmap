@@ -121,7 +121,11 @@
                 </div>
 
                 <div class="col-md-6 col-lg-3">
-                    <a th:href="@{/admin/reviewcertification}" class="admin-card daedong-shadow h-100">
+                    <a th:href="@{/admin/reviewcertification}" class="admin-card daedong-shadow h-100 position-relative">
+                        <span id="certificationBadge"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow"
+                              style="z-index: 10; padding: 0.5em 0.7em; display: none;">
+                        <span id="certificationCount">0</span></span>
                         <div class="icon-box">
                             <i class="bi bi-chat-square-heart-fill"></i>
                         </div>
@@ -130,7 +134,11 @@
                     </a>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <a th:href="@{/admin/report/list}" class="admin-card daedong-shadow h-100">
+                    <a th:href="@{/admin/report/list}" class="admin-card daedong-shadow h-100 position-relative">
+                        <span id="reportBadge"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow"
+                              style="z-index: 10; padding: 0.5em 0.7em; display: none;">
+                        <span id="reportCount">0</span></span>
                         <div class="icon-box" style="color: #dc3545; background-color: #fff5f5;">
                             <i class="bi bi-exclamation-octagon-fill"></i>
                         </div>
@@ -139,23 +147,58 @@
                     </a>
                 </div>
             </div>
-
-
-
         </div>
 
-            <div class="mt-5 p-4 bg-white rounded-4 daedong-shadow border-0">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h6 class="fw-bold mb-1"><i class="bi bi-info-circle me-2 text-primary"></i>시스템 관리 안내</h6>
-                        <p class="small text-muted mb-0">인증 신청 및 신고 건수는 매일 오전 10시에 일괄 체크를 권장합니다.</p>
-                    </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <a th:href="@{/}" class="btn btn-outline-dark rounded-pill px-4 py-2 btn-sm">사용자 메인으로 가기</a>
-                    </div>
+        <div class="mt-5 p-4 bg-white rounded-4 daedong-shadow border-0">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-info-circle me-2 text-primary"></i>시스템 관리 안내</h6>
+                    <p class="small text-muted mb-0">인증 신청 및 신고 건수는 매일 오전 10시에 일괄 체크를 권장합니다.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a th:href="@{/}" class="btn btn-outline-dark rounded-pill px-4 py-2 btn-sm">사용자 메인으로 가기</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script layout:fragment="script">
+    $(document).ready(function() {
+        loadPendingReportCount();
+        loadPendingCertificationCount();
+    });
+
+    function loadPendingReportCount() {
+        $.ajax({
+            url: "/admin/report/pending-reports",
+            type: "GET",
+            success: function(count) {
+                if (count > 0) {
+                    $('#reportCount').text(count > 99 ? '99+' : count);
+                    $('#reportBadge').fadeIn(); // 숫자가 있을 때만 서서히 나타남
+                }
+            },
+            error: function(xhr) {
+                console.error("신고 내역 조회 실패:", xhr.status);
+            }
+        });
+    }
+
+    function loadPendingCertificationCount() {
+        $.ajax({
+            url: "/admin/certification/pending-certifications",
+            type: "GET",
+            success: function(count) {
+                if (count > 0) {
+                    $('#certificationCount').text(count > 99 ? '99+' : count);
+                    $('#certificationBadge').fadeIn(); // 숫자가 있을 때만 서서히 나타남
+                }
+            },
+            error: function(xhr) {
+                console.error("신고 내역 조회 실패:", xhr.status);
+            }
+        });
+    }
+</script>
 </html>

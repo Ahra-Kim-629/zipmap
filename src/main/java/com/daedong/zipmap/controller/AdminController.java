@@ -3,8 +3,8 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.AdminService;
 import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReportService;
 import com.daedong.zipmap.service.ReviewService;
-import com.daedong.zipmap.service.UserService;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,10 +29,10 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminService adminService;
-    private final UserService userService;
     private final ReviewService reviewService;
     private final FileUtilService fileUtilService;
     private final PostService postService;
+    private final ReportService reportService;
 
 
     @GetMapping
@@ -278,6 +278,13 @@ public class AdminController {
         return "/admin/reviewcertification";
     }
 
+    @GetMapping("/certification/pending-certifications")
+    @ResponseBody
+    public ResponseEntity<Integer> pendingCertificationBadge() {
+        int count = adminService.countPendingCertifications();
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping("/detail/{id}") // "/review/detail/{id}"에서 "review"를 제거
     public String adminReviewDetail(@PathVariable("id") Long id, Model model) {
         ReviewDTO reviewDTO = adminService.getAdminReviewDetail(id);
@@ -285,5 +292,29 @@ public class AdminController {
         return "admin/review_detail";
     }
 
+    @GetMapping("/report/list")
+    public String adminReportList(Model model) {
+        model.addAttribute("reports", reportService.findAllReports());
+        return "admin/report/list";
+    }
+
+    @GetMapping("/report/delete/{id}")
+    public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
+        try {
+            reportService.deleteReport(id);
+            rttr.addFlashAttribute("message", "신고 내역이 삭제되었습니다.");
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "삭제 중 오류가 발생했습니다.");
+        }
+        return "redirect:/admin/report/list";
+    }
+
+    @GetMapping("/report/pending-reports")
+    @ResponseBody
+    public ResponseEntity<Integer> pendingReportBadge() {
+        int count = reportService.countPendingReports();
+        return ResponseEntity.ok(count);
+    }
 }
+
 

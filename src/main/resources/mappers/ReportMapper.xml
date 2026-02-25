@@ -44,4 +44,8 @@
         DELETE FROM report WHERE id = #{id}
     </delete>
 
+    <select id="countPendingReports">
+        SELECT COUNT(*) FROM report WHERE status = 'PENDING'
+    </select>
+
 </mapper>

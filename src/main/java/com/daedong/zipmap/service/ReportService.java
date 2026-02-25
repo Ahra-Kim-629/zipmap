@@ -76,4 +76,8 @@ public class ReportService {
     public void deleteReport(Long id) {
         reportMapper.deleteReport(id);
     }
+
+    public int countPendingReports() {
+        return reportMapper.countPendingReports();
+    }
 }
