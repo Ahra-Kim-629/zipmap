@@ -163,6 +163,7 @@ public class AdminService {
         return reviewDTO;
     }
 
+    @CacheEvict(value = "mainNotices", allEntries = true)
     public boolean toggleNoticeStatus(Long id, String status) {
         return noticeMapper.updateNoticeStatus(id, status) == 1;
     }
