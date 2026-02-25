@@ -260,21 +260,48 @@ public class GeminiService {
         }
     }
 
-    // [추가] 상세 페이지 전용 요약 메서드
-    public String summarizePostDetail(PostDTO post) {
+    /**
+     * 게시글 상세 내용과 댓글을 분석하여 요약본을 만드는 메서드
+     */
+    public String summarizePostDetail(PostDTO post, List<ReplyDTO> replies) {
+        // 1. 재료 확인: 게시글이 없으면 요리 불가
         if (post == null) return "요약할 게시글 정보가 없습니다.";
 
         StringBuilder promptBuilder = new StringBuilder();
-        //1. 페르소나 부여
-        promptBuilder.append("너는 게시글의 핵심 내용과 댓글 반응을 요약해주는 '스마트 게시판 비서'야.\n\n");
-        //2. 댓글 유무에 따른 출력 양식 분기
-        promptBuilder.append("[출력 양식]\n")
-                .append("📝 한줄 요약 : (글의 핵심 주제)\n")
-                .append("🔍 주요 내용 : (본문 핵심 포인트 2~3개)\n");
-        // 3. 본문 데이터 주입 해주는 기능
-        String cleanContent = post.getContent().replaceAll("<[^>]*>", ""); // HTML 태그 제거
-        promptBuilder.append("[본문]\n").append(cleanContent).append("\n\n");
 
+        // 2. 페르소나 부여: AI에게 '스마트 비서'라는 역할을 정해줌 (전문성 향상)
+        promptBuilder.append("너는 게시글의 핵심 내용과 댓글 반응을 요약해주는 '스마트 게시판 비서'야.\n\n");
+        promptBuilder.append("아래 게시글의 본문과 사람들의 댓글 반응을 분석해서 가독성 좋게 요약해줘.\n\n");
+
+        // 3. 메뉴판 구성: 출력 양식을 미리 정해주어 AI가 딴소리 못하게 함
+        promptBuilder.append("[출력 양식]\n");
+        promptBuilder.append("📝 한줄 요약 : (글의 핵심 주제를 한 줄로 정리)\n");
+        promptBuilder.append("🔍 주요 내용 : (본문의 핵심 정보를 2~3개 포인트로 요약)\n");
+
+        // 댓글 유무 체크: 댓글이 있을 때만 '댓글 반응' 항목을 메뉴에 넣음
+        boolean hasReplies = (replies != null && !replies.isEmpty());
+        if (hasReplies) {
+            promptBuilder.append("💬 댓글 반응 : (댓글들의 전반적인 분위기와 주요 의견 요약)\n");
+        }
+        promptBuilder.append("💡 비서의 한마디 : (이 글을 읽는 사용자에게 주는 팁이나 코멘트)\n\n");
+
+        // 4. 재료 손질: HTML 태그(<p> 등)를 제거하여 순수 텍스트만 추출
+        String cleanContent = post.getContent().replaceAll("<[^>]*>", "");
+        promptBuilder.append("[게시글 본문]\n제목: ").append(post.getTitle()).append("\n내용: ").append(cleanContent).append("\n\n");
+
+        // 5. 부재료 추가: 댓글이 있다면 최대 20개까지 요약 재료로 사용
+        if (hasReplies) {
+            promptBuilder.append("[댓글 데이터]\n");
+            int limit = Math.min(replies.size(), 20);
+            for (int i = 0; i < limit; i++) {
+                promptBuilder.append("- ").append(replies.get(i).getContent()).append("\n");
+            }
+        } else {
+            // 댓글이 없을 때 AI가 "댓글이 없네요"라고 출력하는 것을 방지하는 엄격한 명령
+            promptBuilder.append("\n(참고: 이 글에는 댓글이 없으니 '💬 댓글 반응' 항목은 절대 출력하지 마.)\n");
+        }
+
+        // 6. 조리 시작: 완성된 주문서를 AI API 호출 메서드(callGemini)로 보냄
         return callGemini(promptBuilder.toString());
     }
 

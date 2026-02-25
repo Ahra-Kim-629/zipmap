@@ -6,16 +6,6 @@
 <div layout:fragment="content">
   <div class="container mt-5">
     <h2 class="mb-4">🚨 신고 내역 관리</h2>
-    <div class="d-flex justify-content-end mb-3">
-      <div class="btn-group" role="group">
-        <a th:href="@{/admin/report/list}"
-           class="btn btn-sm" th:classappend="${currentStatus == null ? 'btn-dark' : 'btn-outline-dark'}">전체</a>
-        <a th:href="@{/admin/report/list(status='PENDING')}"
-           class="btn btn-sm" th:classappend="${currentStatus == 'PENDING' ? 'btn-warning' : 'btn-outline-warning'}">확인 안 함</a>
-        <a th:href="@{/admin/report/list(status='CONFIRMED')}"
-           class="btn btn-sm" th:classappend="${currentStatus == 'CONFIRMED' ? 'btn-success' : 'btn-outline-success'}">확인함</a>
-      </div>
-    </div>
 
     <div class="card shadow-sm">
       <div class="card-body">
@@ -61,14 +51,9 @@
               </span>
             </td>
             <td>
-              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentStatus})}"
-                 style="text-decoration: none;">
-        <span class="badge"
-              th:classappend="${report.status.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-              th:text="${report.status.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
-              style="cursor: pointer;">
-        </span>
-              </a>
+                <span class="badge"
+                      th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+                      th:text="${report.status == 'PENDING' ? '대기중' : '처리완료'}"></span>
             </td>
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td>
@@ -132,33 +117,3 @@
   </div>
 </div>
 </html>
-<script th:inline="javascript">
-  // 신고 읽음 처리 함수
-  function markAsRead(reportId) {
-      // 이미 확인된 상태면 무시
-      // 비동기로 상태 업데이트 호출
-      fetch('/admin/report/confirm/' + reportId, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              // CSRF 토큰이 필요하다면 여기에 추가
-          }
-      }).then(response => {
-          if(response.ok) {
-              console.log("읽음 처리 완료");
-              // 실시간으로 UI를 바꾸고 싶다면 여기서 DOM 조작을 하거나 리로드
-          }
-      });
-  }
-
-  // Bootstrap 모달이 열릴 때 이벤트 리스너
-  document.addEventListener('DOMContentLoaded', function() {
-      var modals = document.querySelectorAll('.modal');
-      modals.forEach(function(modal) {
-          modal.addEventListener('show.bs.modal', function (event) {
-              var id = this.id.replace('reportModal', '');
-              markAsRead(id);
-          });
-      });
-  });
-</script>

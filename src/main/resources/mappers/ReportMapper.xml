@@ -26,8 +26,8 @@
     <select id="selectAllReports" resultType="com.daedong.zipmap.domain.ReportDTO">
         SELECT
         r.id,
-        r.target_type AS targetType,
-        r.post_id AS targetId,
+        r.target_type AS targetType, <!-- POST 또는 REVIEW -->
+        r.post_id AS targetId,       <!-- 공용 ID 컬럼 -->
         r.reporter_id AS userId,
         u.login_id AS reporterName,
         r.reason_type AS reasonType,
@@ -37,39 +37,11 @@
         r.created_at AS createdAt
         FROM report r
         LEFT JOIN user u ON r.reporter_id = u.id
-        <where>
-            <if test="status != null and status != ''">
-                AND r.status = #{status}
-            </if>
-        </where>
         ORDER BY r.created_at DESC
     </select>
 
     <delete id="deleteReport">
         DELETE FROM report WHERE id = #{id}
     </delete>
-
-    <update id="updateStatus">
-        UPDATE report
-        SET status = #{status}
-        WHERE id = #{id}
-    </update>
-
-    <select id="selectReportById" resultType="com.daedong.zipmap.domain.ReportDTO">
-        SELECT
-        r.id,
-        r.target_type AS targetType,
-        r.post_id AS targetId,
-        r.reporter_id AS userId,
-        u.login_id AS reporterName,
-        r.reason_type AS reasonType,
-        r.content,
-        r.file_path AS filePath,
-        r.status,
-        r.created_at AS createdAt
-        FROM report r
-        LEFT JOIN user u ON r.reporter_id = u.id
-        WHERE r.id = #{id}
-    </select>
 
 </mapper>

@@ -27,7 +27,6 @@
     <div class="detail-container">
         <div class="container" th:if="${postDTO != null}">
             <div class="detail-card daedong-shadow">
-
                 <div class="detail-header">
                     <div class="mb-3">
                         <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category}">카테고리</span>
@@ -48,7 +47,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="text-muted small mt-3">
                         <span class="me-3"><i class="bi bi-person me-1"></i>[[${postDTO.loginId}]]</span>
                         <span><i class="bi bi-clock me-1"></i>[[${#temporals.format(postDTO.createdAt, 'yyyy.MM.dd HH:mm')}]]</span>
@@ -79,9 +77,10 @@
                             </div>
                         </form>
                     </div>
-                </div> </div> </div>
+                </div>
+            </div>
+        </div>
     </div>
-
     <div class="modal fade" id="aiSummaryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
@@ -99,99 +98,90 @@
     </div>
 </div>
 
-
-
 <script layout:fragment="script">
-    // 전역 변수 설정
-    let currentPage = 0;
-    let isLoading = false;
-    let isLastPage = false;
-    const targetId = [[${postDTO.id}]];
-    const currentUserName = "[[${#authentication.name}]]";
+    // 1. 전역 변수 설정: 식당으로 치면 "오늘의 대기 명단" 같은 변수들입니다.
+    let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
+    let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)
+    let isLastPage = false;   // 더 이상 가져올 댓글이 없는지 확인
+    const targetId = [[${postDTO.id}]]; // 현재 보고 있는 게시글의 번호
+    const currentUserName = "[[${#authentication.name}]]"; // 로그인한 사용자의 이름
 
     $(document).ready(function() {
-        // 1. 처음 들어왔을 때 첫 10개 로드
+        // [홀 서빙 시작] 페이지가 열리자마자 실행되는 기능들입니다.
+
+        // 초기 댓글 로드
         fetchReplies();
 
-        // 2. 무한 스크롤 이벤트 설정
+        // 무한 스크롤 설정: 바닥에 닿으면 다음 댓글을 가져옵니다.
         $(window).scroll(function() {
-            // 바닥에서 200px 정도 여유 있을 때 다음 데이터 로드
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
                 if (!isLoading && !isLastPage) {
                     fetchReplies();
                 }
             }
         });
-         // [추가] AI 요약 버튼 이벤트
+
+        // [핵심 기능] AI 요약 버튼 클릭 이벤트
         $("#btn-ai-summary").click(function() {
+            // 팝업창(모달) 객체 생성
             const summaryModal = new bootstrap.Modal(document.getElementById('aiSummaryModal'));
-            $("#ai-summary-content").html('<div class="text-center p-3"><div class="spinner-border text-primary"></div><p>AI가 글을 읽는 중...</p></div>');
+
+            // 팝업창에 "요리 중(분석 중)"이라는 메시지를 먼저 띄웁니다.
+            $("#ai-summary-content").html(`
+                <div class="text-center p-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">AI가 글과 댓글을 읽고 요약하는 중입니다...</p>
+                </div>
+            `);
             summaryModal.show();
 
-         $.ajax({
-            url: "/post/summarize-detail/" + targetId, // targetId는 이미 선언되어 있죠?
-            type: "GET",
-            success: function(res) {
-            $("#ai-summary-content").html(res);
-        },
-        error: function() {
-            $("#ai-summary-content").html("요약에 실패했습니다.");
-        }
-    });
-});
-    });
+            // 서버 지배인(Controller)에게 요약 요청을 보냅니다.
+            $.ajax({
+                url: "/post/summarize-detail/" + targetId,
+                type: "GET",
+                success: function(res) {
+                    // 성공하면 AI가 보내준 따끈따끈한 요약 텍스트를 팝업창에 넣습니다.
+                    $("#ai-summary-content").html(res);
+                },
+                error: function() {
+                    // 실패하면 에러 메시지를 보여줍니다.
+                    $("#ai-summary-content").html('<p class="text-danger text-center">요약에 실패했습니다. 다시 시도해 주세요.</p>');
+                }
+            });
+        });
+    }); // $(document).ready 끝
 
-    // 데이터 가져오기 함수
+    // [창고지기] 서버에서 댓글 데이터를 가져오는 함수
     function fetchReplies() {
         isLoading = true;
         $("#reply-loader").show();
-
         $.ajax({
             url: "/reply/list",
             type: "GET",
-            data: {
-                targetType: 'post',
-                targetId: targetId,
-                page: currentPage
-            },
+            data: { targetType: 'post', targetId: targetId, page: currentPage },
             success: function(replies) {
                 if (replies && replies.length > 0) {
-                    replies.forEach(reply => {
-                        $("#reply-container").append(renderReply(reply));
-                    });
+                    replies.forEach(reply => { $("#reply-container").append(renderReply(reply)); });
                     currentPage++;
-                    // 10개 미만으로 오면 다음 페이지가 없다고 판단
                     if (replies.length < 10) isLastPage = true;
-                } else {
-                    isLastPage = true;
-                }
+                } else { isLastPage = true; }
             },
-            error: function(err) {
-                console.error("댓글 로드 실패:", err);
-            },
-            complete: function() {
-                isLoading = false;
-                $("#reply-loader").hide();
-            }
+            complete: function() { isLoading = false; $("#reply-loader").hide(); }
         });
     }
 
-    // HTML 조립 함수
+    // [접시 닦기] 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
     function renderReply(reply) {
         const isOwner = (currentUserName === reply.loginId);
-        let btnHtml = '';
-
-        if(isOwner) {
-            btnHtml = `
-                <div class="d-flex align-items-center gap-2">
-                    <form action="/reply/delete" method="post" class="m-0">
-                        <input type="hidden" name="id" value="${reply.id}">
-                        <input type="hidden" name="targetType" value="post">
-                        <input type="hidden" name="targetId" value="${targetId}">
-                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0" onclick="return confirm('삭제할까요?')">삭제</button>
-                    </form>
-                </div>`;
-        }
+        let btnHtml = isOwner ? `
+            <div class="d-flex align-items-center gap-2">
+                <form action="/reply/delete" method="post" class="m-0">
+                    <input type="hidden" name="id" value="${reply.id}">
+                    <input type="hidden" name="targetType" value="post">
+                    <input type="hidden" name="targetId" value="${targetId}">
+                    <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0" onclick="return confirm('삭제할까요?')">삭제</button>
+                </form>
+            </div>` : '';
 
         return `
             <div class="reply-item shadow-sm" id="reply-${reply.id}">
@@ -202,7 +192,5 @@
                 <p class="mb-0 text-secondary small">${reply.content}</p>
             </div>`;
     }
-
-
 </script>
 </html>

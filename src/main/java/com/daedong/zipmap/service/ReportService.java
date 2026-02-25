@@ -1,7 +1,6 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.ReportDTO;
-import com.daedong.zipmap.domain.ReportStatus;
 import com.daedong.zipmap.mapper.ReportMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,7 @@ public class ReportService {
         if (file != null && !file.isEmpty()) {
             reportDTO.setFilePath(uploadFile(file));
         }
+
 
         // 2. DB 저장 (여기서 오류가 난다면 매퍼의 #{userId} 확인 필요)
         try {
@@ -69,21 +69,14 @@ public class ReportService {
         return savedFileName;
     }
 
-    @Transactional
-    public void toggleReportStatus(Long id) {
-        ReportDTO report = reportMapper.selectReportById(id);
-        if (report != null) {
-            // PENDING -> CONFIRMED, CONFIRMED -> PENDING으로 스위칭
-//            String newStatus = "PENDING".equals(report.getStatus()) ? "CONFIRMED" : "PENDING";
-            ReportStatus newStatus = (report.getStatus() == ReportStatus.PENDING)
-                    ? ReportStatus.CONFIRMED
-                    : ReportStatus.PENDING;
-            reportMapper.updateStatus(id, newStatus.name());
-        }
-    }
-
     public List<ReportDTO> findAllReports(String status) {
         return reportMapper.selectAllReports(status);
+    }
+
+    // 2. [추가] 인자 없는 메서드 (관리자 목록 첫 진입용)
+    public List<ReportDTO> findAllReports() {
+        return reportMapper.selectAllReports(null);
+        // null을 보내면 MyBatis XML의 <if test="status != null"> 조건에 걸리지 않아 전체가 조회됩니다.
     }
 
     @Transactional

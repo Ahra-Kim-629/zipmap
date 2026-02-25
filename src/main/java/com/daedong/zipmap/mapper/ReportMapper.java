@@ -12,14 +12,9 @@ public interface ReportMapper {
     void insertReport(ReportDTO reportDTO);
 
     // 2. 신고 목록 조회 (관리자용 - 미리 만들어둡니다)
-//    List<ReportDTO> selectAllReports();
-
     List<ReportDTO> selectAllReports(@Param("status") String status);
-
     // 3. 신고 상세 조회 (관리자용)
     ReportDTO selectReportById(Long id);
-
-    // 4. 신고 삭제 (관리자용)
     void deleteReport(Long id);
-
-    void updateStatus(@Param("id") Long id, @Param("status") String status);}
+    void updateStatus(@Param("id") Long id, @Param("status") String status);
+}
