@@ -112,7 +112,7 @@ public class AdminController {
     public String deleteNotice(@PathVariable Long id, RedirectAttributes rttr) {
         try {
             adminService.deleteNoticeById(id);
-            rttr.addFlashAttribute("messeage", "공지사항이 삭제되었습니다.");
+            rttr.addFlashAttribute("message", "공지사항이 삭제되었습니다.");
         } catch (RuntimeException e) {
             rttr.addFlashAttribute("error", "공지사항 삭제 중 오류가 발생했습니다.");
         }
