@@ -240,4 +240,23 @@ public class PostController {
         return geminiService.summarizeSelectedPosts(posts);
     }
 
+    // [추가] 상세 페이지 AI 요약 요청 처리
+    /**
+     * 상세 페이지에서 AI 요약 버튼 클릭 시 호출되는 엔드포인트
+     */
+    @GetMapping("/summarize-detail/{id}")
+    @ResponseBody // 중요: 페이지 이동이 아닌 '텍스트 데이터'만 결과로 돌려줌
+    public String summarizeDetail(@PathVariable Long id, HttpServletRequest request, @AuthenticationPrincipal User user) {
+
+        // 1. 재료 준비: DB에서 게시글 상세 정보(본문 + 댓글 포함)를 가져옴
+        PostDTO postDTO = postService.getPostDetail(id, request, user);
+
+        // 2. 서비스 호출: 요리사(GeminiService)에게 데이터(postDTO)를 주며 요약 요청
+        // postDTO.getReplyList()를 통해 댓글 뭉치도 함께 전달함
+        String summary = geminiService.summarizePostDetail(postDTO, postDTO.getReplyList());
+
+        // 3. 결과 서빙: AI가 만든 요약 텍스트를 그대로 브라우저에 반환
+        return summary;
+    }
+
 }

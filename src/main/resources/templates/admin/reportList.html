@@ -95,8 +95,10 @@
 
                       <div th:if="${report.filePath != null}">
                         <p><strong>첨부 파일:</strong></p>
-                        <!-- 이미지 경로 수정: /files/reports/파일명 -->
-                        <img th:src="|/files/reports/${report.filePath}|" class="img-fluid rounded" alt="증거 사진" style="max-height: 300px;">
+                        <img th:src="|/files/${report.filePath}|"
+                             class="img-fluid rounded"
+                             alt="증거 사진"
+                             style="max-height: 400px; width: auto;">
                       </div>
                     </div>
                     <div class="modal-footer">

@@ -152,7 +152,7 @@
         )
         VALUES (
         #{title}, #{content}, #{userId}, #{category}, #{location},
-        '#{postStatus}', NOW(), NOW()
+        #{postStatus}, NOW(), NOW()
         )
     </insert>
 

@@ -49,14 +49,14 @@
                     <p class="text-muted small mb-0">자취생들의 꿀팁 공유부터 공동구매까지 함께해요.</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <!-- 선택 글 요약 버튼 -->
-                    <button type="button" class="btn btn-outline-success px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="summarizeSelected()">
-                        <i class="bi bi-check2-square me-1"></i> 선택글 요약
-                    </button>
-                    <!-- AI 요약 버튼 (스마트 동작) -->
-                    <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="handleAiSummaryClick()">
-                        <i class="bi bi-stars me-1"></i> AI 요약
-                    </button>
+<!--                    &lt;!&ndash; 선택 글 요약 버튼 &ndash;&gt;-->
+<!--                    <button type="button" class="btn btn-outline-success px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="summarizeSelected()">-->
+<!--                        <i class="bi bi-check2-square me-1"></i> 선택글 요약-->
+<!--                    </button>-->
+<!--                    &lt;!&ndash; AI 요약 버튼 (스마트 동작) &ndash;&gt;-->
+<!--                    <button type="button" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow-sm" onclick="handleAiSummaryClick()">-->
+<!--                        <i class="bi bi-stars me-1"></i> AI 요약-->
+<!--                    </button>-->
                     <a th:href="@{/post/write}" class="btn btn-orange px-4 py-2 fw-bold rounded-pill shadow-sm">
                         <i class="bi bi-pencil-fill me-1"></i> 글쓰기
                     </a>
@@ -207,60 +207,60 @@
     </div>
 
     <!-- 1. 카테고리 선택 모달 -->
-    <div class="modal fade" id="categorySelectionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 20px; border: none;">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold ps-2">어떤 글을 요약해 드릴까요? 🤖</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <button class="btn btn-light category-btn text-primary" onclick="summarizeCategory('GROUP')">
-                                <i class="bi bi-cart-fill fs-3 d-block mb-2"></i> 공구
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-light category-btn text-success" onclick="summarizeCategory('SHARE')">
-                                <i class="bi bi-gift-fill fs-3 d-block mb-2"></i> 나눔
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-light category-btn text-warning" onclick="summarizeCategory('FREE')">
-                                <i class="bi bi-chat-dots-fill fs-3 d-block mb-2"></i> 자유
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-light category-btn text-secondary" onclick="summarizeCategory('')">
-                                <i class="bi bi-grid-fill fs-3 d-block mb-2"></i> 전체
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--    <div class="modal fade" id="categorySelectionModal" tabindex="-1" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-dialog-centered">-->
+<!--            <div class="modal-content" style="border-radius: 20px; border: none;">-->
+<!--                <div class="modal-header border-0 pb-0">-->
+<!--                    <h5 class="modal-title fw-bold ps-2">어떤 글을 요약해 드릴까요? 🤖</h5>-->
+<!--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--                </div>-->
+<!--                <div class="modal-body p-4">-->
+<!--                    <div class="row g-3">-->
+<!--                        <div class="col-6">-->
+<!--                            <button class="btn btn-light category-btn text-primary" onclick="summarizeCategory('GROUP')">-->
+<!--                                <i class="bi bi-cart-fill fs-3 d-block mb-2"></i> 공구-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                        <div class="col-6">-->
+<!--                            <button class="btn btn-light category-btn text-success" onclick="summarizeCategory('SHARE')">-->
+<!--                                <i class="bi bi-gift-fill fs-3 d-block mb-2"></i> 나눔-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                        <div class="col-6">-->
+<!--                            <button class="btn btn-light category-btn text-warning" onclick="summarizeCategory('FREE')">-->
+<!--                                <i class="bi bi-chat-dots-fill fs-3 d-block mb-2"></i> 자유-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                        <div class="col-6">-->
+<!--                            <button class="btn btn-light category-btn text-secondary" onclick="summarizeCategory('')">-->
+<!--                                <i class="bi bi-grid-fill fs-3 d-block mb-2"></i> 전체-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
-    <!-- 2. AI 요약 결과 모달 -->
-    <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content" style="border-radius: 15px; border: none;">
-                <div class="modal-header" style="background-color: #fdfcf9; border-bottom: 1px solid #eee;">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-stars me-2 text-primary"></i>AI 게시판 요약</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div id="summaryContent" class="text-muted">
-                        <!-- 로딩 중 또는 결과가 여기에 표시됩니다 -->
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--    &lt;!&ndash; 2. AI 요약 결과 모달 &ndash;&gt;-->
+<!--    <div class="modal fade" id="summaryModal" tabindex="-1" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-dialog-centered modal-lg">-->
+<!--            <div class="modal-content" style="border-radius: 15px; border: none;">-->
+<!--                <div class="modal-header" style="background-color: #fdfcf9; border-bottom: 1px solid #eee;">-->
+<!--                    <h5 class="modal-title fw-bold"><i class="bi bi-stars me-2 text-primary"></i>AI 게시판 요약</h5>-->
+<!--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+<!--                </div>-->
+<!--                <div class="modal-body p-4">-->
+<!--                    <div id="summaryContent" class="text-muted">-->
+<!--                        &lt;!&ndash; 로딩 중 또는 결과가 여기에 표시됩니다 &ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="modal-footer border-0">-->
+<!--                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">닫기</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 
 <script layout:fragment="script">

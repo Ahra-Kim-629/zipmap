@@ -22,7 +22,8 @@ public class ReportDTO {
     private String content;    // 상세 내용
     private String filePath;   // 첨부 파일 경로
 
-    private String status = "PENDING"; // 처리 상태
+//    private String status = "PENDING"; // 처리 상태 -> ENUM으로 사용하기 때문에 주석처리 합니다
+    private ReportStatus status = ReportStatus.PENDING; // ENUM 타입으로 변경
 
     private LocalDateTime createdAt; // 신고 접수 시간
 
