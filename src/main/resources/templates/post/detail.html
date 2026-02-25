@@ -3,7 +3,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/default}">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <th:block layout:fragment="css">
     <style>
@@ -11,15 +10,38 @@
         .detail-card { background: #fff; padding: 50px; border-radius: 24px; border: none; }
         .detail-header { border-bottom: 1px solid #eee; padding-bottom: 30px; margin-bottom: 40px; }
         .detail-title { font-weight: 800; color: #3E362E; line-height: 1.4; }
+
+        /* 배지 스타일 통일 */
         .badge-category { background-color: var(--main-orange); color: white; padding: 6px 14px; font-size: 0.8rem; }
         .badge-location { background-color: #f8f9fa; color: #666; border: 1px solid #eee; padding: 6px 14px; font-size: 0.8rem; }
-        .content-body { line-height: 1.8; color: #444; font-size: 1.05rem; min-height: 250px; white-space: pre-wrap; word-break: break-all; }
-        .btn-like, .btn-dislike { background: white; padding: 10px 25px; border-radius: 50px; font-weight: 700; transition: all 0.3s ease; }
-        .btn-like { border: 1px solid #ff4757; color: #ff4757; }
-        .btn-dislike { border: 1px solid #57606f; color: #57606f; }
+
+        /* 본문 및 줄바꿈 설정 */
+        .content-body {
+            line-height: 1.8; color: #444; font-size: 1.05rem; min-height: 250px;
+            white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word;
+        }
+
+        /* 좋아요 버튼 스타일 통일 */
+       .btn-like, .btn-dislike {
+            background: white; padding: 10px 25px; border-radius: 50px;
+            font-weight: 700; transition: all 0.3s ease;
+        }
+        .btn-like { border: 1px solid #ff4757; color: #ff4757; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1); }
+        .btn-like:hover { background: #ff4757; color: white; transform: translateY(-2px); }
+
+        .btn-dislike { border: 1px solid #57606f; color: #57606f; box-shadow: 0 4px 15px rgba(87, 96, 111, 0.1); }
+        .btn-dislike:hover { background: #57606f; color: white; transform: translateY(-2px); }
+
+        /* 첨부 파일 섹션 */
+        .file-section { background: #f8f9fa; padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #f1f1f1; }
+        .file-link { color: #555; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+        .file-link:hover { color: var(--main-orange); }
+
+        /* 댓글 영역 디자인 통일 */
         .reply-section { background: #f8f9fa; border-radius: 20px; padding: 35px; margin-top: 50px; }
         .reply-item { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; }
         .reply-author { font-weight: bold; color: #3E362E; font-size: 0.95rem; }
+        .reply-date { font-size: 0.8rem; color: #bbb; }
     </style>
 </th:block>
 
@@ -27,46 +49,147 @@
     <div class="detail-container">
         <div class="container" th:if="${postDTO != null}">
             <div class="detail-card daedong-shadow">
+
                 <div class="detail-header">
                     <div class="mb-3">
                         <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category}">카테고리</span>
                         <span class="badge badge-location rounded-pill" th:text="${postDTO.location}">지역 정보</span>
                     </div>
+
                     <div class="d-flex justify-content-between align-items-start">
-                        <h2 class="detail-title mb-3" th:text="${postDTO.title}">제목</h2>
-                        <div class="d-flex gap-2" sec:authorize="isAuthenticated()">
-                            <div th:if="${#authentication.principal.id == postDTO.userId}" class="d-flex gap-2">
-                                <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+                        <h2 class="detail-title mb-3" th:text="${postDTO.title}">게시글 제목</h2>
+
+                        <div class="d-flex gap-2">
+                            <!-- 신고하기 버튼 (버튼 스타일 적용) -->
+                            <a sec:authorize="isAuthenticated()"
+                               th:href="@{/report/write/post/{id}(id=${postDTO.id})}"
+                               class="btn btn-outline-danger btn-sm rounded-pill px-3 border">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>신고
+                            </a>
+
+                            <!-- 수정/삭제 버튼: 작성자 본인일 때만 표시 -->
+                            <div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.id == postDTO.userId}" class="d-flex gap-2">
+                                <a th:href="@{/post/edit/{id}(id=${postDTO.id})}"
+                                   class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+                                <form th:action="@{/post/delete/{id}(id=${postDTO.id})}" method="post">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                            onclick="return confirm('삭제하시겠습니까?')">삭제
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    <div class="text-muted small mt-2">
-                        <span class="me-3"><i class="bi bi-person me-1"></i>[[${postDTO.loginId}]]</span>
-                        <span><i class="bi bi-clock me-1"></i>[[${#temporals.format(postDTO.createdAt, 'yyyy.MM.dd HH:mm')}]]</span>
+
+                    <div class="d-flex align-items-center text-muted small mt-2">
+                        <span class="me-3"><i class="bi bi-person me-1"></i><span
+                                th:text="${postDTO.loginId}">작성자</span></span>
+                        <span><i class="bi bi-clock me-1"></i><span
+                                th:text="${#temporals.format(postDTO.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span></span>
                     </div>
                 </div>
 
                 <div class="content-body mb-5" th:utext="${postDTO.content}"></div>
 
+                <!-- 첨부파일 리스트 (이미지 미리보기 포함) -->
+                <div th:if="${not #lists.isEmpty(postDTO.fileList)}" class="file-section mb-5">
+                    <h6 class="fw-bold mb-3 small"><i class="bi bi-paperclip me-2 text-orange"></i>첨부파일</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li th:each="file : ${postDTO.fileList}" class="mb-3">
+                            <!-- 이미지 파일인 경우 미리보기 표시 -->
+                            <div th:if="${file.filePath.toLowerCase().endsWith('.jpg') or file.filePath.toLowerCase().endsWith('.jpeg') or file.filePath.toLowerCase().endsWith('.png') or file.filePath.toLowerCase().endsWith('.gif')}" class="mb-2">
+                                <img th:src="|/files/${file.filePath}|" alt="첨부 이미지" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #eee;">
+                            </div>
+                            <!-- 파일 다운로드 링크 -->
+                            <div>
+                                <i class="bi bi-file-earmark-arrow-down me-2 text-muted"></i>
+                                <a th:href="|/files/${file.filePath}|" th:text="${file.filePath}" class="file-link" download>파일명</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="d-flex flex-column align-items-center gap-4 mb-5 border-top pt-5">
+                    <div class="d-flex gap-3">
+                        <form th:action="@{/reaction}" method="post">
+                            <input type="hidden" name="targetType" value="post">
+                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
+                            <input type="hidden" name="type" value="1">
+                            <button type="submit" class="btn-like">
+                                <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span
+                                    th:text="${postDTO.likeCount}">0</span>
+                            </button>
+                        </form>
+
+                        <form th:action="@{/reaction}" method="post">
+                            <input type="hidden" name="targetType" value="post">
+                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
+                            <input type="hidden" name="type" value="-1">
+                            <button type="submit" class="btn-dislike">
+                                <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span
+                                    th:text="${postDTO.dislikeCount}">0</span>
+                            </button>
+                        </form>
+                    </div>
+                    <a th:href="@{/post}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> 목록으로
+                    </a>
+                </div>
+
                 <div class="reply-section">
                     <h5 class="fw-bold mb-4">
                         <i class="bi bi-chat-dots-fill me-2 text-orange"></i>댓글
-                        <span id="reply-total-count" class="text-orange">[[${postDTO.replyList != null ? postDTO.replyList.size() : 0}]]</span>
+                        <span class="text-orange" th:text="${postDTO.replyList != null ? postDTO.replyList.size() : 0}">0</span>
                     </h5>
 
-                    <div id="reply-container"></div>
+                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm">
+                        <div th:id="|display-${reply.id}|">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="reply-author" th:text="${reply.loginId}">사용자</span>
+                                <div sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}"
+                                     class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0"
+                                            th:onclick="|toggleEditForm(${reply.id})|" style="line-height: 1;">수정
+                                    </button>
+                                    <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex">
+                                        <input type="hidden" name="id" th:value="${reply.id}">
+                                        <input type="hidden" name="targetType" value="post">
+                                        <input type="hidden" name="targetId" th:value="${postDTO.id}">
+                                        <button type="submit"
+                                                class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0"
+                                                onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <p class="mb-0 text-secondary small" th:text="${reply.content}">댓글 내용</p>
+                        </div>
 
-                    <div id="reply-loader" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-orange" role="status"></div>
+                        <div th:id="|editForm-${reply.id}|" class="mt-3 p-3 bg-light rounded-3" style="display: none;">
+                            <form th:action="@{/reply/edit}" method="post">
+                                <input type="hidden" name="id" th:value="${reply.id}">
+                                <input type="hidden" name="targetType" value="post">
+                                <input type="hidden" name="targetId" th:value="${postDTO.id}">
+                                <textarea name="content" th:text="${reply.content}" class="form-control border-0 mb-2"
+                                          rows="2" style="resize:none;"></textarea>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
+                                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border"
+                                            th:onclick="|toggleEditForm(${reply.id})|">취소
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="mt-4" sec:authorize="isAuthenticated()">
                         <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-4 shadow-sm border">
                             <input type="hidden" name="targetType" value="post">
                             <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                            <textarea name="content" class="form-control border-0 mb-2" rows="3" placeholder="의견을 남겨주세요." style="resize: none;"></textarea>
+                            <textarea name="content" class="form-control border-0 mb-2" rows="3"
+                                      placeholder="의견을 남겨주세요." style="resize: none;"></textarea>
                             <div class="text-end">
-                                <button type="submit" class="btn btn-orange px-4 py-2 rounded-pill fw-bold">댓글 등록</button>
+                                <button type="submit" class="btn btn-orange px-4 py-2 rounded-pill fw-bold">댓글 등록
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -77,88 +200,16 @@
 </div>
 
 <script layout:fragment="script">
-    // 전역 변수 설정
-    let currentPage = 0;
-    let isLoading = false;
-    let isLastPage = false;
-    const targetId = [[${postDTO.id}]];
-    const currentUserName = "[[${#authentication.name}]]";
-
-    $(document).ready(function() {
-        // 1. 처음 들어왔을 때 첫 10개 로드
-        fetchReplies();
-
-        // 2. 무한 스크롤 이벤트 설정
-        $(window).scroll(function() {
-            // 바닥에서 200px 정도 여유 있을 때 다음 데이터 로드
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
-                if (!isLoading && !isLastPage) {
-                    fetchReplies();
-                }
-            }
-        });
-    });
-
-    // 데이터 가져오기 함수
-    function fetchReplies() {
-        isLoading = true;
-        $("#reply-loader").show();
-
-        $.ajax({
-            url: "/reply/list",
-            type: "GET",
-            data: {
-                targetType: 'post',
-                targetId: targetId,
-                page: currentPage
-            },
-            success: function(replies) {
-                if (replies && replies.length > 0) {
-                    replies.forEach(reply => {
-                        $("#reply-container").append(renderReply(reply));
-                    });
-                    currentPage++;
-                    // 10개 미만으로 오면 다음 페이지가 없다고 판단
-                    if (replies.length < 10) isLastPage = true;
-                } else {
-                    isLastPage = true;
-                }
-            },
-            error: function(err) {
-                console.error("댓글 로드 실패:", err);
-            },
-            complete: function() {
-                isLoading = false;
-                $("#reply-loader").hide();
-            }
-        });
-    }
-
-    // HTML 조립 함수
-    function renderReply(reply) {
-        const isOwner = (currentUserName === reply.loginId);
-        let btnHtml = '';
-
-        if(isOwner) {
-            btnHtml = `
-                <div class="d-flex align-items-center gap-2">
-                    <form action="/reply/delete" method="post" class="m-0">
-                        <input type="hidden" name="id" value="${reply.id}">
-                        <input type="hidden" name="targetType" value="post">
-                        <input type="hidden" name="targetId" value="${targetId}">
-                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0" onclick="return confirm('삭제할까요?')">삭제</button>
-                    </form>
-                </div>`;
+    function toggleEditForm(id) {
+        const form = document.getElementById('editForm-' + id);
+        const display = document.getElementById('display-' + id);
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            display.style.opacity = '0.5';
+        } else {
+            form.style.display = 'none';
+            display.style.opacity = '1';
         }
-
-        return `
-            <div class="reply-item shadow-sm" id="reply-${reply.id}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="reply-author">${reply.loginId}</span>
-                    ${btnHtml}
-                </div>
-                <p class="mb-0 text-secondary small">${reply.content}</p>
-            </div>`;
     }
 </script>
 </html>
