@@ -145,6 +145,7 @@ public class PostService {
         return new PageImpl<>(posts, pageable, totalCount);
     }
 
+
     // 게시글 상태 토글 (ACTIVE <-> BANNED)
     // 이 로직도 Post와 관련된 관심사이므로 PostService에 있는 것이 자연스러워 가져옴.
     @Transactional

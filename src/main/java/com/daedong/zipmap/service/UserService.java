@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -115,5 +116,23 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void update(User user) {
         userMapper.update(user);
+    }
+
+    // 전체 회원 리스트 가져오기
+    @Transactional
+    public List<User> findAllUsers() {
+        return userMapper.findAllUsers();
+    }
+    //회원 Role 기능 수정
+    @Transactional
+    public void updateAccountStatus(long id, String status, String role) {
+        User user = new User();
+        user.setId(id);
+        // 2/24 수정
+        // user.setAccountStatus(status);
+        // user.setRole(role);
+        user.setAccountStatus(Status.valueOf(status));
+        user.setRole(UserRole.valueOf(role));
+        userMapper.updateUserStatusAndRole(user);
     }
 }

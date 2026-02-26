@@ -1,10 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
-import com.daedong.zipmap.service.AdminService;
-import com.daedong.zipmap.service.PostService;
-import com.daedong.zipmap.service.ReportService;
-import com.daedong.zipmap.service.ReviewService;
+import com.daedong.zipmap.service.*;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,19 +25,30 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
+    private final UserService userService;
     private final AdminService adminService;
     private final ReviewService reviewService;
     private final FileUtilService fileUtilService;
     private final PostService postService;
     private final ReportService reportService;
 
+    /*
+     ====================================================================================================================
+    ADMIN 메인 페이지
+     ====================================================================================================================
+     */
 
     @GetMapping
     public String adminMain() {
         return "/admin/main";
     }
 
-    //
+    /*
+     ====================================================================================================================
+    NOTICE(베너 광고) 관리 기능
+     ====================================================================================================================
+     */
+
     @GetMapping("/notice/list")
     public String noticeList(Model model) {
         // 전체 게시판 게시글 리스트
@@ -122,13 +130,15 @@ public class AdminController {
     }
 
     /*
-    USER 관리 기능
+    ====================================================================================================================
+    USER 관리 기능 ( Admin Controller -> UserService 로 구현 되도록 재설정 )
+    ====================================================================================================================
      */
     // admin/members 회원 전체 리스트 가져오기
     @GetMapping("/members")
     public String userList(Model model) {
         // 'UserService'가 아니라 주입받은 변수 'userService'입니다!
-        List<User> userList = adminService.findAllUsers();
+        List<User> userList = userService.findAllUsers(); // USERservice에서 하는 것이 관심사 분리를 하는게 좋을 거 같아서 이동
         model.addAttribute("userList", userList);
 
         return "admin/members";
@@ -141,28 +151,30 @@ public class AdminController {
                                @RequestParam("accountStatus") String status) {
 
         // 두 정보를 모두 포함해서 업데이트를 실행합니다.
-        adminService.updateAccountStatus(id, status, role);
+        userService.updateAccountStatus(id, status, role);
 
         return "redirect:/admin/members";
     }
 
     /*
+    ====================================================================================================================
     POST 관련 부분
+    ====================================================================================================================
      */
     // 이 부분은 POSTSERVICE 랑 겹치다 보니 POSTSERVICE 로 이동 예정
     @GetMapping("/posts")
-    public String list(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String list(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
                        Model model) {
         // 전체 게시판 게시글 리스트
-        List<Post> posts = adminService.findAll(searchType, keyword, category, location, pageable);
-        int totalCount = adminService.getTotalCount(searchType, keyword, category, location);
+        Page<Post> postPage = postService.findAllAdmin(searchType, keyword, category, location, pageable);
 
-        model.addAttribute("posts", posts); // 게시글 리스트 (List<Post>)
-        model.addAttribute("totalCount", totalCount); // 전체 글 수
+        model.addAttribute("posts", postPage.getContent()); // 게시글 리스트 (List<Post>)
+        model.addAttribute("postPage", postPage); // Page 객체 통째로 추가
+        model.addAttribute("totalCount", postPage.getTotalElements()); // 전체 글 수
         model.addAttribute("size", pageable.getPageSize()); // 한 페이지당 개수
         model.addAttribute("page", pageable.getPageNumber()); // 현재 페이지 번호
 
@@ -243,7 +255,9 @@ public class AdminController {
     }
 
     /*
+     ====================================================================================================================
     REVIEW 관리 기능
+     ====================================================================================================================
      */
 
     @GetMapping("/reviews")
@@ -313,7 +327,9 @@ public class AdminController {
     }
 
     /*
+     ====================================================================================================================
     REPORT 신고 관리 기능
+     ====================================================================================================================
      */
     // 신고 관리 기능
     @GetMapping("/report/list")

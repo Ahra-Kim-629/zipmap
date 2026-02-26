@@ -109,22 +109,34 @@
             </div>
 
             <nav th:if="${totalCount > 0}"
-                 th:with="totalPages=${T(java.lang.Math).ceil(totalCount * 1.0 / size).intValue()}"
+                 th:with="
+        pageGroupSize=5,
+        currentGroup=${T(java.lang.Math).floor(page * 1.0 / pageGroupSize).intValue()},
+        startPage=${currentGroup * pageGroupSize},
+        calcTotalPages=${T(java.lang.Math).ceil(totalCount * 1.0 / (size > 0 ? size : 20)).intValue()},
+        tempEndPage=${startPage + pageGroupSize - 1},
+        endPage=${tempEndPage > calcTotalPages - 1 ? calcTotalPages - 1 : tempEndPage}"
                  class="mt-5 d-flex justify-content-center">
+
                 <ul class="pagination">
-                    <li class="page-item" th:classappend="${page == 0} ? 'disabled'">
+                    <li class="page-item" th:classappend="${page <= 0} ? 'disabled'">
                         <a class="page-link"
                            th:href="@{/admin/posts(page=${page - 1}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
-                    <li class="page-item" th:each="p : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${p == page} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/posts(page=${p}, searchType=${searchType}, keyword=${keyword})}"
-                           th:text="${p + 1}"></a>
-                    </li>
-                    <li class="page-item" th:classappend="${page >= totalPages - 1} ? 'disabled'">
+
+                    <th:block th:if="${calcTotalPages > 0}">
+                        <li class="page-item"
+                            th:each="p : ${#numbers.sequence(startPage, endPage)}"
+                            th:classappend="${p == page} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/posts(page=${p}, searchType=${searchType}, keyword=${keyword})}"
+                               th:text="${p + 1}"></a>
+                        </li>
+                    </th:block>
+
+                    <li class="page-item" th:classappend="${page >= calcTotalPages - 1} ? 'disabled'">
                         <a class="page-link"
                            th:href="@{/admin/posts(page=${page + 1}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-right"></i>
