@@ -89,24 +89,24 @@ public class AdminService {
         return postMapper.countAll(searchType, keyword, category, location);
     }
 
-    // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
-    @Transactional
-    public void deletePost(Long id) {
-        // 1. 필요한 경우 관련 파일이나 댓글을 먼저 삭제하는 로직을 넣을 수 있습니다.
-        // 2. 게시글 삭제 실행
-        postMapper.deletePost(id);
-    }
+//    // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
+//    @Transactional
+//    public void deletePost(Long id) {
+//        // 1. 필요한 경우 관련 파일이나 댓글을 먼저 삭제하는 로직을 넣을 수 있습니다.
+//        // 2. 게시글 삭제 실행
+//        postMapper.deletePost(id);
+//    }
 
-    // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경
-    @Transactional
-    public void togglePostStatus(Long id, String currentStatus) {
-        // 2/24 수정
-        // String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
-
-        // Post 도메인도 Status Enum을 쓰도록 변경
-        Status newStatus = "ACTIVE".equals(currentStatus) ? Status.BANNED : Status.ACTIVE;
-        postMapper.updatePostStatus(id, newStatus);
-    }
+//    // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경<POST페이지로 이동>
+//    @Transactional
+//    public void togglePostStatus(Long id, String currentStatus) {
+//        // 2/24 수정
+//        // String newStatus = "ACTIVE".equals(currentStatus) ? "BANNED" : "ACTIVE";
+//
+//        // Post 도메인도 Status Enum을 쓰도록 변경
+//        Status newStatus = "ACTIVE".equals(currentStatus) ? Status.BANNED : Status.ACTIVE;
+//        postMapper.updatePostStatus(id, newStatus);
+//    }
 
     @Transactional
     public void deleteReview(Long id) {

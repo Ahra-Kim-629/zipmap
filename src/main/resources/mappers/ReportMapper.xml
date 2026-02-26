@@ -51,4 +51,8 @@
         SELECT COUNT(*) FROM report WHERE status = 'PENDING'
     </select>
 
+    <update id="updateStatus">
+        UPDATE report SET status = #{status} WHERE id = #{id}
+    </update>
+
 </mapper>

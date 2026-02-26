@@ -40,6 +40,7 @@ public class AdminController {
         return "/admin/main";
     }
 
+    //
     @GetMapping("/notice/list")
     public String noticeList(Model model) {
         // 전체 게시판 게시글 리스트
@@ -120,7 +121,10 @@ public class AdminController {
         return "redirect:/admin/notice/list";
     }
 
-    // admin/members 회원 전체 리스트 가져오기 2026.2.11 종빈 생성
+    /*
+    USER 관리 기능
+     */
+    // admin/members 회원 전체 리스트 가져오기
     @GetMapping("/members")
     public String userList(Model model) {
         // 'UserService'가 아니라 주입받은 변수 'userService'입니다!
@@ -142,6 +146,10 @@ public class AdminController {
         return "redirect:/admin/members";
     }
 
+    /*
+    POST 관련 부분
+     */
+    // 이 부분은 POSTSERVICE 랑 겹치다 보니 POSTSERVICE 로 이동 예정
     @GetMapping("/posts")
     public String list(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
@@ -168,10 +176,11 @@ public class AdminController {
     }
 
     // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
+    // 이 부분은 POSTSERVICE 랑 겹치다 보니 POSTSERVICE 로 이동 예정
     @GetMapping("/posts/delete/{id}")
     public String deletePost(@PathVariable("id") Long id, RedirectAttributes rttr) {
         try {
-            adminService.deletePost(id);
+            postService.delete(id); // adminService.deletePost(id); 를 postService.delete(id); 로 변경
             rttr.addFlashAttribute("message", "게시글이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "게시글 삭제 중 오류가 발생했습니다.");
@@ -180,14 +189,62 @@ public class AdminController {
     }
 
     // AdminController.java 에 추가
+    // 게시글 상태 토글 기능 ( 상태가 공개인지 비공개인지 ? )
     @PostMapping("/posts/toggle-status")
     public String toggleStatus(@RequestParam("id") Long id,
                                @RequestParam("status") String status,
                                RedirectAttributes rttr) {
-        adminService.togglePostStatus(id, status);
+        postService.togglePostStatus(id,status); //adminService.togglePostStatus(id, status); 를 변경
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
+
+
+
+    // POSTNOTICE : 게시글에 공지사항 등록 기능
+    // 이 부분은 POSTSERVICE 랑 겹치다 보니 POSTSERVICE 로 이동 (고민중)
+    @GetMapping("/postnotice")
+    public String postNoticeForm() {
+        // templates/admin/postnotice.html 로 이동 (파일 위치 확인하세요!)
+        return "admin/postnotice";
+    }
+    // POSTNOTICE : 게시글에 공지사항 등록 기능 ( 이미 POSTSERVICE로 이동을 함 )
+    @PostMapping("/postnotice")
+    public String writePostNotice(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
+        try {
+            // 1. 작성자를 관리자 ID로 설정
+            post.setUserId(user.getId());
+
+            // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
+            // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.
+            post.setCategory("NOTICE");
+
+            // ★ 2. 핵심 해결책: 비어있는 location에 기본값 넣어주기
+            // DB 테이블 설정에 따라 'ALL' 또는 '서울' 등 적절한 값을 넣어주세요.
+            if (post.getLocation() == null || post.getLocation().isEmpty()) {
+                post.setLocation("ALL");
+            }
+
+            // 3. 게시글 저장
+            Long savedId = postService.write(post);
+
+            // 4. 써머노트 이미지 처리 (기존 로직 활용)
+            if (post.getContent() != null && post.getContent().contains("src=")) {
+                String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
+                postService.updateContent(savedId, newContent);
+            }
+
+            rttr.addFlashAttribute("message", "커뮤니티 공지사항이 등록되었습니다.");
+            return "redirect:/admin";
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "등록 실패: " + e.getMessage());
+            return "redirect:/admin/postnotice";
+        }
+    }
+
+    /*
+    REVIEW 관리 기능
+     */
 
     @GetMapping("/reviews")
     public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
@@ -227,46 +284,9 @@ public class AdminController {
         return "redirect:/admin/reviews";
     }
 
-    @GetMapping("/postnotice")
-    public String postNoticeForm() {
-        // templates/admin/postnotice.html 로 이동 (파일 위치 확인하세요!)
-        return "admin/postnotice";
-    }
-
-    @PostMapping("/postnotice")
-    public String writePostNotice(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
-        try {
-            // 1. 작성자를 관리자 ID로 설정
-            post.setUserId(user.getId());
-
-            // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
-            // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.
-            post.setCategory("NOTICE");
-
-            // ★ 2. 핵심 해결책: 비어있는 location에 기본값 넣어주기
-            // DB 테이블 설정에 따라 'ALL' 또는 '서울' 등 적절한 값을 넣어주세요.
-            if (post.getLocation() == null || post.getLocation().isEmpty()) {
-                post.setLocation("ALL");
-            }
-
-            // 3. 게시글 저장
-            Long savedId = postService.write(post);
-
-            // 4. 써머노트 이미지 처리 (기존 로직 활용)
-            if (post.getContent() != null && post.getContent().contains("src=")) {
-                String newContent = fileUtilService.moveTempFilesToPermanent(post.getContent(), "POST", savedId);
-                postService.updateContent(savedId, newContent);
-            }
-
-            rttr.addFlashAttribute("message", "커뮤니티 공지사항이 등록되었습니다.");
-            return "redirect:/admin";
-        } catch (Exception e) {
-            rttr.addFlashAttribute("error", "등록 실패: " + e.getMessage());
-            return "redirect:/admin/postnotice";
-        }
-    }
-
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
+    // 이 부분은 ADMIN에서 관리하는 것이 좋을 지 고민
+    // 리뷰 등록하면 기본적으로 PENDING으로 가는데 , 이를 인증을 하면 공개됨
     @GetMapping("/reviewcertification")
     public String reviewCertificationList(Model model,
                                           @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -292,9 +312,14 @@ public class AdminController {
         return "admin/review_detail";
     }
 
+    /*
+    REPORT 신고 관리 기능
+     */
+    // 신고 관리 기능
     @GetMapping("/report/list")
-    public String adminReportList(Model model) {
+    public String adminReportList(@RequestParam(value = "status", required = false) String status, Model model) {
         model.addAttribute("reports", reportService.findAllReports());
+        model.addAttribute("currentStatus", status);
         return "admin/report/list";
     }
 
@@ -308,12 +333,21 @@ public class AdminController {
         }
         return "redirect:/admin/report/list";
     }
-
+    // 사용자 신고 기능 -> 이건 ADMIN 이랑 REPORT 랑 고민됨.
     @GetMapping("/report/pending-reports")
     @ResponseBody
     public ResponseEntity<Integer> pendingReportBadge() {
         int count = reportService.countPendingReports();
         return ResponseEntity.ok(count);
+    }
+
+
+    // 상태 변경 기능(완료 처리)도 AdminController로 가져옵니다.
+    @GetMapping("/report/complete/{id}")
+    public String completeReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
+        reportService.updateReportStatus(id, "DONE");
+        rttr.addFlashAttribute("message", "처리 완료로 변경되었습니다.");
+        return "redirect:/admin/report/list";
     }
 }
 

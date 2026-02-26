@@ -6,6 +6,17 @@
 <div layout:fragment="content">
   <div class="container mt-5">
     <h2 class="mb-4">🚨 신고 내역 관리</h2>
+    <!-- 신고 글을 전체 목록 / 처리완료된 글만 / 안읽음 글만 나누게 해서 보게 하는 기능 -->
+    <div class="d-flex justify-content-end mb-3">
+      <div class="btn-group" role="group">
+        <a th:href="@{/admin/report/list}"
+           class="btn btn-sm" th:classappend="${currentFilter == null ? 'btn-dark' : 'btn-outline-dark'}">전체</a>
+        <a th:href="@{/admin/report/list(status='PENDING')}"
+           class="btn btn-sm" th:classappend="${currentFilter == 'PENDING' ? 'btn-warning' : 'btn-outline-warning'}">확인 안 함</a>
+        <a th:href="@{/admin/report/list(status='CONFIRMED')}"
+           class="btn btn-sm" th:classappend="${currentFilter == 'CONFIRMED' ? 'btn-success' : 'btn-outline-success'}">확인함</a>
+      </div>
+    </div>
 
     <div class="card shadow-sm">
       <div class="card-body">
@@ -50,11 +61,18 @@
                 <span th:case="*" th:text="${report.reasonType}"></span>
               </span>
             </td>
+            <!-- 상태 (Status) 처리 완료 / 안 읽음 부분 처리 -->
             <td>
-                <span class="badge"
-                      th:classappend="${report.status == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-                      th:text="${report.status == 'PENDING' ? '대기중' : '처리완료'}"></span>
+              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter})}"
+                 style="text-decoration: none;">
+    <span class="badge shadow-sm"
+          th:classappend="${report.status.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+          th:text="${report.status.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
+          style="cursor: pointer;">
+    </span>
+              </a>
             </td>
+            <!-- 신고 등록일,시간 날짜 표시 -->
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td>
               <div class="d-flex gap-2 justify-content-center">

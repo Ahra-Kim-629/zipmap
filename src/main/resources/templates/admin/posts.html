@@ -61,7 +61,7 @@
                     <tr th:each="post : ${posts}">
                         <td class="text-muted small" th:text="${post.id}">1</td>
                         <td class="text-start ps-4">
-                            <a th:href="@{/board/detail/{id}(id=${post.id})}" class="post-link" th:text="${post.title}">게시글
+                            <a th:href="@{/post/detail/{id}(id=${post.id})}" class="post-link" th:text="${post.title}">게시글
                                 제목</a>
                             <span th:if="${post.postStatus == 'BANNED'}" class="badge bg-danger ms-1"
                                   style="font-size: 0.6rem;">숨김됨</span>
