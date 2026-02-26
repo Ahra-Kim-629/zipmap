@@ -41,7 +41,9 @@
                         </div>
 
                         <div class="btn-group gap-2">
-                            <a th:href="@{/users/mypage}" class="btn btn-orange px-4 rounded-pill shadow-sm fw-bold">마이페이지</a>
+                            <a th:href="@{/users/mypage}" class="btn btn-orange px-4 rounded-pill shadow-sm fw-bold">마이페이지
+                                <span id="unread-count" class="badge" style="display:none; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px;">0</span>
+                            </a>
 
                             <form th:action="@{/logout}" method="post" class="m-0 d-inline">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -50,6 +52,9 @@
                                 </button>
                             </form>
                         </div>
+                    </div>
+                    <!-- 알림 -->
+                    <div id="alarm-container" style="position: fixed; top: 60px; right: 20px; z-index: 9999; width: 300px;">
                     </div>
 
                     <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
@@ -71,6 +76,12 @@
         /* 관리자 버튼은 조금 더 특별한 느낌으로 */
         .btn-outline-danger { border-width: 2px; }
         .btn-outline-danger:hover { background-color: #dc3545; color: white; }
+
+        /* 알림창이 스르륵 나타나는 효과 */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 
     <!-- 알림 -->

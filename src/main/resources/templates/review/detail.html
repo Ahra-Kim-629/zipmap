@@ -31,7 +31,18 @@
             padding: 10px 25px; border-radius: 50px; font-weight: 700;
             transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1);
         }
-        .btn-like:hover { background: #ff4757; color: white; transform: translateY(-2px); }
+        .btn-like.active {
+            background-color: #ff4757 !important;
+            color: white !important;
+            border-color: #ff4757 !important;
+        }
+        .btn-like.active i {
+            color: white !important;
+        }
+        .btn-like.active:hover {
+            background: #ff6b81; /* 살짝 더 밝은 빨강 (선택사항) */
+            transform: translateY(-2px);
+        }
 
         /* 치안 정보 카드 */
         .crime-card { background: #fafafa; border-radius: 20px; padding: 30px; border: 1px solid #f1f1f1; margin-top: 50px; }
@@ -130,8 +141,8 @@
                         <input type="hidden" name="targetType" value="review">
                         <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                         <input type="hidden" name="type" value="1">
-                        <button type="submit" class="btn-like">
-                            <i class="bi bi-heart-fill me-2"></i>좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
+                        <button type="submit" class="btn-like" th:classappend="${isLiked} ? 'active' : ''">
+                            <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
                         </button>
                     </form>
                     <a th:href="@{/review}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">

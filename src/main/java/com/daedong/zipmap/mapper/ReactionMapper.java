@@ -32,4 +32,5 @@ public interface ReactionMapper {
     List<PostDTO> findLikedPostsByUserId(@Param("userId") Long userId, @Param("pageable") Pageable pageable);
 
     int countLikedPostsByUserId(@Param("userId") Long userId);
+
 }
