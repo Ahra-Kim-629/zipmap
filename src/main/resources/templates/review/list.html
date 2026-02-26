@@ -129,16 +129,31 @@
         .review-grid .item-card { width: 100%; }
         .item-card:hover { transform: translateY(-5px); }
 
+
         .item-img-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; border: 1px solid #f1f3f5; overflow: hidden; background-color: #f8f9fa; margin-bottom: 12px; position: relative; }
-        .item-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        /* 1. 스르륵 나타나는 마법진(애니메이션) 정의 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 2. 사진에 애니메이션 적용 */
+        .item-img-wrapper img {
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
+            animation: fadeIn 0.4s ease-in-out; /* 페이지 열릴 때마다 0.4초 동안 스르륵 나타남 */
+        }
         .item-card:hover .item-img-wrapper img { transform: scale(1.05); }
 
         .floating-rating { position: absolute; top: 12px; left: 12px; z-index: 2; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 16px; font-weight: 800; color: #222; font-size: 0.8rem; display: flex; align-items: center; gap: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
         .floating-rating i { color: #FFD600; font-size: 0.85rem; }
 
+
         .item-info { display: flex; flex-direction: column; padding: 0 4px; }
         .item-category { font-size: 0.8rem; color: #777; font-weight: 700; margin-bottom: 6px; }
-        .item-title { font-size: 1.05rem; font-weight: 600; color: #222; line-height: 1.4; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; }
+
+
+        .item-title { font-size: 1.05rem; font-weight: 600; color: #222; line-height: 1.4; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+
         .item-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
         .item-date { font-size: 0.8rem; color: #aaa; font-weight: 500; }
 
@@ -351,7 +366,7 @@
                     <a th:each="review : ${allReviews}" th:href="@{/review/detail/{id}(id=${review.id})}" class="item-card">
                         <div class="item-img-wrapper">
                             <div class="floating-rating"><i class="bi bi-star-fill"></i> <span th:text="${review.point}">5.0</span></div>
-                            <img th:if="${review.filePath != null}" th:src="@{/files/{path}(path=${review.filePath})}" alt="실제 사진">
+                            <img th:if="${review.filePath != null}" th:src="${#strings.startsWith(review.filePath, '/files/')} ? ${review.filePath} : @{/files/{path}(path=${review.filePath})}" alt="실제 사진">
                             <img th:unless="${review.filePath != null}" src="https://via.placeholder.com/400x400.png?text=No+Photo&bg=f8f9fa&text_color=adb5bd" alt="사진 없음">
                         </div>
                         <div class="item-info">
@@ -377,7 +392,7 @@
                     <a th:each="review : ${reviews.content}" th:href="@{/review/detail/{id}(id=${review.id})}" class="item-card">
                         <div class="item-img-wrapper">
                             <div class="floating-rating"><i class="bi bi-star-fill"></i> <span th:text="${review.point}">5.0</span></div>
-                            <img th:if="${review.filePath != null}" th:src="@{/files/{path}(path=${review.filePath})}" alt="실제 사진">
+                            <img th:if="${review.filePath != null}" th:src="${#strings.startsWith(review.filePath, '/files/')} ? ${review.filePath} : @{/files/{path}(path=${review.filePath})}" alt="실제 사진">
                             <img th:unless="${review.filePath != null}" src="https://via.placeholder.com/400x400.png?text=No+Photo&bg=f8f9fa&text_color=adb5bd" alt="사진 없음">
                         </div>
                         <div class="item-info">
@@ -392,25 +407,31 @@
             </div>
 
             <nav id="paginationContainer" class="pagination-container justify-content-center"
-                 th:if="${reviews.totalPages > 0}"
-                 th:with="pageNumber = ${reviews.number},
-                          pageSize = 5,
-                          totalPages = ${reviews.totalPages},
-                          startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize},
-                          tempEndPage = ${startPage + pageSize - 1},
-                          endPage = ${tempEndPage >= totalPages ? totalPages - 1 : tempEndPage}">
+                 th:if="${reviews.totalPages > 0}">
 
-                <ul class="pagination">
-                    <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-                        <a class="page-link" th:href="@{/review(page=${reviews.number}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-left"></i></a>
+                <ul class="pagination" th:with="
+                    currentPage=${reviews.number + 1},
+                    blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+
+                    <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/review(page=${blockStart - 1}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
                     </li>
 
-                    <li class="page-item" th:each="page: ${#numbers.sequence(startPage, endPage)}" th:classappend="${page == reviews.number} ? 'active'">
-                        <a class="page-link" th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}" th:text="${page+1}"></a>
+                    <li class="page-item"
+                        th:each="page : ${#numbers.sequence(1, reviews.totalPages)}"
+                        th:if="${page >= blockStart and page < blockStart + 5}"
+                        th:classappend="${page == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/review(page=${page}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"
+                           th:text="${page}"></a>
                     </li>
 
-                    <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-                        <a class="page-link" th:href="@{/review(page=${reviews.number+2}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}"><i class="bi bi-chevron-right"></i></a>
+                    <li class="page-item" th:classappend="${blockStart + 4 >= reviews.totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/review(page=${blockStart + 5}, searchType=${searchType}, keyword=${keyword}, pros=${pros}, cons=${cons})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
                     </li>
                 </ul>
             </nav>

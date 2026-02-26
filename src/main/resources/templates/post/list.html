@@ -218,50 +218,30 @@
             </div>
 
             <!-- 페이징 (5개씩 표시) -->
-            <nav th:if="${posts.totalPages > 0}" class="mt-5 d-flex justify-content-center"
-                 th:with="pageNumber = ${posts.number},
-                          pageSize = 5,
-                          totalPages = ${posts.totalPages},
-                          startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
-                          tempEndPage = ${startPage + pageSize - 1},
-                          endPage = ${tempEndPage > totalPages ? totalPages : tempEndPage}">
+            <nav th:if="${posts.totalPages > 0}" class="mt-5 d-flex justify-content-center">
 
-                <ul class="pagination">
-                    <!-- 이전 그룹으로 이동 -->
-                    <li class="page-item" th:classappend="${startPage == 1} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/post(page=${startPage - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                    </li>
+                <ul class="pagination" th:with="
+                    currentPage=${posts.number + 1},
+                    blockStart=${(currentPage - 1) div 5 * 5 + 1}">
 
-                    <!-- 이전 페이지로 이동 -->
-                    <li class="page-item" th:classappend="${posts.first} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/post(page=${posts.number}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                    <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/post(page=${blockStart - 1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
 
-                    <li class="page-item" th:each="page : ${#numbers.sequence(startPage, endPage)}"
-                        th:classappend="${page == posts.number + 1} ? 'active'">
+                    <li class="page-item"
+                        th:each="page : ${#numbers.sequence(1, posts.totalPages)}"
+                        th:if="${page >= blockStart and page < blockStart + 5}"
+                        th:classappend="${page == currentPage} ? 'active'">
                         <a class="page-link"
                            th:href="@{/post(page=${page}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}"
                            th:text="${page}"></a>
                     </li>
 
-                    <li class="page-item" th:classappend="${posts.last} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/post(page=${posts.number + 2}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
+                    <li class="page-item" th:classappend="${blockStart + 4 >= posts.totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/post(page=${blockStart + 5}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
                             <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-
-                    <!-- 다음 그룹으로 이동 -->
-                    <li class="page-item" th:classappend="${endPage == totalPages} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/post(page=${endPage+1}, category=${category}, location=${location}, searchType=${searchType}, keyword=${keyword})}">
-                            <i class="bi bi-chevron-double-right"></i>
                         </a>
                     </li>
                 </ul>
