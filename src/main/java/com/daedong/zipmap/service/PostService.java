@@ -138,6 +138,7 @@ public class PostService {
         }
         return postMapper.findAllByIdList(ids);
     }
+
     //관리자용 전체 게시글 조회
     public Page<Post> findAllAdmin(String searchType, String keyword, String category, String location, Pageable pageable) {
         List<Post> posts = postMapper.adminFindAll(searchType, keyword, category, location, pageable);

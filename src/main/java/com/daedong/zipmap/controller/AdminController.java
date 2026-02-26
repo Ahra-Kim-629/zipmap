@@ -173,7 +173,7 @@ public class AdminController {
         Page<Post> postPage = postService.findAllAdmin(searchType, keyword, category, location, pageable);
 
         model.addAttribute("posts", postPage.getContent()); // 게시글 리스트 (List<Post>)
-        model.addAttribute("postPage", postPage); // Page 객체 통째로 추가
+//        model.addAttribute("postPage", postPage); // Page 객체 통째로 추가
         model.addAttribute("totalCount", postPage.getTotalElements()); // 전체 글 수
         model.addAttribute("size", pageable.getPageSize()); // 한 페이지당 개수
         model.addAttribute("page", pageable.getPageNumber()); // 현재 페이지 번호
@@ -255,9 +255,9 @@ public class AdminController {
     }
 
     /*
-     ====================================================================================================================
-    REVIEW 관리 기능
-     ====================================================================================================================
+    ====================================================================================================================
+    REVIEW(리뷰) 관리 기능
+    ====================================================================================================================
      */
 
     @GetMapping("/reviews")
@@ -299,11 +299,12 @@ public class AdminController {
     }
 
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
-    // 이 부분은 ADMIN에서 관리하는 것이 좋을 지 고민
+    // 이 부분은 ADMIN에서 관리하는 것이 좋을 지 고민 ( 사유 : ADMIN 에서만 보기 때문에 ADMIN 으로 둘지 고민 )
+    // Review 에서 쓸지 고민되는 이유 ( 일단 DB는 새로 만든게 아니라 ,
     // 리뷰 등록하면 기본적으로 PENDING으로 가는데 , 이를 인증을 하면 공개됨
     @GetMapping("/reviewcertification")
     public String reviewCertificationList(Model model,
-                                          @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+                                          @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         // AdminService를 통해 BANNED 리뷰만 가져옴
         Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
@@ -327,18 +328,18 @@ public class AdminController {
     }
 
     /*
-     ====================================================================================================================
-    REPORT 신고 관리 기능
-     ====================================================================================================================
+    ====================================================================================================================
+    REPORT(신고) 관리 기능
+    ====================================================================================================================
      */
-    // 신고 관리 기능
+    // Report -> 신고한 리스트를 나오게 하는 법
     @GetMapping("/report/list")
     public String adminReportList(@RequestParam(value = "status", required = false) String status, Model model) {
         model.addAttribute("reports", reportService.findAllReports());
         model.addAttribute("currentStatus", status);
         return "admin/report/list";
     }
-
+    // Report -> 신고 글을 삭제하는 방법
     @GetMapping("/report/delete/{id}")
     public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
         try {
@@ -349,7 +350,7 @@ public class AdminController {
         }
         return "redirect:/admin/report/list";
     }
-    // 사용자 신고 기능 -> 이건 ADMIN 이랑 REPORT 랑 고민됨.
+    // 사용자 신고 기능 , 신고 글을 읽음 처리 , 읽지 않음 처리 확인하는 기능
     @GetMapping("/report/pending-reports")
     @ResponseBody
     public ResponseEntity<Integer> pendingReportBadge() {
@@ -357,14 +358,26 @@ public class AdminController {
         return ResponseEntity.ok(count);
     }
 
-
-    // 상태 변경 기능(완료 처리)도 AdminController로 가져옵니다.
+    // 상태 변경 기능(완료 처리)도 ReportController로 가져옵니다.
     @GetMapping("/report/complete/{id}")
     public String completeReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
         reportService.updateReportStatus(id, "DONE");
         rttr.addFlashAttribute("message", "처리 완료로 변경되었습니다.");
         return "redirect:/admin/report/list";
     }
+    // AdminController.java
+
+    @GetMapping("/post/edit/{id}")
+    public String editPostForm(@PathVariable("id") Long id, Model model) {
+        // 기존 게시글 정보 가져오기 (PostDTO 활용)
+        PostDTO postDTO = postService.getPostDetail(id);
+        model.addAttribute("post", postDTO);
+
+        // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
+        // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
+        return "admin/post_edit";
+    }
+
 }
 
 

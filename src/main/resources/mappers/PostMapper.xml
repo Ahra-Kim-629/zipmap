@@ -205,7 +205,9 @@
                 </choose>
             </if>
         </where>
-        ORDER BY p.id DESC
+<!--        ORDER BY p.id DESC-->
+        ORDER BY
+        CASE WHEN p.category = 'NOTICE' THEN 0 ELSE 1 END, p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
