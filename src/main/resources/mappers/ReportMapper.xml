@@ -55,4 +55,14 @@
         UPDATE report SET status = #{status} WHERE id = #{id}
     </update>
 
+    <select id="selectReportById" resultType="com.daedong.zipmap.domain.ReportDTO">
+        SELECT
+        r.id,
+        r.status,
+        r.target_type AS targetType,
+        r.post_id AS targetId
+        FROM report r
+        WHERE r.id = #{id}
+    </select>
+
 </mapper>

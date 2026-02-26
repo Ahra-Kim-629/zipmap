@@ -335,8 +335,8 @@ public class AdminController {
     // Report -> 신고한 리스트를 나오게 하는 법
     @GetMapping("/report/list")
     public String adminReportList(@RequestParam(value = "status", required = false) String status, Model model) {
-        model.addAttribute("reports", reportService.findAllReports());
-        model.addAttribute("currentStatus", status);
+        model.addAttribute("reports", reportService.findAllReports(status));
+        model.addAttribute("currentFilter", status);
         return "admin/report/list";
     }
     // Report -> 신고 글을 삭제하는 방법
@@ -376,6 +376,26 @@ public class AdminController {
         // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
         // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
         return "admin/post_edit";
+    }
+
+    // status가 확인함 확인안함으로 나오도록 도와주는 기능
+    @GetMapping("/report/toggleStatus/{id}")
+    public String toggleReportStatus(@PathVariable("id") Long id,
+                                     @RequestParam(value = "currentFilter", required = false) String currentFilter,
+                                     RedirectAttributes rttr) {
+        try {
+            // 서비스의 토글 로직 호출
+            reportService.toggleReportStatus(id);
+        } catch (Exception e) {
+            rttr.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
+        }
+
+        // 처리가 끝나면 원래 보고 있던 필터 조건을 유지하며 목록으로 돌아감
+        String redirectUrl = "redirect:/admin/report/list";
+        if (currentFilter != null && !currentFilter.isEmpty()) {
+            redirectUrl += "?status=" + currentFilter;
+        }
+        return redirectUrl;
     }
 
 }
