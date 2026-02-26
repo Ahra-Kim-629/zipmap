@@ -119,9 +119,6 @@
                         </td>
                         <td>
                             <div class="btn-group shadow-sm">
-                                <a th:href="@{/admin/post/edit/{id}(id=${post.id})}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
                                 <a th:href="@{/admin/posts/delete/{id}(id=${post.id})}"
                                    class="btn btn-sm btn-outline-danger"
                                    onclick="return confirm('영구 삭제하시겠습니까?')">
