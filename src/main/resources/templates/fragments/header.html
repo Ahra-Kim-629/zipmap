@@ -6,7 +6,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
         <div class="container">
             <a class="navbar-brand fw-bold text-orange fs-4" th:href="@{/}">
-                <i class="bi bi-house-heart-fill me-2"></i>SeoulRoom
+                <i class="bi bi-house-heart-fill me-2"></i>대동여집도
             </a>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -14,12 +14,20 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 d-flex align-items-center">
                     <li class="nav-item">
                         <a class="nav-link fw-semibold px-3" th:href="@{/review}">원룸 후기</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fw-semibold px-3" th:href="@{/post}">커뮤니티</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <div class="search-container d-flex align-items-center">
+                            <input type="text" id="headerSearchInput" class="form-control header-search-input" placeholder="지역, 건물명 검색...">
+                            <button type="button" id="headerSearchBtn" class="btn btn-search-circle shadow-sm">
+                                <i class="bi bi-search text-white"></i>
+                            </button>
+                        </div>
                     </li>
                 </ul>
 
@@ -71,10 +79,112 @@
         /* 관리자 버튼은 조금 더 특별한 느낌으로 */
         .btn-outline-danger { border-width: 2px; }
         .btn-outline-danger:hover { background-color: #dc3545; color: white; }
+
+        /* [추가 스타일] */
+        .header-search-input {
+            width: 0;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            padding: 0;
+            border: none;
+            background-color: #f8f9fa;
+            font-size: 0.9rem;
+        }
+        .header-search-input.active {
+            width: 180px;
+            opacity: 1;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid var(--main-orange, #ff7e00);
+            margin-right: 8px;
+        }
+        .btn-search-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #ff7e00; /* 오렌지색 적용 */
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .btn-search-circle:hover {
+        background-color: #e67300; /* 호버 시 약간 어둡게 */
+        transform: scale(1.05); /* 살짝 커지는 효과 */
+        }
+
+        .btn-search-circle i {
+            font-size: 1.1rem;
+            /* -webkit-text-stroke를 이용해 두께를 1px로 올립니다 */
+            -webkit-text-stroke: 1px #fff;
+            /* 일반 굵기도 최대치로 설정 */
+            font-weight: 900 !important;
+            color: white;
+            }
     </style>
 
     <!-- 알림 -->
     <script th:src="@{/js/alarm.js}"></script>
+
+    <!-- 검색창 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('headerSearchInput');
+    const searchBtn = document.getElementById('headerSearchBtn');
+
+    //URL에서 검색어(q)추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+
+    if (query) {
+            searchInput.classList.add('active');
+            searchInput.value = query; // 기존 검색어를 입력창에 유지 (재검색 편의성)
+            }
+
+    function handleSearch() {
+        const isSearchActive = searchInput.classList.contains('active');
+        const keyword = searchInput.value.trim();
+
+        // [Step 1] 창이 닫혀있으면 연다
+        if (!isSearchActive) {
+            searchInput.classList.add('active');
+            searchInput.focus();
+            return;
+        }
+
+        // [Step 2] 창이 열려있고 검색어가 있으면 검색 실행 (재검색 포함)
+        if (keyword) {
+            location.href = "/search?q=" + encodeURIComponent(keyword);
+        }
+        // [Step 3] 검색어가 없으면 창을 닫음
+        else {
+            searchInput.classList.remove('active');
+        }
+    }
+
+        // 돋보기 버튼 클릭 시 호출
+        if (searchBtn) {
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleSearch();
+            });
+        }
+
+        // 엔터키 입력 시 검색 실행
+        if (searchInput) {
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const keyword = this.value.trim();
+                    if (keyword) {
+                        location.href = "/search?q=" + encodeURIComponent(keyword);
+                    }
+                }
+            });
+        }
+    });
+    </script>
 
 </div>
 </html>

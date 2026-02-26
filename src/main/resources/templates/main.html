@@ -76,26 +76,7 @@
         </div>
     </th:block>
 
-    <header class="hero-section text-center">
-        <div class="container">
-            <h1 class="fw-bold mb-3">서울 자취방, 속지 말고 확인하세요</h1>
-            <p class="text-muted mb-5">실제 거주자가 작성한 생생한 이미지 후기부터 자취 꿀팁까지</p>
-            <div class="row justify-content-center">
-                <div class="col-md-7">
-                    <div class="search-box-wrapper mx-auto bg-white d-flex align-items-center">
-                        <input
-                                type="text"
-                                class="form-control hero-input"
-                                placeholder="동네 이름이나 건물명을 입력하세요"
-                        />
-                        <button class="btn btn-orange btn-search-hero" type="button">
-                            <i class="bi bi-search me-2"></i>검색
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+
 
     <main class="container py-5">
         <div class="row g-4">
@@ -148,7 +129,7 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <a class="btn btn-dark btn-lg fw-bold shadow-sm py-3" th:href="@{/post/write}">
+                    <a class="btn btn-orange btn-lg fw-bold py-3" th:href="@{/post/write}">
                         <i class="bi bi-pencil-square me-2"></i>글쓰기
                     </a>
                 </div>
