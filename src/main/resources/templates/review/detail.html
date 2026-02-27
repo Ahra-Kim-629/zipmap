@@ -172,16 +172,6 @@
                     </div>
                 </div>
                 <div class="reply-section">
-                    <h5 class="fw-bold mb-4">
-                        <i class="bi bi-chat-dots-fill me-2 text-orange"></i>댓글
-                        <span id="reply-total-count" class="text-orange" th:text="${reviewDTO.replyList.size()}">0</span>
-                    </h5>
-
-                    <div id="reply-container"></div>
-
-                    <div id="reply-loader" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-orange" role="status"></div>
-                    </div>
 
                     <div class="mb-4" sec:authorize="isAuthenticated()">
                         <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-4 shadow-sm border">
@@ -193,6 +183,18 @@
                             </div>
                         </form>
                     </div>
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-chat-dots-fill me-2 text-orange"></i>댓글
+                        <span id="reply-total-count" class="text-orange" th:text="${reviewDTO.replyList.size()}">0</span>
+                    </h5>
+
+                    <div id="reply-container"></div>
+
+                    <div id="reply-loader" class="text-center my-3" style="display:none;">
+                        <div class="spinner-border text-orange" role="status"></div>
+                    </div>
+
+
                 </div>
 
 
