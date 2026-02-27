@@ -1,9 +1,6 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.Review;
-import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.SubscriptionRequest;
-import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.GeminiService;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
@@ -57,8 +54,7 @@ public class ReviewController {
                        @RequestParam(required = false) List<String> pros,
                        @RequestParam(required = false) List<String> cons,
                        Model model,
-                       @AuthenticationPrincipal User user) {
-
+                       @AuthenticationPrincipal UserPrincipalDetails user) {
 
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
@@ -89,7 +85,7 @@ public class ReviewController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "review");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "review");
             model.addAttribute("myKeywords", myKeywords);
         }
 
@@ -99,13 +95,13 @@ public class ReviewController {
     // 리뷰 상세 조회
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model,
-                         @AuthenticationPrincipal User user,
+                         @AuthenticationPrincipal UserPrincipalDetails user,
                          HttpServletRequest request) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, user);
 
         boolean isLiked = false;
         if (user != null) {
-            isLiked = reactionService.isLiked(user.getId(), id, "review");
+            isLiked = reactionService.isLiked(user.getUser().getId(), id, "review");
         }
         model.addAttribute("reviewDTO", reviewDTO);
         model.addAttribute("isLiked", isLiked);
@@ -125,8 +121,8 @@ public class ReviewController {
     public String write(Review review,
                         @RequestParam("prosList") List<String> prosList,
                         @RequestParam("consList") List<String> consList,
-                        @AuthenticationPrincipal User user) throws IOException {
-        review.setUserId(user.getId());
+                        @AuthenticationPrincipal UserPrincipalDetails user) throws IOException {
+        review.setUserId(user.getUser().getId());
 
         long savedId = reviewService.write(review, prosList, consList);
 
@@ -135,10 +131,10 @@ public class ReviewController {
 
     // 리뷰 실거주 인증
     @GetMapping("/certification")
-    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal User user) {
+    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
         // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
         try {
-            model.addAttribute("user", user);
+            model.addAttribute("user", user.getUser());
             model.addAttribute("reviewId", reviewId);
             return "/users/certification";
         } catch (Exception e) {
@@ -157,12 +153,12 @@ public class ReviewController {
     @PostMapping("/certification")
     public String submitCertification(@RequestParam("contractFile") MultipartFile file,
                                       @RequestParam("reviewId") Long reviewId,
-                                      @AuthenticationPrincipal User user,
+                                      @AuthenticationPrincipal UserPrincipalDetails user,
                                       RedirectAttributes rttr) {
         try {
             // 1. UserService에 만든 파일 저장 로직을 실행.
             // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-            reviewService.registerCertification(user, file, reviewId);
+            reviewService.registerCertification(user.getUser(), file, reviewId);
 
             // 2. 성공 메시지를 담아서 마이페이지로 보냄.
             rttr.addFlashAttribute("message", "인증 신청 완료! 관리자 승인 후 리뷰가 공개됩니다.");
@@ -181,9 +177,9 @@ public class ReviewController {
     // =====================================================================
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
+    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id);
-        if (reviewDTO.getUserId() != user.getId()) {
+        if (reviewDTO.getUserId() != user.getUser().getId()) {
             rttr.addFlashAttribute("errorMessage", "본인이 작성한 글만 수정할 수 있습니다.");
             return "redirect:/review/detail/" + id;
         }
@@ -196,10 +192,10 @@ public class ReviewController {
     public String edit(@PathVariable Long id, Review review,
                        @RequestParam("prosList") List<String> prosList,
                        @RequestParam("consList") List<String> consList,
-                       @AuthenticationPrincipal User user,
+                       @AuthenticationPrincipal UserPrincipalDetails user,
                        RedirectAttributes rttr) {
         ReviewDTO original = reviewService.getReviewDetail(id);
-        if (original.getUserId() != user.getId()) {
+        if (original.getUserId() != user.getUser().getId()) {
             rttr.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
             return "redirect:/review/detail/" + id;
         }
@@ -216,9 +212,9 @@ public class ReviewController {
     // =====================================================================
     @PostMapping("/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user) {
         ReviewDTO original = reviewService.getReviewDetail(id);
-        if (original.getUserId() != user.getId()) {
+        if (original.getUserId() != user.getUser().getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 

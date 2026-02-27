@@ -222,10 +222,10 @@ public class AdminController {
     }
     // POSTNOTICE : 게시글에 공지사항 등록 기능 ( 이미 POSTSERVICE로 이동을 함 )
     @PostMapping("/postnotice")
-    public String writePostNotice(@AuthenticationPrincipal User user, Post post, RedirectAttributes rttr) {
+    public String writePostNotice(@AuthenticationPrincipal UserPrincipalDetails user, Post post, RedirectAttributes rttr) {
         try {
             // 1. 작성자를 관리자 ID로 설정
-            post.setUserId(user.getId());
+            post.setUserId(user.getUser().getId());
 
             // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
             // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.

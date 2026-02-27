@@ -3,6 +3,7 @@ package com.daedong.zipmap.controller;
 import com.daedong.zipmap.domain.Reply;
 import com.daedong.zipmap.domain.ReplyDTO;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.util.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,8 +23,8 @@ public class ReplyController {
 
     // 댓글 작성
     @PostMapping("/write")
-    public String write(Reply reply, @AuthenticationPrincipal User user) {
-        reply.setUserId(user.getId());
+    public String write(Reply reply, @AuthenticationPrincipal UserPrincipalDetails user) {
+        reply.setUserId(user.getUser().getId());
 
         replyService.saveReply(reply);
 
@@ -43,11 +44,11 @@ public class ReplyController {
     public String delete(@RequestParam Long id,
                          @RequestParam String targetType,
                          @RequestParam Long targetId,
-                         @AuthenticationPrincipal User user,
+                         @AuthenticationPrincipal UserPrincipalDetails user,
                          RedirectAttributes rttr) {
         try {
             // 서비스에 댓글 ID와 현재 로그인한 유저의 ID를 함께 전달
-            replyService.deleteReply(id, user.getId());
+            replyService.deleteReply(id, user.getUser().getId());
             rttr.addFlashAttribute("message", "댓글이 삭제되었습니다.");
         } catch (NoSuchElementException e) {
             rttr.addFlashAttribute("error", "이미 삭제된 댓글입니다.");

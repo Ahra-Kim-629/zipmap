@@ -43,7 +43,7 @@ public class PostController {
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
                        Model model,
-                       @AuthenticationPrincipal User user) {
+                       @AuthenticationPrincipal UserPrincipalDetails user) {
 
         String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
@@ -68,7 +68,7 @@ public class PostController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "post");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "post");
             model.addAttribute("myKeywords", myKeywords);
         }
 
@@ -77,7 +77,7 @@ public class PostController {
 
     @GetMapping("/detail/{id}")
     public String boardDetail(@PathVariable Long id, Model model,
-                              @AuthenticationPrincipal User user,
+                              @AuthenticationPrincipal UserPrincipalDetails user,
                               HttpServletRequest request) {
         PostDTO postDTO = postService.getPostDetail(id, request, user);
 
@@ -92,9 +92,9 @@ public class PostController {
     }
 
     @PostMapping("/write")
-    public String write(@AuthenticationPrincipal User user, Post post, @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes rttr) {
+    public String write(@AuthenticationPrincipal UserPrincipalDetails user, Post post, @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes rttr) {
         try {
-            post.setUserId(user.getId());
+            post.setUserId(user.getUser().getId());
 
             Long savedId = postService.write(post);
 
@@ -139,9 +139,9 @@ public class PostController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, @AuthenticationPrincipal User user, Model model, RedirectAttributes rttr) {
+    public String edit(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user, Model model, RedirectAttributes rttr) {
         PostDTO postDTO = postService.getPostDetail(id);
-        if (!postDTO.getUserId().equals(user.getId())) {
+        if (!postDTO.getUserId().equals(user.getUser().getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/post";
         }
@@ -151,13 +151,13 @@ public class PostController {
     }
 
     @PostMapping("/edit/{id}")
-    public String update(@PathVariable Long id, Post post, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
+    public String update(@PathVariable Long id, Post post, @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
         try {
             // 1. ★ 이미지 동기화 (temp -> post 이동, 삭제된 건 제거)
             String newContent = fileUtilService.updateImagesFromContent(post.getContent(), "POST", id);
 
             post.setId(id);
-            post.setUserId(user.getId());
+            post.setUserId(user.getUser().getId());
             post.setContent(newContent); // 경로 보정된 내용 넣기
 
             postService.update(post);
@@ -171,9 +171,9 @@ public class PostController {
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id, @AuthenticationPrincipal User user, RedirectAttributes rttr) {
+    public String delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
         PostDTO postDTO = postService.getPostDetail(id);
-        if (!postDTO.getUserId().equals(user.getId())) {
+        if (!postDTO.getUserId().equals(user.getUser().getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/post";
         }
@@ -251,7 +251,7 @@ public class PostController {
      */
     @GetMapping("/summarize-detail/{id}")
     @ResponseBody // 중요: 페이지 이동이 아닌 '텍스트 데이터'만 결과로 돌려줌
-    public String summarizeDetail(@PathVariable Long id, HttpServletRequest request, @AuthenticationPrincipal User user) {
+    public String summarizeDetail(@PathVariable Long id, HttpServletRequest request, @AuthenticationPrincipal UserPrincipalDetails user) {
 
         // 1. 재료 준비: DB에서 게시글 상세 정보(본문 + 댓글 포함)를 가져옴
         PostDTO postDTO = postService.getPostDetail(id, request, user);

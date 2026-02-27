@@ -19,7 +19,7 @@ public class IntegratedSearchController {
     }
 
     @GetMapping
-    public String integretedSearch(@RequestParam("q") String keyword, Model model) {
+    public String integratedSearch(@RequestParam("q") String keyword, Model model) {
 
         IntegratedSearchResponseDTO result = integratedSearchService.searchAll(keyword);
         model.addAttribute("searchResult", result);

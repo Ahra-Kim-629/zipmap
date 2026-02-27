@@ -136,12 +136,12 @@ public class UserController {
     }
 
     @GetMapping("/users/mypage")
-    public String mypage(Model model, @AuthenticationPrincipal User user) {
+    public String mypage(Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
-            model.addAttribute("user", user);
+            model.addAttribute("user", user.getUser());
 
             // 이 사용자의 알림 목록 가져와서 화면에 보내기
-            List<AlarmDTO> alarmList = alarmService.getAlarmList(user.getId());
+            List<AlarmDTO> alarmList = alarmService.getAlarmList(user.getUser().getId());
             model.addAttribute("alarmList", alarmList);
         } catch (Exception e) {
             return "redirect:/";
@@ -194,9 +194,9 @@ public class UserController {
     }
 
     @GetMapping("/users/unregister")
-    public String unregister(Model model, @AuthenticationPrincipal User user) {
+    public String unregister(Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
-            model.addAttribute("user", user);
+            model.addAttribute("user", user.getUser());
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -204,9 +204,9 @@ public class UserController {
     }
 
     @PostMapping("/users/unregister")
-    public String unregister(User user, RedirectAttributes rttr, HttpSession session) {
+    public String unregister(UserPrincipalDetails user, RedirectAttributes rttr, HttpSession session) {
         try {
-            userService.unregister(user);
+            userService.unregister(user.getUser());
             rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
             session.invalidate();
             return "redirect:/";
@@ -217,18 +217,18 @@ public class UserController {
     }
 
     @GetMapping("/users/articles")
-    public String myReviews(@AuthenticationPrincipal User user,
+    public String myReviews(@AuthenticationPrincipal UserPrincipalDetails user,
                             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                             @RequestParam(required = false, defaultValue = "reviews") String type,
                             Model model) {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviewList = reviewService.getMyReviews(user.getId(), pageable);
+            Page<ReviewDTO> reviewList = reviewService.getMyReviews(user.getUser().getId(), pageable);
             model.addAttribute("reviews", reviewList);
             model.addAttribute("posts", Page.empty(pageable));
         } else if ("posts".equals(type)) {
-            Page<PostDTO> postList = postService.getMyPosts(user.getId(), pageable);
+            Page<PostDTO> postList = postService.getMyPosts(user.getUser().getId(), pageable);
             model.addAttribute("posts", postList);
             model.addAttribute("reviews", Page.empty(pageable));
         }
@@ -237,7 +237,7 @@ public class UserController {
     }
 
     @GetMapping("/users/comments")
-    public String comments(@AuthenticationPrincipal User user,
+    public String comments(@AuthenticationPrincipal UserPrincipalDetails user,
                            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                            @RequestParam(required = false, defaultValue = "reviews") String type,
                            Model model) {
@@ -245,11 +245,11 @@ public class UserController {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReplyDTO> reviewReplyList = replyService.findByTargetTypeAndUserId("review", user.getId(), pageable);
+            Page<ReplyDTO> reviewReplyList = replyService.findByTargetTypeAndUserId("review", user.getUser().getId(), pageable);
             model.addAttribute("reviewReplies", reviewReplyList);
             model.addAttribute("postReplies", Page.empty(pageable));
         } else {
-            Page<ReplyDTO> postReplies = replyService.findByTargetTypeAndUserId("post", user.getId(), pageable);
+            Page<ReplyDTO> postReplies = replyService.findByTargetTypeAndUserId("post", user.getUser().getId(), pageable);
             model.addAttribute("postReplies", postReplies);
             model.addAttribute("reviewReplyList", Page.empty(pageable));
         }
@@ -258,18 +258,18 @@ public class UserController {
     }
 
     @GetMapping("/users/liked")
-    public String liked(@AuthenticationPrincipal User user,
+    public String liked(@AuthenticationPrincipal UserPrincipalDetails user,
                         @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                         @RequestParam(required = false, defaultValue = "reviews") String type,
                         Model model) {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviewList = reactionService.getLikedReviews(user.getId(), pageable);
+            Page<ReviewDTO> reviewList = reactionService.getLikedReviews(user.getUser().getId(), pageable);
             model.addAttribute("reviews", reviewList);
             model.addAttribute("posts", Page.empty(pageable));
         } else if ("posts".equals(type)) {
-            Page<PostDTO> postList = reactionService.getLikedPosts(user.getId(), pageable);
+            Page<PostDTO> postList = reactionService.getLikedPosts(user.getUser().getId(), pageable);
             model.addAttribute("posts", postList);
             model.addAttribute("reviews", Page.empty(pageable));
         }
