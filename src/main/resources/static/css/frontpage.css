@@ -11,9 +11,10 @@
 }
 
 .hero-section h1 {
-  font-weight: 800;
-  color: #111;
-  line-height: 1.2;
+  font-family: 'Independent', sans-serif;
+    font-weight: 800;
+    color: #111;
+    line-height: 1.2;
 }
 
 .search-box-wrapper {

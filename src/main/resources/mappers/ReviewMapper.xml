@@ -367,8 +367,10 @@
         SELECT
         id, title, content, address, user_id, point, review_status
         FROM review
-        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+        WHERE review_status = 'ACTIVE'
+        AND title LIKE CONCAT('%', #{keyword}, '%')
         OR content LIKE CONCAT('%', #{keyword}, '%')
+
         ORDER BY id DESC
         LIMIT 3
     </select>

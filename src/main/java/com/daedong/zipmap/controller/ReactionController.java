@@ -2,6 +2,7 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Reaction;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,7 +19,7 @@ public class ReactionController {
 
     @PostMapping
     public String toggleReaction(String targetType, Long targetId, int type,
-                                 @AuthenticationPrincipal User user,
+                                 @AuthenticationPrincipal UserPrincipalDetails user,
                                  RedirectAttributes rttr) {
 
         if (user == null) {
@@ -30,7 +31,7 @@ public class ReactionController {
         Reaction reaction = new Reaction();
         reaction.setTargetType(targetType);
         reaction.setTargetId(targetId);
-        reaction.setUserId(user.getId());
+        reaction.setUserId(user.getUser().getId());
         reaction.setType(type);
 
         reactionService.save(reaction);
