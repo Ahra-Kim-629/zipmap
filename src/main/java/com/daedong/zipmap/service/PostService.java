@@ -43,6 +43,7 @@ public class PostService {
 
         // 조회수 증가 위한 redis 처리
         if (postDTO != null) {
+
             // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
             String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
 
@@ -105,13 +106,11 @@ public class PostService {
     public void delete(Long id) {
         // ★ 파일 전체 삭제 (DB + 실제파일)
         fileUtilService.deleteFilesByTargetTypeAndTargetId("post", id);
-
         // 리플 삭제
         replyService.deleteByTargetTypeAndTargetId("post", id);
-
         // 리액션 삭제
         reactionService.deleteByTargetTypeAndTargetId("post", id);
-
+        // 게시글 본체 삭제
         postMapper.deletePost(id);
     }
 
@@ -138,5 +137,21 @@ public class PostService {
             return new ArrayList<>();
         }
         return postMapper.findAllByIdList(ids);
+    }
+
+    //관리자용 전체 게시글 조회
+    public Page<Post> findAllAdmin(String searchType, String keyword, String category, String location, Pageable pageable) {
+        List<Post> posts = postMapper.adminFindAll(searchType, keyword, category, location, pageable);
+        int totalCount = postMapper.countAll(searchType, keyword, category, location);
+        return new PageImpl<>(posts, pageable, totalCount);
+    }
+
+
+    // 게시글 상태 토글 (ACTIVE <-> BANNED)
+    // 이 로직도 Post와 관련된 관심사이므로 PostService에 있는 것이 자연스러워 가져옴.
+    @Transactional
+    public void togglePostStatus(Long id, String currentStatus) {
+        Status newStatus = "ACTIVE".equals(currentStatus) ? Status.BANNED : Status.ACTIVE;
+        postMapper.updatePostStatus(id, newStatus);
     }
 }

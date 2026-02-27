@@ -1,6 +1,7 @@
 package com.daedong.zipmap.service;
 
 import com.daedong.zipmap.domain.ReportDTO;
+import com.daedong.zipmap.domain.ReportStatus;
 import com.daedong.zipmap.mapper.ReportMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,6 @@ public class ReportService {
         reportMapper.deleteReport(id);
     }
 
-
     private String uploadFile(MultipartFile file) {
         // [수정] 절대 프로젝트 내부(src/main...)를 쓰지 마세요!
         // 윈도우라면 아래처럼 외부 폴더를 지정해야 서버가 안 꺼집니다.
@@ -114,5 +114,24 @@ public class ReportService {
 
     public int countPendingReports() {
         return reportMapper.countPendingReports();
+    }
+
+    // ReportService.java 내부에 추가
+    @Transactional
+    public void toggleReportStatus(Long id) {
+        // 1. 신고 내역 상세 조회 (현재 상태를 알기 위해)
+        ReportDTO report = reportMapper.selectReportById(id);
+
+        if (report != null) {
+            // 2. 현재 상태가 PENDING이면 CONFIRMED로, 아니면 PENDING으로 반전
+            // (DTO에서 사용하시는 ReportStatus ENUM 활용)
+            ReportStatus newStatus = (report.getStatus() == ReportStatus.PENDING)
+                    ? ReportStatus.CONFIRMED
+                    : ReportStatus.PENDING;
+
+            // 3. 변경된 상태값(문자열)으로 DB 업데이트
+            reportMapper.updateStatus(id, newStatus.name());
+            log.info("신고 상태 변경 완료 - ID: {}, New Status: {}", id, newStatus);
+        }
     }
 }

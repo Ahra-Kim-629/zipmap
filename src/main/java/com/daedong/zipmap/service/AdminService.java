@@ -19,7 +19,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
-    private final UserMapper userMapper;
     private final NoticeMapper noticeMapper;
     private final PostMapper postMapper;
     private final ReviewMapper reviewMapper;
@@ -58,8 +57,8 @@ public class AdminService {
         noticeMapper.updateNotice(notice);
     }
 
-    // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정
-    @Transactional
+    // 전체 회원 리스트 가져오기 2026.02.11 종빈 수정, -> 이 부분은 USER에서 기능 구현을 하는 것이 좋을 거 같아서 이동시켰습니다.
+    /* @Transactional
     public List<User> findAllUsers() {
         return userMapper.findAllUsers(); // 매퍼 호출
     }
@@ -75,20 +74,23 @@ public class AdminService {
         user.setRole(UserRole.valueOf(role));
         userMapper.updateUserStatusAndRole(user);
     }
+    */
 
     @Cacheable(value = "mainNotices")
     public List<NoticeDTO> getCurrentNoticeList() {
         return noticeMapper.findCurrentNoticeList();
     }
 
-    public List<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
-        return postMapper.adminFindAll(searchType, keyword, category, location, pageable);
-    }
+//    public List<Post> findAll(String searchType, String keyword, String category, String location, Pageable pageable) {
+//        return postMapper.adminFindAll(searchType, keyword, category, location, pageable);
+//    }
+//
+//    public int getTotalCount(String searchType, String keyword, String category, String location) {
+//        return postMapper.countAll(searchType, keyword, category, location);
+//    }
 
-    public int getTotalCount(String searchType, String keyword, String category, String location) {
-        return postMapper.countAll(searchType, keyword, category, location);
-    }
-
+    /*
+    =============================================================================================
     // 커뮤니티 게시글 Admin 계정에서 삭제기능 구현
     @Transactional
     public void deletePost(Long id) {
@@ -96,8 +98,9 @@ public class AdminService {
         // 2. 게시글 삭제 실행
         postMapper.deletePost(id);
     }
+    =============================================================================================
 
-    // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경
+    // 현재 상태가 ACTIVE면 HIDDEN으로, 아니면 ACTIVE로 변경<POST페이지로 이동>
     @Transactional
     public void togglePostStatus(Long id, String currentStatus) {
         // 2/24 수정
@@ -107,6 +110,8 @@ public class AdminService {
         Status newStatus = "ACTIVE".equals(currentStatus) ? Status.BANNED : Status.ACTIVE;
         postMapper.updatePostStatus(id, newStatus);
     }
+    =============================================================================================
+     */
 
     @Transactional
     public void deleteReview(Long id) {
