@@ -64,8 +64,13 @@
 
 <body>
 
-<h1>리뷰 목록</h1>
-
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+    <h1 style="margin: 0;">리뷰 목록</h1>
+    <a th:href="@{/admin}"
+       style="padding: 6px 16px; border: 1px solid #343a40; border-radius: 50px; text-decoration: none; color: #343a40; font-size: 14px; background-color: white;">
+        관리자 홈
+    </a>
+</div>
 
 <!-- 리뷰 테이블 -->
 <table>

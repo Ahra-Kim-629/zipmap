@@ -5,7 +5,10 @@
 
 <div layout:fragment="content">
   <div class="container mt-5">
-    <h2 class="mb-4">🚨 신고 내역 관리</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">🚨 신고 내역 관리</h2>
+      <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
+    </div>
     <!-- 신고 글을 전체 목록 / 처리완료된 글만 / 안읽음 글만 나누게 해서 보게 하는 기능 -->
     <div class="d-flex justify-content-end mb-3">
       <div class="btn-group" role="group">

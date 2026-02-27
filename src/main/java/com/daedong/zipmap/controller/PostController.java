@@ -114,20 +114,20 @@ public class PostController {
                 fileEntity.setTargetId(savedId);
                 fileEntity.setFilePath(filePath);
                 fileEntity.setFileSize(file.getSize());
-                
+
                 // FileMapper를 직접 호출하거나 Service를 통해 저장해야 함.
                 // 여기서는 FileUtilService에 저장 로직이 없으므로, FileUtilService에 메서드를 추가하거나
-                // PostService를 통해 저장하도록 수정해야 합니다. 
+                // PostService를 통해 저장하도록 수정해야 합니다.
                 // 하지만 FileUtilService.moveTempFilesToPermanent 내부에서 fileMapper.insertFile을 호출하고 있으므로
                 // 유사하게 처리할 수 있는 메서드를 FileUtilService에 추가하는 것이 좋습니다.
                 // 일단 여기서는 FileUtilService에 saveFileAndInsertDB 메서드를 추가했다고 가정하거나
                 // 기존 saveFile 메서드 호출 후 별도로 DB 저장을 수행해야 합니다.
-                
+
                 // 임시 방편: FileUtilService에 의존하지 않고 직접 매퍼를 부를 수 없으니
                 // PostService에 파일 저장 위임 메서드를 만드는 것이 정석이나,
                 // 현재 구조상 FileUtilService를 수정하여 DB 저장까지 처리하도록 유도하겠습니다.
                 // (아래 FileUtilService 수정 참고)
-                fileUtilService.saveFileToDB(fileEntity); 
+                fileUtilService.saveFileToDB(fileEntity);
             }
 
             rttr.addFlashAttribute("message", "글 작성이 완료되었습니다.");
@@ -226,10 +226,10 @@ public class PostController {
                                     @RequestParam(required = false) String keyword,
                                     @RequestParam(required = false) String location,
                                     @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        
+
         // 현재 필터 조건에 맞는 게시글 목록 조회 (최신 10개만)
         Page<PostDTO> posts = postService.findAll("title", keyword, category, location, pageable);
-        
+
         // GeminiService를 통해 요약 요청
         return geminiService.summarizeCategory(category, posts.getContent());
     }
@@ -240,7 +240,7 @@ public class PostController {
     public String summarizeSelected(@RequestBody List<Long> postIds) {
         // 선택된 ID로 게시글 조회
         List<PostDTO> posts = postService.getPostsByIds(postIds);
-        
+
         // GeminiService를 통해 요약 요청
         return geminiService.summarizeSelectedPosts(posts);
     }

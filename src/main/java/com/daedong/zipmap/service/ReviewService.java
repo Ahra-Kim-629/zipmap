@@ -115,7 +115,7 @@ public class ReviewService {
     }
 
     // 리뷰 작성
-    @CacheEvict(value = "aiSummaryCache", allEntries = true)
+    @CacheEvict(value = {"aiSummaryCache", "mainReviewList"}, allEntries = true)
     @Transactional
     public long write(Review review, List<String> prosList, List<String> consList) {
 
@@ -155,7 +155,7 @@ public class ReviewService {
     }
 
     // 리뷰 수정
-    @CacheEvict(value = "aiSummaryCache", allEntries = true)
+    @CacheEvict(value = {"aiSummaryCache", "mainReviewList"}, allEntries = true)
     @Transactional
     public void update(Review review, List<String> prosList, List<String> consList) {
         reviewMapper.update(review);
@@ -178,9 +178,11 @@ public class ReviewService {
 
         // 2/26 썸네일(대표 사진) 처리 로직 추가
         String thumbnail = review.getThumbnailPath();
+
+        // 1. 사용자가 사진을 바꿨든, 아예 다 지웠든 상관없이 일단 기존 대표 사진 기록은 무조건 날림
+        fileUtilService.deleteFilesByTargetTypeAndTargetId("REVIEW_THUMB", reviewId);
+
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            // 1. 기존에 저장된 대표 사진 정보 삭제 (중복 방지)
-            fileUtilService.deleteFilesByTargetTypeAndTargetId("REVIEW_THUMB", reviewId);
 
             // 2. 임시 경로 또는 기존 경로를 정식 경로 포맷으로 변환
             String finalThumbnail = thumbnail.replace("/files/temp/", "review/");
@@ -203,7 +205,7 @@ public class ReviewService {
 //    }
 
     // 리뷰 삭제
-    @CacheEvict(value = "aiSummaryCache", allEntries = true)
+    @CacheEvict(value = {"aiSummaryCache", "mainReviewList"}, allEntries = true)
     @Transactional
     public void deleteReviewById(Long id) {
         // 댓글 삭제

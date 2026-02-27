@@ -238,7 +238,13 @@
     <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
         r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.created_at,
-        r.updated_at
+        r.updated_at,
+
+        COALESCE(
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW_THUMB' LIMIT 1),
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1)
+        ) AS filePath
+
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         WHERE r.review_status = 'ACTIVE'

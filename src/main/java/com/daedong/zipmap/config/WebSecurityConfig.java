@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/", "/signUp", "/check-id", "/login", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/board/**"
                                 , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
 
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/files/**",
+                        .requestMatchers("/css/**", "/js/**","/images/**", "/files/**",
                                 "/review/uploadSummernoteImage",
                                 "/board/uploadSummernoteImage",
                                 "/notice/uploadSummernoteImage",      // 나중에 할 공지사항용
