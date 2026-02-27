@@ -123,6 +123,7 @@ public class UserService implements UserDetailsService {
     public List<User> findAllUsers() {
         return userMapper.findAllUsers();
     }
+
     //회원 Role 기능 수정
     @Transactional
     public void updateAccountStatus(long id, String status, String role) {

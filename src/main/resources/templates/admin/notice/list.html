@@ -92,7 +92,7 @@
                             </a>
                         </td>
 
-                        <td>
+                        <td th:id="'status-container-' + ${notice.id}">
                             <div class="small">
                                 <span th:text="${notice.startDate}">2024-01-01</span> ~
                                 <span th:text="${notice.endDate}">2024-12-31</span>
@@ -181,9 +181,7 @@
 
     function toggleStatus(id, isChecked) {
         const status = isChecked ? 'Y' : 'N';
-        const $targetCheckbox = $(event.target); // jQuery 객체로 변환
-
-        // CSRF 토큰 및 헤더 가져오기
+        const $targetCheckbox = $(event.target);
         const token = $("meta[name='_csrf']").attr("content");
         const header = $("meta[name='_csrf_header']").attr("content");
 
@@ -191,24 +189,51 @@
             url: `[[@{/admin/notice/toggle-status/}]]${id}?status=${status}`,
             type: "POST",
             beforeSend: function(xhr) {
-                if (token && header) {
-                    xhr.setRequestHeader(header, token);
-                }
+                if (token && header) xhr.setRequestHeader(header, token);
             },
             success: function(response) {
-                // 성공 시 별도 처리 없음 (이미 스위치가 변해 있음)
                 console.log("상태 변경 성공:", response);
+
+                // 실시간 배지 업데이트 로직 시작
+                updateBadgeUI(id, status);
             },
             error: function(xhr) {
-                if (xhr.status === 403) {
-                    alert("권한이 없습니다. 관리자 계정으로 로그인해주세요.");
-                } else {
-                    alert("상태 변경에 실패했습니다.");
-                }
-                // 실패 시 스위치 원상복구
+                if (xhr.status === 403) alert("권한이 없습니다.");
+                else alert("상태 변경에 실패했습니다.");
                 $targetCheckbox.prop('checked', !isChecked);
             }
         });
+    }
+
+    function updateBadgeUI(id, status) {
+        const $container = $(`#status-container-${id}`);
+        const startDateText = $container.find('.small span:first').text(); // 시작일 텍스트 추출
+        const endDateText = $container.find('.small span:last').text();   // 종료일 텍스트 추출
+
+        const today = new Date();
+        today.setHours(0,0,0,0); // 시간 제외 날짜만 비교
+
+        const start = new Date(startDateText);
+        const end = new Date(endDateText);
+
+        // 배지 HTML 생성 (이전의 th:block 로직을 JS로 재현)
+        let badgeHtml = '';
+
+        if (status === 'N') {
+            badgeHtml = '<span class="status-badge bg-secondary text-white">꺼짐</span>';
+        } else {
+            if (today < start) {
+                badgeHtml = '<span class="status-badge badge-wait">대기</span>';
+            } else if (today >= start && today <= end) {
+                badgeHtml = '<span class="status-badge badge-active">진행중</span>';
+            } else {
+                badgeHtml = '<span class="status-badge badge-end">종료</span>';
+            }
+        }
+
+        // 배지만 선택해서 교체 (기간 텍스트는 유지)
+        $container.find('.status-badge').remove();
+        $container.append(badgeHtml);
     }
 </script>
 </html>
