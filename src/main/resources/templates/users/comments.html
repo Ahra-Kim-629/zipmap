@@ -84,7 +84,6 @@
                         <tbody>
                         <tr th:each="reply : ${list.content}">
                             <td class="text-start ps-4">
-                                <a th:href="@{/${type == 'reviews' ? 'review' : 'post'}/detail/{id}(id=${reply.targetId})} + '#reply-' + ${reply.id}">
 
                                     <a th:href="@{/{path}/detail/{id}(path=${type == 'reviews' ? 'review' : 'post'}, id=${reply.targetId})} + '#reply-' + ${reply.id}"
                                        class="post-link small text-muted"
@@ -102,19 +101,27 @@
                     </table>
                 </div>
 
+                <!-- 페이징 review랑 post처럼 통일 수정-->
                 <nav th:if="${list.totalPages > 0}" class="mt-5 d-flex justify-content-center">
-                    <ul class="pagination">
-                        <li class="page-item" th:classappend="${list.first} ? 'disabled'">
-                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${list.number})}">
+
+                    <ul class="pagination" th:with="
+                        currentPage=${list.number + 1},
+                        blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+
+                        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${blockStart - 1})}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
-                        <li class="page-item" th:each="page : ${#numbers.sequence(0, list.totalPages-1)}"
-                            th:classappend="${page == list.number} ? 'active'">
-                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${page+1})}" th:text="${page+1}"></a>
+
+                        <li class="page-item" th:each="page : ${#numbers.sequence(1, list.totalPages)}"
+                            th:if="${page >= blockStart and page < blockStart + 5}"
+                            th:classappend="${page == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${page})}" th:text="${page}"></a>
                         </li>
-                        <li class="page-item" th:classappend="${list.last} ? 'disabled'">
-                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${list.number+2})}">
+
+                        <li class="page-item" th:classappend="${blockStart + 4 >= list.totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/users/comments(type=${type}, page=${blockStart + 5})}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>

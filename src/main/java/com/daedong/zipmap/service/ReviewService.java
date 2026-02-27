@@ -138,6 +138,19 @@ public class ReviewService {
 
         // 3. 바뀐 HTML 내용으로 DB 업데이트
         reviewMapper.updateContent(reviewId, newContent);
+
+        // 2/26 추가 4. 대표 사진(썸네일) 처리 로직 추가 (DB 추가 없이 file 테이블 활용)
+        String thumbnail = review.getThumbnailPath();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            // 넘어온 경로의 /temp/ 부분을 정식 폴더명(소문자 review)으로 치환
+            String finalThumbnail = thumbnail.replace("/files/temp/", "review/");
+
+            // file 테이블에 'REVIEW_THUMB' 이라는 타입으로 한 줄 저장
+            reviewMapper.insertThumbnail(reviewId, finalThumbnail);
+        }
+
+
+
         return reviewId;
     }
 
@@ -162,6 +175,19 @@ public class ReviewService {
 
         // 바뀐 HTML 내용으로 DB 업데이트
         reviewMapper.updateContent(reviewId, newContent);
+
+        // 2/26 썸네일(대표 사진) 처리 로직 추가
+        String thumbnail = review.getThumbnailPath();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            // 1. 기존에 저장된 대표 사진 정보 삭제 (중복 방지)
+            fileUtilService.deleteFilesByTargetTypeAndTargetId("REVIEW_THUMB", reviewId);
+
+            // 2. 임시 경로 또는 기존 경로를 정식 경로 포맷으로 변환
+            String finalThumbnail = thumbnail.replace("/files/temp/", "review/");
+
+            // 3. file 테이블에 새로운 대표 사진 저장
+            reviewMapper.insertThumbnail(reviewId, finalThumbnail);
+        }
     }
 
     // 리뷰 삭제

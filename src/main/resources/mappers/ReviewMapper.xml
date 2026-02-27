@@ -62,7 +62,14 @@
         (SELECT GROUP_CONCAT(pa.content) FROM review_attribute pa WHERE pa.review_id = r.id AND pa.type = 'PRO') AS
         prosStr,
 
-        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1) AS filePath
+        <!-- 2/26 썸네일 추가 기능으로 수정
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1) AS filePath-->
+
+        <!-- 2/26 수정: 1순위 대표사진(REVIEW_THUMB), 2순위 일반사진 첫번째(REVIEW) -->
+        COALESCE(
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW_THUMB' LIMIT 1),
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1)
+        ) AS filePath
 
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
@@ -304,14 +311,14 @@
         f.file_path AS filePath
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
-        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW' <!-- 여기서 원래는 BANNED 이었는데 PENDING 으로 변경을 해야 함. -->
+        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW'
         WHERE r.review_status = 'PENDING'
         ORDER BY r.id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <select id="countBannedReviews" resultType="int">
-        SELECT COUNT(*) FROM review WHERE review_status = 'PENDING'<!-- 여기서 원래는 BANNED 이었는데 PENDING 으로 변경을 해야 함. -->
+        SELECT COUNT(*) FROM review WHERE review_status = 'PENDING'
     </select>
 
     <update id="updateReviewStatsBatch" parameterType="java.util.List">
@@ -356,5 +363,11 @@
     <select id="countPendingCertifications">
         SELECT COUNT(*) FROM certification WHERE certification_status = 'PENDING'
     </select>
+
+    <!-- 2/26 추가 썸네일-->
+    <insert id="insertThumbnail">
+        INSERT INTO file (target_type, target_id, file_path)
+        VALUES ('REVIEW_THUMB', #{targetId}, #{filePath})
+    </insert>
 
 </mapper>

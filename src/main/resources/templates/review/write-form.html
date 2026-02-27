@@ -63,7 +63,6 @@
         .note-modal-title { font-weight: bold; color: #333; }
         .note-modal-body { padding: 20px !important; }
 
-        /* 버튼이 잘리지 않도록 footer 높이 해제 및 패딩 조정 */
         .note-modal-footer {
             height: auto !important;
             padding: 20px !important;
@@ -84,44 +83,34 @@
             text-transform: none !important;
         }
 
-        .note-modal-footer .btn-primary {
-            background-color: var(--main-orange) !important;
-            border-color: var(--main-orange) !important;
-            color: #fff !important;
-        }
+        .note-modal-footer .btn-primary { background-color: var(--main-orange) !important; border-color: var(--main-orange) !important; color: #fff !important; }
+        .note-modal-footer .btn-default, .note-modal-footer .btn-light { background-color: #eee !important; border-color: #ddd !important; color: #333 !important; }
+        .note-modal-footer .btn-primary:hover { background-color: #d35400 !important; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); }
 
-        .note-modal-footer .btn-default,
-        .note-modal-footer .btn-light {
-            background-color: #eee !important;
-            border-color: #ddd !important;
-            color: #333 !important;
-        }
-
-        /* 버튼 마우스 오버 효과 */
-        .note-modal-footer .btn-primary:hover {
-            background-color: #d35400 !important;
-            box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
-        }
-
-        /* 3. 전체화면 보정 */
-        .note-editor.note-frame.fullscreen {
-            z-index: 9999 !important;
-            background-color: white !important;
-            position: fixed !important;
-            top: 0 !important; left: 0 !important;
-            width: 100% !important; height: 100% !important;
-        }
-
+        .note-editor.note-frame.fullscreen { z-index: 9999 !important; background-color: white !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; }
         .note-btn { background-color: white !important; border: 1px solid #eee !important; }
 
-        .btn-submit-orange {
-            background-color: #F97316 !important;
-            color: #ffffff !important;
-            border: none !important;
-            transition: background-color 0.2s;
-        }
-        .btn-submit-orange:hover {
-            background-color: #EA580C !important;
+        .btn-submit-orange { background-color: #F97316 !important; color: #ffffff !important; border: none !important; transition: background-color 0.2s; }
+        .btn-submit-orange:hover { background-color: #EA580C !important; }
+
+        /* ✨ 대표 사진(썸네일) 선택 UI 전용 CSS 추가 */
+        .thumbnail-wrapper { margin-top: 20px; padding: 25px; background: #fffaf6; border-radius: 15px; border: 2px dashed #ffcba4; display: none; }
+        .thumbnail-title { font-size: 1rem; font-weight: 800; color: #d35400; margin-bottom: 15px; }
+        .thumbnail-list { display: flex; gap: 15px; flex-wrap: wrap; }
+        .thumb-item { position: relative; width: 130px; height: 130px; border-radius: 12px; overflow: hidden; cursor: pointer; border: 4px solid transparent; transition: all 0.2s; background: #fff; }
+        .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: bold; transition: all 0.2s; }
+
+        /* 선택되었을 때의 스타일 */
+        .thumb-item.selected { border-color: var(--main-orange); box-shadow: 0 5px 15px rgba(230,126,34,0.4); transform: translateY(-3px); }
+        .thumb-item.selected .thumb-badge { background: var(--main-orange); }
+
+        /* ✨ 썸머노트 본문 내 이미지 세로 1줄 정렬 (가로 이어붙임 방지) */
+        .note-editable img {
+            display: block !important;       /* 글자처럼 옆으로 붙지 말고, 블록처럼 혼자 한 줄을 다 차지해라 */
+            max-width: 100% !important;      /* 사진이 너무 크면 에디터 창 밖으로 삐져나가지 않게 100%로 맞춰라 */
+            margin: 20px 0 !important;       /* 사진 위아래로 20px 여백을 줘서 답답하지 않게 해라 */
+            border-radius: 8px;              /* 사진 모서리도 살짝 둥글게(선택사항) */
         }
     </style>
 </th:block>
@@ -189,6 +178,14 @@
                     <div class="form-section border-0 mb-0">
                         <span class="section-label"><i class="bi bi-pencil-square me-2 text-orange"></i>상세 내용</span>
                         <textarea id="content" name="content" required></textarea>
+
+                        <input type="hidden" id="thumbnailPath" name="thumbnailPath" value="">
+
+                        <div id="thumbnailArea" class="thumbnail-wrapper">
+                            <div class="thumbnail-title"><i class="bi bi-image me-2"></i>대표 사진(썸네일)을 선택해주세요</div>
+                            <div id="thumbnailList" class="thumbnail-list">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
@@ -203,13 +200,69 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
     <script th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${@environment.getProperty('kakao.maps.appkey')} + '&libraries=services'"></script>
     <script th:inline="javascript">
+        // =======================================================
+        // 1. 함수들을 먼저 메모리에 올려서 순서 에러(사라짐 현상) 완벽 방지
+        // =======================================================
+        window.selectThumbnail = function(element) {
+            $('.thumb-item').removeClass('selected');
+            $('.thumb-badge').html('선택');
+            $(element).addClass('selected');
+            $(element).find('.thumb-badge').html('<i class="bi bi-check-circle-fill"></i> 대표');
+            $('#thumbnailPath').val($(element).data('url'));
+        };
+
+        function addThumbnailCard(imageUrl) {
+            $('#thumbnailArea').fadeIn();
+            let isFirst = $('#thumbnailList .thumb-item').length === 0;
+            let selectedClass = isFirst ? 'selected' : '';
+            let badgeText = isFirst ? '<i class="bi bi-check-circle-fill"></i> 대표' : '선택';
+
+            if (isFirst) { $('#thumbnailPath').val(imageUrl); }
+
+            let cardHtml = `
+                <div class="thumb-item ${selectedClass}" data-url="${imageUrl}" onclick="selectThumbnail(this)">
+                    <div class="thumb-badge">${badgeText}</div>
+                    <img src="${imageUrl}" alt="업로드 이미지">
+                </div>
+            `;
+            $('#thumbnailList').append(cardHtml);
+        }
+
+        function uploadSummernoteImage(file, editor) {
+            let data = new FormData();
+            data.append("file", file);
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                url: "/review/uploadSummernoteImage",
+                type: "POST",
+                data: data,
+                contentType: false, processData: false,
+                beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
+                success: function(response) {
+                    $(editor).summernote('insertImage', response.url);
+                    addThumbnailCard(response.url);
+                },
+                error: function(e) { console.log("에러 내용:", e); alert("이미지 업로드 실패"); }
+            });
+        }
+
+        // =======================================================
+        // 2. 썸머노트 초기화 및 변경 감지 로직
+        // =======================================================
         $(document).ready(function() {
+
+            //  여러 장 업로드 시 기다려줄 타이머 변수 생성
+            let syncTimeout;
+
             $('#content').summernote({
-                height: 400,
+                height: 700,             // ✨ 기본 높이를 400에서 700으로 시원하게 늘림
+                minHeight: 500,          // ✨ 아무리 내용이 없어도 최소 500은 유지하도록 방어막 추가
+                maxHeight: 1200,         // ✨ 내용이 아주 길어지면 1200까지만 늘어나고 내부에 스크롤이 생기게 제한
                 lang: 'ko-KR',
-                placeholder: '내용을 입력해주세요.',
-                dialogsInBody: true,
-                dialogsFade: false,
+                placeholder: '내용을 입력해주세요. (사진을 올리면 아래에서 대표 사진을 고를 수 있습니다)',
+                dialogsInBody: true, dialogsFade: false,
                 toolbar: [
                     ['style', ['style']],
                     ['font', ['bold', 'underline', 'clear']],
@@ -224,84 +277,95 @@
                         for (let i = 0; i < files.length; i++) {
                             uploadSummernoteImage(files[i], this);
                         }
+                    },
+                    //  궁극의 사진 동기화 로직 (0.3초 대기 기능 추가)
+                    onChange: function(contents) {
+                    clearTimeout(syncTimeout); // 연속으로 사진이 들어오면 기존 검사 예약을 취소하고 대기
+
+                        syncTimeout = setTimeout(function() {
+                        try {
+                                let tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = contents;
+                                let editorImages = tempDiv.getElementsByTagName('img');
+
+                                let currentFileNames = [];
+                                for(let i = 0; i < editorImages.length; i++) {
+                                    let src = editorImages[i].src;
+                                    try { src = decodeURI(src); } catch(e) {}
+                                    currentFileNames.push(src.substring(src.lastIndexOf('/') + 1));
+                                }
+
+                                $('.thumb-item').each(function() {
+                                    let cardUrl = $(this).data('url');
+                                    try { cardUrl = decodeURI(cardUrl); } catch(e) {}
+                                    let cardFileName = cardUrl.substring(cardUrl.lastIndexOf('/') + 1);
+
+                                    // 본문에 사진이 없으면 갤러리에서도 강제 삭제
+                                    if (!currentFileNames.includes(cardFileName)) {
+                                        let wasSelected = $(this).hasClass('selected');
+                                        $(this).remove();
+
+                                        if (wasSelected) {
+                                            let remainingFirst = $('.thumb-item').first();
+                                            if (remainingFirst.length > 0) {
+                                                window.selectThumbnail(remainingFirst[0]);
+                                            } else {
+                                                $('#thumbnailPath').val('');
+                                                $('#thumbnailArea').fadeOut();
+                                            }
+                                        }
+                                    }
+                                });
+
+                                if ($('.thumb-item').length === 0) {
+                                    $('#thumbnailPath').val('');
+                                    $('#thumbnailArea').fadeOut();
+                                }
+                            } catch (err) {
+                                console.log("동기화 중 에러 발생(무시됨):", err);
+                            }
+                        }, 300); // 300밀리초(0.3초) 딜레이! 다 들어올 때까지 기다림
                     }
                 }
             });
-        });
 
-        function uploadSummernoteImage(file, editor) {
-            let data = new FormData();
-            data.append("file", file);
+            // =======================================================
+            // 3. 기타 기존 기능들 (제출 검사 및 주소 검색)
+            // =======================================================
+            $('#submitBtn').on('click', function() {
+                let content = $('#content').summernote('code');
+                let pureText = content.replace(/<[^>]*>?/gm, '').trim();
+                if(pureText.length < 50) {
+                    alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
+                    return false;
+                }
+                $('#reviewForm').submit();
+            });
 
-            // HTML 헤더에서 토큰 값 가져오기 (기존코드에서 추가)
-            var token = $("meta[name='_csrf']").attr("content");
-            var header = $("meta[name='_csrf_header']").attr("content");
-            $.ajax({
-                url: "/review/uploadSummernoteImage",
-                type: "POST",
-                data: data,
-                contentType: false,
-                processData: false,
-                beforeSend: function(xhr) {
-                    if (token && header) {
-                        xhr.setRequestHeader(header, token);
-                    }
-                },
-                success: function(response) {
-                    $(editor).summernote('insertImage', response.url);
-                },
-                error: function(e) {
-                    console.log("에러 내용:", e);
-                    alert("이미지 업로드 실패 (403이면 CSRF 문제)");
+            var geocoder = new kakao.maps.services.Geocoder();
+            $('#address').on('keyup', function() {
+                var query = $(this).val();
+                if (query.length > 1) {
+                    geocoder.addressSearch(query, function(result, status) {
+                        if (status === kakao.maps.services.Status.OK) {
+                            let $list = $('#addressList');
+                            $list.empty().show();
+                            result.forEach(function(item) {
+                                let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
+                                         .text(item.address_name)
+                                         .on('click', function() {
+                                             $('#address').val(item.address_name);
+                                             $list.hide();
+                                         });
+                                $list.append(li);
+                            });
+                        }
+                    });
+                } else {
+                    $('#addressList').hide();
                 }
             });
-        }
-
-        $('#submitBtn').on('click', function() {
-            let content = $('#content').summernote('code');
-
-            let pureText = content.replace(/<[^>]*>?/gm, '').trim();
-
-            if(pureText.length < 50) {
-                alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
-                return false;
-            }
-
-            $('#reviewForm').submit();
         });
-
-        // 카카오 주소 검색 서비스(Geocoder) 객체를 생성
- var geocoder = new kakao.maps.services.Geocoder();
-
- $('#address').on('keyup', function() {
-     var query = $(this).val();
-
-     if (query.length > 1) {
-         // 주소로 검색을 요청
-         geocoder.addressSearch(query, function(result, status) {
-
-             // 검색 성공 시(OK)
-             if (status === kakao.maps.services.Status.OK) {
-                 let $list = $('#addressList');
-                 $list.empty().show();
-
-                 // 결과값(result) 리스트 생성
-                 result.forEach(function(item) {
-                     let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
-                              .text(item.address_name)
-                              .on('click', function() {
-                                  $('#address').val(item.address_name);
-                                  $list.hide();
-
-                              });
-                     $list.append(li);
-                 });
-             }
-         });
-     } else {
-         $('#addressList').hide();
-     }
- });
     </script>
 </div>
 </html>
