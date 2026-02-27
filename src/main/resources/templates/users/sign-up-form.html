@@ -81,9 +81,27 @@
             background-color: #03C75A !important;
             color: white !important;
         }
+        .naver-logo-text {
+            font-weight: 900;
+            font-family: 'Arial Black', sans-serif;
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
         .btn-naver:hover {
             background-color: #02b350 !important;
             box-shadow: 0 4px 12px rgba(3, 199, 90, 0.3);
+        }
+
+        /* 카카오 버튼 */
+        .btn-kakao {
+            background-color: #FEE500 !important;
+            color: #3C1E1E !important;
+            border: none;
+        }
+
+        .btn-kakao:hover {
+            background-color: #FADA00 !important;
+            color: #3C1E1E;
         }
 
         /* 구글 버튼: 화이트 + 테두리 */
@@ -181,13 +199,18 @@
             <div class="d-grid gap-2">
                 <a th:href="@{/oauth2/authorization/naver}"
                    class="btn btn-social-signup btn-naver py-3 rounded-pill shadow-sm">
-                    <i class="bi bi-chat-fill"></i> 네이버로 가입하기
+                    <span class="naver-logo-text">N</span> 네이버로 가입하기
                 </a>
 
                 <a th:href="@{/oauth2/authorization/google}"
                    class="btn btn-social-signup btn-google py-3 rounded-pill shadow-sm">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
+                    <img src="/images/google_logo.png"
                          width="18" alt="google"> 구글로 가입하기
+                </a>
+
+                <a th:href="@{/oauth2/authorization/kakao}"
+                   class="btn btn-social-signup btn-kakao py-3 rounded-pill shadow-sm">
+                    <i class="bi bi-chat-fill"></i> 카카오로 가입하기
                 </a>
             </div>
 
