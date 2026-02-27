@@ -125,14 +125,14 @@ public class UserService implements UserDetailsService {
     }
     //회원 Role 기능 수정
     @Transactional
-    public void updateAccountStatus(long id, String status, String role) {
+    public void updateAccountStatus(long id, String status) {
         User user = new User();
         user.setId(id);
         // 2/24 수정
         // user.setAccountStatus(status);
         // user.setRole(role);
         user.setAccountStatus(Status.valueOf(status));
-        user.setRole(UserRole.valueOf(role));
+//        user.setRole(UserRole.valueOf(role));
         userMapper.updateUserStatusAndRole(user);
     }
 }

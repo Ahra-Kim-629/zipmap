@@ -147,11 +147,11 @@ public class AdminController {
     // admin/members 권한 ,상태 변경 기능 추가 2026.2.11 종빈 생성
     @PostMapping("/updateStatus")
     public String updateStatus(@RequestParam("id") long id,
-                               @RequestParam("role") String role,
+//                               @RequestParam("role") String role,
                                @RequestParam("accountStatus") String status) {
 
         // 두 정보를 모두 포함해서 업데이트를 실행합니다.
-        userService.updateAccountStatus(id, status, role);
+        userService.updateAccountStatus(id, status);
 
         return "redirect:/admin/members";
     }
