@@ -82,4 +82,6 @@ public interface ReviewMapper {
 
     //  2/26 추가: 대표 사진(썸네일)을 file 테이블에 'REVIEW_THUMB' 타입으로 저장
     void insertThumbnail(@Param("targetId") long targetId, @Param("filePath") String filePath);
-}
+
+    // 리뷰 인증 관련 ,
+    void updateCertificationStatus(@Param("reviewId") Long reviewId, @Param("status") Status status);}

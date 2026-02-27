@@ -190,6 +190,18 @@ public class ReviewService {
         }
     }
 
+//    // 리뷰 status 수정 (certification)
+//    @Transactional // 👈 중요: 두 테이블 수정을 하나의 작업으로 묶습니다.
+//    public void changeReviewAndCertificationStatus(Long reviewId, Status status) {
+//        // 1. 리뷰 테이블 상태 업데이트
+//        reviewMapper.updateReviewStatus(reviewId, status);
+//
+//        // 2. 만약 상태를 ACTIVE(승인)로 바꾸는 것이라면, 인증 테이블도 함께 업데이트
+//        if (status == Status.ACTIVE) {
+//            reviewMapper.updateCertificationStatus(reviewId, Status.ACTIVE);
+//        }
+//    }
+
     // 리뷰 삭제
     @CacheEvict(value = "aiSummaryCache", allEntries = true)
     @Transactional

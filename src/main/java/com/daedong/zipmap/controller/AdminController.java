@@ -294,8 +294,8 @@ public class AdminController {
             rttr.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
         }
 
-        // 처리가 끝나면 다시 리뷰 목록 페이지로 새로고침(리다이렉트)
-        return "redirect:/admin/reviews";
+        // 처리가 끝나면보고 있던 페이지(인증 목록)로 리다이렉트
+        return "redirect:/admin/reviewcertification";
     }
 
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
