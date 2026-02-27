@@ -133,6 +133,12 @@ public class AdminService {
         //  메서드 이름 맞추고, 넘어온 글자를 Enum으로 변환해서 매퍼로 던짐
         reviewMapper.updateReviewStatus(id, statusEnum);
 
+        // 3. [추가] 상태가 ACTIVE(승인)인 경우, 인증 테이블의 상태도 같이 변경
+        // 이렇게 해야 대시보드의 PENDING 카운트가 줄어듭니다.
+        if (statusEnum == Status.ACTIVE) {
+            reviewMapper.updateCertificationStatus(id, Status.ACTIVE);
+        }
+
         // 만약 바뀐 상태가 ACTIVE(승인)라면 알림 전송
         if (statusEnum == Status.ACTIVE) {
             ReviewDTO reviewDTO = reviewMapper.findById(id);

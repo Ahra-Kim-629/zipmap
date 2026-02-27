@@ -147,11 +147,11 @@ public class AdminController {
     // admin/members 권한 ,상태 변경 기능 추가 2026.2.11 종빈 생성
     @PostMapping("/updateStatus")
     public String updateStatus(@RequestParam("id") long id,
-                               @RequestParam("role") String role,
+//                               @RequestParam("role") String role,
                                @RequestParam("accountStatus") String status) {
 
         // 두 정보를 모두 포함해서 업데이트를 실행합니다.
-        userService.updateAccountStatus(id, status, role);
+        userService.updateAccountStatus(id, status);
 
         return "redirect:/admin/members";
     }
@@ -294,8 +294,8 @@ public class AdminController {
             rttr.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
         }
 
-        // 처리가 끝나면 다시 리뷰 목록 페이지로 새로고침(리다이렉트)
-        return "redirect:/admin/reviews";
+        // 처리가 끝나면보고 있던 페이지(인증 목록)로 리다이렉트
+        return "redirect:/admin/reviewcertification";
     }
 
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
@@ -367,16 +367,16 @@ public class AdminController {
     }
     // AdminController.java
 
-    @GetMapping("/post/edit/{id}")
-    public String editPostForm(@PathVariable("id") Long id, Model model) {
-        // 기존 게시글 정보 가져오기 (PostDTO 활용)
-        PostDTO postDTO = postService.getPostDetail(id);
-        model.addAttribute("post", postDTO);
-
-        // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
-        // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
-        return "admin/post_edit";
-    }
+//    @GetMapping("/post/edit/{id}")
+//    public String editPostForm(@PathVariable("id") Long id, Model model) {
+//        // 기존 게시글 정보 가져오기 (PostDTO 활용)
+//        PostDTO postDTO = postService.getPostDetail(id);
+//        model.addAttribute("post", postDTO);
+//
+//        // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
+//        // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
+//        return "admin/post_edit";
+//    }
 
     // status가 확인함 확인안함으로 나오도록 도와주는 기능
     @GetMapping("/report/toggleStatus/{id}")

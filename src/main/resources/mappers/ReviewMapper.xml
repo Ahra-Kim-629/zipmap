@@ -308,10 +308,17 @@
         r.point,
         r.review_status,
         r.created_at,
-        f.file_path AS filePath
+<!--        f.file_path AS filePath-->
+<!--        사진이 올라올 때 실거주 인증 사진이 올라오도록 하기 위해서 쿼리문을 수정했습니다 -->
+        (SELECT f.file_path
+        FROM file f
+        JOIN certification c ON f.target_id = c.id
+        WHERE c.review_id = r.id
+        AND f.target_type = 'CERTIFICATION'
+        ORDER BY c.id DESC LIMIT 1) AS filePath
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
-        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW'
+<!--        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW'-->
         WHERE r.review_status = 'PENDING'
         ORDER BY r.id DESC
         LIMIT #{pageSize} OFFSET #{offset}
@@ -369,5 +376,12 @@
         INSERT INTO file (target_type, target_id, file_path)
         VALUES ('REVIEW_THUMB', #{targetId}, #{filePath})
     </insert>
+
+    <!-- Certification 수정 -> 글 읽으면 수정 되도록 -->
+    <update id="updateCertificationStatus">
+        UPDATE certification
+        SET certification_status = #{status}
+        WHERE review_id = #{reviewId}
+    </update>
 
 </mapper>
