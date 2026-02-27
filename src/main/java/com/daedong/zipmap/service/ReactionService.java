@@ -64,4 +64,15 @@ public class ReactionService {
         int total = reactionMapper.countLikedPostsByUserId(userId);
         return new PageImpl<>(content, pageable, total);
     }
+
+    public boolean isLiked(Long userId, Long targetId, String targetType) {
+        Reaction reaction = new Reaction();
+
+        reaction.setUserId(userId);
+        reaction.setTargetId(targetId);
+        reaction.setTargetType(targetType);
+
+        Reaction existingLike = reactionMapper.findByUserAndTarget(reaction);
+        return existingLike != null;
+    }
 }

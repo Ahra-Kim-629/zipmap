@@ -73,7 +73,7 @@ public class PostService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Long write(Post post) { // 리턴타입 void -> Long (ID 반환)
+    public Long write(Post post) throws Exception { // 리턴타입 void -> Long (ID 반환)
 
         //  게시글 작성 시 기본 상태를 'ACTIVE(정상)'로 강력하게 고정
         post.setPostStatus(Status.ACTIVE);

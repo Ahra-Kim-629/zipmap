@@ -1,10 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.*;
-import com.daedong.zipmap.service.PostService;
-import com.daedong.zipmap.service.ReactionService;
-import com.daedong.zipmap.service.ReviewService;
-import com.daedong.zipmap.service.UserService;
+import com.daedong.zipmap.service.*;
 import com.daedong.zipmap.util.NetworkUtil;
 import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -37,6 +35,8 @@ public class UserController {
     private final ReplyService replyService;
     private final ReactionService reactionService;
     private final PasswordEncoder passwordEncoder;
+    private final AlarmService alarmService;
+
 
     @GetMapping("/signUp")
     public String signUp() {
@@ -139,6 +139,10 @@ public class UserController {
     public String mypage(Model model, @AuthenticationPrincipal User user) {
         try {
             model.addAttribute("user", user);
+
+            // 이 사용자의 알림 목록 가져와서 화면에 보내기
+            List<AlarmDTO> alarmList = alarmService.getAlarmList(user.getId());
+            model.addAttribute("alarmList", alarmList);
         } catch (Exception e) {
             return "redirect:/";
         }

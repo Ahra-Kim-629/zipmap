@@ -59,6 +59,9 @@
                             </form>
                         </div>
                     </div>
+                    <!-- 알림 -->
+                    <div id="alarm-container" style="position: fixed; top: 60px; right: 20px; z-index: 9999; width: 300px;">
+                    </div>
 
                     <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
                         <a th:href="@{/login}" class="btn btn-outline-orange px-3 rounded-pill fw-bold">로그인</a>
@@ -123,6 +126,12 @@
             font-weight: 900 !important;
             color: white;
             }
+
+        /* 알림창이 스르륵 나타나는 효과 */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 
     <!-- 알림 -->

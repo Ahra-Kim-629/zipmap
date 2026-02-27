@@ -99,11 +99,16 @@ public class ReviewController {
     // 리뷰 상세 조회
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model,
-                         @AuthenticationPrincipal UserDetails userDetails,
+                         @AuthenticationPrincipal User user,
                          HttpServletRequest request) {
-        ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, userDetails);
+        ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, user);
 
+        boolean isLiked = false;
+        if (user != null) {
+            isLiked = reactionService.isLiked(user.getId(), id, "review");
+        }
         model.addAttribute("reviewDTO", reviewDTO);
+        model.addAttribute("isLiked", isLiked);
 
         return "review/detail";
     }
