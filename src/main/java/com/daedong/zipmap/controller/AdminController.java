@@ -367,16 +367,16 @@ public class AdminController {
     }
     // AdminController.java
 
-    @GetMapping("/post/edit/{id}")
-    public String editPostForm(@PathVariable("id") Long id, Model model) {
-        // 기존 게시글 정보 가져오기 (PostDTO 활용)
-        PostDTO postDTO = postService.getPostDetail(id);
-        model.addAttribute("post", postDTO);
-
-        // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
-        // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
-        return "admin/post_edit";
-    }
+//    @GetMapping("/post/edit/{id}")
+//    public String editPostForm(@PathVariable("id") Long id, Model model) {
+//        // 기존 게시글 정보 가져오기 (PostDTO 활용)
+//        PostDTO postDTO = postService.getPostDetail(id);
+//        model.addAttribute("post", postDTO);
+//
+//        // admin/postnotice.html을 재활용하거나 새로 만든 수정페이지로 연결
+//        // 여기서는 수정을 위해 새로 만들 페이지명을 적습니다.
+//        return "admin/post_edit";
+//    }
 
     // status가 확인함 확인안함으로 나오도록 도와주는 기능
     @GetMapping("/report/toggleStatus/{id}")
