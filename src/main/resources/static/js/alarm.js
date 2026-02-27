@@ -60,11 +60,18 @@ function updateAlarmBadge() {
         url: '/alarm/unread-count',
         method: 'GET',
         success: function(count) {
-            console.log("읽지 않은 알림 개수:", count); // 브라우저 콘솔에서 확인용
             const badge = $('#unread-count');
             if (count > 0) {
                 badge.text(count);
-                badge.attr('style', 'display:inline-block !important; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px;');
+               badge.show().css({
+                   'display': 'inline-block',
+                   'background': '#ff4d4f',
+                   'color': 'white',
+                   'border-radius': '50%',
+                   'padding': '2px 6px',
+                   'font-size': '10px',
+                   'font-weight': 'bold'
+               });
             } else {
                 badge.hide();
             }
