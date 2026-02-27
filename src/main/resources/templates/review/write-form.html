@@ -131,7 +131,7 @@
                             <div class="col-md-12">
                                 <label for="title" class="form-label small fw-bold text-muted">리뷰 제목</label>
                                 <input type="text" class="form-control rounded-3 py-2" id="title" name="title"
-                                       placeholder="방의 특징이 잘 드러나는 제목을 지어주세요" required>
+                                       placeholder="방의 특징이 잘 드러나는 제목을 지어주세요" maxlength="50" required>
                             </div>
                             <div class="col-md-8" style="position:relative;">
                                 <label for="address" class="form-label small fw-bold text-muted">주소</label>
@@ -156,7 +156,7 @@
                     <div class="form-section">
                         <span class="section-label"><i class="bi bi-tags me-2 text-orange"></i>키워드 선택</span>
 
-                        <p class="small fw-bold text-success mb-2">이 집의 장점 (중복 선택 가능)</p>
+                        <p class="small fw-bold text-success mb-2">이 집의 장점 (최소 1개 이상 선택 해주세요, 중복 선택 가능)</p>
                         <div class="check-group pros-group mb-4">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
@@ -165,7 +165,7 @@
                             </div>
                         </div>
 
-                        <p class="small fw-bold text-danger mb-2">이 집의 단점 (중복 선택 가능)</p>
+                        <p class="small fw-bold text-danger mb-2">이 집의 단점 (최소 1개 이상 선택 해주세요, 중복 선택 가능)</p>
                         <div class="check-group cons-group">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
@@ -332,14 +332,54 @@
             // =======================================================
             // 3. 기타 기존 기능들 (제출 검사 및 주소 검색)
             // =======================================================
-            $('#submitBtn').on('click', function() {
+            // 버튼 클릭이 아닌, 폼 자체가 전송(submit)되는 순간을 감지합니다.
+            $('#submitBtn').on('click', function(e) {
+                // ✨ 0. 브라우저의 기본 전송(돌격) 본능을 일단 멈춰 세웁니다!
+                e.preventDefault();
+
+                // 1. 제목 검사 (가장 먼저 검사)
+                let title = $('#title').val().trim();
+                if (title.length === 0) {
+                    alert("제목을 입력해주세요.");
+                    $('#title').focus();
+                    return false; // 에러가 나면 여기서 함수 종료! (다음 알림으로 안 넘어감)
+                }
+                if (title.length > 50) {
+                    alert("제목은 50자를 초과할 수 없습니다. (현재 " + title.length + "자)");
+                    $('#title').focus();
+                    return false;
+                }
+
+                //  주소 검사 (새로 추가)
+                let address = $('#address').val().trim();
+                if (address.length === 0) {
+                    alert("주소를 입력해주세요.");
+                    $('#address').focus(); // 사용자가 바로 입력할 수 있게 커서 이동
+                    return false;
+                }
+
+                // 2. 장점 검사 (제목 통과 시 실행)
+                if ($('input[name="prosList"]:checked').length === 0) {
+                    alert("이 집의 장점을 최소 1개 이상 선택해주세요.");
+                    return false;
+                }
+
+                // 3. 단점 검사 (장점 통과 시 실행)
+                if ($('input[name="consList"]:checked').length === 0) {
+                    alert("이 집의 단점을 최소 1개 이상 선택해주세요.");
+                    return false;
+                }
+
+                // 4. 내용 검사 (모두 통과 시 마지막 실행)
                 let content = $('#content').summernote('code');
                 let pureText = content.replace(/<[^>]*>?/gm, '').trim();
                 if(pureText.length < 50) {
                     alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
                     return false;
                 }
-                $('#reviewForm').submit();
+
+                // ✨ 5. 모든 검문소를 무사히 통과했다면, 진짜로 서버에 전송!
+                $('#reviewForm')[0].submit();
             });
 
             var geocoder = new kakao.maps.services.Geocoder();

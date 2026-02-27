@@ -59,25 +59,28 @@ public class ReviewController {
                        Model model,
                        @AuthenticationPrincipal User user) {
 
+        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
-        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
 //        // 좋아요 표시
 //        for (ReviewDTO review : reviews) {
 //            review.setLikeCount(reactionService.countReaction("review", review.getId(), 1));
 //        }
+        // 2. 가로 슬라이더용 리스트 (페이징 X, 검색어 O 유지)
+        List<ReviewDTO> sliderReviews = reviewService.findAll(searchType, searchKeyword, pros, cons);
 
-        // 지도 표시용 전체 리뷰
-        List<ReviewDTO> allReviews = reviewService.findAll(searchType, searchKeyword, pros, cons);
+        // 3. 카카오맵 핀 전용 리스트 (페이징 X, 검색어 무시 -> null, null)
+        List<ReviewDTO> mapReviews = reviewService.findAll(null, null, pros, cons);
 
         // 장점/단점 체크박스 항목
         List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
         List<String> consList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
 
         model.addAttribute("reviews", reviews);
-        model.addAttribute("allReviews", allReviews);
+        model.addAttribute("sliderReviews", sliderReviews);
+        model.addAttribute("mapReviews", mapReviews);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", searchKeyword);
         model.addAttribute("pros", pros);
