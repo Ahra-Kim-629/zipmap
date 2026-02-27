@@ -1,6 +1,9 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
+import com.daedong.zipmap.domain.Review;
+import com.daedong.zipmap.domain.ReviewDTO;
+import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.GeminiService;
 import com.daedong.zipmap.service.ReactionService;
 import com.daedong.zipmap.service.ReviewService;
@@ -8,17 +11,14 @@ import com.daedong.zipmap.service.SubscriptionService;
 import com.daedong.zipmap.util.FileUtilService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; // 로그 추가
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,34 +45,38 @@ public class ReviewController {
     private final GeminiService geminiService;
 
     // 리뷰 목록 조회
-    @GetMapping({"","/list"})
+    @GetMapping({"", "/list"})
     public String list(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
-                       @RequestParam(required = false, name="q") String q,
+                       @RequestParam(required = false, name = "q") String q,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) List<String> pros,
                        @RequestParam(required = false) List<String> cons,
                        Model model,
-                       @AuthenticationPrincipal UserPrincipalDetails user) {
+                       @AuthenticationPrincipal User user) {
+
+        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
         Page<ReviewDTO> reviews = reviewService.findAll(searchType, keyword, pros, cons, pageable);
 
-        String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
 //        // 좋아요 표시
 //        for (ReviewDTO review : reviews) {
 //            review.setLikeCount(reactionService.countReaction("review", review.getId(), 1));
 //        }
+        // 2. 가로 슬라이더용 리스트 (페이징 X, 검색어 O 유지)
+        List<ReviewDTO> sliderReviews = reviewService.findAll(searchType, searchKeyword, pros, cons);
 
-        // 지도 표시용 전체 리뷰
-        List<ReviewDTO> allReviews = reviewService.findAll(searchType, searchKeyword, pros, cons);
+        // 3. 카카오맵 핀 전용 리스트 (페이징 X, 검색어 무시 -> null, null)
+        List<ReviewDTO> mapReviews = reviewService.findAll(null, null, pros, cons);
 
         // 장점/단점 체크박스 항목
         List<String> prosList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
         List<String> consList = List.of("채광", "난방", "배수", "온수", "수압", "곰팡이", "해충", "소음", "치안", "집주인");
 
         model.addAttribute("reviews", reviews);
-        model.addAttribute("allReviews", allReviews);
+        model.addAttribute("sliderReviews", sliderReviews);
+        model.addAttribute("mapReviews", mapReviews);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", searchKeyword);
         model.addAttribute("pros", pros);
@@ -85,7 +88,7 @@ public class ReviewController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "review");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "review");
             model.addAttribute("myKeywords", myKeywords);
         }
 
