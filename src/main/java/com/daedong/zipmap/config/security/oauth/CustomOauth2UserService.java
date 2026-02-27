@@ -34,6 +34,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
         } else if (provider.equals("naver")) {
             oAuth2UserInfo = new NaverUserInfo(oAuth2User.getAttributes());
+        } else if (provider.equals("kakao")) {
+            oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
         } else {
             throw new RuntimeException("지원하지 않는 로그인입니다.");
         }
@@ -50,8 +52,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             userEntity = new User();
             userEntity.setLoginId(loginId);
             userEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            userEntity.setName(name);
-            userEntity.setEmail(email);
+            userEntity.setName((name != null && !name.isEmpty()) ? name : provider + "_" + loginId);
+            userEntity.setEmail((email != null && !email.isEmpty()) ? email : provider + "_" + loginId + "@" + provider + ".com");
             userEntity.setGender(
                     (gender != null && !gender.isEmpty())
                             ? gender.charAt(0)
