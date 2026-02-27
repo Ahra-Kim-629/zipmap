@@ -81,27 +81,3 @@ function getCookie(name) {
     const parts = value.split("; " + name + "=");
     if (parts.length === 2) return parts.pop().split(";").shift();
 }
-
-/* =========================================
-    통합검색
-========================================= */
-const searchInput = document.querySelector('.hero-input');
-const searchBtn = document.querySelector('.btn-search-hero');
-
-function performSearch() {
-    const keyword = searchInput.value;
-    if(!keyword.trim()) return alert("검색어를 입력하세요.");
-    location.href = "/search?q=" + encodeURIComponent(keyword);
-}
-
-if (searchBtn) {
-    searchBtn.addEventListener('click', performSearch);
-}
-
-if (searchInput) {
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
-}

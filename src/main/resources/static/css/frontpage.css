@@ -2,41 +2,37 @@
    히어로 섹션 (Hero Section)
    ========================================================================== */
 .hero-section {
-  padding: 160px 0 120px 0;
-  background-color: var(--bg-tan);
-  background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
+  padding: 140px 0 100px 0;
+  background: #ffffff;
   min-height: 500px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative;
 }
 
 .hero-section h1 {
   font-weight: 800;
-  color: var(--dark-wood);
+  color: #111;
   line-height: 1.2;
 }
 
-/* [최종 해결] 검색박스 래퍼 - 틈새 및 정렬 오류 방지 */
 .search-box-wrapper {
   max-width: 650px;
-  height: 64px;
+  height: 56px;
   background: #fff;
-  border: 2px solid #eee; /* 기본 테두리 */
-  border-radius: 50px;
-  padding: 4px; /* 내부 버튼과 여백 */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  display: flex; /* flex로 변경하여 내부 틈새 제거 */
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  padding: 4px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
   align-items: center;
   margin: 30px auto 0;
 }
 
-/* 입력창이 활성화될 때 부모 테두리 강조 */
 .search-box-wrapper:focus-within {
-  border-color: var(--main-orange);
-  box-shadow: 0 10px 25px rgba(230, 126, 34, 0.15);
+  border-color: #F97316;
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.15);
 }
 
 .search-box-wrapper .hero-input {
@@ -55,50 +51,48 @@
   font-size: 0.95rem;
 }
 
-/* 검색 버튼 - 래퍼 안에서 꽉 차게 */
 .btn-search-hero {
-  background-color: var(--main-orange) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 50px !important; /* 버튼 자체도 알약 모양 */
-  padding: 0 35px !important;
-  height: 100%; /* 부모 높이 100% 사용 */
-  font-weight: bold;
-  white-space: nowrap;
+  background-color: #F97316 !important;
+  border-radius: 12px !important;
 }
 
 /* ==========================================================================
    메인 콘텐츠 카드 & 애니메이션
    ========================================================================== */
 .daedong-shadow {
-  border: 1px solid rgba(210, 180, 140, 0.2) !important;
-  box-shadow: 0 10px 30px -5px rgba(62, 54, 46, 0.06) !important;
+  border: 1px solid #f1f1f1 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06) !important;
+  background-color: #ffffff !important;
+  overflow: hidden;
 }
 
 .shadow-hover {
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); /* 가속도 곡선 최적화 */
-      border: 1px solid rgba(0, 0, 0, 0.05) !important;
-      background-color: #fff;
-      position: relative;
-      top: 0; /* 움직임의 기준점 고정 */
-      will-change: transform, box-shadow;
-      /* [해결] 옆 카드가 움직이지 않도록 수직 정렬 고정 */
-      vertical-align: top;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0 !important;
+  background-color: #fff;
+  border-radius: 16px;
 }
 
 .shadow-hover:hover {
-    /* [해결] 단순히 위로 옮기는게 아니라 아주 살짝 키워서(1.02) 작아 보이는 현상 방지 */
-    transform: translateY(-10px);
-
-    /* [해결] 그림자를 더 부드럽고 깊게 깔아서 확실히 떠오른 느낌 부여 */
-    box-shadow: 0 20px 40px rgba(62, 54, 46, 0.12) !important;
-
-    border: 1px solid rgba(230, 126, 34, 0.25) !important;
-    z-index: 10; /* 떠오른 카드가 다른 카드보다 위에 보이게 함 */
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
+  border-color: rgba(249,115,22,0.2) !important;
 }
 
 .shadow-hover .card-img-top {
     transition: transform 0.5s ease;
+}
+
+.card-header {
+  border-bottom: 1px solid #f3f3f3 !important;
+}
+
+.daedong-shadow .card-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f3f3f3 !important;
+  padding: 20px 22px;
+  font-weight: 700;
 }
 
 .badge-daedong {
@@ -109,28 +103,44 @@
   border-radius: 4px;
 }
 
+.list-group {
+  border: none !important;
+}
+
+.list-group-item {
+  border: none !important;
+  padding: 18px 22px;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.list-group-item + .list-group-item {
+  border-top: 1px solid #f3f3f3 !important;
+}
+
+.list-group-item:hover {
+  background: #fff7ed;
+}
+
 /* ==========================================================================
    공지사항 모달 (전통미 반영)
    ========================================================================== */
 .daedong-modal-content {
-  background-color: #fdfcf9 !important;
-  background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
-  border: 3px solid var(--dark-wood) !important;
+  background-color: #ffffff !important;
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.15);
 }
 
 .daedong-modal-header {
-  background-color: var(--dark-wood);
-  color: var(--bg-tan);
-  border: none;
-  border-radius: 0 !important;
+  background-color: #ffffff;
+  color: #111;
+  border-bottom: 1px solid #f1f1f1;
 }
 
 .btn-daedong-close {
-  background-color: var(--dark-wood);
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  transition: 0.2s;
+  background-color: #F97316;
+  border-radius: 12px;
 }
 
 .btn-daedong-close:hover {
