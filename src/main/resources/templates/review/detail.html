@@ -177,50 +177,21 @@
                         <span id="reply-total-count" class="text-orange" th:text="${reviewDTO.replyList.size()}">0</span>
                     </h5>
 
+                    <div id="reply-container"></div>
+
+                    <div id="reply-loader" class="text-center my-3" style="display:none;">
+                        <div class="spinner-border text-orange" role="status"></div>
+                    </div>
+
                     <div class="mb-4" sec:authorize="isAuthenticated()">
                         <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-4 shadow-sm border">
                             <input type="hidden" name="targetType" value="review">
                             <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                            <textarea name="content" class="form-control border-0 mb-2" rows="3" placeholder="의견을 남겨주세요." style="resize: none;"></textarea>
+                            <textarea name="content" class="form-control border-0 mb-2" rows="3" placeholder="의견을 남겨주세요." style="resize: none;" required></textarea>
                             <div class="text-end">
                                 <button type="submit" class="btn btn-orange px-4 py-2 rounded-pill fw-bold">댓글 등록</button>
                             </div>
                         </form>
-                    </div>
-
-                    <div th:each="reply : ${reviewDTO.replyList}" class="reply-item shadow-sm" th:id="|reply-${reply.id}|">
-                        <div th:id="|display-${reply.id}|">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="reply-author" th:text="${reply.loginId}">사용자</span>
-                                <div sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}" class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0" th:onclick="|toggleEditForm(${reply.id})|" style="line-height: 1;">수정</button>
-                                    <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex">
-                                        <input type="hidden" name="id" th:value="${reply.id}">
-                                        <input type="hidden" name="targetType" value="review">
-                                        <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0" onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제</button>
-                                    </form>
-                                </div>
-                            </div>
-                            <p class="mb-0 text-secondary small" th:text="${reply.content}">댓글 내용</p>
-                        </div>
-                        <div th:id="|editForm-${reply.id}|" class="mt-3 p-3 bg-light rounded-3" style="display: none;">
-                            <form th:action="@{/reply/edit}" method="post">
-                                <input type="hidden" name="id" th:value="${reply.id}">
-                                <input type="hidden" name="targetType" value="review">
-                                <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                                <textarea name="content" th:text="${reply.content}" class="form-control border-0 mb-2" rows="2" style="resize:none;"></textarea>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
-                                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 border" th:onclick="|toggleEditForm(${reply.id})|">취소</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div id="extra-reply-container"></div>
-                    <div id="reply-loader" class="text-center my-3" style="display:none;">
-                        <div class="spinner-border text-orange" role="status"></div>
                     </div>
                 </div>
 
@@ -238,51 +209,42 @@
     alert([[${successMessage}]]);
 </script>
 <script layout:fragment="script">
-    function toggleEditForm(id) {
-        const form = document.getElementById('editForm-' + id);
-        const display = document.getElementById('display-' + id);
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-            display.style.opacity = '0.5';
-        } else {
-            form.style.display = 'none';
-            display.style.opacity = '1';
-        }
-    }
-    //내가 쓴 댓글 스크롤(포커싱)
-    $(document).ready(function() {
-        if (window.location.hash) {
-            var target = $(window.location.hash);
-            if (target.length) {
-                $(window).scrollTop(target.offset().top - 100);
-
-                target.css('background-color', '#f4f4f4');
-                setTimeout(function() {
-                    target.css('background-color', '#fff');
-                }, 2000);
-            }
-        }
-    });
-/// 무한 스크롤 관련 변수
-    let currentScrollPage = 1; // 0페이지는 서버가 이미 그려줬으므로 1부터 시작
-    let isScrollLoading = false;
-    let isScrollLast = false;
-    const scrollTargetId = [[${reviewDTO.id}]]; // Review ID 가져오기
-    const scrollUserName = "[[${#authentication.name}]]";
+    // 1. 전역 변수 설정
+    let currentPage = 0;
+    let isLoading = false;
+    let isLastPage = false;
+    const targetId = [[${reviewDTO.id}]];
+    const currentUserName = "[[${#authentication != null ? #authentication.name : ''}]]";
 
     $(document).ready(function() {
-        $(window).scroll(function() {
-            // 바닥에서 250px 여유를 두고 감지
+        // [중요] 페이지 로드 시 첫 댓글 로드 실행
+        fetchReplies();
+
+        // 무한 스크롤 감시
+        $(window).on('scroll', function() {
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 250) {
-                if (!isScrollLoading && !isScrollLast) {
-                    loadMoreReplies();
+                if (!isLoading && !isLastPage) {
+                    fetchReplies();
                 }
             }
         });
-    });
 
-    function loadMoreReplies() {
-        isScrollLoading = true;
+        // 앵커 이동 로직
+        if (window.location.hash) {
+            const target = $(window.location.hash);
+            if (target.length) {
+                $('html, body').animate({ scrollTop: target.offset().top - 100 }, 500);
+                target.css('background-color', '#f4f4f4');
+                setTimeout(() => target.css('background-color', '#fff'), 2000);
+            }
+        }
+    }); // <--- 이 닫는 괄호가 누락되었었습니다.
+
+    // 2. 데이터 배달부 (AJAX)
+    function fetchReplies() {
+        if (isLoading || isLastPage) return;
+
+        isLoading = true;
         $("#reply-loader").show();
 
         $.ajax({
@@ -290,41 +252,38 @@
             type: "GET",
             data: {
                 targetType: 'review',
-                targetId: scrollTargetId,
-                page: currentScrollPage
+                targetId: targetId,
+                page: currentPage
             },
             success: function(replies) {
                 if (replies && replies.length > 0) {
                     replies.forEach(reply => {
-                        $("#extra-reply-container").append(renderExtraReply(reply));
+                        $("#reply-container").append(renderReply(reply));
                     });
-                    currentScrollPage++;
-                    if (replies.length < 10) isScrollLast = true;
+                    currentPage++;
+                    if (replies.length < 10) isLastPage = true;
                 } else {
-                    isScrollLast = true;
+                    isLastPage = true;
                 }
             },
-            error: function(err) {
-                console.error("댓글 로드 실패:", err);
-            },
             complete: function() {
-                isScrollLoading = false;
+                isLoading = false;
                 $("#reply-loader").hide();
             }
         });
     }
 
-    // 추가 댓글 HTML 조립 (기존 디자인 유지)
-    function renderExtraReply(reply) {
-        const isOwner = (scrollUserName === reply.loginId);
-        let actionBtns = isOwner ? `
+    // 3. 조립기 (HTML 생성)
+    function renderReply(reply) {
+        const isOwner = (currentUserName === reply.loginId);
+        let btnHtml = isOwner ? `
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0" onclick="toggleEditForm(${reply.id})" style="line-height: 1;">수정</button>
+                <button class="btn btn-link btn-sm p-0 text-muted" onclick="toggleEditForm(${reply.id})" style="line-height: 1;">수정</button>
                 <form action="/reply/delete" method="post" class="m-0 d-inline-flex">
                     <input type="hidden" name="id" value="${reply.id}">
                     <input type="hidden" name="targetType" value="review">
-                    <input type="hidden" name="targetId" value="${scrollTargetId}">
-                    <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0" onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제</button>
+                    <input type="hidden" name="targetId" value="${targetId}">
+                    <button type="submit" class="btn btn-link btn-sm p-0 text-danger" onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제</button>
                 </form>
             </div>` : '';
 
@@ -333,7 +292,7 @@
                 <div id="display-${reply.id}">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="reply-author">${reply.loginId}</span>
-                        ${actionBtns}
+                        ${btnHtml}
                     </div>
                     <p class="mb-0 text-secondary small">${reply.content}</p>
                 </div>
@@ -341,7 +300,7 @@
                     <form action="/reply/edit" method="post">
                         <input type="hidden" name="id" value="${reply.id}">
                         <input type="hidden" name="targetType" value="review">
-                        <input type="hidden" name="targetId" value="${scrollTargetId}">
+                        <input type="hidden" name="targetId" value="${targetId}">
                         <textarea name="content" class="form-control border-0 mb-2" rows="2" style="resize:none;">${reply.content}</textarea>
                         <div class="text-end">
                             <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
@@ -352,16 +311,16 @@
             </div>`;
     }
 
-    // 기존 수정폼 토글 함수 보존
+    // 4. 수정폼 토글
     function toggleEditForm(id) {
-        const form = document.getElementById('editForm-' + id);
-        const display = document.getElementById('display-' + id);
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-            display.style.opacity = '0.5';
+        const form = $('#editForm-' + id);
+        const display = $('#display-' + id);
+        if (form.is(':hidden')) {
+            form.show();
+            display.css('opacity', '0.5');
         } else {
-            form.style.display = 'none';
-            display.style.opacity = '1';
+            form.hide();
+            display.css('opacity', '1');
         }
     }
 </script>
