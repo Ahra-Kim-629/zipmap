@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -253,7 +254,7 @@ public class ReviewService {
             throw new RuntimeException("업로드된 파일이 없습니다.");
         }
 
-        // 2. 인증 정보(글) 먼저 저장 -> ID 생성됨
+        // 2. 새로운 인증 정보 저장
         Certification cert = new Certification();
         cert.setUserId(user.getId());
         cert.setReviewId(reviewId);
@@ -269,18 +270,13 @@ public class ReviewService {
         // "CERTIFICATION" 폴더에 저장 (c:/upload/certification/...)
         String filePath = fileUtilService.saveFile(image, "CERTIFICATION");
 
-
         // 4. ★ 공통 파일 테이블(file_attachment)에 저장
         com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
         file.setTargetType("CERTIFICATION");
         file.setTargetId(cert.getId()); // 방금 만든 인증 ID
         file.setFilePath(filePath);
         file.setFileSize(image.getSize());
-
         fileUtilService.saveFileToDB(file);
-
-        // 2-24 수정
-        // reviewMapper.updateReviewStatusToBanned(reviewId, "BANNED");
 
         // ✅ 수정 후 (메서드 이름도 범용적으로 번경, 상태도 PENDING으로 올바르게 수정)
         reviewMapper.updateReviewStatus(reviewId, Status.PENDING);

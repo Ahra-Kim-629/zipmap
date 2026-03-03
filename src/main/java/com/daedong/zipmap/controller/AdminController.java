@@ -400,8 +400,8 @@ public class AdminController {
         }
         return redirectUrl;
     }
-
-    @PostMapping("/admin/reviews/update-status")
+    // 리뷰 실거주 인증 반려 사유 메시지 저장
+    @PostMapping("/reviews/update-status")
     @ResponseBody
     public ResponseEntity<String> updateReviewStatus(
             @RequestParam Long reviewId,
@@ -429,6 +429,14 @@ public class AdminController {
             log.error("관리자 리뷰 승인/반려 처리 중 오류: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
-    }}
-
-
+    }
+    // 클래스 상단에 @RequestMapping("/admin")이 있으므로
+    @PostMapping("/reviews/reject") // 실제 주소는 /admin/reviews/reject가 됩니다.
+    @ResponseBody
+    public ResponseEntity<String> rejectReview(@RequestParam Long reviewId, @RequestParam String message) {
+        // adminService.rejectCertification(reviewId, message);
+        // 위 메서드 대신 reviewService.processCertification을 사용하여 상태와 메시지를 함께 업데이트합니다.
+        reviewService.processCertification(reviewId, Status.BANNED, message);
+        return ResponseEntity.ok("반려 처리가 완료되었습니다.");
+    }
+}

@@ -171,6 +171,7 @@
         FROM file f
         JOIN certification c ON f.target_id = c.id
         WHERE c.review_id = r.id AND f.target_type = 'CERTIFICATION'
+        ORDER BY c.id DESC
         LIMIT 1) AS filePath
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
@@ -221,10 +222,14 @@
     <!-- 내가 쓴 리뷰 조회 -->
     <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
-        id, title, content, address, user_id, point, review_status, created_at, updated_at
-        FROM review
-        WHERE user_id = #{userId}
-        ORDER BY id DESC
+        r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status, r.created_at, r.updated_at,
+        (SELECT c.message
+        FROM certification c
+        WHERE c.review_id = r.id
+        ORDER BY c.id DESC LIMIT 1) AS message
+        FROM review r
+        WHERE r.user_id = #{userId}
+        ORDER BY r.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
@@ -232,7 +237,6 @@
         SELECT COUNT(id)
         FROM review
         WHERE user_id = #{userId}
-        AND review_status = 'ACTIVE'
     </select>
 
     <select id="findOrderByCreatedAtDescLimit4" resultType="com.daedong.zipmap.domain.ReviewDTO">

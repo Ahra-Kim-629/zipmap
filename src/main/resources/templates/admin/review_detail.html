@@ -44,8 +44,9 @@
                         <i class="bi bi-file-earmark-check-fill me-2"></i>실거주 인증 서류 확인
                     </h4>
                     <!-- 상태에 따른 배지 표시 -->
-                    <span th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" class="badge bg-danger">승인 대기 중 (BANNED)</span>
-                    <span th:if="${reviewDTO.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인됨 (ACTIVE)</span>
+                    <span th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" class="badge bg-danger">승인 대기 중</span>
+                    <span th:if="${reviewDTO.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인됨</span>
+                    <span th:if="${reviewDTO.reviewStatus?.name() == 'BANNED'}" class="badge bg-secondary">반려됨</span>
                 </div>
 
                 <div class="row">
@@ -118,7 +119,7 @@
                 </div>
 
                 <div class="admin-action-bar d-flex justify-content-center gap-3">
-                    <!-- 승인 버튼 (BANNED 상태일 때만 표시) -->
+                    <!-- 승인 버튼 (PENDING 상태일 때만 표시) -->
                     <form th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" th:action="@{/admin/reviews/toggle-status}" method="post">
                         <input type="hidden" name="id" th:value="${reviewDTO.id}">
                         <input type="hidden" name="status" value="ACTIVE">
@@ -127,20 +128,10 @@
                         </button>
                     </form>
 
-                    <!-- 승인 취소 버튼 (ACTIVE 상태일 때 표시 - 필요 시 사용) -->
-                    <form th:if="${reviewDTO.reviewStatus?.name() == 'ACTIVE'}" th:action="@{/admin/reviews/toggle-status}" method="post">
-                        <input type="hidden" name="id" th:value="${reviewDTO.id}">
-                        <input type="hidden" name="status" value="BANNED">
-                        <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold shadow-sm">
-                            <i class="bi bi-eye-slash me-2"></i>승인 취소 (숨김)
-                        </button>
-                    </form>
-
-                    <a th:href="@{/admin/reviews/delete/{id}(id=${reviewDTO.id})}"
-                       class="btn btn-outline-danger rounded-pill px-5 py-2 fw-bold"
-                       onclick="return confirm('서류 미비로 삭제 처리하시겠습니까?')">
-                        <i class="bi bi-x-circle me-2"></i>인증 반려 (삭제)
-                    </a>
+                    <!-- 반려 버튼 (PENDING 상태일 때만 표시) -->
+                    <button th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" type="button" class="btn btn-danger rounded-pill px-5 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="bi bi-x-circle me-2"></i>인증 반려
+                    </button>
 
                     <a th:href="@{/admin/reviewcertification}" class="btn btn-light rounded-pill px-4 py-2 border">
                         목록으로
@@ -149,5 +140,55 @@
             </div>
         </div>
     </div>
+
+    <!-- 반려 사유 입력 모달 -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">인증 반려 사유 입력</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="rejectMessage" class="form-control" rows="4" placeholder="사용자에게 보여질 반려 사유를 입력하세요. (예: 서류 식별 불가)"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" id="confirmRejectBtn">반려 처리</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script layout:fragment="script">
+    $(document).ready(function() {
+        $("#confirmRejectBtn").click(function() {
+            const reviewId = [[${reviewDTO.id}]];
+            const message = $("#rejectMessage").val();
+
+            if (!message.trim()) {
+                alert("반려 사유를 입력해주세요.");
+                return;
+            }
+
+            $.ajax({
+                url: "/admin/reviews/reject",
+                type: "POST",
+                data: {
+                    reviewId: reviewId,
+                    message: message,
+                    "[[${_csrf.parameterName}]]": "[[${_csrf.token}]]"
+                },
+                success: function(response) {
+                    alert(response);
+                    window.location.href = "/admin/reviewcertification";
+                },
+                error: function(xhr) {
+                    alert("오류가 발생했습니다: " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
 </html>

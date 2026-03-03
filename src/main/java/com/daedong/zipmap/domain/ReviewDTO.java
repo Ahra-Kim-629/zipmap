@@ -43,4 +43,6 @@ public class ReviewDTO {
     // 2/26 추가: 화면에서 전달받을 대표 사진(썸네일) 임시 경로
     private String thumbnailPath;
 
+    // 추가 : message 반려 사유 값 가져오기
+    private String message;
 }
