@@ -196,14 +196,11 @@
 
                 <div class="d-flex flex-column align-items-center gap-4 mb-5">
                     <form th:action="@{/reaction}" method="post">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
                         <input type="hidden" name="targetType" value="review">
                         <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                         <input type="hidden" name="type" value="1">
                         <button type="submit" class="btn-like" th:classappend="${isLiked} ? 'active' : ''">
-                            <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요
-                            <span th:text="${reviewDTO.likeCount}">0</span>
+                            <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
                         </button>
                     </form>
                     <a th:href="@{/review}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">

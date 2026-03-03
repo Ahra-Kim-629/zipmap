@@ -68,4 +68,8 @@ public class UserPrincipalDetails implements UserDetails, OAuth2User {
     public String getName() {
         return user.getName(); // 혹은 attributes.get("sub") 등
     }
+
+    public Long getId() {
+        return this.user.getId();
+    }
 }

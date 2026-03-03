@@ -20,4 +20,6 @@ public class Certification {
     private Status certificationStatus;
 
     private LocalDateTime createdAt; // 신청 일시
+
+    private String message;            // ✨ 반려 사유 추가
 }

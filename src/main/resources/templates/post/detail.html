@@ -142,6 +142,8 @@
 
                 <div class="mt-4" sec:authorize="isAuthenticated()">
                     <form th:action="@{/reply/write}" method="post" class="bg-white p-3 rounded-4 shadow-sm border">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
                         <input type="hidden" name="targetType" value="post">
                         <input type="hidden" name="targetId" th:value="${postDTO.id}">
                         <textarea name="content" class="form-control border-0 mb-2" rows="3"
@@ -162,8 +164,7 @@
 
 
 
-                    <!-- 서버 사이드 렌더링 댓글에도 ID 부여 (JS 렌더링과 통일) -->
-                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm" th:id="|reply-${reply.id}|">
+                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm">
                         <div th:id="|display-${reply.id}|">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span class="reply-author" th:text="${reply.loginId}">사용자</span>
@@ -173,11 +174,12 @@
                                             th:onclick="|toggleEditForm(${reply.id})|" style="line-height: 1;">수정
                                     </button>
                                     <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
                                         <input type="hidden" name="id" th:value="${reply.id}">
                                         <input type="hidden" name="targetType" value="post">
                                         <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                                        <button type="submit"
-                                                class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0"
+                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0"
                                                 onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제
                                         </button>
                                     </form>
@@ -224,6 +226,8 @@
     const currentUserName = "[[${#authentication.name}]]"; // 로그인한 사용자의 이름
     const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
     const focusReplyId = urlParams.get("replyId");
+    const csrfParameterName = "[[${_csrf.parameterName}]]";
+    const csrfToken = "[[${_csrf.token}]]";
 
     $(document).ready(function() {
         // [홀 서빙 시작] 페이지가 열리자마자 실행되는 기능들입니다.
@@ -268,7 +272,6 @@
                 }
             });
         });
-
     }); // $(document).ready 끝
 
     // [창고지기] 서버에서 댓글 데이터를 가져오는 함수
@@ -325,6 +328,7 @@
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0" onclick="toggleEditForm(${reply.id})" style="line-height: 1;">수정</button>
                 <form action="/reply/delete" method="post" class="m-0 d-inline-flex">
+                    <input type="hidden" name="${csrfParameterName}" value="${csrfToken}"/>
                     <input type="hidden" name="id" value="${reply.id}">
                     <input type="hidden" name="targetType" value="post">
                     <input type="hidden" name="targetId" value="${targetId}">
@@ -343,6 +347,7 @@
                 </div>
                 <div id="editForm-${reply.id}" class="mt-3 p-3 bg-light rounded-3" style="display: none;">
                     <form action="/reply/edit" method="post">
+                        <input type="hidden" name="${csrfParameterName}" value="${csrfToken}"/>
                         <input type="hidden" name="id" value="${reply.id}">
                         <input type="hidden" name="targetType" value="post">
                         <input type="hidden" name="targetId" value="${targetId}">

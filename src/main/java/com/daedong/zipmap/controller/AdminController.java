@@ -4,10 +4,12 @@ import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.service.*;
 import com.daedong.zipmap.util.FileUtilService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
@@ -397,7 +400,43 @@ public class AdminController {
         }
         return redirectUrl;
     }
+    // 리뷰 실거주 인증 반려 사유 메시지 저장
+    @PostMapping("/reviews/update-status")
+    @ResponseBody
+    public ResponseEntity<String> updateReviewStatus(
+            @RequestParam Long reviewId,
+            @RequestParam String status,
+            @RequestParam(required = false) String message) {
 
+        try {
+            Status targetStatus = Status.valueOf(status.toUpperCase());
+
+            // 반려(BANNED) 처리 시 메시지 검증
+            if (targetStatus == Status.BANNED) {
+                if (message == null || message.trim().isEmpty()) {
+                    return ResponseEntity.badRequest().body("반려 사유(메시지)를 입력해야 합니다.");
+                }
+            }
+
+            // 서비스 호출 (Review + Certification 상태를 동시에 업데이트)
+            reviewService.processCertification(reviewId, targetStatus, message);
+
+            return ResponseEntity.ok("처리가 완료되었습니다.");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("유효하지 않은 상태 값입니다.");
+        } catch (Exception e) {
+            log.error("관리자 리뷰 승인/반려 처리 중 오류: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+        }
+    }
+    // 클래스 상단에 @RequestMapping("/admin")이 있으므로
+    @PostMapping("/reviews/reject") // 실제 주소는 /admin/reviews/reject가 됩니다.
+    @ResponseBody
+    public ResponseEntity<String> rejectReview(@RequestParam Long reviewId, @RequestParam String message) {
+        // adminService.rejectCertification(reviewId, message);
+        // 위 메서드 대신 reviewService.processCertification을 사용하여 상태와 메시지를 함께 업데이트합니다.
+        reviewService.processCertification(reviewId, Status.BANNED, message);
+        return ResponseEntity.ok("반려 처리가 완료되었습니다.");
+    }
 }
-
-

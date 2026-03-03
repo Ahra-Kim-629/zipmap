@@ -239,5 +239,15 @@ public class AdminService {
     public int countPendingCertifications() {
         return reviewMapper.countPendingCertifications();
     }
+
+    @Transactional
+    public void rejectCertification(Long reviewId, String message) {
+        // 1. 리뷰 상태를 BANNED로 변경 (목록 노출 차단)
+        reviewMapper.updateReviewStatus(reviewId, Status.BANNED);
+
+        // 2. 인증 테이블의 마지막 PENDING 건을 찾아서 반려 상태와 메시지 업데이트
+        // ReviewMapper.xml에 updateCertificationResult 쿼리 필요
+        reviewMapper.updateCertificationResult(reviewId, Status.BANNED, message);
+    }
 }
 

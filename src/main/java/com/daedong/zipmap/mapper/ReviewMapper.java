@@ -84,4 +84,12 @@ public interface ReviewMapper {
     void insertThumbnail(@Param("targetId") long targetId, @Param("filePath") String filePath);
 
     // 리뷰 인증 관련 ,
-    void updateCertificationStatus(@Param("reviewId") Long reviewId, @Param("status") Status status);}
+    void updateCertificationStatus(@Param("reviewId") Long reviewId, @Param("status") Status status);
+
+    // 리뷰 인증 반려시 메세지 저장 ( 회원에게 메시지 전달하기 위한 기능 )
+    void updateCertificationResult(@Param("reviewId") Long reviewId,
+                                   @Param("status") Status status,
+                                   @Param("message") String message);
+
+}
+

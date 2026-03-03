@@ -136,14 +136,28 @@ public class ReviewController {
 
     // 리뷰 실거주 인증
     @GetMapping("/certification")
-    public String certificationForm(@RequestParam("reviewId") Long reviewId, Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
-        // 로그인한 사용자의 정보를 가져와서 모델에 담아줘야 HTML에서 ${user.address}를 쓸 수 있습니다.
+    public String certificationForm(@RequestParam("reviewId") Long reviewId,
+                                    Model model,
+                                    @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
+            // 1. 기존 유저 정보 및 리뷰 ID 담기
             model.addAttribute("user", user.getUser());
             model.addAttribute("reviewId", reviewId);
+
+            // 2. ✨ 가장 안전한 방법: 리뷰 상세를 통째로 가져오지 말고 필요한 '사유'만 별도로 조회
+            // (이미 ReviewDTO에 message 필드를 만드셨으니, 서비스에서 간단한 조회 메서드를 하나 쓰거나 DTO를 직접 받으세요)
+            ReviewDTO review = reviewService.getReviewDetail(reviewId);
+
+            if (review != null) {
+                // 사유(message)와 현재 상태를 모델에 추가
+                model.addAttribute("rejectMessage", review.getMessage());
+                model.addAttribute("reviewStatus", review.getReviewStatus().name());
+            }
+
             return "/users/certification";
         } catch (Exception e) {
-            return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로
+            log.error("인증 폼 로딩 중 오류 발생: ", e);
+            return "redirect:/review";
         }
     }
 

@@ -97,5 +97,4 @@
         ORDER BY r.id DESC  /* 최신 댓글이 위로 오게 정렬 */
         LIMIT #{limit} OFFSET #{offset}
     </select>
-
 </mapper>
