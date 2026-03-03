@@ -5,8 +5,8 @@
 <div th:fragment="headerFragment">
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom py-3">
         <div class="container">
-            <a class="navbar-brand font-independent text-orange fs-4" th:href="@{/}">
-                <i class="bi bi-house-heart-fill me-2"></i>대동여집도
+            <a class="navbar-brand font-independent" th:href="@{/}">
+                <img src="images/main_logo.png" alt="logo" width="100">
             </a>
 
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -109,7 +109,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background-color: #ff7e00; /* 오렌지색 적용 */
+            background-color: #3f8a7e; /* 오렌지색 적용 */
             border: none;
             display: flex;
             align-items: center;
@@ -118,7 +118,7 @@
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
         .btn-search-circle:hover {
-        background-color: #e67300; /* 호버 시 약간 어둡게 */
+        background-color: #325e5a; /* 호버 시 약간 어둡게 */
         transform: scale(1.05); /* 살짝 커지는 효과 */
         }
 

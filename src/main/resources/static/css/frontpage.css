@@ -57,6 +57,34 @@
   border-radius: 12px !important;
 }
 
+
+/* ==========================================================================
+   메인 배너
+   ========================================================================== */
+
+.banner-section {
+    width: 100%;
+    height: 310px;
+    background: linear-gradient(to bottom,
+                    #f3ebda 0px, #f3ebda 244px,
+                    #f5f4ef 244px, #f5f4ef 310px); /* 이미지 로딩 전 배경색 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.banner-container {
+    width: 100%;
+}
+
+.main-banner-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+
 /* ==========================================================================
    메인 콘텐츠 카드 & 애니메이션
    ========================================================================== */
@@ -210,3 +238,20 @@
     display: none !important; /* 메인 카드 본문에서는 이미지 숨김 */
 }
 
+
+/* ==========================================================================
+   메인 최신방후기 카드
+   ========================================================================== */
+.card.shadow-sm {
+    /* 가로0, 세로4px, 퍼짐20px, 색상#f4a261(투명도 30%) */
+    box-shadow: 0 0 8px rgba(244, 162, 97, 0.6) !important;
+}
+
+/* 2. 마우스를 올렸을 때(Hover) 더 진해지고 흐려지는 효과 */
+.shadow-hover:hover {
+    /* 가로0, 세로10px, 퍼짐30px, 색상#f4a261(투명도 50%) */
+    box-shadow: 0 0 15px rgba(244, 162, 97, 0.8) !important;
+    /* 카드가 살짝 위로 올라오는 느낌 추가 */
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
