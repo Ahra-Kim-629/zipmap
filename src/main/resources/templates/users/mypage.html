@@ -42,12 +42,12 @@
                             <input type="hidden" th:field="*{id}"/>
 
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label for="loginId" class="form-label">아이디</label>
                                     <input type="text" id="loginId" th:field="*{loginId}" class="form-control rounded-3"
                                            readonly/>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label for="name" class="form-label">이름</label>
                                     <input type="text" id="name" th:field="*{name}" class="form-control rounded-3"
                                            readonly/>
@@ -55,22 +55,29 @@
 
                                 <div class="col-12 mt-4">
                                     <p class="small fw-bold text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>비밀번호
-                                        변경 (필요 시에만 입력)</p>
-                                    <div class="row g-2">
-                                        <div class="col-md-4">
+                                        변경 (필요 시에만 입력)
+                                    </p>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label small text-muted">기존 비밀번호</label>
                                             <input type="password" id="password" name="password"
-                                                   class="form-control rounded-3" placeholder="기존 비밀번호"/>
-                                        </div>
-                                        <div class="col-md-4">
+                                                   class="form-control rounded-3" placeholder="기존 비밀번호를 입력하세요"/>
+                                    </div>
+
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label small text-muted">새 비밀번호</label>
                                             <input type="password" id="newPassword" name="new_password"
-                                                   class="form-control rounded-3" placeholder="새 비밀번호"/>
+                                                   class="form-control rounded-3" placeholder="새 비밀번호를 입력하세요"/>
+                                            <div id="passwordHelp" class="form-text">영문 대/소문자, 숫자, 특수문자를 포함하여 8~20자로 입력해주세요.</div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="passwordConfirm" class="form-label small text-muted">새 비밀번호 확인</label>
                                             <input type="password" id="passwordConfirm" name="password_confirm"
-                                                   class="form-control rounded-3" placeholder="새 비밀번호 확인"/>
+                                                   class="form-control rounded-3" placeholder="새 비밀번호를 다시 입력하세요"/>
+                                            <div id="passwordMatchHelp" class="form-text">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+
 
                                 <div class="col-12 mt-4">
                                     <label for="email" class="form-label">이메일</label>

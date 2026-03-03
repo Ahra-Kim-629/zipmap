@@ -150,39 +150,33 @@ public class UserController {
     }
 
     @PostMapping("/users/mypage")
-    // 혼자서 해보려다가 AI 도움 받았어요. 공부 조금더 필요합니다!!!
     public String mypage(@AuthenticationPrincipal UserPrincipalDetails user,
+                         @RequestParam(required = false) String current_password,
                          @RequestParam(required = false) String new_password,
                          @RequestParam(required = false) String password_confirm,
                          RedirectAttributes rttr) {
         try {
-            User findUser = userService.findByLoginId(user.getUser().getLoginId());
+            User findUser = userService.findByLoginId(user.getUsername());
 
-            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
+            if (new_password != null && !new_password.isEmpty()) {
+                if(current_password == null || current_password.isEmpty()){
+                    rttr.addFlashAttribute("error", "현재 비밀번호를 입력해주세요.");
+                    return "redirect:/users/mypage";
+                }
+                if (!passwordEncoder.matches(current_password, findUser.getPassword())) {
                     rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
-            }
 
-            if (new_password != null && !new_password.isEmpty()) {
-                if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                    rttr.addFlashAttribute("error", "비밀번호 변경을 위해서는 현재 비밀번호 입력이 필요합니다.");
-                    return "redirect:/users/mypage";
-                }
-
-                if (!new_password.equals(password_confirm)) {
+                if (password_confirm == null || !new_password.equals(password_confirm)) {
                     rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
+                findUser.setPassword(passwordEncoder.encode(new_password));
 
-                user.getUser().setPassword(passwordEncoder.encode(new_password));
-            } else {
-                user.getUser().setPassword(null);
             }
 
-            user.getUser().setId(findUser.getId());
-            userService.update(user.getUser());
+            userService.update(findUser);
 
             rttr.addFlashAttribute("success", "회원 정보 수정이 완료되었습니다.");
             return "redirect:/";
@@ -204,7 +198,7 @@ public class UserController {
     }
 
     @PostMapping("/users/unregister")
-    public String unregister(UserPrincipalDetails user, RedirectAttributes rttr, HttpSession session) {
+    public String unregister(@AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr, HttpSession session) {
         try {
             userService.unregister(user.getUser());
             rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
