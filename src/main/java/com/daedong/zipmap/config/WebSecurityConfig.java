@@ -33,7 +33,7 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/signUp", "/check-id", "/login", "/logout", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/post/**"
-                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**").permitAll()
+                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**", "/alarm-ws/**").permitAll()
 
                         .requestMatchers("/css/**", "/js/**","/images/**", "/files/**",
                                 "/review/uploadSummernoteImage",
@@ -83,6 +83,12 @@ public class WebSecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
+                )
+
+                // SockJS는 iframe이라는 기술을 사용하는데, 스프링 시큐리티는 보안상
+                // 이를 기본적으로 차단하기 때문에 iframe 허용 설정 추가
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
                 );
 
         return http.build();

@@ -19,7 +19,7 @@ public class MyAlarmHandler extends TextWebSocketHandler {
     // <사용자ID, 웹소켓세션>
     private Map<String, WebSocketSession> userSessions = new HashMap<>();
 
-    // 사용자가 로그인하여 연결됐을때 실행
+//     사용자가 로그인하여 연결됐을때 실행
 //    @Override
 //    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 //        // Spring Security의 Authentication 객체로 형변환하여 상세 정보 꺼내기
