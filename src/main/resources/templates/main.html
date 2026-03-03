@@ -8,11 +8,17 @@
 </th:block>
 
 <div layout:fragment="content">
-    <div class="container mt-3">
+    <div class="container mt-3" style="background-color: #f5f4ef;">
         <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
         <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
              th:text="${success}"></div>
     </div>
+
+    <section class="banner-section">
+        <div class="banner-container">
+            <img th:src="@{/images/banner.png}" alt="대동여집도 메인 배너" class="main-banner-img">
+        </div>
+    </section>
 
     <th:block th:if="${noticeDTOList != null && noticeDTOList.size() > 0}">
         <div class="modal fade" id="noticeCarouselModal" tabindex="-1" aria-hidden="true">
