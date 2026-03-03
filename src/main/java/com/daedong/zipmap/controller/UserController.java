@@ -151,12 +151,12 @@ public class UserController {
 
     @PostMapping("/users/mypage")
     // 혼자서 해보려다가 AI 도움 받았어요. 공부 조금더 필요합니다!!!
-    public String mypage(User user,
+    public String mypage(@AuthenticationPrincipal UserPrincipalDetails user,
                          @RequestParam(required = false) String new_password,
                          @RequestParam(required = false) String password_confirm,
                          RedirectAttributes rttr) {
         try {
-            User findUser = userService.findByLoginId(user.getLoginId());
+            User findUser = userService.findByLoginId(user.getUser().getLoginId());
 
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                 if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
@@ -176,13 +176,13 @@ public class UserController {
                     return "redirect:/users/mypage";
                 }
 
-                user.setPassword(passwordEncoder.encode(new_password));
+                user.getUser().setPassword(passwordEncoder.encode(new_password));
             } else {
-                user.setPassword(null);
+                user.getUser().setPassword(null);
             }
 
-            user.setId(findUser.getId());
-            userService.update(user);
+            user.getUser().setId(findUser.getId());
+            userService.update(user.getUser());
 
             rttr.addFlashAttribute("success", "회원 정보 수정이 완료되었습니다.");
             return "redirect:/";
