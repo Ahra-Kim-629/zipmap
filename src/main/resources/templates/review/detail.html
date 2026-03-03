@@ -283,6 +283,7 @@
 const currentUserName = /*[[${#authentication != null ? #authentication.name : null}]]*/ null;    // [중요] CSRF 토큰: POST 요청(삭제 등)을 할 때 세션 유실(자동 로그아웃)을 막아줍니다.
 const csrfToken = [[${_csrf.token}]];
 const csrfParameterName = [[${_csrf.parameterName}]];
+const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
 
     let currentPage = 0;
     let isLoading = false;
@@ -348,6 +349,19 @@ const csrfParameterName = [[${_csrf.parameterName}]];
                     replies.forEach(reply => {
                         $("#reply-container").append(renderReply(reply));
                     });
+
+                    // [추가] URL에 replyId가 있다면 해당 댓글로 포커싱
+                    const focusReplyId = urlParams.get('replyId');
+                    if (focusReplyId && !$(".reply-focus").length) {
+                        const $target = $("#reply-" + focusReplyId);
+                        $target[0].scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                        $target.addClass("reply-focus");
+                    }
+
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
                 } else {

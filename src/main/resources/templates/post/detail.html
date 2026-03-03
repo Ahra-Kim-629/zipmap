@@ -162,7 +162,8 @@
 
 
 
-                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm">
+                    <!-- 서버 사이드 렌더링 댓글에도 ID 부여 (JS 렌더링과 통일) -->
+                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm" th:id="|reply-${reply.id}|">
                         <div th:id="|display-${reply.id}|">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <span class="reply-author" th:text="${reply.loginId}">사용자</span>
@@ -184,6 +185,7 @@
                             </div>
                             <p class="mb-0 text-secondary small" th:text="${reply.content}">댓글 내용</p>
                         </div>
+                    </div>
 
                     <!-- 무한 스크롤 댓글 컨테이너 -->
                     <div id="reply-container"></div>
@@ -217,8 +219,11 @@
     let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
     let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)
     let isLastPage = false;   // 더 이상 가져올 댓글이 없는지 확인
+    let hasFocusedReply = false;
     const targetId = [[${postDTO.id}]]; // 현재 보고 있는 게시글의 번호
     const currentUserName = "[[${#authentication.name}]]"; // 로그인한 사용자의 이름
+    const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
+    const focusReplyId = urlParams.get("replyId");
 
     $(document).ready(function() {
         // [홀 서빙 시작] 페이지가 열리자마자 실행되는 기능들입니다.
@@ -263,6 +268,7 @@
                 }
             });
         });
+
     }); // $(document).ready 끝
 
     // [창고지기] 서버에서 댓글 데이터를 가져오는 함수
@@ -276,6 +282,8 @@
             success: function(replies) {
                 if (replies && replies.length > 0) {
                     replies.forEach(reply => { $("#reply-container").append(renderReply(reply)); });
+                    tryFocusReply();
+
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
                 } else { isLastPage = true; }
@@ -283,6 +291,32 @@
             complete: function() { isLoading = false; $("#reply-loader").hide(); }
         });
     }
+
+    function tryFocusReply() {
+
+    // 이미 실행했으면 종료
+    if (hasFocusedReply) return;
+
+    if (!focusReplyId) return;
+
+    const target = document.getElementById("reply-" + focusReplyId);
+
+    if (target) {
+
+        target.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+        target.classList.add("reply-focus");
+
+        setTimeout(() => {
+            target.classList.remove("reply-focus");
+        }, 2000);
+
+        hasFocusedReply = true; // 다시 실행되지 않게 차단
+    }
+}
 
     // [접시 닦기] 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
     function renderReply(reply) {
