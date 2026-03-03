@@ -1,0 +1,60 @@
+@font-face {
+    font-family: 'NanumBarunGothic';
+    src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'NanumBarunGothic';
+    src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebBold.eot');
+    font-weight: 700;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'NanumBarunGothic';
+    src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWebLight.eot');
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Shilla';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-02@1.0/Shilla_CultureB-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euljiro';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/BMEULJIRO.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Jeongmeokbawi';
+    src: url('https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/SangSangRockOTF.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NanumBareunGothicOldHangeul';
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumBarunGothicYetHangul/NanumBarunGothic-YetHangul.eot);
+    src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumBarunGothicYetHangul/NanumBarunGothic-YetHangul.eot?#iefix) format("embedded-opentype"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumBarunGothicYetHangul/NanumBarunGothic-YetHangul.woff2) format("woff2"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumBarunGothicYetHangul/NanumBarunGothic-YetHangul.woff) format("woff"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumBarunGothicYetHangul/NanumBarunGothic-YetHangul.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: 'GimpoPeaceGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/GimpoGothicRegular00.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'GimpoPeaceGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/GimpoGothicBold00.woff') format('woff');
+    font-weight: 700;
+    font-display: swap;
+}
+

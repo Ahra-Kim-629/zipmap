@@ -2,6 +2,7 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.ReportDTO;
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class ReportController {
     @PostMapping("/report/submit")
     public String submitReport(@ModelAttribute ReportDTO reportDTO,
                                @RequestParam(value = "reportFile", required = false) MultipartFile file,
-                               @AuthenticationPrincipal User user) {
+                               @AuthenticationPrincipal UserPrincipalDetails user) {
 
         if (user == null) {
             return "redirect:/login";
@@ -46,7 +47,7 @@ public class ReportController {
 
         log.info("신고 접수 - 유형: {}, ID: {}", reportDTO.getTargetType(), reportDTO.getTargetId());
 
-        reportDTO.setUserId(user.getId());
+        reportDTO.setUserId(user.getUser().getId());
         reportService.saveReport(reportDTO, file);
 
         // 리다이렉트 경로 분기

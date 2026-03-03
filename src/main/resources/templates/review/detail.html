@@ -17,7 +17,7 @@
         .badge-cons { background-color: rgba(220, 53, 69, 0.08); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.15); padding: 5px 12px; }
 
         /* 이미지 및 본문 줄바꿈 통일 */
-        .review-image { width: 100%; border-radius: 16px; transition: transform 0.3s; cursor: pointer; border: 1px solid #eee; }
+        .review-image { width: 100%; border-radius: 16px; transition: transform 0.3s; cursor: zoom-in; border: 1px solid #eee; }
         .review-image:hover { transform: scale(1.02); }
         .content-body {
             line-height: 1.8; color: #444; font-size: 1.05rem;
@@ -53,6 +53,54 @@
         .reply-section { background: #f8f9fa; border-radius: 20px; padding: 35px; margin-top: 50px; }
         .reply-item { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; }
         .reply-author { font-weight: bold; color: #3E362E; font-size: 0.95rem; }
+
+
+
+        /* ✨ 1. 현장 실사 가로 슬라이더 디자인 */
+        .photo-slider-wrapper { position: relative; }
+        .photo-track {
+            display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
+            -ms-overflow-style: none; scrollbar-width: none; scroll-snap-type: x mandatory;
+            padding: 5px;
+        }
+        .photo-track::-webkit-scrollbar { display: none; }
+        .photo-item {
+            flex: 0 0 calc(25% - 11.25px); /* 딱 4개씩 보이도록 계산 */
+            min-width: 140px; /* 모바일에서 너무 작아지지 않게 방어 */
+            scroll-snap-align: start;
+        }
+        .photo-item .review-image { height: 160px; object-fit: cover; } /* 사진을 아담하고 일정하게 */
+
+        .slider-btn {
+            position: absolute; top: 60%; transform: translateY(-50%); z-index: 10;
+            width: 44px; height: 44px; background: rgba(255,255,255,0.95); border: 1px solid #eee;
+            border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; color: #555; font-size: 1.2rem;
+        }
+        .slider-btn:hover { background: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.15); transform: translateY(-50%) scale(1.05); color: #333; }
+        .slider-btn.prev { left: -22px; }
+        .slider-btn.next { right: -22px; }
+
+        /* ✨ 2. 본문 사진 클릭 시 커서 모양 변경 */
+        .content-body img { cursor: zoom-in; transition: transform 0.2s; }
+        .content-body img:hover { transform: scale(1.01); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+        /* ✨ 3. 사진 전체보기 모달(Lightbox) 디자인 */
+        .image-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            z-index: 10000; display: none; align-items: center; justify-content: center;
+        }
+        .image-modal-overlay.show { display: flex; }
+        .image-modal-content { max-width: 90vw; max-height: 90vh; border-radius: 12px; object-fit: contain; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .image-modal-close { position: absolute; top: 25px; right: 35px; color: white; font-size: 2.5rem; cursor: pointer; transition: 0.2s; }
+        .image-modal-close:hover { color: #ffc107; transform: rotate(90deg); }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+
+
+
     </style>
 </th:block>
 
@@ -122,14 +170,23 @@
                     </div>
                 </div>
 
-                <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}" class="mb-5">
+                <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}" class="mb-5 photo-slider-wrapper">
                     <h6 class="fw-bold mb-3"><i class="bi bi-images me-2 text-orange"></i>현장 실사</h6>
-                    <div class="row g-3">
-                        <div th:each="file : ${reviewDTO.fileList}" class="col-md-4 col-6">
-                            <img th:src="@{/files/{path}(path=${file.filePath})}" class="review-image shadow-sm"
-                                 alt="리뷰 이미지">
+
+                    <button class="slider-btn prev" onclick="scrollPhotoTrack(-1)"><i class="bi bi-chevron-left"></i></button>
+
+                    <div id="photoTrack" class="photo-track">
+                        <div th:each="file : ${reviewDTO.fileList}" class="photo-item">
+                            <img th:src="@{/files/{path}(path=${file.filePath})}" class="review-image shadow-sm" alt="현장 실사 이미지">
                         </div>
                     </div>
+
+                    <button class="slider-btn next" onclick="scrollPhotoTrack(1)"><i class="bi bi-chevron-right"></i></button>
+                </div>
+
+                <div id="imageModal" class="image-modal-overlay" onclick="closeImageModal(event)">
+                    <i class="bi bi-x-lg image-modal-close" onclick="closeImageModal(event)"></i>
+                    <img id="modalImage" class="image-modal-content" src="" alt="확대된 이미지">
                 </div>
 
                 <div class="py-4 border-top border-bottom mb-5">
@@ -211,13 +268,58 @@
     alert([[${successMessage}]]);
 </script>
 <script layout:fragment="script">
-    // 1. 전역 변수 설정
-    let currentPage = 0;
-    let isLoading = false;
-    let isLastPage = false;
-    const targetId = [[${reviewDTO.id}]];
-    const currentUserName = "[[${#authentication != null ? #authentication.name : ''}]]";
+    function toggleEditForm(id) {
+        const form = document.getElementById('editForm-' + id);
+        const display = document.getElementById('display-' + id);
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            display.style.opacity = '0.5';
+        } else {
+            form.style.display = 'none';
+            display.style.opacity = '1';
+        }
+    }
 
+    // ==========================================
+    //  1. 현장 실사 슬라이더 좌우 스크롤 함수
+    // ==========================================
+    function scrollPhotoTrack(direction) {
+        const track = document.getElementById('photoTrack');
+        // 한 번에 아이템 2개 너비만큼 부드럽게 넘기기
+        const scrollAmount = (track.clientWidth / 2);
+
+        if (direction === -1) {
+            track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+
+    // ==========================================
+    //  2. 본문 내용 안의 사진 클릭 시 크게 보기(모달) 로직
+    // ==========================================
+    $(document).ready(function() {
+        //  수정 포인트: '.content-body' 옆에 쉼표(,)를 찍고 '.photo-track'을 추가
+        $('.content-body, .photo-track').on('click', 'img', function() {
+            const clickedImageSrc = $(this).attr('src'); // 클릭한 사진의 주소 가져오기
+            $('#modalImage').attr('src', clickedImageSrc); // 모달창 이미지 주소에 쏙 넣기
+            $('#imageModal').addClass('show'); // 모달창 띄우기
+            $('body').css('overflow', 'hidden'); // 뒤에 배경 스크롤 안 되게 막기
+        });
+    });
+
+    // 모달창 닫기 (X 버튼 누르거나 여백 클릭 시)
+    function closeImageModal(event) {
+        // 이미지를 직접 클릭했을 때는 안 닫히고, 밖의 검은 배경이나 X버튼 눌렀을 때만 닫힘
+        if (event.target.id === 'imageModal' || $(event.target).hasClass('image-modal-close')) {
+            $('#imageModal').removeClass('show');
+            $('#modalImage').attr('src', ''); // 메모리 절약을 위해 주소 비우기
+            $('body').css('overflow', 'auto'); // 배경 스크롤 다시 풀기
+        }
+    }
+
+
+    //내가 쓴 댓글 스크롤(포커싱)
     $(document).ready(function() {
         // [중요] 페이지 로드 시 첫 댓글 로드 실행
         fetchReplies();
@@ -313,17 +415,5 @@
             </div>`;
     }
 
-    // 4. 수정폼 토글
-    function toggleEditForm(id) {
-        const form = $('#editForm-' + id);
-        const display = $('#display-' + id);
-        if (form.is(':hidden')) {
-            form.show();
-            display.css('opacity', '0.5');
-        } else {
-            form.hide();
-            display.css('opacity', '1');
-        }
-    }
 </script>
 </html>

@@ -1,6 +1,7 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.User;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.AlarmService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +29,13 @@ public class AlarmRestController {
     }
 
     @GetMapping("/unread-count")
-    public int getUnreadCount(@AuthenticationPrincipal User user) {
+    public int getUnreadCount(@AuthenticationPrincipal UserPrincipalDetails user) {
         if (user == null) {
             System.out.println("로그인 유저를 찾을 수 없습니다.");
             return 0;
         }
 
-        System.out.println("로그인 유저 ID: " + user.getId());
-        return alarmService.getUnreadCount(user.getId());
+        System.out.println("로그인 유저 ID: " + user.getUser().getId());
+        return alarmService.getUnreadCount(user.getUser().getId());
     }
 }
