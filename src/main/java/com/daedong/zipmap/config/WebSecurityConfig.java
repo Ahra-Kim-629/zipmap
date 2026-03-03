@@ -52,6 +52,13 @@ public class WebSecurityConfig {
                         .requestMatchers("/find/**", "/users/**",
                                 "/review/**").hasRole("USER")
 
+                        // [추가] 댓글 기능은 로그인한 유저라면 누구나 접근 가능하도록 명시
+                        .requestMatchers("/reply/**").authenticated()
+
+                        .requestMatchers("/find/**", "/users/**", "/review/**").hasRole("USER")
+
+                        .requestMatchers("/error", "/favicon.ico", "/.well-known/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin((formLogin) -> formLogin

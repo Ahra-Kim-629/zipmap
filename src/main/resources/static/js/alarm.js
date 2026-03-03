@@ -3,9 +3,8 @@
 // 현재 페이지의 프로토콜(http/https)에 맞춰 ws/wss를 결정하고 주소를 가져옴
 var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 var host = window.location.host; // localhost:8080 같은 주소를 가져옴
-var socket = new WebSocket(protocol + '//' + host + '/alarm-ws');
-
-
+// 현재 접속한 도메인과 프로토콜을 자동으로 따라가게 설정
+const socket = new SockJS('/alarm-ws')
 // 연결 성공시 실행
 socket.onopen = function() {
     console.log('실시간 알림 서버와 연결되었습니다.');

@@ -10,8 +10,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public String handleAllExceptions(Exception ex){
-        //서버 콘솔에 스택 트레이스를 남겨 개발자가 추적할 수 있도록 하기 위함
-        log.error("Unhandled Exception occurred: , ex");
+        // 1. 기존 코드: log.error("Unhandled Exception occurred: , ex");
+
+        // 2. 수정 코드: ex를 따옴표 밖으로 빼서 진짜 에러 내용을 출력하게 합니다.
+        log.error("Unhandled Exception occurred: ", ex);
+
         return "error/error";
     }
 }
