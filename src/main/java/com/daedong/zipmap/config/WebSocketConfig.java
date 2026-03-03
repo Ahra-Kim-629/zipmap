@@ -8,8 +8,8 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-@Configuration
-@EnableWebSocket
+//@Configuration
+//@EnableWebSocket
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // "/alarm-ws" 라는 주소로 들어오면 웹소켓 통로를 열어줌
         registry.addHandler(myAlarmHandler, "/alarm-ws")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())  // 로그인 정보 옮겨줌
-                .setAllowedOrigins("*");
-    }
-
+                .setAllowedOriginPatterns("*") // ✅ 세미콜론 제거
+                .withSockJS(); // ✅ 메서드 닫기 직전에 세미콜론과 함께 마무리
+    } // ✅ 메서드 끝
 }

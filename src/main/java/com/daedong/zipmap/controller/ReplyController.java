@@ -23,11 +23,29 @@ public class ReplyController {
 
     // 댓글 작성
     @PostMapping("/write")
-    public String write(Reply reply, @AuthenticationPrincipal UserPrincipalDetails user) {
-        reply.setUserId(user.getUser().getId());
+    public String write(Reply reply,
+                        @AuthenticationPrincipal UserPrincipalDetails user,
+                        RedirectAttributes rttr) {
 
+        // 1. 유저 정보 체크
+        if (user == null || user.getUser() == null) {
+            rttr.addFlashAttribute("error", "로그인 세션이 만료되었습니다.");
+            return "redirect:/login";
+        }
+
+        // [수정] 대문자 강제 변환 로직 삭제
+        // 이유: post는 소문자로 저장되는데 review만 대문자로 저장되어 조회 시 불일치 발생
+        // 클라이언트에서 보내준 값(소문자) 그대로 저장합니다.
+        /*
+        if (reply.getTargetType() != null) {
+            reply.setTargetType(reply.getTargetType().toUpperCase());
+        }
+        */
+
+        reply.setUserId(user.getUser().getId());
         replyService.saveReply(reply);
 
+        // 3. 리다이렉트: 성공 시 해당 상세 페이지로 다시 보냄
         return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
     }
 

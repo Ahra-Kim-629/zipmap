@@ -103,10 +103,12 @@ public class ReviewController {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, user);
 
         boolean isLiked = false;
-        if (user != null) {
+        // [수정 포인트] user가 null인지 먼저 확인하여 NullPointerException 방지
+        if (user != null && user.getUser() != null) {
             isLiked = reactionService.isLiked(user.getUser().getId(), id, "review");
         }
-        model.addAttribute("reviewDTO", reviewDTO);
+
+        model.addAttribute("reviewDTO", reviewDTO); // 여기서 객체 이름이 'reviewDTO'인 것을 기억하세요.
         model.addAttribute("isLiked", isLiked);
 
         return "review/detail";
