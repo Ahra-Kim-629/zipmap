@@ -1,6 +1,6 @@
 /* 디자인 컬러 시스템 */
 :root {
-  --main-orange: #e67e22;
+  --main-orange: #3f8a7e;
   --bg-tan: #f9f7f2;
   --text-dark: #333;
   --text-muted: #888;
@@ -8,7 +8,7 @@
 }
 
 body {
-  background-color: #fff;
+  background-color: #f5f4ef;
   font-family: "NanumBareunGothicOldHangeul", sans-serif !important;
   color: var(--text-dark);
   line-height: 1.6;
@@ -41,7 +41,7 @@ body {
 }
 
 .btn-orange:hover {
-  background-color: #d35400 !important;
+  background-color: #325e5a !important;
 }
 
 /* 부트스트랩 기본 폼 보정 */

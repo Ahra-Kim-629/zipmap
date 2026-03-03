@@ -1,9 +1,6 @@
 package com.daedong.zipmap.service;
 
-import com.daedong.zipmap.domain.Status;
-import com.daedong.zipmap.domain.Token;
-import com.daedong.zipmap.domain.User;
-import com.daedong.zipmap.domain.UserRole;
+import com.daedong.zipmap.domain.*;
 import com.daedong.zipmap.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +33,7 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("사용자를 찾을 수 없습니다." + login_id);
         }
-        return user;
+        return new UserPrincipalDetails(user);
     }
 
     @Transactional

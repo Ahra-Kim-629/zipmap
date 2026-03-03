@@ -67,8 +67,9 @@
                                 <i class="bi bi-megaphone"></i> 신고하기
                             </a>
                             <div sec:authorize="isAuthenticated()">
-                                <div th:if="${#authentication.principal.id == postDTO.userId}" class="d-flex gap-2">
-
+                                <div th:if="${#authentication != null
+                                            and #authentication.principal != null
+                                            and #authentication.name == postDTO.loginId}" class="d-flex gap-2">
                                     <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
 
                                     <form th:action="@{/post/delete/{id}(id=${postDTO.id})}" method="post"
@@ -211,7 +212,7 @@
     </div>
 </div>
 
-<script layout:fragment="script">
+<script layout:fragment="script" >
     // 1. 전역 변수 설정
     let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
     let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)

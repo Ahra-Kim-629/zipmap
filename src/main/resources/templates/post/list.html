@@ -5,7 +5,7 @@
 
 <th:block layout:fragment="css">
     <style>
-        .board-container { padding: 40px 0; background-color: #fdfcf9; }
+        .board-container { padding: 40px 0; background-color: #f5f4ef; }
         .page-title {  font-weight: 800; color: #3E362E; }
 
         /* 필터 카드 */
@@ -41,7 +41,7 @@
         }
 
         .btn-search {
-            background-color: #F97316 !important;
+            background-color: #3f8a7e !important;
             color: #ffffff !important;
             border: none !important;
             border-radius: 12px !important;
@@ -50,7 +50,7 @@
             transition: background-color 0.2s;
         }
         .btn-search:hover {
-            background-color: #EA580C !important;
+            background-color: #325e5a !important;
         }
 
         /* 테이블 디자인 */
@@ -79,13 +79,13 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .page-item.active .page-link {
-            background-color: #F97316 !important; /* 검색 버튼과 동일한 오렌지색 */
+            background-color: #3f8a7e !important; /* 검색 버튼과 동일한 오렌지색 */
             border-color: #F97316 !important;
             color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
         .page-link:hover:not(.active) {
-            background-color: #f8f9fa; transform: translateY(-2px);
+            background-color: #325e5a; transform: translateY(-2px);
         }
 
         /* 카테고리 선택 버튼 스타일 */
@@ -447,7 +447,7 @@
     $(document).ready(function() {
 
         // 로그인 사용자 확인 (타임리프 문법)
-        const loginUserId = "[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.id : ''}]]";
+        const loginUserId = "[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.user.id : ''}]]";
         // 서버에서 보낸 내 구독 목록
         const myExistingKeywords = /*[[${myKeywords}]]*/ [];
         // 새로 저장할 키워드
