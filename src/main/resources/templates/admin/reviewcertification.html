@@ -122,21 +122,23 @@
 
         <td>
             <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-                <form th:action="@{/admin/reviews/toggle-status}" method="post" style="margin: 0;">
-                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                    <input type="hidden" name="id" th:value="${review.id}">
-                    <input type="hidden" name="status" value="ACTIVE">
-                    <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        승인
-                    </button>
-                </form>
+                <button type="button" th:onclick="'updateStatus(' + ${review.id} + ', \'ACTIVE\')'"
+                        style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    승인
+                </button>
 
-                <a th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
-                   onclick="return confirm('영구 삭제하시겠습니까?');"
-                   style="color: white; background: #dc3545; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;">
-                    삭제
-                </a>
+                <button type="button" th:onclick="'updateStatus(' + ${review.id} + ', \'REJECTED\')'"
+                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    반려(삭제)
+                </button>
             </div>
+
+            <form id="statusForm" th:action="@{/admin/reviews/update-certification}" method="post" style="display: none;">
+                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <input type="hidden" name="reviewId" id="formReviewId">
+                <input type="hidden" name="status" id="formStatus">
+                <input type="hidden" name="message" id="formMessage">
+            </form>
         </td>
     </tr>
     </tbody>
@@ -164,4 +166,27 @@
 
 
 </body>
+<script>
+    let currentReviewId = null;
+    function openRejectModal(id) {
+        currentReviewId = id;
+        $('#rejectModal').modal('show');
+    }
+
+    function submitReject() {
+        const msg = $('#rejectMessage').val();
+        if(!msg) { alert("사유를 입력해주세요."); return; }
+
+        // AJAX로 서버 전송
+        $.post("/review/approve", {
+            reviewId: currentReviewId,
+            status: 'REJECTED',
+            message: msg,
+            _csrf: $("meta[name='_csrf']").attr("content")
+        }, function() {
+            alert("반려 처리가 완료되었습니다.");
+            location.reload();
+        });
+    }
+</script>
 </html>

@@ -302,4 +302,15 @@ public class ReviewService {
         return reviewMapper.findContentsByRegion(region);
     }
 
+    @Transactional
+    public void processCertification(Long reviewId, Status status, String message) {
+        // 1. 리뷰 상태 변경 (ACTIVE 또는 REJECTED 등)
+        // 반려 시 아예 리스트에서 안 보이게 하려면 REJECTED나 BANNED로 변경
+        reviewMapper.updateReviewStatus(reviewId, status);
+
+        // 2. 인증(Certification) 테이블 상태 및 메시지 업데이트
+        // 해당 리뷰의 가장 최근 PENDING 상태인 인증 데이터를 찾아서 업데이트
+        reviewMapper.updateCertificationResult(reviewId, status, message);
+    }
+
 }
