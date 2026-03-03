@@ -1,234 +1,151 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org/">
-<head>
-    <meta charset="UTF-8">
-    <title>리뷰 목록</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
 
-    <!-- CSS: 테이블, 검색, 체크박스, 지도 -->
+<th:block layout:fragment="css">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        /* 리뷰 인증 관리 페이지 디자인 테마 */
+        .admin-container { padding: 40px 0; background-color: #f4f7f6; }
+        .board-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .table td { vertical-align: middle; }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
+        /* 리뷰 제목 링크 스타일 */
+        .post-link { text-decoration: none; color: #333; font-weight: 600; transition: 0.2s; }
+        .post-link:hover { color: #e67e22; text-decoration: underline; }
 
-        th {
-            background-color: #f2f2f2;
+        /* 썸네일 이미지 스타일 */
+        .review-thumb-wrapper {
+            width: 80px; height: 55px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin: 0 auto;
         }
+        .review-thumb-img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: 0.3s; }
+        .review-thumb-img:hover { transform: scale(1.1); }
 
-        .pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
+        /* 버튼 및 기타 스타일 */
+        .btn-orange { background-color: #3f8a7e; color: white; border: none; }
+        .btn-orange:hover { background-color: #325e5a; color: white; }
 
-        .pagination a, .pagination strong {
-            margin: 0 5px;
-            text-decoration: none;
-            color: black;
-        }
-
-        .pagination strong {
-            font-weight: bold;
-            color: red;
-        }
-
-        .search-container {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        .checkbox-group {
-            margin: 5px 0;
-        }
-
-        .checkbox-group label {
-            margin-right: 10px;
-        }
-
-        #map {
-            width: 100%;
-            height: 400px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-        }
+        .pagination-container .page-link { color: #333; border-radius: 8px; margin: 0 3px; border: none; }
+        .pagination-container .active .page-link { background-color: #e67e22; color: white; }
     </style>
+</th:block>
 
-</head>
-
-<body>
-
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
-    <h1 style="margin: 0;">리뷰 목록</h1>
-    <a th:href="@{/admin}"
-       style="padding: 6px 16px; border: 1px solid #343a40; border-radius: 50px; text-decoration: none; color: #343a40; font-size: 14px; background-color: white;">
-        관리자 홈
-    </a>
-</div>
-
-<!-- 리뷰 테이블 -->
-<table>
-    <colgroup>
-        <col style="width: 10%">
-        <col style="width: 30%">
-        <col style="width: 15%">
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col style="width: 15%">
-    </colgroup>
-    <thead>
-    <tr>
-        <th>인증 사진</th>
-        <th>제목</th>
-        <th>주소</th>
-        <th>작성자 ID</th>
-        <th>평점</th>
-        <th>작성일</th>
-        <th>관리</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="review : ${reviews.content}" class="review-item">
-
-        <td>
-            <div th:if="${review.filePath != null}" style="text-align: center;">
-                <div style="width: 80px; height: 60px; overflow: hidden; margin: 0 auto; border: 1px solid #ddd; border-radius: 4px;">
-                    <img th:src="|/files/${review.filePath}|"
-                         alt="인증 사진"
-                         style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"
-                         onclick="window.open(this.src)">
+<div layout:fragment="content">
+    <div class="admin-container">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">리뷰 인증 관리</h2>
+                    <p class="text-muted small mb-0">사용자들이 등록한 거주 후기 사진과 내용을 검토하고 승인합니다.</p>
                 </div>
-                <!-- 다운로드 링크 추가 -->
-                <a th:href="|/files/${review.filePath}|" download style="display: inline-block; margin-top: 5px; font-size: 11px; text-decoration: none; color: blue;">[다운로드]</a>
-            </div>
-            <span th:if="${review.filePath == null}" style="font-size: 11px; color: #999;">사진 없음</span>
-        </td>
-
-        <td style="text-align: left;">
-            <a th:href="@{/admin/detail/{id}(id=${review.id})}" th:text="${review.title}" style="font-weight: bold;"></a>
-        </td>
-
-        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-        <td th:text="${review.loginId}"></td>
-        <td th:text="${review.point}"></td>
-        <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}"></td>
-
-        <td>
-            <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
-                <button type="button" th:onclick="'updateStatus(' + ${review.id} + ', \'ACTIVE\')'"
-                        style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                    승인
-                </button>
-
-                <button type="button" th:onclick="'updateStatus(' + ${review.id} + ', \'PENDING\')'"
-                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                    반려(삭제)
-                </button>
-            </div>
-            <div th:if="${review.reviewStatus.name() == 'REJECTED'}" class="alert alert-warning">
-                <strong>[반려됨]</strong> 사유: <span th:text="${review.rejectMessage}">서류가 흐릿합니다.</span>
-                <a th:href="@{/review/certification(reviewId=${review.id})}" class="btn btn-sm btn-outline-dark">다시 인증하기</a>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-4">관리자 홈</a>
+                </div>
             </div>
 
-            <form id="statusForm" th:action="@{/admin/reviews/update-certification}" method="post" style="display: none;">
-                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                <input type="hidden" name="reviewId" id="formReviewId">
-                <input type="hidden" name="status" id="formStatus">
-                <input type="hidden" name="message" id="formMessage">
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="small text-muted">
+                    총 <span class="fw-bold text-dark" th:text="${reviews.totalElements}">0</span>건의 리뷰 요청
+                </div>
+            </div>
 
-<!-- 페이징 -->
-<div class="pagination" th:if="${reviews.totalPages > 0}">
-    <a th:if="${!reviews.first}"
-       th:href="@{/admin/reviewcertification(page=${reviews.number-1})}">&laquo;
-        이전</a>
-    <span th:if="${reviews.first}" style="color: gray;">&laquo; 이전</span>
+            <div th:if="${message}" class="alert alert-primary border-0 rounded-3 small py-2 mb-3 shadow-sm" th:text="${message}"></div>
 
-    <span th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}">
-        <a th:if="${page != reviews.number}"
-           th:href="@{/admin/reviewcertification(page=${page})}"
-           th:text="${page+1}"></a>
-        <strong th:if="${page == reviews.number}" th:text="${page+1}"></strong>
-    </span>
+            <div class="board-table-card shadow-sm">
+                <table class="table mb-0 text-center">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 10%;">인증사진</th>
+                        <th style="width: 30%;">제목</th>
+                        <th style="width: 15%;">지역(주소)</th>
+                        <th style="width: 10%;">작성자</th>
+                        <th style="width: 8%;">평점</th>
+                        <th style="width: 12%;">작성일</th>
+                        <th style="width: 15%;">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="review : ${reviews.content}">
+                        <td>
+                            <div th:if="${review.filePath != null}">
+                                <div class="review-thumb-wrapper">
+                                    <img th:src="|/files/${review.filePath}|"
+                                         class="review-thumb-img"
+                                         alt="인증사진"
+                                         onclick="window.open(this.src)">
+                                </div>
+                                <a th:href="|/files/${review.filePath}|" download class="text-primary" style="font-size: 10px;">다운로드</a>
+                            </div>
+                            <span th:if="${review.filePath == null}" class="text-muted small">사진없음</span>
+                        </td>
+                        <td class="text-start ps-4">
+                            <a th:href="@{/admin/detail/{id}(id=${review.id})}"
+                               class="post-link"
+                               th:text="${review.title}">리뷰 제목</a>
+                        </td>
+                        <td class="small text-muted"
+                            th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}">
+                            서울시 관악구
+                        </td>
+                        <td>
+                            <span class="small fw-bold" th:text="${review.loginId}">user01</span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-warning">
+                                <i class="bi bi-star-fill small"></i> [[${review.point}]]
+                            </span>
+                        </td>
+                        <td class="text-muted small" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd')}">
+                            2026-03-03
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <form th:action="@{/admin/reviews/toggle-status}" method="post" style="margin: 0;">
+                                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                    <input type="hidden" name="id" th:value="${review.id}">
+                                    <input type="hidden" name="status" value="ACTIVE">
+                                    <button type="submit" class="btn btn-sm btn-orange px-3 rounded-pill fw-bold">
+                                        승인
+                                    </button>
+                                </form>
+                                <a th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
+                                   class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                   onclick="return confirm('영구 삭제하시겠습니까?');">
+                                    삭제
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${reviews.empty}">
+                        <td colspan="7" class="py-5 text-muted">검토할 리뷰가 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <a th:if="${!reviews.last}"
-       th:href="@{/admin/reviewcertification(page=${reviews.number+1})}">다음
-        &raquo;</a>
-    <span th:if="${reviews.last}" style="color: gray;">다음 &raquo;</span>
+            <nav th:if="${reviews.totalPages > 0}" class="mt-5 d-flex justify-content-center pagination-container">
+                <ul class="pagination shadow-sm">
+                    <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/reviewcertification(page=${reviews.number-1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="page : ${#numbers.sequence(0, reviews.totalPages-1)}"
+                        th:classappend="${page == reviews.number} ? 'active'">
+                        <a class="page-link" th:href="@{/admin/reviewcertification(page=${page})}" th:text="${page+1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/reviewcertification(page=${reviews.number+1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </div>
-
-
-</body>
-<script>
-    let currentReviewId = null;
-    function openRejectModal(id) {
-        currentReviewId = id;
-        $('#rejectModal').modal('show');
-    }
-
-    function submitReject() {
-        const msg = $('#rejectMessage').val();
-        if(!msg) { alert("사유를 입력해주세요."); return; }
-
-        // AJAX로 서버 전송
-        $.post("/review/approve", {
-            reviewId: currentReviewId,
-            status: 'REJECTED',
-            message: msg,
-            _csrf: $("meta[name='_csrf']").attr("content")
-        }, function() {
-            alert("반려 처리가 완료되었습니다.");
-            location.reload();
-        });
-    }
-    function updateReviewStatus(reviewId, status) {
-    if (status === 'BANNED') {
-        // 1. 사용자에게 선택지 제공 (간단하게 프롬프트나 라디오 버튼 모달 가능)
-        // 여기서는 이해하기 쉽게 prompt와 번호 선택 방식을 예시로 들게요.
-        let reasonCode = prompt("반려 사유를 선택하세요.\n1. 서류 미비\n2. 서류 화질 미비", "1");
-
-        if (reasonCode === null) return; // 취소
-
-        let message = (reasonCode === "1") ? "서류 미비" : "서류 화질 미비";
-
-        if (confirm(`'${message}' 사유로 반려하시겠습니까?`)) {
-            sendRejectAjax(reviewId, message);
-        }
-    } else {
-        // 승인 로직 (기존과 동일)
-        if (confirm("이 리뷰를 승인하시겠습니까?")) {
-            // 기존 ACTIVE 전송 로직...
-        }
-    }
-}
-
-// 반려 전용 AJAX 전송 함수
-function sendRejectAjax(reviewId, message) {
-    const token = $("meta[name='_csrf']").attr("content");
-    const header = $("meta[name='_csrf_header']").attr("content");
-
-    $.ajax({
-        url: "/admin/reviews/reject",
-        type: "POST",
-        data: { reviewId: reviewId, message: message },
-        beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
-        success: function(res) {
-            alert(res);
-            location.reload();
-        },
-        error: function() { alert("반려 처리 중 오류가 발생했습니다."); }
-    });
-}
-</script>
 </html>
