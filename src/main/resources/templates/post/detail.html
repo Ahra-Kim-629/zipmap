@@ -53,8 +53,8 @@
 
                 <div class="detail-header">
                     <div class="mb-3">
-                        <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category}">카테고리</span>
-                        <span class="badge badge-location rounded-pill" th:text="${postDTO.location}">지역 정보</span>
+                        <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category.displayName}">카테고리</span>
+                        <span class="badge badge-location rounded-pill" th:text="${postDTO.location.displayName}">지역 정보</span>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center">

@@ -117,10 +117,12 @@
                     <div class="row g-2">
                         <div class="col-md-2">
                             <select name="category" class="form-select form-control">
-                                <option value="" th:selected="${category == null or category == ''}">카테고리 전체</option>
+                                <option value="NOTICE" th:selected="${category == 'NOTICE'}">공지사항</option>
                                 <option value="GROUP" th:selected="${category == 'GROUP'}">공구</option>
                                 <option value="SHARE" th:selected="${category == 'SHARE'}">나눔</option>
                                 <option value="FREE" th:selected="${category == 'FREE'}">자유</option>
+                                <option value="TRADE" th:selected="${category == 'TRADE'}">중고거래</option>
+                                <option value="QNA" th:selected="${category == 'QNA'}">질문</option>
                             </select>
                         </div>
 
@@ -190,16 +192,24 @@
                             <input type="checkbox" name="selectedPosts" th:value="${post.id}" class="form-check-input post-checkbox">
                         </td>
                         <td class="text-center">
-                            <span th:if="${post.category == 'NOTICE'}" class="badge bg-danger rounded-pill">공지</span>
-                            <span th:unless="${post.category == 'NOTICE'}" class="text-muted small" th:text="${post.id}"></span>
+    <span th:if="${post.category != null && (post.category == 'NOTICE' || post.category.name() == 'NOTICE')}"
+          class="badge bg-danger rounded-pill">공지</span>
+
+                            <span th:unless="${post.category != null && (post.category == 'NOTICE' || post.category.name() == 'NOTICE')}"
+                                  class="text-muted small" th:text="${post.id}"></span>
                         </td>
                         <td class="text-start ps-4">
-                            <span th:if="${post.category == 'GROUP'}" class="badge badge-group rounded-pill me-1">공구</span>
-                            <span th:if="${post.category == 'SHARE'}" class="badge badge-share rounded-pill me-1">나눔</span>
-                            <span th:if="${post.category == 'FREE'}" class="badge badge-free rounded-pill me-1">자유</span>
+<!--                            <span th:if="${post.category != null && (post.category == 'NOTICE' || post.category.name() == 'NOTICE')}" class="badge bg-danger rounded-pill me-1">공지</span>-->
+
+                            <span th:if="${post.category != null && (post.category == 'GROUP' || post.category.name() == 'GROUP')}" class="badge badge-group rounded-pill me-1">공구</span>
+                            <span th:if="${post.category != null && (post.category == 'SHARE' || post.category.name() == 'SHARE')}" class="badge badge-share rounded-pill me-1">나눔</span>
+                            <span th:if="${post.category != null && (post.category == 'FREE' || post.category.name() == 'FREE')}" class="badge badge-free rounded-pill me-1">자유</span>
+                            <span th:if="${post.category != null && (post.category == 'TRADE' || post.category.name() == 'TRADE')}" class="badge badge-free rounded-pill me-1">중고거래</span>
+                            <span th:if="${post.category != null && (post.category == 'QNA' || post.category.name() == 'QNA')}" class="badge badge-free rounded-pill me-1">질의</span>
+
                             <a th:href="@{/post/detail/{id}(id=${post.id})}"
                                class="post-link"
-                               th:classappend="${post.category == 'NOTICE'} ? 'fw-bold' : ''"
+                               th:classappend="${post.category != null && (post.category == 'NOTICE' || post.category.name() == 'NOTICE')} ? 'fw-bold' : ''"
                                th:text="${post.title}">게시글 제목</a>
                         </td>
                         <td>

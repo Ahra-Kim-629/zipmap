@@ -11,8 +11,8 @@ public class PostDTO {
     private String title;
     private String content;
     private Long userId;
-    private String category;
-    private String location;
+    private Category category;
+    private Location location;
     private Long likeCount;
     private Long viewCount;
 
