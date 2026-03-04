@@ -6,7 +6,7 @@
 
 <th:block layout:fragment="css">
     <style>
-        .detail-container { padding: 60px 0; background-color: #fdfcf9; }
+        .detail-container { padding: 60px 0; background-color: #f5f4ef; }
         .detail-card { background: #fff; padding: 50px; border-radius: 24px; border: none; }
         .detail-header { border-bottom: 1px solid #eee; padding-bottom: 30px; margin-bottom: 40px; }
         .detail-title { font-weight: 800; color: #3E362E; line-height: 1.4; }
@@ -277,11 +277,10 @@
 <script th:inline="javascript" layout:fragment="script">
     /* 1. 데이터 설정: 타임리프가 객체나 문자열을 자바스크립트에 맞게 변환합니다. */
     const targetId = [[${reviewDTO?.id}]];
-    const currentUserName = [[${#authentication != null ? #authentication.name : null}]];
-
-    // [중요] CSRF 토큰: POST 요청(삭제 등)을 할 때 세션 유실(자동 로그아웃)을 막아줍니다.
-    const csrfToken = [[${_csrf.token}]];
-    const csrfParameterName = [[${_csrf.parameterName}]];
+const currentUserName = /*[[${#authentication != null ? #authentication.name : null}]]*/ null;    // [중요] CSRF 토큰: POST 요청(삭제 등)을 할 때 세션 유실(자동 로그아웃)을 막아줍니다.
+const csrfToken = [[${_csrf.token}]];
+const csrfParameterName = [[${_csrf.parameterName}]];
+const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
 
     let currentPage = 0;
     let isLoading = false;
@@ -347,6 +346,19 @@
                     replies.forEach(reply => {
                         $("#reply-container").append(renderReply(reply));
                     });
+
+                    // [추가] URL에 replyId가 있다면 해당 댓글로 포커싱
+                    const focusReplyId = urlParams.get('replyId');
+                    if (focusReplyId && !$(".reply-focus").length) {
+                        const $target = $("#reply-" + focusReplyId);
+                        $target[0].scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                        $target.addClass("reply-focus");
+                    }
+
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
                 } else {

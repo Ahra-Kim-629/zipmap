@@ -343,7 +343,8 @@
 
     <select id="getTopPostList" resultType="map">
         SELECT
-        id, view_count, like_count, (like_count * 10 + view_count) AS score
+        id, view_count, like_count,
+        ((like_count * 10) + view_count) / POW(TIMESTAMPDIFF(HOUR, created_at, NOW()) + 2, 1.8) AS score
         FROM post
         WHERE post_status = 'ACTIVE'
         AND created_at >= DATE_SUB(NOW(), INTERVAL #{i} DAY)

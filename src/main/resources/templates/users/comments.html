@@ -5,7 +5,7 @@
 
 <th:block layout:fragment="css">
     <style>
-        .board-container { padding: 40px 0; background-color: #fdfcf9; min-height: 80vh; }
+        .board-container { padding: 40px 0; background-color: #f5f4ef; min-height: 80vh; }
         .page-title { font-weight: 800; color: #3E362E; }
 
         /* 탭 디자인 커스텀 */
@@ -85,9 +85,9 @@
                         <tr th:each="reply : ${list.content}">
                             <td class="text-start ps-4">
 
-                                    <a th:href="@{/{path}/detail/{id}(path=${type == 'reviews' ? 'review' : 'post'}, id=${reply.targetId})} + '#reply-' + ${reply.id}"
-                                       class="post-link small text-muted"
-                                       th:text="${reply.articleTitle}">원문 제목</a>
+                                <a th:href="@{|/${type == 'reviews' ? 'review' : 'post'}/detail/${reply.targetId}?replyId=${reply.id}|}"
+                                   class="post-link small text-muted"
+                                   th:text="${reply.articleTitle}">원문 제목</a>
                             </td>
                             <td class="text-start">
                                 <span class="comment-content text-truncate-custom" th:text="${reply.content}">댓글 내용</span>

@@ -4,6 +4,7 @@ import com.daedong.zipmap.domain.StatsUpdateDTO;
 import com.daedong.zipmap.mapper.PostMapper;
 import com.daedong.zipmap.mapper.ReviewMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StatsUtil {
@@ -128,25 +130,44 @@ public class StatsUtil {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void refreshRankingFromDb() {
-        // 최근 30일 이내 상위 100개 데이터 DB 조회
+        // 1. 데이터 조회
         List<Map<String, Object>> topPostList = postMapper.getTopPostList(30);
 
-        if (topPostList == null) {
+        // 데이터가 아예 없으면 기존 랭킹을 유지할지, 비울지 결정해야 합니다.
+        // 여기서는 안전하게 비우지 않고 로그만 남기고 종료하는 것으로 가정합니다.
+        if (topPostList == null || topPostList.isEmpty()) {
+            log.warn("인기 게시글 데이터가 DB에 존재하지 않아 갱신을 취소합니다.");
             return;
         }
 
         String tempKey = KEY_RANKING + ":temp";
 
-        // 임시 ZSet에 데이터 빌드
-        for (Map<String, Object> row : topPostList) {
-            String postId = String.valueOf(row.get("id"));
-            double score = ((Number) row.get("score")).doubleValue();
-            redisTemplate.opsForZSet().add(tempKey, postId, score);
-        }
+        try {
+            // 2. 임시 키 초기화 (혹시 모를 잔류 데이터 삭제)
+            redisTemplate.delete(tempKey);
 
-        // 키 교체 (Rename 명령은 원자적이며 매우 빠름)
-        redisTemplate.rename(tempKey, KEY_RANKING);
-        // 랭킹 세트에만 유지 기간 설정 (예: 2시간 - 스케줄러가 실패해도 데이터가 너무 오래 남지 않도록)
-        redisTemplate.expire(KEY_RANKING, 2, TimeUnit.HOURS);
+            // 3. 임시 ZSet 빌드
+            for (Map<String, Object> row : topPostList) {
+                Object idObj = row.get("id");
+                Object scoreObj = row.get("score");
+
+                if (idObj != null && scoreObj != null) {
+                    String postId = String.valueOf(idObj);
+                    double score = ((Number) scoreObj).doubleValue();
+                    redisTemplate.opsForZSet().add(tempKey, postId, score);
+                }
+            }
+
+            // 4. 키 교체 (Atomic하게 변경)
+            // tempKey가 생성되었을 때만 실행 (데이터가 하나도 안 들어갔을 경우 방지)
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(tempKey))) {
+                redisTemplate.rename(tempKey, KEY_RANKING);
+                redisTemplate.expire(KEY_RANKING, 2, TimeUnit.HOURS);
+            }
+
+        } catch (Exception e) {
+            log.error("인기 게시글 랭킹 갱신 중 오류 발생: ", e);
+            redisTemplate.delete(tempKey); // 실패 시 임시 키 삭제
+        }
     }
 }

@@ -53,7 +53,7 @@ public class ReviewController {
                        @RequestParam(required = false) List<String> pros,
                        @RequestParam(required = false) List<String> cons,
                        Model model,
-                       @AuthenticationPrincipal User user) {
+                       @AuthenticationPrincipal UserPrincipalDetails user) {
 
         String searchKeyword = (q != null && !q.isEmpty()) ? q : keyword;
 
@@ -88,7 +88,7 @@ public class ReviewController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getId(), "review");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "review");
             model.addAttribute("myKeywords", myKeywords);
         }
 
