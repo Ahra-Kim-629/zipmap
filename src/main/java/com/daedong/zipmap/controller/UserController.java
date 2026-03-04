@@ -277,30 +277,4 @@ public class UserController {
 //        throw new RuntimeException("의도적으로 발생시킨 500 에러입니다.");
 //    }
 
-// ... 상단 생략 ...
-
-    @GetMapping("/articles")
-    public String getMyArticles(@AuthenticationPrincipal UserPrincipalDetails userDetails,
-                                @RequestParam(defaultValue = "reviews") String type,
-                                Pageable pageable, Model model) {
-
-        // 1. 유저 ID 추출
-        Long userId = userDetails.getUser().getId();
-        System.out.println("현재 로그인 유저 ID: " + userId); // 디버깅용
-
-        // 2. 데이터 조회 로직 (여기에 넣으세요!)
-        if ("reviews".equals(type)) {
-            // 🚩 이 부분입니다! findByUserId 대신 getMyReviews를 호출하세요.
-            Page<ReviewDTO> reviews = reviewService.getMyReviews(userId, pageable);
-            model.addAttribute("reviews", reviews);
-        }
-
-        // 만약 게시글(posts) 로직도 있다면 else if로 이어질 것입니다.
-        else if ("posts".equals(type)) {
-            // 게시글 관련 로직...
-        }
-
-        model.addAttribute("type", type);
-        return "users/articles"; // 마이페이지 내 활동내역 뷰 이름
-    }
 }

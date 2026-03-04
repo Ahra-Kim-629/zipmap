@@ -1,6 +1,7 @@
 package com.daedong.zipmap.config;
 
 import com.daedong.zipmap.config.security.oauth.CustomOauth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,8 +57,6 @@ public class WebSecurityConfig {
                         // [추가] 댓글 기능은 로그인한 유저라면 누구나 접근 가능하도록 명시
                         .requestMatchers("/reply/**").authenticated()
 
-                        .requestMatchers("/find/**", "/users/**", "/review/**").hasRole("USER")
-
                         .requestMatchers("/error", "/favicon.ico", "/.well-known/**").permitAll()
 
                         .anyRequest().authenticated()
@@ -84,6 +83,12 @@ public class WebSecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
+                )
+
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                        })
                 )
 
                 // SockJS는 iframe이라는 기술을 사용하는데, 스프링 시큐리티는 보안상
