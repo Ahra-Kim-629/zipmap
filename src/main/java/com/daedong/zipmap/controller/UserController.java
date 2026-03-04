@@ -65,7 +65,13 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(@RequestParam(value = "prevPage", required = false) String prevPage,
+                        HttpServletRequest request) {
+        // 폼에 숨겨진 입력값으로 넣기 위해 모델에 담습니다.
+        if (prevPage != null && !prevPage.isEmpty()) {
+            // 세션에 "prevPage"라는 이름으로 저장 (OAuth2 인증 후에도 유지됨)
+            request.getSession().setAttribute("prevPage", prevPage);
+        }
         return "/users/login-form";
     }
 
@@ -159,7 +165,7 @@ public class UserController {
             User findUser = userService.findByLoginId(user.getUsername());
 
             if (new_password != null && !new_password.isEmpty()) {
-                if(current_password == null || current_password.isEmpty()){
+                if (current_password == null || current_password.isEmpty()) {
                     rttr.addFlashAttribute("error", "현재 비밀번호를 입력해주세요.");
                     return "redirect:/users/mypage";
                 }

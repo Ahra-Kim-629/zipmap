@@ -1,30 +1,29 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Reaction;
-import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.ReactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.Map;
+
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/reaction")
-public class ReactionController {
+public class ReactionRestController {
     private final ReactionService reactionService;
 
     @PostMapping
-    public String toggleReaction(String targetType, Long targetId, int type,
-                                 @AuthenticationPrincipal UserPrincipalDetails user,
-                                 RedirectAttributes rttr) {
-
+    public ResponseEntity<Map<String, Object>> toggleReaction(String targetType, Long targetId, int type,
+                                                              @AuthenticationPrincipal UserPrincipalDetails user) {
         if (user == null) {
-            rttr.addFlashAttribute("message", "로그인이 필요합니다.");
-            return "redirect:/" + targetType + "/detail/" + targetId;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
         }
 
         // 도메인(post, review), 대상ID, 타입(좋아요/싫어요)을 담은 DTO 전달
@@ -34,8 +33,8 @@ public class ReactionController {
         reaction.setUserId(user.getUser().getId());
         reaction.setType(type);
 
-        reactionService.save(reaction);
+        Map<String, Object> result = reactionService.save(reaction);
 
-        return "redirect:/" + targetType + "/detail/" + targetId;
+        return ResponseEntity.ok(result);
     }
 }

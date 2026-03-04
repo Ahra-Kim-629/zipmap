@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final AuthenticationSuccessHandler loginSuccessHandler;
     private final AuthenticationFailureHandler loginFailureHandler;
     private final CustomOauth2UserService customOauth2UserService;
 
@@ -69,13 +71,13 @@ public class WebSecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", false)
+                        .successHandler(loginSuccessHandler)
                         .failureHandler(loginFailureHandler)
 
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        .defaultSuccessUrl("/",false)
+                        .successHandler(loginSuccessHandler)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService)
                         )

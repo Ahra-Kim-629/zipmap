@@ -99,8 +99,6 @@
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 
-
-
     </style>
 </th:block>
 
@@ -173,15 +171,18 @@
                 <div th:if="${not #lists.isEmpty(reviewDTO.fileList)}" class="mb-5 photo-slider-wrapper">
                     <h6 class="fw-bold mb-3"><i class="bi bi-images me-2 text-orange"></i>현장 실사</h6>
 
-                    <button class="slider-btn prev" onclick="scrollPhotoTrack(-1)"><i class="bi bi-chevron-left"></i></button>
+                    <button class="slider-btn prev" onclick="scrollPhotoTrack(-1)"><i class="bi bi-chevron-left"></i>
+                    </button>
 
                     <div id="photoTrack" class="photo-track">
                         <div th:each="file : ${reviewDTO.fileList}" class="photo-item">
-                            <img th:src="@{/files/{path}(path=${file.filePath})}" class="review-image shadow-sm" alt="현장 실사 이미지">
+                            <img th:src="@{/files/{path}(path=${file.filePath})}" class="review-image shadow-sm"
+                                 alt="현장 실사 이미지">
                         </div>
                     </div>
 
-                    <button class="slider-btn next" onclick="scrollPhotoTrack(1)"><i class="bi bi-chevron-right"></i></button>
+                    <button class="slider-btn next" onclick="scrollPhotoTrack(1)"><i class="bi bi-chevron-right"></i>
+                    </button>
                 </div>
 
                 <div id="imageModal" class="image-modal-overlay" onclick="closeImageModal(event)">
@@ -195,14 +196,12 @@
                 </div>
 
                 <div class="d-flex flex-column align-items-center gap-4 mb-5">
-                    <form th:action="@{/reaction}" method="post">
-                        <input type="hidden" name="targetType" value="review">
-                        <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
-                        <input type="hidden" name="type" value="1">
-                        <button type="submit" class="btn-like" th:classappend="${isLiked == 1} ? 'active' : ''">
-                            <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
-                        </button>
-                    </form>
+                    <button type="button" id="like-button" class="btn-like"
+                            th:classappend="${isLiked == 1} ? 'active' : ''"
+                            th:onclick="|handleReaction(1)|">
+                        <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요 <span
+                            id="like-count" th:text="${reviewDTO.likeCount}">0</span>
+                    </button>
                     <a th:href="@{/review}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">
                         <i class="bi bi-arrow-left me-1"></i> 목록으로
                     </a>
@@ -243,13 +242,15 @@
                                       placeholder="의견을 남겨주세요." style="resize: none;" required></textarea>
 
                             <div class="text-end">
-                                <button type="submit" class="btn btn-orange px-4 py-2 rounded-pill fw-bold">댓글 등록</button>
+                                <button type="submit" class="btn btn-orange px-4 py-2 rounded-pill fw-bold">댓글 등록
+                                </button>
                             </div>
                         </form>
                     </div>
                     <h5 class="fw-bold mb-4">
                         <i class="bi bi-chat-dots-fill me-2 text-orange"></i>댓글
-                        <span id="reply-total-count" class="text-orange" th:text="${reviewDTO.replyList != null ? reviewDTO.replyList.size() : 0}">0</span>
+                        <span id="reply-total-count" class="text-orange"
+                              th:text="${reviewDTO.replyList != null ? reviewDTO.replyList.size() : 0}">0</span>
                     </h5>
 
                     <div id="reply-container"></div>
@@ -444,5 +445,52 @@ const urlParams = new URLSearchParams(window.location.search); // URL 파라미�
             $('body').css('overflow', 'auto');
         }
     }
+
+    function handleReaction(type) {
+    // 1. 로그인 체크 (익명 사용자 확인)
+    if (currentUserName === null || currentUserName === 'anonymousUser' || currentUserName === "") {
+        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+            const currentPath = window.location.pathname + window.location.search;
+            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
+        }
+        return;
+    }
+
+    // 2. 비동기 요청 전송
+    $.ajax({
+        url: "/reaction",
+        type: "POST",
+        data: {
+            targetType: 'review', // 게시글과 구분되는 'review' 타입
+            targetId: targetId,
+            type: type,
+            [csrfParameterName]: csrfToken
+        },
+        success: function(res) {
+            // 서버에서 보낸 최신 카운트 반영 (id="like-count" 대상)
+            $("#like-count").text(res.likeCount);
+
+            // 하트 아이콘 및 버튼 스타일 변경
+            const $likeBtn = $("#like-button");
+            const $icon = $likeBtn.find("i");
+
+            if (res.currentReaction === 1) {
+                $likeBtn.addClass("active");
+                $icon.removeClass("bi-heart").addClass("bi-heart-fill");
+            } else {
+                $likeBtn.removeClass("active");
+                $icon.removeClass("bi-heart-fill").addClass("bi-heart");
+            }
+        },
+        error: function(xhr) {
+            if (xhr.status === 401) {
+                alert("로그인이 필요합니다.");
+                location.href = "/login";
+            } else {
+                alert("처리 중 오류가 발생했습니다.");
+            }
+        }
+    });
+}
 </script>
 </html>

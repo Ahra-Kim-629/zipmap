@@ -119,25 +119,19 @@
 
                 <div class="d-flex flex-column align-items-center gap-4 mb-5 border-top pt-5">
                     <div class="d-flex gap-3">
-                        <form th:action="@{/reaction}" method="post">
-                            <input type="hidden" name="targetType" value="post">
-                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                            <input type="hidden" name="type" value="1">
-                            <button type="submit" class="btn-like" th:classappend="${postDTO.reaction == 1} ? 'btn-like-active' : ''">
-                                <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span
-                                    th:text="${postDTO.likeCount}">0</span>
-                            </button>
-                        </form>
+                        <button type="button" class="btn-like" id="like-button"
+                                th:classappend="${postDTO.reaction == 1} ? 'btn-like-active' : ''"
+                                th:onclick="|handleReaction(1)|">
+                            <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span id="like-count"
+                                th:text="${postDTO.likeCount}">0</span>
+                        </button>
 
-                        <form th:action="@{/reaction}" method="post">
-                            <input type="hidden" name="targetType" value="post">
-                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                            <input type="hidden" name="type" value="-1">
-                            <button type="submit" class="btn-dislike" th:classappend="${postDTO.reaction == -1} ? 'btn-dislike-active' : ''">
-                                <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span
-                                    th:text="${postDTO.dislikeCount}">0</span>
-                            </button>
-                        </form>
+                        <button type="button" class="btn-dislike" id="dislike-button"
+                                th:classappend="${postDTO.reaction == -1} ? 'btn-dislike-active' : ''"
+                                th:onclick="|handleReaction(-1)|">
+                            <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span id="dislike-count"
+                                th:text="${postDTO.dislikeCount}">0</span>
+                        </button>
                     </div>
                     <a th:href="@{/post}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">
                         <i class="bi bi-arrow-left me-1"></i> 목록으로
@@ -351,5 +345,49 @@
             display.style.opacity = '1';
         }
     }
+
+    function handleReaction(type) {
+    // 로그인이 안 되어 있다면 로그인 페이지로 유도 (Spring Security 연동 시)
+    if (currentUserName === 'anonymousUser' || !currentUserName) {
+        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+            // 현재 페이지의 전체 경로(쿼리 스트링 포함)를 가져옵니다.
+            const currentPath = window.location.pathname + window.location.search;
+
+            // 로그인 페이지로 보내되, 돌아올 주소를 파라미터로 붙입니다.
+            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
+        }
+        return;
+    }
+
+    $.ajax({
+        url: "/reaction",
+        type: "POST",
+        data: {
+            targetType: 'post',
+            targetId: targetId,
+            type: type,
+            // CSRF 토큰을 데이터에 포함 (Security 설정에 따라 헤더에 넣을 수도 있음)
+            [csrfParameterName]: csrfToken
+        },
+        success: function(res) {
+            // 1. 숫자 업데이트
+            $("#like-count").text(res.likeCount);
+            $("#dislike-count").text(res.dislikeCount);
+
+            // 2. 버튼 스타일 초기화 후 활성화 상태 적용
+            $("#like-button").removeClass("btn-like-active");
+            $("#dislike-button").removeClass("btn-dislike-active");
+
+            if (res.currentReaction === 1) {
+                $("#like-button").addClass("btn-like-active");
+            } else if (res.currentReaction === -1) {
+                $("#dislike-button").addClass("btn-dislike-active");
+            }
+        },
+        error: function(err) {
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    });
+}
 </script>
 </html>
