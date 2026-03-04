@@ -298,14 +298,14 @@ public class AdminController {
         }
 
         // 처리가 끝나면보고 있던 페이지(인증 목록)로 리다이렉트
-        return "redirect:/admin/reviewcertification";
+        return "redirect:/admin/certification/list";
     }
 
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
     // 이 부분은 ADMIN에서 관리하는 것이 좋을 지 고민 ( 사유 : ADMIN 에서만 보기 때문에 ADMIN 으로 둘지 고민 )
     // Review 에서 쓸지 고민되는 이유 ( 일단 DB는 새로 만든게 아니라 ,
     // 리뷰 등록하면 기본적으로 PENDING으로 가는데 , 이를 인증을 하면 공개됨
-    @GetMapping("/reviewcertification")
+    @GetMapping("/certification/list")
     public String reviewCertificationList(Model model,
                                           @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -323,7 +323,8 @@ public class AdminController {
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/detail/{id}") // "/review/detail/{id}"에서 "review"를 제거
+    // [수정] 상세 페이지 매핑 변경: /detail/{id} -> /certification/confirm/{id}
+    @GetMapping("/certification/confirm/{id}")
     public String adminReviewDetail(@PathVariable("id") Long id, Model model) {
         ReviewDTO reviewDTO = adminService.getAdminReviewDetail(id);
         model.addAttribute("reviewDTO", reviewDTO);

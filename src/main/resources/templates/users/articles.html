@@ -99,7 +99,7 @@
                                 <div class="text-danger small mb-1" style="font-size: 0.75rem; font-weight: bold;">
                                     사유: <span th:text="${review.message != null ? review.message : '확인 불가'}">서류 미비</span>
                                 </div>
-                                <a th:href="@{/review/certification(reviewId=${review.id})}"
+                                <a th:href="@{/review/edit/{id}(id=${review.id})}"
                                    class="btn btn-sm btn-outline-danger rounded-pill px-2" style="font-size: 0.65rem;">
                                     재인증하기
                                 </a>
