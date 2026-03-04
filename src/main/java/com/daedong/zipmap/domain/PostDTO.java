@@ -28,4 +28,6 @@ public class PostDTO {
 
     private List<File> fileList;
     private List<ReplyDTO> replyList;
+
+    private Integer reaction;
 }

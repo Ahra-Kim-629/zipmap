@@ -273,6 +273,7 @@ public class GeminiService {
         // 2. 페르소나 부여: AI에게 '스마트 비서'라는 역할을 정해줌 (전문성 향상)
         promptBuilder.append("너는 게시글의 핵심 내용과 댓글 반응을 요약해주는 '스마트 게시판 비서'야.\n\n");
         promptBuilder.append("아래 게시글의 본문과 사람들의 댓글 반응을 분석해서 가독성 좋게 요약해줘.\n\n");
+        promptBuilder.append("출력 양식에는 마크다운 문법을 사용하면 안돼. 텍스트와 이모지만 사용해서 가독성 있게 작성해 줘.\n\n");
 
         // 3. 메뉴판 구성: 출력 양식을 미리 정해주어 AI가 딴소리 못하게 함
         promptBuilder.append("[출력 양식]\n");

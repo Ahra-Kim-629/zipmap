@@ -199,7 +199,7 @@
                         <input type="hidden" name="targetType" value="review">
                         <input type="hidden" name="targetId" th:value="${reviewDTO.id}">
                         <input type="hidden" name="type" value="1">
-                        <button type="submit" class="btn-like" th:classappend="${isLiked} ? 'active' : ''">
+                        <button type="submit" class="btn-like" th:classappend="${isLiked == 1} ? 'active' : ''">
                             <i class="bi" th:classappend="${isLiked} ? 'bi-heart-fill' : 'bi-heart'"></i>좋아요 <span th:text="${reviewDTO.likeCount}">0</span>
                         </button>
                     </form>

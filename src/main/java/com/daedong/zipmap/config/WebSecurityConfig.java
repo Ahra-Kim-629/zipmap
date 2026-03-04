@@ -34,7 +34,7 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/signUp", "/check-id", "/login", "/logout", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/post/**"
-                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**", "/alarm-ws/**").permitAll()
+                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**", "/alarm-ws/**", "/reply/list").permitAll()
 
                         .requestMatchers("/css/**", "/js/**","/images/**", "/files/**",
                                 "/review/uploadSummernoteImage",

@@ -3,6 +3,7 @@ package com.daedong.zipmap.service;
 import com.daedong.zipmap.domain.Post;
 import com.daedong.zipmap.domain.PostDTO;
 import com.daedong.zipmap.domain.Status;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.mapper.PostMapper;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.NetworkUtil;
@@ -38,14 +39,14 @@ public class PostService {
     }
 
     @Transactional
-    public PostDTO getPostDetail(Long id, HttpServletRequest request, UserDetails userDetails) {
+    public PostDTO getPostDetail(Long id, HttpServletRequest request, UserDetails user) {
         PostDTO postDTO = postMapper.findById(id);
 
         // 조회수 증가 위한 redis 처리
         if (postDTO != null) {
 
             // 로그인 했으면 userId 를, 안했으면 IP 를 식별자로 보내줌
-            String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
+            String identifier = (user != null) ? user.getUsername() : NetworkUtil.getClientIp(request);
 
             // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
             try {
@@ -64,6 +65,11 @@ public class PostService {
 
         // 댓글 리스트 추가
         postDTO.setReplyList(replyService.getReplyDTOList("post", id));
+
+        // 좋아요 표시 여부 확인
+        if (user != null) {
+            postDTO.setReaction(reactionService.getReactionByUserId(((UserPrincipalDetails) user).getId(), id, "post"));
+        }
 
         return postDTO;
     }

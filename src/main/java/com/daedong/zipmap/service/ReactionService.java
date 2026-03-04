@@ -65,7 +65,7 @@ public class ReactionService {
         return new PageImpl<>(content, pageable, total);
     }
 
-    public boolean isLiked(Long userId, Long targetId, String targetType) {
+    public Integer getReactionByUserId(Long userId, Long targetId, String targetType) {
         Reaction reaction = new Reaction();
 
         reaction.setUserId(userId);
@@ -73,6 +73,10 @@ public class ReactionService {
         reaction.setTargetType(targetType);
 
         Reaction existingLike = reactionMapper.findByUserAndTarget(reaction);
-        return existingLike != null;
+        if (existingLike != null) {
+            return existingLike.getType();
+        } else {
+            return null;
+        }
     }
 }

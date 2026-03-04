@@ -118,10 +118,10 @@
                         <div class="col-md-2">
                             <select name="category" class="form-select form-control">
                                 <option value="NOTICE" th:selected="${category == 'NOTICE'}">공지사항</option>
+                                <option value="FREE" th:selected="${category == 'FREE'}">자유</option>
                                 <option value="GROUP" th:selected="${category == 'GROUP'}">공구</option>
                                 <option value="SHARE" th:selected="${category == 'SHARE'}">나눔</option>
-                                <option value="FREE" th:selected="${category == 'FREE'}">자유</option>
-                                <option value="TRADE" th:selected="${category == 'TRADE'}">중고거래</option>
+                                <option value="TRADE" th:selected="${category == 'TRADE'}">거래</option>
                                 <option value="QNA" th:selected="${category == 'QNA'}">질문</option>
                             </select>
                         </div>
@@ -129,11 +129,11 @@
                         <div class="col-md-2">
                             <select name="location" class="form-select form-control">
                                 <option value="">지역 전체</option>
-                                <option value="SEOUL_WEST" th:selected="${location == 'SEOUL_WEST'}">서울 서부</option>
-                                <option value="SEOUL_SOUTH" th:selected="${location == 'SEOUL_SOUTH'}">서울 남부</option>
-                                <option value="SEOUL_EAST" th:selected="${location == 'SEOUL_EAST'}">서울 동부</option>
-                                <option value="SEOUL_NORTH" th:selected="${location == 'SEOUL_NORTH'}">서울 북부</option>
-                                <option value="SEOUL_CENTER" th:selected="${location == 'SEOUL_CENTER'}">서울 중앙</option>
+                                <option value="SEOUL_CENTER" th:selected="${location == 'SEOUL_CENTER'}">서울 중앙 (종로,용산 등)</option>
+                                <option value="SEOUL_EAST" th:selected="${location == 'SEOUL_EAST'}">서울 동부 (강동,송파 등)</option>
+                                <option value="SEOUL_SOUTH" th:selected="${location == 'SEOUL_SOUTH'}">서울 남부 (강남,관악 등)</option>
+                                <option value="SEOUL_WEST" th:selected="${location == 'SEOUL_WEST'}">서울 서부 (강서,영등포 등)</option>
+                                <option value="SEOUL_NORTH" th:selected="${location == 'SEOUL_NORTH'}">서울 북부 (강북,성북 등)</option>
                             </select>
                         </div>
 
