@@ -466,13 +466,14 @@
         // 로그인 사용자 확인 (타임리프 문법)
         const loginUserId = "[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.user.id : ''}]]";
         // 서버에서 보낸 내 구독 목록
-        const myExistingKeywords = /*[[${myKeywords}]]*/ [];
+        const myExistingKeywords = /*[[${myKeywords}]]*/ [] || [];
         // 새로 저장할 키워드
         let newKeywords = [];
 
 
         // 페이지 로드 시 알림 버튼 표시 여부 결정
         function checkSearchFilters() {
+            const existingList = myExistingKeywords || [];  // myExistingKeywords가 null이나 undefined면 빈 배열([])을 사용
 
             let searchText = $('#keyword').val() ? $('#keyword').val().trim() : "";
             newKeywords = []; // 새로 추가한것 초기화
@@ -485,7 +486,7 @@
             }
 
             // 이미 구독 중인 목록(myExistingKeywords)에 이 단어가 있는지 확인
-            isAlreadySubscribed = myExistingKeywords.includes(searchText);
+            isAlreadySubscribed = existingList.some(ex => ex.trim() === searchText);
 
             if (isAlreadySubscribed) {
                 // 이미 구독 중이면 '알림받기' 숨기고 '취소' 보여주기
