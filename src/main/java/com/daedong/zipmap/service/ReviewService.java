@@ -268,11 +268,11 @@ public class ReviewService {
 
         // 3. ★ 파일 저장 (FileUtilService 이용)
         // "CERTIFICATION" 폴더에 저장 (c:/upload/certification/...)
-        String filePath = fileUtilService.saveFile(image, "CERTIFICATION");
+        String filePath = fileUtilService.saveFile(image, "certification");
 
         // 4. ★ 공통 파일 테이블(file_attachment)에 저장
         com.daedong.zipmap.domain.File file = new com.daedong.zipmap.domain.File();
-        file.setTargetType("CERTIFICATION");
+        file.setTargetType("certification");
         file.setTargetId(cert.getId()); // 방금 만든 인증 ID
         file.setFilePath(filePath);
         file.setFileSize(image.getSize());
