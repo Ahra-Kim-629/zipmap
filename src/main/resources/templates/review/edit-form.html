@@ -185,240 +185,276 @@
 
     <script th:inline="javascript">
         // =======================================================
-        // 1. 썸네일 선택 및 추가 함수 (Write 폼과 동일)
-        // =======================================================
-        window.selectThumbnail = function(element) {
-            $('.thumb-item').removeClass('selected');
-            $('.thumb-badge').html('선택');
-            $(element).addClass('selected');
-            $(element).find('.thumb-badge').html('<i class="bi bi-check-circle-fill"></i> 대표');
-            $('#thumbnailPath').val($(element).data('url'));
-        };
+         // 1. 썸네일 선택 및 추가 함수 (Write 폼과 동일)
+         // =======================================================
+         window.selectThumbnail = function(element) {
+             $('.thumb-item').removeClass('selected');
+             $('.thumb-badge').html('선택');
+             $(element).addClass('selected');
+             $(element).find('.thumb-badge').html('<i class="bi bi-check-circle-fill"></i> 대표');
+             $('#thumbnailPath').val($(element).data('url'));
+         };
 
-        function addThumbnailCard(imageUrl) {
-            $('#thumbnailArea').fadeIn();
-            let isFirst = $('#thumbnailList .thumb-item').length === 0;
-            let selectedClass = isFirst ? 'selected' : '';
-            let badgeText = isFirst ? '<i class="bi bi-check-circle-fill"></i> 대표' : '선택';
+         // 새로 이미지를 업로드할 때 썸네일 갤러리에 추가하는 함수
+         function addThumbnailCard(imageUrl) {
+             $('#thumbnailArea').fadeIn();
+             let isFirst = $('#thumbnailList .thumb-item').length === 0;
+             let selectedClass = isFirst ? 'selected' : '';
+             let badgeText = isFirst ? '<i class="bi bi-check-circle-fill"></i> 대표' : '선택';
 
-            if (isFirst) { $('#thumbnailPath').val(imageUrl); }
+             if (isFirst) { $('#thumbnailPath').val(imageUrl); }
 
-            let cardHtml = `
-                <div class="thumb-item ${selectedClass}" data-url="${imageUrl}" onclick="selectThumbnail(this)">
-                    <div class="thumb-badge">${badgeText}</div>
-                    <img src="${imageUrl}" alt="업로드 이미지">
-                </div>
-            `;
-            $('#thumbnailList').append(cardHtml);
-        }
+             let cardHtml = `
+                 <div class="thumb-item ${selectedClass}" data-url="${imageUrl}" onclick="selectThumbnail(this)">
+                     <div class="thumb-badge">${badgeText}</div>
+                     <img src="${imageUrl}" alt="업로드 이미지">
+                 </div>
+             `;
+             $('#thumbnailList').append(cardHtml);
+         }
 
-        function uploadSummernoteImage(file, editor) {
-            let data = new FormData();
-            data.append("file", file);
-            var token = $("meta[name='_csrf']").attr("content");
-            var header = $("meta[name='_csrf_header']").attr("content");
+         function uploadSummernoteImage(file, editor) {
+             let data = new FormData();
+             data.append("file", file);
+             var token = $("meta[name='_csrf']").attr("content");
+             var header = $("meta[name='_csrf_header']").attr("content");
 
-            $.ajax({
-                url: "/review/uploadSummernoteImage",
-                type: "POST",
-                data: data,
-                contentType: false, processData: false,
-                beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
-                success: function(response) {
-                    $(editor).summernote('insertImage', response.url);
-                    addThumbnailCard(response.url);
-                },
-                error: function(e) { console.log("에러 내용:", e); alert("이미지 업로드 실패"); }
-            });
-        }
+             $.ajax({
+                 url: "/review/uploadSummernoteImage",
+                 type: "POST",
+                 data: data,
+                 contentType: false, processData: false,
+                 beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
+                 success: function(response) {
+                     $(editor).summernote('insertImage', response.url);
+                     addThumbnailCard(response.url);
+                 },
+                 error: function(e) { console.log("에러 내용:", e); alert("이미지 업로드 실패"); }
+             });
+         }
 
-        // =======================================================
-        // 2. 썸머노트 초기화 및 동기화 로직
-        // =======================================================
-        $(document).ready(function() {
-            let syncTimeout;
+         // =======================================================
+         // 2. 썸머노트 초기화 및 동기화 로직
+         // =======================================================
+         $(document).ready(function() {
+             let syncTimeout;
 
-            $('#content').summernote({
-                height: 700,
-                minHeight: 500,
-                maxHeight: 1200,
-                lang: 'ko-KR',
-                placeholder: '내용을 입력해주세요. <br><br>💡 사진 위치를 바꾸고 싶다면?<br>사진을 클릭 후 잘라내기(Ctrl+X)를 하고, 원하는 곳에 붙여넣기(Ctrl+V) 하시면 됩니다!',
-                dialogsInBody: true, dialogsFade: false,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'hr']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                callbacks: {
-                    onImageUpload: function(files) {
-                        for (let i = 0; i < files.length; i++) {
-                            uploadSummernoteImage(files[i], this);
-                        }
-                    },
-                    onChange: function(contents) {
-                        clearTimeout(syncTimeout);
-                        syncTimeout = setTimeout(function() {
-                            try {
-                                let tempDiv = document.createElement('div');
-                                tempDiv.innerHTML = contents;
-                                let editorImages = tempDiv.getElementsByTagName('img');
+             $('#content').summernote({
+                 height: 700,
+                 minHeight: 500,
+                 maxHeight: 1200,
+                 lang: 'ko-KR',
+                 placeholder: '내용을 입력해주세요. <br><br>💡 사진 위치를 바꾸고 싶다면?<br>사진을 클릭 후 잘라내기(Ctrl+X)를 하고, 원하는 곳에 붙여넣기(Ctrl+V) 하시면 됩니다!',
+                 dialogsInBody: true, dialogsFade: false,
+                 toolbar: [
+                     ['style', ['style']],
+                     ['font', ['bold', 'underline', 'clear']],
+                     ['color', ['color']],
+                     ['para', ['ul', 'ol', 'paragraph']],
+                     ['table', ['table']],
+                     ['insert', ['link', 'picture', 'hr']],
+                     ['view', ['fullscreen', 'codeview', 'help']]
+                 ],
+                 callbacks: {
+                     // ✨ 1. [철벽 방어] 파일 첨부 시 이미지 파일인지 검사
+                     onImageUpload: function(files) {
+                         for (let i = 0; i < files.length; i++) {
+                             let file = files[i];
+                             let validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-                                let currentFileNames = [];
-                                for(let i = 0; i < editorImages.length; i++) {
-                                    let src = editorImages[i].src;
-                                    try { src = decodeURI(src); } catch(e) {}
-                                    currentFileNames.push(src.substring(src.lastIndexOf('/') + 1));
-                                }
+                             if (!validTypes.includes(file.type)) {
+                                 alert("⚠️ 이미지 파일만 첨부할 수 있습니다.");
+                                 continue;
+                             }
+                             uploadSummernoteImage(file, this);
+                         }
+                     },
+                     // 본문 내용이 바뀔 때 (사진 삭제 등) 썸네일 갤러리와 동기화
+                     onChange: function(contents) {
+                         clearTimeout(syncTimeout);
+                         syncTimeout = setTimeout(function() {
+                             try {
+                                 let tempDiv = document.createElement('div');
+                                 tempDiv.innerHTML = contents;
+                                 let editorImages = tempDiv.getElementsByTagName('img');
 
-                                $('.thumb-item').each(function() {
-                                    let cardUrl = $(this).data('url');
-                                    try { cardUrl = decodeURI(cardUrl); } catch(e) {}
-                                    let cardFileName = cardUrl.substring(cardUrl.lastIndexOf('/') + 1);
+                                 let currentFileNames = [];
+                                 for(let i = 0; i < editorImages.length; i++) {
+                                     let src = editorImages[i].src;
+                                     try { src = decodeURI(src); } catch(e) {}
+                                     currentFileNames.push(src.substring(src.lastIndexOf('/') + 1));
+                                 }
 
-                                    if (!currentFileNames.includes(cardFileName)) {
-                                        let wasSelected = $(this).hasClass('selected');
-                                        $(this).remove();
+                                 $('.thumb-item').each(function() {
+                                     let cardUrl = $(this).data('url');
+                                     try { cardUrl = decodeURI(cardUrl); } catch(e) {}
+                                     let cardFileName = cardUrl.substring(cardUrl.lastIndexOf('/') + 1);
 
-                                        if (wasSelected) {
-                                            let remainingFirst = $('.thumb-item').first();
-                                            if (remainingFirst.length > 0) {
-                                                window.selectThumbnail(remainingFirst[0]);
-                                            } else {
-                                                $('#thumbnailPath').val('');
-                                                $('#thumbnailArea').fadeOut();
-                                            }
-                                        }
-                                    }
-                                });
+                                     // 본문에서 사진이 지워졌으면 갤러리에서도 지움
+                                     if (!currentFileNames.includes(cardFileName)) {
+                                         let wasSelected = $(this).hasClass('selected');
+                                         $(this).remove();
 
-                                if ($('.thumb-item').length === 0) {
-                                    $('#thumbnailPath').val('');
-                                    $('#thumbnailArea').fadeOut();
-                                }
-                            } catch (err) {
-                                console.log("동기화 에러:", err);
-                            }
-                        }, 300);
-                    }
-                }
-            });
+                                         // 지워진 사진이 하필 '대표' 였다면, 남은 것 중 첫 번째를 대표로 재설정
+                                         if (wasSelected) {
+                                             let remainingFirst = $('.thumb-item').first();
+                                             if (remainingFirst.length > 0) {
+                                                 window.selectThumbnail(remainingFirst[0]);
+                                             } else {
+                                                 $('#thumbnailPath').val('');
+                                                 $('#thumbnailArea').fadeOut();
+                                             }
+                                         }
+                                     }
+                                 });
 
-            // =======================================================
-            // ✨ [수정 페이지 전용] 로딩 직후 기존 본문 사진들을 갤러리에 복원!
-            // =======================================================
-            setTimeout(function() {
-                let existingContents = $('#content').summernote('code');
-                let tempDiv = document.createElement('div');
-                tempDiv.innerHTML = existingContents;
-                let existingImages = tempDiv.getElementsByTagName('img');
+                                 if ($('.thumb-item').length === 0) {
+                                     $('#thumbnailPath').val('');
+                                     $('#thumbnailArea').fadeOut();
+                                 }
+                             } catch (err) {
+                                 console.log("동기화 에러:", err);
+                             }
+                         }, 300);
+                     }
+                 }
+             });
 
-                let savedThumbnail = $('#thumbnailPath').val(); // DB에서 가져온 기존 대표사진 경로
-                try { savedThumbnail = decodeURI(savedThumbnail); } catch(e) {}
-                let savedFileName = savedThumbnail ? savedThumbnail.substring(savedThumbnail.lastIndexOf('/') + 1) : '';
+             // =======================================================
+             // ✨ 3. [수정 페이지 핵심] 기존 썸네일 완벽 복원 로직
+             // =======================================================
+             setTimeout(function() {
+                 // HTML(Thymeleaf) 단에서 미리 그려둔 썸네일 HTML을 일단 싹 다 비웁니다.
+                 // (자바스크립트가 본문 사진을 바탕으로 완벽하게 새로 그릴 거니까요!)
+                 $('#thumbnailList').empty();
 
-                // 타임리프가 임시로 그려둔 게 있다면 싹 비움 (중복 방지)
-                $('#thumbnailList').empty();
+                 let existingContents = $('#content').summernote('code');
+                 let tempDiv = document.createElement('div');
+                 tempDiv.innerHTML = existingContents;
+                 let existingImages = tempDiv.getElementsByTagName('img');
 
-                if (existingImages.length > 0) {
-                    $('#thumbnailArea').show();
+                 // ✨ DB에서 가져온 진짜 기존 대표사진 경로 (HTML의 hidden input에서 가져옴)
+                 let savedThumbnailPath = $('#thumbnailPath').val();
+                 let savedFileName = "";
 
-                    for(let i = 0; i < existingImages.length; i++) {
-                        let src = existingImages[i].getAttribute('src');
-                        try { src = decodeURI(src); } catch(e) {}
-                        let fileName = src.substring(src.lastIndexOf('/') + 1);
+                 if (savedThumbnailPath) {
+                     try { savedThumbnailPath = decodeURI(savedThumbnailPath); } catch(e) {}
+                     // 경로에서 순수 파일명만 똑 떼어냄 (예: "cat.jpg")
+                     savedFileName = savedThumbnailPath.substring(savedThumbnailPath.lastIndexOf('/') + 1);
+                 }
 
-                        let isSelected = false;
+                 // 본문에 사진이 1장이라도 있다면 갤러리 영역을 보여줍니다.
+                 if (existingImages.length > 0) {
+                     $('#thumbnailArea').show();
 
-                        // 1순위: DB에 저장된 대표사진과 파일명이 같으면 선택!
-                        if (savedFileName && fileName === savedFileName) {
-                            isSelected = true;
-                        }
-                        // 2순위: DB에 대표사진이 없는데 기존 사진이 있다면 첫 번째 사진을 무조건 대표로!
-                        else if (!savedFileName && i === 0) {
-                            isSelected = true;
-                        }
+                     let hasSelected = false; // 대표 사진이 선택되었는지 체크
 
-                        let selectedClass = isSelected ? 'selected' : '';
-                        let badgeText = isSelected ? '<i class="bi bi-check-circle-fill"></i> 대표' : '선택';
+                     // 본문(Summernote)에 있는 이미지들을 하나씩 돌면서 갤러리에 카드를 만듭니다.
+                     for(let i = 0; i < existingImages.length; i++) {
+                         // ✨ 주의: img.src (절대경로 전체) 대신 img.getAttribute('src') (입력된 속성값 그대로)를 써야 오류가 적습니다.
+                         let src = existingImages[i].getAttribute('src');
+                         try { src = decodeURI(src); } catch(e) {}
+                         let fileName = src.substring(src.lastIndexOf('/') + 1);
 
-                        if (isSelected) {
-                            $('#thumbnailPath').val(src); // 서버로 보낼 값 확실하게 세팅
-                        }
+                         let isSelected = false;
 
-                        let cardHtml = `
-                            <div class="thumb-item ${selectedClass}" data-url="${src}" onclick="selectThumbnail(this)">
-                                <div class="thumb-badge">${badgeText}</div>
-                                <img src="${src}" alt="업로드 이미지">
-                            </div>
-                        `;
-                        $('#thumbnailList').append(cardHtml);
-                    }
-                }
-            }, 500); // 썸머노트가 완전히 로딩될 때까지 0.5초(500ms) 기다렸다가 스윽 그려줍니다!
+                         // ✨ [비교 핵심] 본문 사진 파일명과 DB 대표사진 파일명이 완벽히 일치하면!
+                         if (savedFileName && fileName === savedFileName) {
+                             isSelected = true;
+                             hasSelected = true;
+                         }
 
-            // =======================================================
-            // 3. 폼 제출 검증 및 카카오 주소 검색 (중복 제거 완료)
-            // =======================================================
-            $('#submitBtn').on('click', function(e) {
-                let content = $('#content').summernote('code');
-                let pureText = content.replace(/<[^>]*>?/gm, '').trim();
+                         let selectedClass = isSelected ? 'selected' : '';
+                         let badgeText = isSelected ? '<i class="bi bi-check-circle-fill"></i> 대표' : '선택';
 
-                if(pureText.length < 50) {
-                    alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
-                    return false;
-                }
+                         let cardHtml = `
+                             <div class="thumb-item ${selectedClass}" data-url="${src}" onclick="selectThumbnail(this)">
+                                 <div class="thumb-badge">${badgeText}</div>
+                                 <img src="${src}" alt="기존 이미지">
+                             </div>
+                         `;
+                         $('#thumbnailList').append(cardHtml);
+                     }
 
-                $('#reviewForm').submit();
-            });
+                     // ✨ 만약 DB 경로가 꼬여서 일치하는 걸 못 찾았다면? -> 쿨하게 첫 번째 사진을 대표로 설정! (안전장치)
+                     if (!hasSelected && $('.thumb-item').length > 0) {
+                         window.selectThumbnail($('.thumb-item').first()[0]);
+                     } else if (hasSelected) {
+                         // 일치하는 걸 찾았다면, 확실하게 그 경로를 hidden input에 다시 세팅 (경로 꼬임 방지)
+                         let finalSelectedUrl = $('.thumb-item.selected').data('url');
+                         $('#thumbnailPath').val(finalSelectedUrl);
+                     }
+                 }
+             }, 500); // 썸머노트가 렌더링될 시간을 0.5초 충분히 줍니다.
 
-            var geocoder = new kakao.maps.services.Geocoder();
-            $('#address').on('keyup', function() {
-                var query = $(this).val();
-                if (query.length > 1) {
-                    geocoder.addressSearch(query, function(result, status) {
-                        if (status === kakao.maps.services.Status.OK) {
-                            let $list = $('#addressList');
-                            $list.empty().show();
-                            result.forEach(function(item) {
-                                let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
-                                         .text(item.address_name)
-                                         .on('click', function() {
-                                             $('#address').val(item.address_name);
-                                             $list.hide();
-                                         });
-                                $list.append(li);
-                            });
-                        }
-                    });
-                } else {
-                    $('#addressList').hide();
-                }
-            });
-        });
+             // =======================================================
+             // 4. 폼 제출 검증 및 기타 로직
+             // =======================================================
+             $('#submitBtn').on('click', function(e) {
+                 e.preventDefault();
 
-        // 파일 삭제 Ajax (기존 코드 유지)
-        function deleteFile(fileId) {
-            if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
-            const token = $("meta[name='_csrf']").attr("content");
-            const header = $("meta[name='_csrf_header']").attr("content");
+                 let title = $('#title').val().trim();
+                 if (title.length === 0) { alert("제목을 입력해주세요."); $('#title').focus(); return false; }
 
-            $.ajax({
-                url: "/review/deleteFile/" + fileId,
-                type: "POST",
-                beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
-                success: function(result) {
-                    if (result.trim() === "success") {
-                        $('#file-card-' + fileId).fadeOut(300, function() { $(this).remove(); });
-                    } else { alert("삭제 처리에 실패했습니다."); }
-                },
-                error: function(xhr) { alert("삭제 중 오류가 발생했습니다."); }
-            });
-        }
+                 let address = $('#address').val().trim();
+                 if (address.length === 0) { alert("주소를 입력해주세요."); $('#address').focus(); return false; }
+
+                 if ($('input[name="prosList"]:checked').length === 0) { alert("장점을 최소 1개 이상 선택해주세요."); return false; }
+                 if ($('input[name="consList"]:checked').length === 0) { alert("단점을 최소 1개 이상 선택해주세요."); return false; }
+
+                 let content = $('#content').summernote('code');
+                 let pureText = content.replace(/<[^>]*>?/gm, '').trim();
+                 if(pureText.length < 50) {
+                     alert("리뷰 내용을 최소 50자 이상 작성해주세요. (현재 " + pureText.length + "자)");
+                     return false;
+                 }
+
+                 $('#reviewForm').submit();
+             });
+
+             var geocoder = new kakao.maps.services.Geocoder();
+             $('#address').on('keyup', function() {
+                 var query = $(this).val();
+                 if (query.length > 1) {
+                     geocoder.addressSearch(query, function(result, status) {
+                         if (status === kakao.maps.services.Status.OK) {
+                             let $list = $('#addressList');
+                             $list.empty().show();
+                             result.forEach(function(item) {
+                                 let li = $('<li style="padding:10px; cursor:pointer; border-bottom:1px solid #eee;">')
+                                          .text(item.address_name)
+                                          .on('click', function() {
+                                              $('#address').val(item.address_name);
+                                              $list.hide();
+                                          });
+                                 $list.append(li);
+                             });
+                         }
+                     });
+                 } else {
+                     $('#addressList').hide();
+                 }
+             });
+         });
+
+         // 파일 삭제 Ajax (기존 코드 유지)
+         function deleteFile(fileId) {
+             if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
+             const token = $("meta[name='_csrf']").attr("content");
+             const header = $("meta[name='_csrf_header']").attr("content");
+
+             $.ajax({
+                 url: "/review/deleteFile/" + fileId,
+                 type: "POST",
+                 beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
+                 success: function(result) {
+                     if (result.trim() === "success") {
+                         $('#file-card-' + fileId).fadeOut(300, function() { $(this).remove(); });
+                     } else { alert("삭제 처리에 실패했습니다."); }
+                 },
+                 error: function(xhr) { alert("삭제 중 오류가 발생했습니다."); }
+             });
+         }
     </script>
 </div>
 </html>

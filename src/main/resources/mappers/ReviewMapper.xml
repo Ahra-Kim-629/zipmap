@@ -159,6 +159,8 @@
         <result property="viewCount" column="view_count"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+
+        <result property="thumbnailPath" column="thumbnailPath"/>
     </resultMap>
 
     <!-- 리뷰글 아이디로 찾기 -->
@@ -172,7 +174,15 @@
         JOIN certification c ON f.target_id = c.id
         WHERE c.review_id = r.id AND f.target_type = 'CERTIFICATION'
         ORDER BY c.id DESC
-        LIMIT 1) AS filePath
+        LIMIT 1) AS filePath,
+
+        <!-- 수정페이지 썸네일 추가 -->
+        (SELECT f.file_path
+        FROM file f
+        WHERE f.target_id = r.id AND f.target_type = 'REVIEW_THUMB'
+        LIMIT 1) AS thumbnailPath
+
+
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
         WHERE r.id = #{id}
@@ -369,13 +379,21 @@
 
     <select id="findByKeywordReviews" resultType="com.daedong.zipmap.domain.ReviewDTO" parameterType="string">
         SELECT
-        id, title, content, address, user_id, point, review_status
-        FROM review
-        WHERE review_status = 'ACTIVE'
-        AND title LIKE CONCAT('%', #{keyword}, '%')
-        OR content LIKE CONCAT('%', #{keyword}, '%')
+        r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status,
 
-        ORDER BY id DESC
+        COALESCE(
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW_THUMB' LIMIT 1),
+        (SELECT f.file_path FROM file f WHERE f.target_id = r.id AND f.target_type = 'REVIEW' LIMIT 1)
+        ) AS filePath
+
+        FROM review r
+        WHERE r.review_status = 'ACTIVE'
+        AND (
+        r.title LIKE CONCAT('%', #{keyword}, '%')
+        OR r.content LIKE CONCAT('%', #{keyword}, '%')
+        OR r.address LIKE CONCAT('%', #{keyword}, '%')
+        )
+        ORDER BY r.id DESC
         LIMIT 3
     </select>
 

@@ -158,9 +158,17 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 callbacks: {
+                    // ✨ 철벽 방어 및 알림 통일
                     onImageUpload: function(files) {
                         for (let i = 0; i < files.length; i++) {
-                            uploadSummernoteImage(files[i], this);
+                            let file = files[i];
+                            let validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+                            if (!validTypes.includes(file.type)) {
+                                alert("⚠️ 이미지 파일만 첨부할 수 있습니다.");
+                                continue;
+                            }
+                            uploadSummernoteImage(file, this);
                         }
                     }
                 }
@@ -172,18 +180,20 @@
             let token = $("meta[name='_csrf']").attr("content");
             let header = $("meta[name='_csrf_header']").attr("content");
             $.ajax({
-                url: "/review/uploadSummernoteImage", type: "POST", data: data, contentType: false, processData: false,
+                url: "/post/uploadSummernoteImage", // ✨ 복붙 오류 수정 (/review -> /post)
+                type: "POST", data: data, contentType: false, processData: false,
                 beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
                 success: function(response) { $(editor).summernote('insertImage', response.url); }
             });
         }
 
-        function deleteFile(fileId) {
+        function deleteFile(fileId) {ㄹ
             if (!confirm("정말 이 파일을 삭제하시겠습니까?")) return;
             const token = $("meta[name='_csrf']").attr("content");
             const header = $("meta[name='_csrf_header']").attr("content");
             $.ajax({
-                url: "/review/deleteFile/" + fileId, type: "POST",
+                url: "/post/deleteFile/" + fileId, // ✨ 복붙 오류 수정 (/review -> /post)
+                type: "POST",
                 beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
                 success: function(result) { if (result.trim() === "success") { $('#file-card-' + fileId).fadeOut(); } },
                 error: function() { alert("삭제 실패"); }

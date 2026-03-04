@@ -68,9 +68,9 @@
 
 
                 <div class="address-info-box">
-                    <span class="small text-muted d-block mb-1">현재 등록된 인증 주소</span>
-                    <strong class="fs-5" th:text="${user.address}"></strong>
-                    <p class="guide-text mt-2 mb-0 text-orange">※ 주소가 다를 경우 마이페이지에서 먼저 수정해 주세요.</p>
+                    <span class="small text-muted d-block mb-1">현재 작성하신 리뷰 주소</span>
+                    <strong class="fs-5" th:text="${reviewAddress}"></strong>
+                    <p class="guide-text mt-2 mb-0 text-orange">※ 위 주소와 일치하는 임대차계약서를 업로드해 주세요.</p>
                 </div>
 
                 <form th:action="@{/review/certification}" method="post" enctype="multipart/form-data">
@@ -80,8 +80,8 @@
                         <div class="file-upload-wrapper" id="dropZone">
                             <i class="bi bi-cloud-arrow-up file-upload-icon d-block"></i>
                             <span class="d-block fw-bold mb-1" id="fileNameDisplay">파일을 클릭하거나 여기로 끌어다 놓으세요</span>
-                            <span class="guide-text">JPG, PNG 또는 PDF 형식 (최대 10MB)</span>
-                            <input type="file" name="contractFile" id="contractFile" required accept="image/*, .pdf">
+                            <span class="guide-text">JPG, PNG 등 이미지 또는 PDF 형식만 가능 (최대 10MB)</span>
+                            <input type="file" name="contractFile" id="contractFile" required accept="image/*, application/pdf">
                         </div>
                     </div>
 
@@ -112,7 +112,22 @@
 
         fileInput.addEventListener('change', function(e) {
             if (this.files && this.files.length > 0) {
-                fileNameDisplay.innerText = this.files[0].name;
+                const file = this.files[0];
+
+                // ✨ PDF(application/pdf) 추가 완료!
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+
+                // 허락된 파일이 아니면 튕겨냅니다!
+                if (!validTypes.includes(file.type)) {
+                    alert("⚠️ 이미지(JPG, PNG 등) 또는 PDF 파일만 첨부할 수 있습니다.");
+                    this.value = ''; // 선택된 파일 강제 삭제 (초기화)
+                    fileNameDisplay.innerText = "파일을 클릭하거나 여기로 끌어다 놓으세요";
+                    fileNameDisplay.classList.remove('text-orange');
+                    return; // 튕겨내고 함수 종료
+                }
+
+                // 무사히 통과한 파일만 이름 표시
+                fileNameDisplay.innerText = file.name;
                 fileNameDisplay.classList.add('text-orange');
             } else {
                 fileNameDisplay.innerText = "파일을 클릭하거나 여기로 끌어다 놓으세요";

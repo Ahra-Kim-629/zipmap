@@ -549,6 +549,16 @@
                 document.getElementById('aiSummaryModal').classList.remove('show');
             }
 
+            // ✨ [추가] 모달 배경(어두운 영역)을 클릭하면 모달을 닫는 로직
+            window.addEventListener('click', function(e) {
+                const modalOverlay = document.getElementById('aiSummaryModal');
+                // 클릭한 대상(e.target)이 모달창의 하얀 본체(ai-modal-content)가 아니라
+                // 바깥쪽의 어두운 배경(ai-modal-overlay)일 때만 모달을 닫습니다!
+                if (e.target === modalOverlay) {
+                    closeAiModal();
+                }
+            });
+
             // =======================================================
             // 💡 기존 로직 절대 보존 구역 (슬라이더, 지도 등)
             // =======================================================
