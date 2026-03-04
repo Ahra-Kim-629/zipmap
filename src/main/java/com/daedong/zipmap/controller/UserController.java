@@ -65,7 +65,23 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String login() {
+    public String login(HttpServletRequest request, Model model) {
+        // 1. 기존 세션이 존재하면 가져오고, 없으면 불필요하게 새로 생성하지 않음 (메모리 최적화)
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            // 2. Handler에서 세션에 저장한 에러 메시지를 꺼냄
+            String errorMessage = (String) session.getAttribute("errorMessage");
+
+            if (errorMessage != null) {
+                // 3. HTML(Thymeleaf)에서 찾고 있는 키값인 'error'로 Model에 담아 전달
+                model.addAttribute("error", errorMessage);
+
+                // 4. 메시지를 한 번 보여준 후 세션에서 제거 (새로고침 시 계속 뜨는 현상 방지)
+                session.removeAttribute("errorMessage");
+            }
+        }
+
         return "/users/login-form";
     }
 
