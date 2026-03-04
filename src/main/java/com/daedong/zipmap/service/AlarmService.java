@@ -49,6 +49,7 @@ public class AlarmService {
 
             try {
                 String moveUrl = "/post/detail/" + post.getId(); // 이동할 주소
+                System.out.println("알림 전송 시도 대상 ID: [" + subscriberId + "]");
                 myAlarmHandler.sendAlarm(subscriberId, message, moveUrl, alarmDTO.getId());
             } catch (Exception e) {
                 System.err.println("알림 전송 중 오류 발생: " + e.getMessage());
@@ -59,14 +60,16 @@ public class AlarmService {
     // 리뷰 전용
     public void sendReviewAlarm(ReviewDTO review) {
 
+        String title = (review.getTitle() != null) ? review.getTitle() : "";
+        String content = (review.getContent() != null) ? review.getContent() : "";
         String prosText = (review.getProsList() != null) ? String.join(" ", review.getProsList()) : "";
         String consText = (review.getConsList() != null) ? String.join(" ", review.getConsList()) : "";
         String address = (review.getAddress() != null) ? review.getAddress() : "";
 
         // DB에서 키워드를 구독중인 사람들의 리스트를 가져옴
         List<Map<String, Object>> subscribers = alarmMapper.selectSubscribersByReviewContent(
-                review.getTitle(),
-                review.getContent(),
+                title,
+                content,
                 address,
                 prosText,
                 consText
