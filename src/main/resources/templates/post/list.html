@@ -4,6 +4,7 @@
       layout:decorate="~{layouts/default}">
 
 <th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/alarm.css}">
     <style>
         .board-container { padding: 40px 0; background-color: #f5f4ef; }
         .page-title {  font-weight: 800; color: #3E362E; }
@@ -82,10 +83,11 @@
             background-color: #3f8a7e !important; /* 검색 버튼과 동일한 오렌지색 */
             border-color: #F97316 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
         }
         .page-link:hover:not(.active) {
             background-color: #325e5a; transform: translateY(-2px);
+            color: #ffffff;
         }
 
         /* 카테고리 선택 버튼 스타일 */
@@ -158,15 +160,20 @@
             <!-- 알림받기 버튼 -->
             <div th:if="${keyword != null and keyword != ''}">
                 <div id="alertSettingArea" style="display:none;">
-                    <p id="appliedKeywordsContainer">
-                        선택하신 키워드 <span id="appliedKeywords" style="font-weight: bold; color: #007bff;"></span>
+                    <p id="appliedKeywordsContainer" class="d-flex align-items-center">
+                        <i class="bi bi-bell-plus-fill me-2" style="color: #3f8a7e;"></i>
+                        <span>새로운 키워드 <span id="appliedKeywords"></span> 알림을 받아보시겠어요?</span>
                     </p>
-                    <button type="button" id="btnSaveKeyword" class="btn btn-primary">알림 받기</button>
+                    <button type="button" id="btnSaveKeyword" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-check2-circle me-1"></i> 알림 받기 설정
+                    </button>
                 </div>
 
-                <div id="alreadySubscribed" style="display:none; margin-top: 10px;">
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">구독 중 (클릭 시 취소):</p>
-                    <div id="oldKeywordsList">
+                <div id="alreadySubscribed" style="display:none;">
+                    <p class="fw-bold small text-muted mb-3">
+                        <i class="bi bi-info-circle me-1"></i> 현재 알림 설정 중인 키워드 (클릭 시 취소)
+                    </p>
+                    <div id="oldKeywordsList" class="d-flex flex-wrap gap-2">
                     </div>
                 </div>
             </div>
@@ -485,10 +492,11 @@
                 $('#alertSettingArea').hide();
 
                 $('#oldKeywordsList').empty().append(`
-                    <span class="badge rounded-pill btn-unsubscribe" data-keyword="${searchText}"
-                        style="background-color: #28a745; color: white; cursor: pointer; padding: 8px 12px;">
-                        ${searchText} <i class="bi bi-x-lg"></i>
-                    </span>
+                    <span class="badge rounded-pill btn-unsubscribe"
+                      data-keyword="${searchText}"
+                      style="cursor: pointer;">
+                    ${searchText} <i class="bi bi-x-lg ms-1"></i>
+                </span>
                 `);
                 $('#alreadySubscribed').show();
             } else {
@@ -508,11 +516,6 @@
 
         // 알림 받기 버튼 클릭 시
         $('#btnSaveKeyword').on('click', function() {
-
-            if (newKeywords.length === 0) {
-                alert("저장할 새로운 키워드가 없습니다.");
-                return;
-            }
 
             if (!loginUserId) {
                 alert("로그인 후 이용 가능한 서비스입니다.");
@@ -538,7 +541,7 @@
                     targetType: 'post'
                 }),
                 success: function(response) {
-                    alert("알림 설정이 완료되었습니다!");
+                    alert("'" + newKeywords[0] + "' 키워드 알림이 설정되었습니다!");
 
                     // 저장 성공 후, 방금 저장한 것들을 "기존 목록"에 합쳐줍니다. (새로고침 없이 실시간 반영)
                     newKeywords.forEach(k => myExistingKeywords.push(k));

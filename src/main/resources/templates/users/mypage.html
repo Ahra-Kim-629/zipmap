@@ -147,10 +147,16 @@
                                               th:text="${#temporals.format(alarm.createdAt, 'yyyy-MM-dd HH:mm')}">
                                             2026-02-26
                                         </span>
-                                        <button type="button" class="btn btn-sm btn-outline-orange py-0 px-2" style="font-size: 0.7rem;"
-                                                th:onclick="readAndGo([[${alarm.id}]], [[${alarm.targetId}]], [[${alarm.targetType}]])">
-                                            이동
-                                        </button>
+                                        <div class="d-flex gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-orange py-0 px-2" style="font-size: 0.7rem;"
+                                                    th:onclick="readAndGo([[${alarm.id}]], [[${alarm.targetId}]], [[${alarm.targetType}]])">
+                                                이동
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.7rem;"
+                                                    th:onclick="deleteAlarm(this, [[${alarm.id}]])">
+                                                삭제
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -288,6 +294,34 @@ $(document).ready(function() {
                 },
                 error: function() {
                     alert("알림 처리에 실패했습니다.");
+                }
+            });
+        }
+
+        function deleteAlarm(btnElement, alarmId) {
+
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                url: '/alarm/delete/' + alarmId, // 삭제 요청 주소
+                method: 'DELETE',
+                beforeSend: function(xhr) {
+                    if(header && token) xhr.setRequestHeader(header, token);
+                },
+                success: function() {
+                    // 삭제 성공 시 화면에서 해당 알림 박스를 부드럽게 지움
+                    $(btnElement).closest('.alarm-item-box').fadeOut(300, function() {
+                        $(this).remove();
+
+                        // 만약 모든 알림을 지웠다면 "새로운 알림이 없습니다" 표시
+                        if ($('#mypage-alarm-list').children('.alarm-item-box').length === 0) {
+                            $('#mypage-alarm-list').html('<div class="text-muted small py-3 text-center">새로운 알림이 없습니다.</div>');
+                        }
+                    });
+                },
+                error: function() {
+                    alert("알림 삭제에 실패했습니다.");
                 }
             });
         }

@@ -77,11 +77,15 @@
         </div>
     </nav>
 
+    <link rel="stylesheet" th:href="@{/css/alarm.css}">
+
     <style>
         .navbar { transition: all 0.3s ease; }
         .nav-link { transition: color 0.2s; }
         .nav-link:hover { color: var(--main-orange) !important; }
         .user-info-wrapper { border-right: 1px solid #eee; padding-right: 15px; }
+        .btn-outline-orange:hover { color: #3f8a7e !important; }
+        .btn.text-dark:hover { color: #3f8a7e !important; }
 
         /* 관리자 버튼은 조금 더 특별한 느낌으로 */
         .btn-outline-danger { border-width: 2px; }
@@ -142,6 +146,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
 
     <script th:src="@{/js/alarm.js}"></script>
+    <script th:src="@{/js/alarm.js?v=20260304}"></script>
 
     <!-- 검색창 -->
     <script>

@@ -6,13 +6,14 @@ import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AlarmMapper {
 
-    List<String> selectSubscribersByPostContent(@Param("title") String title, @Param("content") String content);
+    List<Map<String, Object>> selectSubscribersByPostContent(@Param("title") String title, @Param("content") String content);
 
-    List<String> selectSubscribersByReviewContent(@Param("title") String title, @Param("content") String content);
+    List<Map<String, Object>> selectSubscribersByReviewContent(@Param("title") String title, @Param("content") String content, @Param("address") String address, @Param("pros") String pros, @Param("cons") String cons);
 
     void insertAlarm(AlarmDTO alarmDTO);
 
@@ -21,4 +22,6 @@ public interface AlarmMapper {
     List<AlarmDTO> selectAlarmList(Long id);
 
     int updateAlarmReadStatus(Long alarmId);
+
+    void deleteAlarmById(Long id);
 }

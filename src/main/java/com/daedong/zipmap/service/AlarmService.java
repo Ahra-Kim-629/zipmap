@@ -7,8 +7,10 @@ import com.daedong.zipmap.handler.MyAlarmHandler;
 import com.daedong.zipmap.mapper.AlarmMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +22,20 @@ public class AlarmService {
     // 커뮤니티 전용
     public void sendPostAlarm(Post post) {
         // DB에서 키워드를 구독중인 사람들의 리스트를 가져옴
-        List<String> subscriberIds = alarmMapper.selectSubscribersByPostContent(
+        List<Map<String, Object>> subscribers = alarmMapper.selectSubscribersByPostContent(
                 post.getTitle(),
                 post.getContent()
         );
-        System.out.println("조회된 구독자 수: " + subscriberIds.size());
-        // 리스트에 한명이라도 있을시 알림 전송
-        for (String subscriberId : subscriberIds) {
-            String message = "구독하신 키워드가 포함된 새 글이 올라왔습니다 : " + post.getTitle();
 
+        // 리스트에 한명이라도 있을시 알림 전송
+        for (Map<String, Object> sub : subscribers) {
+            if (sub.get("userId") == null) continue;
+            String subscriberId = String.valueOf(sub.get("userId"));
+            String keyword = (sub.get("keyword") != null) ? String.valueOf(sub.get("keyword")) : "알림";
+
+            String message = "[" + keyword + "] 키워드가 포함된 새 글이 올라왔습니다 : " + post.getTitle();
+            AlarmDTO alarmDTO = new AlarmDTO();
             try {
-                AlarmDTO alarmDTO = new AlarmDTO();
                 alarmDTO.setUserId(Long.parseLong(subscriberId)); // 알림 받을 사람
                 alarmDTO.setTargetType("POST");
                 alarmDTO.setTargetId(post.getId());               // 게시글 번호
@@ -44,8 +49,7 @@ public class AlarmService {
 
             try {
                 String moveUrl = "/post/detail/" + post.getId(); // 이동할 주소
-                String socketMessage = message + "|" + moveUrl; // "메시지내용|주소" 형태
-                myAlarmHandler.sendAlarm(subscriberId, socketMessage);
+                myAlarmHandler.sendAlarm(subscriberId, message, moveUrl, alarmDTO.getId());
             } catch (Exception e) {
                 System.err.println("알림 전송 중 오류 발생: " + e.getMessage());
             }
@@ -54,18 +58,30 @@ public class AlarmService {
 
     // 리뷰 전용
     public void sendReviewAlarm(ReviewDTO review) {
+
+        String prosText = (review.getProsList() != null) ? String.join(" ", review.getProsList()) : "";
+        String consText = (review.getConsList() != null) ? String.join(" ", review.getConsList()) : "";
+        String address = (review.getAddress() != null) ? review.getAddress() : "";
+
         // DB에서 키워드를 구독중인 사람들의 리스트를 가져옴
-        List<String> subscriberIds = alarmMapper.selectSubscribersByReviewContent(
+        List<Map<String, Object>> subscribers = alarmMapper.selectSubscribersByReviewContent(
                 review.getTitle(),
-                review.getContent()
+                review.getContent(),
+                address,
+                prosText,
+                consText
         );
+        System.out.println("리뷰 알림 대상자 수: " + (subscribers != null ? subscribers.size() : 0));
 
         // 리스트에 있는 사람들에게 알림 전송
-        for (String subscriberId : subscriberIds) {
-            String message = "구독하신 키워드의 새 리뷰가 승인되었습니다: " + review.getTitle();
+        for (Map<String, Object> sub : subscribers) {
+            if (sub.get("userId") == null) continue;
+            String subscriberId = String.valueOf(sub.get("userId"));
+            String keyword = (sub.get("keyword") != null) ? String.valueOf(sub.get("keyword")) : "알림";
 
+            String message = "[" + keyword + "] 키워드가 포함된 새 리뷰가 등록되었습니다: " + review.getTitle();
+            AlarmDTO alarmDTO = new AlarmDTO();
             try {
-                AlarmDTO alarmDTO = new AlarmDTO();
                 alarmDTO.setUserId(Long.parseLong(subscriberId)); // 알림 받을 사람
                 alarmDTO.setTargetType("REVIEW");               // 알림 타입
                 alarmDTO.setTargetId(review.getId());             // 리뷰 글 번호
@@ -80,8 +96,7 @@ public class AlarmService {
 
             try {
                 String moveUrl = "/review/detail/" + review.getId(); // 이동할 주소
-                String socketMessage = message + "|" + moveUrl; // "메시지내용|주소" 형태
-                myAlarmHandler.sendAlarm(subscriberId, socketMessage);
+                myAlarmHandler.sendAlarm(subscriberId, message, moveUrl, alarmDTO.getId());
             } catch (Exception e) {
                 System.err.println("리뷰 알림 전송 실패: " + e.getMessage());
             }
@@ -104,5 +119,10 @@ public class AlarmService {
         if (result == 0) {
             System.out.println("알림 읽음 처리 실패: 존재하지 않는 알림 ID - " + alarmId);
         }
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        alarmMapper.deleteAlarmById(id);
     }
 }

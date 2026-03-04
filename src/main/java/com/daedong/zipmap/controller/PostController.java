@@ -32,6 +32,7 @@ public class PostController {
     private final ReactionService reactionService;
     private final GeminiService geminiService; // GeminiService 주입 추가
     private final SubscriptionService subscriptionService;
+    private final AlarmService alarmService;
 
     private final FileUtilService fileUtilService;
 
@@ -129,7 +130,7 @@ public class PostController {
                 // (아래 FileUtilService 수정 참고)
                 fileUtilService.saveFileToDB(fileEntity);
             }
-
+            alarmService.sendPostAlarm(post);
             rttr.addFlashAttribute("message", "글 작성이 완료되었습니다.");
             return "redirect:/post";
         } catch (Exception e) {

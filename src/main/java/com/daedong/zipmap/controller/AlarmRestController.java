@@ -38,4 +38,11 @@ public class AlarmRestController {
         System.out.println("로그인 유저 ID: " + user.getUser().getId());
         return alarmService.getUnreadCount(user.getUser().getId());
     }
+
+    @DeleteMapping("/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<String> deleteAlarm(@PathVariable Long id) {
+        alarmService.deleteById(id); // DB에서 삭제하는 로직
+        return ResponseEntity.ok("success");
+    }
 }

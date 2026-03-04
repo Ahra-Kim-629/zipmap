@@ -4,7 +4,7 @@
 var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 var host = window.location.host; // localhost:8080 같은 주소를 가져옴
 // 현재 접속한 도메인과 프로토콜을 자동으로 따라가게 설정
-const socket = new SockJS('/alarm-ws')
+const socket = new SockJS('/alarm-ws');
 // 연결 성공시 실행
 socket.onopen = function() {
     console.log('실시간 알림 서버와 연결되었습니다.');
@@ -16,25 +16,28 @@ socket.onmessage = function(event) {
     const parts = event.data.split('|');
     const message = parts[0];
     const moveUrl = parts[1] || '#';  // URL이 없으면 기본값 #
+    const alarmId = parts[2]; // 서버에서 알림 ID도 같이 보내준다고 가정 (없다면 ID 없이 처리)
 
     // 화면에 삽입할 HTML 생성
     let alarmHtml = `
-    <div class="alarm-item" style="background: #ffffff; border-left: 5px solid #ff8a3d; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); animation: slideIn 0.3s ease-out;">
-        <div style="display: flex; align-items: start; gap: 10px; margin-bottom: 12px;">
-            <i class="bi bi-bell-fill" style="color: #ff8a3d; font-size: 1.1rem;"></i>
-            <div style="font-size: 14px; color: #333; line-height: 1.5; font-weight: 500;">${message}</div>
+    <div class="custom-alarm-item">
+            <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 15px;">
+                <div style="background: #f0f7f6; padding: 8px; border-radius: 12px;">
+                    <i class="bi bi-bell-fill" style="color: #3f8a7e; font-size: 1.2rem;"></i>
+                </div>
+                <div style="font-size: 15px; color: #333; line-height: 1.5; font-weight: 600; padding-top: 5px;">
+                    ${message}
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="alarm-btn-close" onclick="$(this).closest('.custom-alarm-item').fadeOut(300, function(){ $(this).remove(); })">
+                    닫기
+                </button>
+                <button class="alarm-btn-confirm" onclick="readAndMove('${moveUrl}', '${alarmId}')">
+                    확인하기
+                </button>
+            </div>
         </div>
-        <div style="display: flex; gap: 8px; justify-content: flex-end;">
-            <button onclick="location.href='${moveUrl}'"
-                style="background: #ff8a3d; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
-                확인하기
-            </button>
-            <button onclick="$(this).closest('.alarm-item').fadeOut(300, function(){ $(this).remove(); })"
-                style="background: #f4f4f4; color: #888; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer;">
-                닫기
-            </button>
-        </div>
-    </div>
     `;
 
     // 알림창 바구니(div)에 넣기 (id가 alarmList인 요소가 있다고 가정)
@@ -43,6 +46,28 @@ socket.onmessage = function(event) {
     // 마이페이지 버튼 숫자를 +1
     updateAlarmBadge();
 };
+
+// [추가] 읽음 처리 후 페이지 이동 함수
+function readAndMove(url, id) {
+    // 1. 서버에 읽음 처리 요청 (AJAX)
+    $.ajax({
+        url: '/alarm/read/' + id, // 서버의 읽음 처리 API 주소
+        method: 'POST',
+        beforeSend: function(xhr) {
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
+            if (token && header) xhr.setRequestHeader(header, token);
+        },
+        success: function() {
+            // 2. 읽음 처리 성공 시 페이지 이동
+            location.href = url;
+        },
+        error: function() {
+            // 에러가 나더라도 이동은 시켜줍니다
+            location.href = url;
+        }
+    });
+}
 
 // 연결이 끊겼을 때 실행
 socket.onclose = function() {
