@@ -10,8 +10,8 @@ public class Post {
     private String title;
     private String content;
     private long userId;
-    private String category;
-    private String location;
+    private Category category;
+    private Location location;
     private long likeCount;
     private long viewCount;
 

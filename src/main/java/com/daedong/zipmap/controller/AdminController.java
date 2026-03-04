@@ -232,12 +232,12 @@ public class AdminController {
 
             // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
             // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.
-            post.setCategory("NOTICE");
+            post.setCategory(Category.NOTICE);
 
             // ★ 2. 핵심 해결책: 비어있는 location에 기본값 넣어주기
             // DB 테이블 설정에 따라 'ALL' 또는 '서울' 등 적절한 값을 넣어주세요.
-            if (post.getLocation() == null || post.getLocation().isEmpty()) {
-                post.setLocation("ALL");
+            if (post.getLocation() == null ) {
+                post.setLocation(Location.ALL);
             }
 
             // 3. 게시글 저장

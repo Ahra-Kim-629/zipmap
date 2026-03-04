@@ -76,10 +76,10 @@
         <where>
             AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
             <if test="category != null and category != ''">
-                AND p.category = #{category}
+                AND p.category = #{category.name}
             </if>
             <if test="location != null and location != ''">
-                AND p.location = #{location}
+                AND p.location = #{location.name}
             </if>
             <if test="keyword != null and keyword != ''">
                 <choose>
@@ -118,7 +118,10 @@
 
     <select id="findAllByIdList" resultType="com.daedong.zipmap.domain.PostDTO">
         SELECT
-        id, title, content, user_id, category, location, like_count, view_count, post_status, created_at, updated_at
+        id, title, content, user_id,
+        IF(category IS NULL OR category = '', 'FREE', category) as category,
+        IF(location IS NULL OR location = '', 'ALL', location) as location,
+        like_count, view_count, post_status, created_at, updated_at
         FROM post
         WHERE id IN
         <foreach collection="list" item="id" open="(" separator="," close=")">
@@ -207,7 +210,7 @@
         </where>
 <!--        ORDER BY p.id DESC-->
         ORDER BY
-        CASE WHEN p.category = 'NOTICE' THEN 0 ELSE 1 END, p.id DESC
+        (CASE WHEN p.category = 'NOTICE' THEN 0 ELSE 1 END)ASC, p.id DESC
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 

@@ -139,7 +139,8 @@ public class GeminiService {
         StringBuilder promptBuilder = new StringBuilder();
 
         // 1. 페르소나 부여
-        promptBuilder.append("너는 자취생들의 커뮤니티 게시판을 분석해주는 '친절한 커뮤니티 매니저'야.\n\n");
+        promptBuilder.append("너는 자취생들의 커뮤니티 게시판을 분석해주는 '친절한 커뮤니티 매니저'야.\n");
+        promptBuilder.append("중요: 답변 시 마크다운 문법(*, # 등)을 절대 사용하지 마. 텍스트와 이모지만 사용해서 가독성 있게 작성해 줘.\n\n");
 
         // 2. 상황 설명
         String categoryName = switch (category != null ? category : "ALL") {
