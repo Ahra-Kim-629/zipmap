@@ -89,17 +89,20 @@
                             <span th:text="${review.point}">0.0</span>
                         </td>
                         <td>
-                            <!-- [수정] review.reviewStatus가 null이 아닐 때만 name()을 호출하도록 수정 -->
                             <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'ACTIVE'}" class="badge bg-success">승인완료</span>
                             <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'PENDING'}" class="badge bg-warning text-dark">인증대기</span>
                             <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'BANNED'}" class="badge bg-danger">인증반려</span>
                         </td>
                         <td>
                             <div th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'BANNED'}">
-                                <div class="text-danger small mb-1" style="font-size: 0.75rem; font-weight: bold;">
-                                    사유: <span th:text="${review.message != null ? review.message : '확인 불가'}">서류 미비</span>
-                                </div>
-                                <a th:href="@{/review/certification(reviewId=${review.id})}"
+                                <!-- 반려 사유 보기 버튼 -->
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 mb-1"
+                                        style="font-size: 0.65rem;"
+                                        th:onclick="showRejectReason([[${review.message}]])">
+                                    반려 사유 보기
+                                </button>
+                                <br>
+                                <a th:href="@{|/review/edit/${review.id}|}"
                                    class="btn btn-sm btn-outline-danger rounded-pill px-2" style="font-size: 0.65rem;">
                                     재인증하기
                                 </a>
@@ -181,5 +184,35 @@
             </div>
         </div>
     </div>
+
+    <!-- 반려 사유 모달 -->
+    <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>반려 사유
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalRejectMessage" class="text-secondary mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script layout:fragment="script">
+    function showRejectReason(message) {
+        const msg = message ? message : "반려 사유가 등록되지 않았습니다.";
+        document.getElementById('modalRejectMessage').innerText = msg;
+        const modal = new bootstrap.Modal(document.getElementById('rejectReasonModal'));
+        modal.show();
+    }
+</script>
 </html>
