@@ -158,8 +158,20 @@
                 ['view', ['fullscreen', 'codeview', 'help']]
             ],
             callbacks: {
+                // ✨ 썸머노트 본문 이미지 첨부 철벽 방어 로직
                 onImageUpload: function(files) {
-                    for (let i = 0; i < files.length; i++) { uploadSummernoteImage(files[i], this); }
+                    for (let i = 0; i < files.length; i++) {
+                        let file = files[i];
+                        let validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+                        if (!validTypes.includes(file.type)) {
+                            alert("⚠️ 이미지 파일만 첨부할 수 있습니다.");
+                            continue; // 경고를 띄우고, 이 파일은 서버로 보내지 않음
+                        }
+
+                        // 검사를 무사히 통과한 이미지 파일만 업로드 진행
+                        uploadSummernoteImage(file, this);
+                    }
                 },
                 onMediaDelete: function(target) {
                     deleteSummernoteImage(target[0].src);

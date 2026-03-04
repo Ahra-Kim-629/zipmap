@@ -151,6 +151,9 @@ public class ReviewController {
                 // 사유(message)와 현재 상태를 모델에 추가
                 model.addAttribute("rejectMessage", review.getMessage());
                 model.addAttribute("reviewStatus", review.getReviewStatus().name());
+
+                //  [추가된 핵심 코드] 방금 작성한 리뷰의 주소를 화면에 전달
+                model.addAttribute("reviewAddress", review.getAddress());
             }
 
             return "/users/certification";

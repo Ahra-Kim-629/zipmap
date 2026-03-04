@@ -31,8 +31,13 @@
                     <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
                          style="cursor: pointer;"
                          th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
-                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500"
-                             class="card-img-top" style="height:180px; object-fit:cover;">
+                        <img th:if="${review.filePath != null}"
+                             th:src="${#strings.startsWith(review.filePath, '/files/')} ? ${review.filePath} : @{/files/{path}(path=${review.filePath})}"
+                             class="card-img-top" style="height:180px; object-fit:cover;" alt="리뷰 썸네일">
+
+                        <img th:unless="${review.filePath != null}"
+                             th:src="@{/images/zipmapThumbnail.png}"
+                             class="card-img-top" style="height:180px; object-fit:cover; background-color: #f8f9fa;" alt="기본 이미지">
                         <div class="card-body">
                             <span class="badge badge-daedong mb-2" th:text="${review.address}">관악구 봉천동</span>
                             <h5 class="card-title fw-bold small" th:text="${review.title}">리뷰 제목</h5>

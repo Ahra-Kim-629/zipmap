@@ -109,7 +109,7 @@
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
                         <button type="submit" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">수정 완료</button>
-                        <a th:href="@{/post/detail/{id}(id=${post.id})}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">수정 취소</a>
+                        <a th:href="@{/post/detail/{id}(id=${post.id})}" class="btn btn-outline-secondary px-5 py-3 rounded-pill bg-white">수정 취소</a>
                     </div>
                 </form>
             </div>
@@ -134,9 +134,17 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 callbacks: {
+                    // ✨ 철벽 방어 및 알림 통일
                     onImageUpload: function(files) {
                         for (let i = 0; i < files.length; i++) {
-                            uploadSummernoteImage(files[i], this);
+                            let file = files[i];
+                            let validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+                            if (!validTypes.includes(file.type)) {
+                                alert("⚠️ 이미지 파일만 첨부할 수 있습니다.");
+                                continue;
+                            }
+                            uploadSummernoteImage(file, this);
                         }
                     }
                 }
@@ -148,7 +156,8 @@
             let token = $("meta[name='_csrf']").attr("content");
             let header = $("meta[name='_csrf_header']").attr("content");
             $.ajax({
-                url: "/review/uploadSummernoteImage", type: "POST", data: data, contentType: false, processData: false,
+                url: "/post/uploadSummernoteImage", // ✨ 복붙 오류 수정 (/review -> /post)
+                type: "POST", data: data, contentType: false, processData: false,
                 beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
                 success: function(response) { $(editor).summernote('insertImage', response.url); }
             });
