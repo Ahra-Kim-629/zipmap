@@ -123,28 +123,19 @@ public class AdminService {
 
     @Transactional
     public void toggleReviewStatus(Long id, String targetStatus) {
-        // HTML에서 보낸 'BANNED' 또는 'ACTIVE'가 targetStatus로 들어옵니다.
-        // 2/24 수정
-        // reviewMapper.updateReviewStatusToBanned(id, targetStatus);
-
-        // targetStatus를 Enum으로 변환
         Status statusEnum = Status.valueOf(targetStatus);
-
-        //  메서드 이름 맞추고, 넘어온 글자를 Enum으로 변환해서 매퍼로 던짐
         reviewMapper.updateReviewStatus(id, statusEnum);
 
-        // 3. [추가] 상태가 ACTIVE(승인)인 경우, 인증 테이블의 상태도 같이 변경
-        // 이렇게 해야 대시보드의 PENDING 카운트가 줄어듭니다.
         if (statusEnum == Status.ACTIVE) {
             reviewMapper.updateCertificationStatus(id, Status.ACTIVE);
-        }
 
-        // 만약 바뀐 상태가 ACTIVE(승인)라면 알림 전송
-        if (statusEnum == Status.ACTIVE) {
             ReviewDTO reviewDTO = reviewMapper.findById(id);
-            alarmService.sendReviewAlarm(reviewDTO);
+            if(reviewDTO != null) {
+                alarmService.sendReviewAlarm(reviewDTO);
+            } else {
+                System.out.println("2. [실패] 해당 ID로 리뷰를 찾을 수 없습니다.");
+            }
         }
-
     }
 
     @Transactional

@@ -4,6 +4,7 @@
       layout:decorate="~{layouts/default}">
 
 <th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/alarm.css}">
     <style>
         /* 전체 페이지의 기본 폰트와 여백 설정 */
         .review-container { padding: 40px 0 80px 0; background-color: #f5f4ef; font-family: 'NanumBarunGothic', -apple-system, sans-serif; }
@@ -245,7 +246,7 @@
                     <h2 class="page-title mb-2">어디서 살까? 리얼 후기 탐색</h2>
                     <p class="text-muted fw-bold mb-0">서울 전역의 실제 거주자들이 남긴 생생한 리뷰를 확인하세요.</p>
                 </div>
-                <div class="btn-group shadow-sm rounded-pill overflow-hidden border">
+                <div class="btn-group shadow-sm rounded-pill overflow-hidden border" style="background-color: #fff;">
                     <button type="button" class="btn btn-white border-end px-4 py-2 fw-bold text-dark" onclick="handleMapClick()">
                         <i class="bi bi-map-fill me-2 text-info"></i>리뷰 지도 보기
                     </button>
@@ -304,15 +305,20 @@
                     <!-- 알림받기 버튼 -->
                     <div th:if="${keyword != null and keyword != ''}">
                         <div id="alertSettingArea" style="display:none;">
-                            <p id="appliedKeywordsContainer">
-                                선택하신 키워드 <span id="appliedKeywords" style="font-weight: bold; color: #007bff;"></span>
+                            <p id="appliedKeywordsContainer" class="d-flex align-items-center">
+                                <i class="bi bi-bell-plus-fill me-2" style="color: #3f8a7e;"></i>
+                                <span>새로운 키워드 <span id="appliedKeywords"></span> 알림을 받아보시겠어요?</span>
                             </p>
-                            <button type="button" id="btnSaveKeyword" class="btn btn-primary">알림 받기</button>
+                            <button type="button" id="btnSaveKeyword" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> 알림 받기 설정
+                            </button>
                         </div>
 
-                        <div id="alreadySubscribed" style="display:none; margin-top: 10px;">
-                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">구독 중 (클릭 시 취소):</p>
-                            <div id="oldKeywordsList">
+                        <div id="alreadySubscribed" style="display:none;">
+                            <p class="fw-bold small text-muted mb-3">
+                                <i class="bi bi-info-circle me-1"></i> 현재 알림 설정 중인 키워드 (클릭 시 취소)
+                            </p>
+                            <div id="oldKeywordsList" class="d-flex flex-wrap gap-2">
                             </div>
                         </div>
                     </div>
@@ -779,8 +785,8 @@
                     let badgeHtml = `
                         <span class="badge rounded-pill btn-unsubscribe"
                               data-keyword="${word}"
-                              style="background-color: #28a745; color: white; cursor: pointer; margin-right: 5px; padding: 8px 12px;">
-                            ${word} <i class="bi bi-x-lg" style="margin-left: 5px;"></i>
+                              title="클릭 시 알림 구독이 취소됩니다">
+                            ${word} <i class="bi bi-x-lg"></i>
                         </span>`;
                     $('#oldKeywordsList').append(badgeHtml);
                 });
