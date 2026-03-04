@@ -68,10 +68,10 @@
                                 <label for="category" class="form-label small fw-bold text-muted">카테고리</label>
                                 <select id="category" name="category" class="form-select rounded-3 form-control"
                                         required>
+                                    <option value="FREE" th:selected="${post.category == 'FREE'}">자유</option>
                                     <option value="GROUP" th:selected="${post.category == 'GROUP'}">공구</option>
                                     <option value="SHARE" th:selected="${post.category == 'SHARE'}">나눔</option>
-                                    <option value="FREE" th:selected="${post.category == 'FREE'}">자유</option>
-                                    <option value="TRADE" th:selected="${post.category == 'TRADE'}">중고거래</option>
+                                    <option value="TRADE" th:selected="${post.category == 'TRADE'}">거래</option>
                                     <option value="QNA" th:selected="${post.category == 'QNA'}">질문</option>
                                 </select>
                             </div>
@@ -79,16 +79,15 @@
                                 <label for="location" class="form-label small fw-bold text-muted">지역</label>
                                 <select id="location" name="location" class="form-select rounded-3 form-control"
                                         required>
-                                    <option value="SEOUL_CENTER" th:selected="${post.location == 'SEOUL_CENTER'}">서울
-                                        중앙
+                                    <option value="SEOUL_CENTER" th:selected="${post.location == 'SEOUL_CENTER'}">서울 중앙 (종로,용산 등)
                                     </option>
-                                    <option value="SEOUL_EAST" th:selected="${post.location == 'SEOUL_EAST'}">서울 동부
+                                    <option value="SEOUL_EAST" th:selected="${post.location == 'SEOUL_EAST'}">서울 동부 (강동,송파 등)
                                     </option>
-                                    <option value="SEOUL_SOUTH" th:selected="${post.location == 'SEOUL_SOUTH'}">서울 남부
+                                    <option value="SEOUL_SOUTH" th:selected="${post.location == 'SEOUL_SOUTH'}">서울 남부 (강남,관악 등)
                                     </option>
-                                    <option value="SEOUL_WEST" th:selected="${post.location == 'SEOUL_WEST'}">서울 서부
+                                    <option value="SEOUL_WEST" th:selected="${post.location == 'SEOUL_WEST'}">서울 서부 (강서,영등포 등)
                                     </option>
-                                    <option value="SEOUL_NORTH" th:selected="${post.location == 'SEOUL_NORTH'}">서울 북부
+                                    <option value="SEOUL_NORTH" th:selected="${post.location == 'SEOUL_NORTH'}">서울 북부 (강북,성북 등)
                                     </option>
                                 </select>
                             </div>
@@ -105,31 +104,6 @@
                         <div class="mb-4">
                             <label class="form-label small fw-bold text-muted">내용</label>
                             <textarea id="content" name="content" th:text="${post.content}" required></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-section border-0 mb-0">
-                        <span class="section-label"><i class="bi bi-paperclip me-2 text-orange"></i>첨부 파일 관리</span>
-
-                        <div th:if="${not #lists.isEmpty(post.fileList)}" class="mb-4">
-                            <div th:each="file : ${post.fileList}" th:id="|file-card-${file.id}|"
-                                 class="file-card mb-2">
-                                <div class="d-flex align-items-center">
-                                    <img th:if="${#strings.endsWith(file.filePath,'.jpg') or #strings.endsWith(file.filePath,'.png') or #strings.endsWith(file.filePath,'.gif')}"
-                                         th:src="@{/display(fileId=${file.filePath})}" class="rounded me-3" width="50"
-                                         height="50" style="object-fit: cover;">
-                                    <span class="small text-muted" th:text="'파일 ID: ' + ${file.id}"></span>
-                                </div>
-                                <button type="button" th:onclick="|deleteFile(${file.id})|"
-                                        class="btn btn-sm btn-outline-danger rounded-pill px-3">삭제
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="bg-light p-3 rounded-3">
-                            <label for="newFile" class="form-label small fw-bold">새 파일 추가/교체</label>
-                            <input type="file" id="newFile" name="file" class="form-control rounded-3" multiple>
-                            <p class="small text-muted mt-2 mb-0">※ 새 파일 추가 시 기존 파일 구성이 변경될 수 있습니다.</p>
                         </div>
                     </div>
 
@@ -185,10 +159,20 @@
             const token = $("meta[name='_csrf']").attr("content");
             const header = $("meta[name='_csrf_header']").attr("content");
             $.ajax({
-                url: "/review/deleteFile/" + fileId, type: "POST",
-                beforeSend: function(xhr) { if (token && header) xhr.setRequestHeader(header, token); },
-                success: function(result) { if (result.trim() === "success") { $('#file-card-' + fileId).fadeOut(); } },
-                error: function() { alert("삭제 실패"); }
+                url: "/review/deleteFile/" + fileId,
+                type: "POST",
+                beforeSend: function(xhr) {
+                    if (token && header)
+                        xhr.setRequestHeader(header, token);
+                },
+                success: function(result) {
+                    if (result.trim() === "success") {
+                        $('#file-card-' + fileId).fadeOut();
+                    }
+                },
+                error: function() {
+                    alert("삭제 실패");
+                }
             });
         }
     </script>

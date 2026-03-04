@@ -2,7 +2,6 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Review;
 import com.daedong.zipmap.domain.ReviewDTO;
-import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.GeminiService;
 import com.daedong.zipmap.service.ReactionService;
@@ -102,10 +101,10 @@ public class ReviewController {
                          HttpServletRequest request) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id, request, user);
 
-        boolean isLiked = false;
+        Integer isLiked = null;
         // [수정 포인트] user가 null인지 먼저 확인하여 NullPointerException 방지
         if (user != null && user.getUser() != null) {
-            isLiked = reactionService.isLiked(user.getUser().getId(), id, "review");
+            isLiked = reactionService.getReactionByUserId(user.getUser().getId(), id, "review");
         }
 
         model.addAttribute("reviewDTO", reviewDTO); // 여기서 객체 이름이 'reviewDTO'인 것을 기억하세요.

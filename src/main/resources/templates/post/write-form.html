@@ -102,7 +102,8 @@
                 </div>
 
                 <div th:if="${error}" class="alert alert-danger rounded-3 small py-2 mb-3" th:text="${error}"></div>
-                <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3" th:text="${message}"></div>
+                <div th:if="${message}" class="alert alert-warning rounded-3 small py-2 mb-3"
+                     th:text="${message}"></div>
 
                 <form id="postForm" th:action="@{/post/write}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -112,16 +113,20 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="category" class="form-label small fw-bold text-muted">카테고리</label>
-                                <select id="category" name="category" class="form-select rounded-3 py-2 form-control" required>
+                                <select id="category" name="category" class="form-select rounded-3 py-2 form-control"
+                                        required>
                                     <option value="">카테고리 선택</option>
+                                    <option value="FREE">자유</option>
                                     <option value="GROUP">공구</option>
                                     <option value="SHARE">나눔</option>
-                                    <option value="FREE">자유</option>
+                                    <option value="TRADE">거래</option>
+                                    <option value="QNA">질문</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label for="location" class="form-label small fw-bold text-muted">지역</label>
-                                <select id="location" name="location" class="form-select rounded-3 py-2 form-control" required>
+                                <select id="location" name="location" class="form-select rounded-3 py-2 form-control"
+                                        required>
                                     <option value="">지역 선택</option>
                                     <option value="SEOUL_CENTER">서울 중앙 (종로,용산 등)</option>
                                     <option value="SEOUL_EAST">서울 동부 (강동,송파 등)</option>
@@ -138,14 +143,17 @@
 
                         <div class="mb-4">
                             <label for="title" class="form-label small fw-bold text-muted">제목</label>
-                            <input type="text" id="title" name="title" class="form-control rounded-3 py-2" placeholder="제목을 입력하세요" required>
+                            <input type="text" id="title" name="title" class="form-control rounded-3 py-2"
+                                   placeholder="제목을 입력하세요" required>
                         </div>
 
                         <textarea id="content" name="content" required></textarea>
                     </div>
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
-                        <button type="submit" id="submitBtn" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기</button>
+                        <button type="submit" id="submitBtn"
+                                class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기
+                        </button>
                         <a th:href="@{/post}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
                 </form>
@@ -240,4 +248,6 @@
                 $('#postForm').submit();
             });
         </script>
-    </div> </div> </html>
+    </div>
+</div>
+</html>

@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final AuthenticationSuccessHandler loginSuccessHandler;
     private final AuthenticationFailureHandler loginFailureHandler;
     private final CustomOauth2UserService customOauth2UserService;
 
@@ -35,7 +37,7 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/signUp", "/check-id", "/login", "/logout", "/users/loginForm", "/users/signUpForm", "/review", "/review/safety-map", "/post/**"
-                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**", "/alarm-ws/**").permitAll()
+                                , "/users/mypage", "/users/find/id", "/users/find/password", "/users/reset-password", "/oauth2/**", "/alarm-ws/**", "/reply/list").permitAll()
 
                         .requestMatchers("/css/**", "/js/**","/images/**", "/files/**",
                                 "/review/uploadSummernoteImage",
@@ -68,13 +70,13 @@ public class WebSecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("loginId")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", false)
+                        .successHandler(loginSuccessHandler)
                         .failureHandler(loginFailureHandler)
 
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        .defaultSuccessUrl("/",false)
+                        .successHandler(loginSuccessHandler)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService)
                         )

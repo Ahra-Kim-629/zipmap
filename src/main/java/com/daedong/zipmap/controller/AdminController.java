@@ -338,9 +338,9 @@ public class AdminController {
      */
     // Report -> 신고한 리스트를 나오게 하는 법
     @GetMapping("/report/list")
-    public String adminReportList(@RequestParam(value = "status", required = false) String status, Model model) {
-        model.addAttribute("reports", reportService.findAllReports(status));
-        model.addAttribute("currentFilter", status);
+    public String adminReportList(@RequestParam(value = "reportStatus", required = false) String reportStatus, Model model) {
+        model.addAttribute("reports", reportService.findAllReports(reportStatus));
+        model.addAttribute("currentFilter", reportStatus);
         return "admin/report/list";
     }
     // Report -> 신고 글을 삭제하는 방법

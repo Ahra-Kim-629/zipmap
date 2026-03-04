@@ -1,7 +1,12 @@
 package com.daedong.zipmap.controller;
 
-import com.daedong.zipmap.domain.*;
-import com.daedong.zipmap.service.*;
+import com.daedong.zipmap.domain.Post;
+import com.daedong.zipmap.domain.PostDTO;
+import com.daedong.zipmap.domain.UserPrincipalDetails;
+import com.daedong.zipmap.service.GeminiService;
+import com.daedong.zipmap.service.PostService;
+import com.daedong.zipmap.service.ReactionService;
+import com.daedong.zipmap.service.SubscriptionService;
 import com.daedong.zipmap.util.FileUtilService;
 import com.daedong.zipmap.util.ReplyService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +27,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j //로그어노테이션
 @Controller
 @RequiredArgsConstructor
@@ -39,7 +45,7 @@ public class PostController {
     @GetMapping({"", "/list"})
     public String list(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
-                       @RequestParam(required = false, name="q") String q,
+                       @RequestParam(required = false, name = "q") String q,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
                        @RequestParam(required = false) String location,
@@ -50,7 +56,6 @@ public class PostController {
 
         // 전체 게시판 게시글 리스트
         Page<PostDTO> posts = postService.findAll(searchType, searchKeyword, category, location, pageable);
-
 
 
         // 좋아요 싫어요 표시
@@ -88,7 +93,11 @@ public class PostController {
     }
 
     @GetMapping("/write")
-    public String write() {
+    public String write(@AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes redirectAttributes) {
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("message", "로그인이 필요한 서비스입니다.");
+            return "redirect:/login";
+        }
         return "post/write-form";
     }
 
@@ -247,6 +256,7 @@ public class PostController {
     }
 
     // [추가] 상세 페이지 AI 요약 요청 처리
+
     /**
      * 상세 페이지에서 AI 요약 버튼 클릭 시 호출되는 엔드포인트
      */

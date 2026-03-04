@@ -4,40 +4,24 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.ReportMapper">
 
-    <!--
-       [안내] post_id 컬럼을 target_id(신고 대상 번호)로 공용 사용합니다.
-       target_type 컬럼에는 'POST' 또는 'REVIEW'가 저장됩니다.
-    -->
     <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO report (
-        post_id,
-        target_type,
-        reporter_id,
-        reason_type,
-        content,
-        status,       created_at
+        target_id, target_type, user_id, reason, content, report_status, created_at
         ) VALUES (
-        #{targetId}, #{targetType}, #{userId}, #{reasonType}, #{content}, 'PENDING', NOW()
+        #{targetId}, #{targetType}, #{userId}, #{reason}, #{content}, 'PENDING', NOW()
         )
     </insert>
 
     <select id="selectAllReports" resultType="com.daedong.zipmap.domain.ReportDTO">
         SELECT
-        r.id,
-        r.target_type AS targetType,
-        r.post_id AS targetId,
-        r.reporter_id AS userId,
-        u.login_id AS reporterName,
-        r.reason_type AS reasonType,
-        r.content,
-        r.status,
-        r.created_at AS createdAt,
-        f.file_path AS filePath  FROM report r
-        LEFT JOIN user u ON r.reporter_id = u.id
+        r.id, r.target_type, r.target_id, r.user_id, u.login_id AS reporterName, r.reason,
+        r.content, r.report_status, r.created_at, r.updated_at, f.file_path
+        FROM report r
+        LEFT JOIN user u ON r.user_id = u.id
         LEFT JOIN file f ON f.target_id = r.id AND f.target_type = 'REPORT'
         <where>
-            <if test="status != null and status != ''">
-                AND r.status = #{status}
+            <if test="reportStatus != null and reportStatus != ''">
+                AND r.report_status = #{reportStatus}
             </if>
         </where>
         ORDER BY r.created_at DESC
@@ -48,19 +32,16 @@
     </delete>
 
     <select id="countPendingReports">
-        SELECT COUNT(*) FROM report WHERE status = 'PENDING'
+        SELECT COUNT(*) FROM report WHERE report_status = 'PENDING'
     </select>
 
     <update id="updateStatus">
-        UPDATE report SET status = #{status} WHERE id = #{id}
+        UPDATE report SET report_status = #{reportStatus} WHERE id = #{id}
     </update>
 
     <select id="selectReportById" resultType="com.daedong.zipmap.domain.ReportDTO">
         SELECT
-        r.id,
-        r.status,
-        r.target_type AS targetType,
-        r.post_id AS targetId
+        r.id, r.report_status, r.target_type, r.target_id
         FROM report r
         WHERE r.id = #{id}
     </select>

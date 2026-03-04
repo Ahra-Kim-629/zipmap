@@ -65,23 +65,28 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public String login(HttpServletRequest request, Model model) {
-        // 1. 기존 세션이 존재하면 가져오고, 없으면 불필요하게 새로 생성하지 않음 (메모리 최적화)
+    public String login(@RequestParam(value = "prevPage", required = false) String prevPage,
+                        HttpServletRequest request, Model model) {
         HttpSession session = request.getSession(false);
-
         if (session != null) {
             // 2. Handler에서 세션에 저장한 에러 메시지를 꺼냄
             String errorMessage = (String) session.getAttribute("errorMessage");
-
             if (errorMessage != null) {
                 // 3. HTML(Thymeleaf)에서 찾고 있는 키값인 'error'로 Model에 담아 전달
                 model.addAttribute("error", errorMessage);
 
                 // 4. 메시지를 한 번 보여준 후 세션에서 제거 (새로고침 시 계속 뜨는 현상 방지)
                 session.removeAttribute("errorMessage");
+
+                return "/users/login-form";
             }
         }
 
+        // 폼에 숨겨진 입력값으로 넣기 위해 모델에 담습니다.
+        if (prevPage != null && !prevPage.isEmpty()) {
+            // 세션에 "prevPage"라는 이름으로 저장 (OAuth2 인증 후에도 유지됨)
+            session.setAttribute("prevPage", prevPage);
+        }
         return "/users/login-form";
     }
 
@@ -175,7 +180,7 @@ public class UserController {
             User findUser = userService.findByLoginId(user.getUsername());
 
             if (new_password != null && !new_password.isEmpty()) {
-                if(current_password == null || current_password.isEmpty()){
+                if (current_password == null || current_password.isEmpty()) {
                     rttr.addFlashAttribute("error", "현재 비밀번호를 입력해주세요.");
                     return "redirect:/users/mypage";
                 }

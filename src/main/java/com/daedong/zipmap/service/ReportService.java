@@ -125,7 +125,7 @@ public class ReportService {
         if (report != null) {
             // 2. 현재 상태가 PENDING이면 CONFIRMED로, 아니면 PENDING으로 반전
             // (DTO에서 사용하시는 ReportStatus ENUM 활용)
-            ReportStatus newStatus = (report.getStatus() == ReportStatus.PENDING)
+            ReportStatus newStatus = (report.getReportStatus() == ReportStatus.PENDING)
                     ? ReportStatus.CONFIRMED
                     : ReportStatus.PENDING;
 

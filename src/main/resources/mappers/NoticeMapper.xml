@@ -26,15 +26,15 @@
     <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.Notice"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO notice
-        (title, image_path, link_url, status, start_date, end_date, priority, created_at, updated_at)
+        (title, link_url, status, start_date, end_date, priority, created_at, updated_at)
         VALUES
-        (#{title}, #{imagePath}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{priority}, NOW(),
+        (#{title}, #{linkUrl}, 'Y', #{startDate}, #{endDate}, #{priority}, NOW(),
         NOW())
     </insert>
 
     <update id="updateNotice" parameterType="com.daedong.zipmap.domain.Notice">
         UPDATE notice
-        SET title = #{title}, image_path = #{imagePath}, link_url = #{linkUrl},
+        SET title = #{title}, link_url = #{linkUrl},
         status = #{status}, start_date = #{startDate}, end_date = #{endDate},
         priority = #{priority}, updated_at = NOW()
         WHERE id = #{id}

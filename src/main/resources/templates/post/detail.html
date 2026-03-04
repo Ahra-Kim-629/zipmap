@@ -29,9 +29,11 @@
         }
         .btn-like { border: 1px solid #ff4757; color: #ff4757; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.1); }
         .btn-like:hover { background: #ff4757; color: white; transform: translateY(-2px); }
+        .btn-like-active { background: #ff4757; color: white; }
 
         .btn-dislike { border: 1px solid #57606f; color: #57606f; box-shadow: 0 4px 15px rgba(87, 96, 111, 0.1); }
         .btn-dislike:hover { background: #57606f; color: white; transform: translateY(-2px); }
+        .btn-dislike-active { background: #57606f; color: white; }
 
         /* 첨부 파일 섹션 */
         .file-section { background: #f8f9fa; padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #f1f1f1; }
@@ -54,7 +56,8 @@
                 <div class="detail-header">
                     <div class="mb-3">
                         <span class="badge badge-category rounded-pill me-2" th:text="${postDTO.category.displayName}">카테고리</span>
-                        <span class="badge badge-location rounded-pill" th:text="${postDTO.location.displayName}">지역 정보</span>
+                        <span class="badge badge-location rounded-pill"
+                              th:text="${postDTO.location.displayName}">지역 정보</span>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center">
@@ -63,21 +66,26 @@
                             <button id="btn-ai-summary" class="btn btn-outline-primary rounded-pill btn-sm px-3">
                                 <i class="bi bi-robot"></i> AI 요약하기
                             </button>
-                            <a th:href="@{/report/write/POST/{id}(id=${postDTO.id})}" class="btn btn-outline-danger rounded-pill btn-sm px-3">
+                            <a th:href="@{/report/write/POST/{id}(id=${postDTO.id})}"
+                               class="btn btn-outline-danger rounded-pill btn-sm px-3">
                                 <i class="bi bi-megaphone"></i> 신고하기
                             </a>
                             <div sec:authorize="isAuthenticated()">
                                 <div th:if="${#authentication != null
                                             and #authentication.principal != null
                                             and #authentication.name == postDTO.loginId}" class="d-flex gap-2">
-                                    <a th:href="@{/post/edit/{id}(id=${postDTO.id})}" class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
+                                    <a th:href="@{/post/edit/{id}(id=${postDTO.id})}"
+                                       class="btn btn-light btn-sm rounded-pill px-3 border">수정</a>
 
                                     <form th:action="@{/post/delete/{id}(id=${postDTO.id})}" method="post"
                                           onsubmit="return confirm('정말로 삭제하시겠습니까?');" style="display:inline;">
 
-                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <input type="hidden" th:name="${_csrf.parameterName}"
+                                               th:value="${_csrf.token}"/>
 
-                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">삭제</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                            삭제
+                                        </button>
                                     </form>
 
                                 </div>
@@ -100,14 +108,10 @@
                     <h6 class="fw-bold mb-3 small"><i class="bi bi-paperclip me-2 text-orange"></i>첨부파일</h6>
                     <ul class="list-unstyled mb-0">
                         <li th:each="file : ${postDTO.fileList}" class="mb-3">
-                            <!-- 이미지 파일인 경우 미리보기 표시 -->
-                            <div th:if="${file.filePath.toLowerCase().endsWith('.jpg') or file.filePath.toLowerCase().endsWith('.jpeg') or file.filePath.toLowerCase().endsWith('.png') or file.filePath.toLowerCase().endsWith('.gif')}" class="mb-2">
-                                <img th:src="|/files/${file.filePath}|" alt="첨부 이미지" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #eee;">
-                            </div>
-                            <!-- 파일 다운로드 링크 -->
                             <div>
                                 <i class="bi bi-file-earmark-arrow-down me-2 text-muted"></i>
-                                <a th:href="|/files/${file.filePath}|" th:text="${file.filePath}" class="file-link" download>파일명</a>
+                                <a th:href="|/files/${file.filePath}|" th:text="${file.filePath}" class="file-link"
+                                   download>파일명</a>
                             </div>
                         </li>
                     </ul>
@@ -115,25 +119,19 @@
 
                 <div class="d-flex flex-column align-items-center gap-4 mb-5 border-top pt-5">
                     <div class="d-flex gap-3">
-                        <form th:action="@{/reaction}" method="post">
-                            <input type="hidden" name="targetType" value="post">
-                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                            <input type="hidden" name="type" value="1">
-                            <button type="submit" class="btn-like">
-                                <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span
-                                    th:text="${postDTO.likeCount}">0</span>
-                            </button>
-                        </form>
+                        <button type="button" class="btn-like" id="like-button"
+                                th:classappend="${postDTO.reaction == 1} ? 'btn-like-active' : ''"
+                                th:onclick="|handleReaction(1)|">
+                            <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span id="like-count"
+                                th:text="${postDTO.likeCount}">0</span>
+                        </button>
 
-                        <form th:action="@{/reaction}" method="post">
-                            <input type="hidden" name="targetType" value="post">
-                            <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                            <input type="hidden" name="type" value="-1">
-                            <button type="submit" class="btn-dislike">
-                                <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span
-                                    th:text="${postDTO.dislikeCount}">0</span>
-                            </button>
-                        </form>
+                        <button type="button" class="btn-dislike" id="dislike-button"
+                                th:classappend="${postDTO.reaction == -1} ? 'btn-dislike-active' : ''"
+                                th:onclick="|handleReaction(-1)|">
+                            <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span id="dislike-count"
+                                th:text="${postDTO.dislikeCount}">0</span>
+                        </button>
                     </div>
                     <a th:href="@{/post}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">
                         <i class="bi bi-arrow-left me-1"></i> 목록으로
@@ -161,34 +159,6 @@
                         <span class="text-orange" th:text="${postDTO.replyList != null ? postDTO.replyList.size() : 0}">0</span>
                     </h5>
 
-
-
-
-                    <div th:each="reply : ${postDTO.replyList}" class="reply-item shadow-sm">
-                        <div th:id="|display-${reply.id}|">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="reply-author" th:text="${reply.loginId}">사용자</span>
-                                <div sec:authorize="isAuthenticated()" th:if="${#authentication.name == reply.loginId}"
-                                     class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0"
-                                            th:onclick="|toggleEditForm(${reply.id})|" style="line-height: 1;">수정
-                                    </button>
-                                    <form th:action="@{/reply/delete}" method="post" class="m-0 d-inline-flex">
-                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                                        <input type="hidden" name="id" th:value="${reply.id}">
-                                        <input type="hidden" name="targetType" value="post">
-                                        <input type="hidden" name="targetId" th:value="${postDTO.id}">
-                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger text-decoration-none border-0"
-                                                onclick="return confirm('삭제할까요?')" style="line-height: 1;">삭제
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            <p class="mb-0 text-secondary small" th:text="${reply.content}">댓글 내용</p>
-                        </div>
-                    </div>
-
                     <!-- 무한 스크롤 댓글 컨테이너 -->
                     <div id="reply-container"></div>
                     <!-- 로딩 스피너 -->
@@ -206,7 +176,8 @@
                     <h5 class="modal-title fw-bold text-primary">🤖 AI 본문 요약</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body py-4" id="ai-summary-content" style="white-space: pre-line; line-height: 1.7; color: #444;">
+                <div class="modal-body py-4" id="ai-summary-content"
+                     style="white-space: pre-line; line-height: 1.7; color: #444;">
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
@@ -216,7 +187,7 @@
     </div>
 </div>
 
-<script layout:fragment="script" >
+<script layout:fragment="script">
     // 1. 전역 변수 설정
     let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
     let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)
@@ -324,6 +295,8 @@
     // [접시 닦기] 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
     function renderReply(reply) {
         const isOwner = (currentUserName === reply.loginId);
+        const authorName = reply.loginId ? reply.loginId : '탈퇴한 회원';
+        const authorClass = reply.loginId ? 'reply-author' : 'reply-author text-muted small';
         let btnHtml = isOwner ? `
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0" onclick="toggleEditForm(${reply.id})" style="line-height: 1;">수정</button>
@@ -340,7 +313,7 @@
             <div class="reply-item shadow-sm" id="reply-${reply.id}">
                 <div id="display-${reply.id}">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="reply-author">${reply.loginId}</span>
+                        <span class="${authorClass}}">${authorName}</span>
                         ${btnHtml}
                     </div>
                     <p class="mb-0 text-secondary small">${reply.content}</p>
@@ -372,5 +345,49 @@
             display.style.opacity = '1';
         }
     }
+
+    function handleReaction(type) {
+    // 로그인이 안 되어 있다면 로그인 페이지로 유도 (Spring Security 연동 시)
+    if (currentUserName === 'anonymousUser' || !currentUserName) {
+        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+            // 현재 페이지의 전체 경로(쿼리 스트링 포함)를 가져옵니다.
+            const currentPath = window.location.pathname + window.location.search;
+
+            // 로그인 페이지로 보내되, 돌아올 주소를 파라미터로 붙입니다.
+            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
+        }
+        return;
+    }
+
+    $.ajax({
+        url: "/reaction",
+        type: "POST",
+        data: {
+            targetType: 'post',
+            targetId: targetId,
+            type: type,
+            // CSRF 토큰을 데이터에 포함 (Security 설정에 따라 헤더에 넣을 수도 있음)
+            [csrfParameterName]: csrfToken
+        },
+        success: function(res) {
+            // 1. 숫자 업데이트
+            $("#like-count").text(res.likeCount);
+            $("#dislike-count").text(res.dislikeCount);
+
+            // 2. 버튼 스타일 초기화 후 활성화 상태 적용
+            $("#like-button").removeClass("btn-like-active");
+            $("#dislike-button").removeClass("btn-dislike-active");
+
+            if (res.currentReaction === 1) {
+                $("#like-button").addClass("btn-like-active");
+            } else if (res.currentReaction === -1) {
+                $("#dislike-button").addClass("btn-dislike-active");
+            }
+        },
+        error: function(err) {
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    });
+}
 </script>
 </html>

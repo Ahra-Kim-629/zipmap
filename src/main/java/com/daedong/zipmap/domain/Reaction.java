@@ -10,7 +10,7 @@ public class Reaction {
     private String targetType; // 'post' or 'review'
     private long targetId;
     private Long userId;
-    private int type; // 1 for like, -1 for dislike
+    private Integer type; // 1 for like, -1 for dislike
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

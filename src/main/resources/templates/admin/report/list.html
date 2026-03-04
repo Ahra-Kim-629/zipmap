@@ -14,9 +14,9 @@
       <div class="btn-group" role="group">
         <a th:href="@{/admin/report/list}"
            class="btn btn-sm" th:classappend="${currentFilter == null ? 'btn-dark' : 'btn-outline-dark'}">전체</a>
-        <a th:href="@{/admin/report/list(status='PENDING')}"
+        <a th:href="@{/admin/report/list(reportStatus='PENDING')}"
            class="btn btn-sm" th:classappend="${currentFilter == 'PENDING' ? 'btn-warning' : 'btn-outline-warning'}">확인 안 함</a>
-        <a th:href="@{/admin/report/list(status='CONFIRMED')}"
+        <a th:href="@{/admin/report/list(reportStatus='CONFIRMED')}"
            class="btn btn-sm" th:classappend="${currentFilter == 'CONFIRMED' ? 'btn-success' : 'btn-outline-success'}">확인함</a>
       </div>
     </div>
@@ -56,12 +56,12 @@
             <td th:text="${report.reporterName}"></td> <!-- 신고자 이름 표시 -->
             <td>
               <!-- 신고 사유 한글 변환 -->
-              <span th:switch="${report.reasonType}">
+              <span th:switch="${report.reason}">
                 <span th:case="'SPAM'">스팸/홍보</span>
                 <span th:case="'ABUSE'">욕설/비하</span>
                 <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠</span>
                 <span th:case="'ETC'">기타</span>
-                <span th:case="*" th:text="${report.reasonType}"></span>
+                <span th:case="*" th:text="${report.reason}"></span>
               </span>
             </td>
             <!-- 상태 (Status) 처리 완료 / 안 읽음 부분 처리 -->
@@ -69,8 +69,8 @@
               <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter})}"
                  style="text-decoration: none;">
     <span class="badge shadow-sm"
-          th:classappend="${report.status.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-          th:text="${report.status.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
+          th:classappend="${report.reportStatus.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+          th:text="${report.reportStatus.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
           style="cursor: pointer;">
     </span>
               </a>
@@ -103,12 +103,12 @@
                     <div class="modal-body text-start">
                       <p><strong>신고 대상:</strong> <span th:text="${report.targetType == 'POST' ? '게시글' : '리뷰'}"></span></p>
                       <p><strong>신고 사유:</strong>
-                        <span th:switch="${report.reasonType}">
+                        <span th:switch="${report.reason}">
                           <span th:case="'SPAM'">스팸/영리목적 홍보</span>
                           <span th:case="'ABUSE'">욕설/비하발언/인신공격</span>
                           <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠 (음란물/도박)</span>
                           <span th:case="'ETC'">기타 (직접 입력)</span>
-                          <span th:case="*" th:text="${report.reasonType}"></span>
+                          <span th:case="*" th:text="${report.reason}"></span>
                         </span>
                       </p>
                       <p><strong>상세 내용:</strong></p>
