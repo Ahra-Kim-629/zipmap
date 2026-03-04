@@ -43,6 +43,7 @@ public class WebSecurityConfig {
                                 "/certification/uploadSummernoteImage",
                                 "/search/**").permitAll()
 
+                        // 밑에 코드와 중복
                         .requestMatchers("/error", "/favicon.ico").permitAll()
 
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -50,6 +51,8 @@ public class WebSecurityConfig {
                         // 신고 기능은 로그인한 누구나 가능하도록 설정 (403 에러 해결)
                         .requestMatchers("/report/**").authenticated()
 
+
+                        // 밑에 코드와 중복
                         .requestMatchers("/find/**", "/users/**",
                                 "/review/**").hasRole("USER")
 
