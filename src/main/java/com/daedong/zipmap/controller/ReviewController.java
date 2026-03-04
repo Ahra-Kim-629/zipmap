@@ -196,7 +196,10 @@ public class ReviewController {
     // =====================================================================
     @GetMapping("/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Long id, Model model, @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
+    public String edit(@PathVariable Long id,
+                       Model model,
+                       @AuthenticationPrincipal UserPrincipalDetails user,
+                       RedirectAttributes rttr) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id);
         if (reviewDTO.getUserId() != user.getUser().getId()) {
             rttr.addFlashAttribute("errorMessage", "본인이 작성한 글만 수정할 수 있습니다.");
@@ -213,14 +216,23 @@ public class ReviewController {
                        @RequestParam("consList") List<String> consList,
                        @AuthenticationPrincipal UserPrincipalDetails user,
                        RedirectAttributes rttr) {
+        //1. 기존 데이터 조회 ( 권한 확인 및 상태 체크용도로 사용 )
         ReviewDTO original = reviewService.getReviewDetail(id);
+        //2. 권한 체크
         if (original.getUserId() != user.getUser().getId()) {
             rttr.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
             return "redirect:/review/detail/" + id;
         }
-
+        //3. 업데이트 ( 리뷰 업데이트 수행 )
         review.setId(id);
         reviewService.update(review, prosList, consList);
+
+        // 4. ✨ 리다이렉트 분기 로직 추가
+        // 수정 전 상태가 BANNED(인증 반려)였다면 다시 인증 서류 페이지로 보냄
+        if (original.getReviewStatus() != null && "BANNED".equals(original.getReviewStatus().name())) {
+            rttr.addFlashAttribute("successMessage", "리뷰 수정 완료! 이제 증빙 서류를 다시 제출해 주세요.");
+            return "redirect:/review/certification?reviewId=" + id;
+        }
 
         rttr.addFlashAttribute("successMessage", "리뷰가 성공적으로 수정되었습니다.");
         return "redirect:/review/detail/" + id;

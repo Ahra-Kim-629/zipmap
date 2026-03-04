@@ -33,28 +33,44 @@
             border-color: var(--main-orange);
             box-shadow: 0 0 0 0.25rem rgba(230, 126, 34, 0.1);
         }
-        /* 소셜 로그인 버튼 스타일 */
-        .btn-social {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
+        /* 네이버 버튼: 네이버 시그니처 그린 */
         .btn-naver {
-            background-color: #03C75A;
-            color: white;
+            background-color: #03C75A !important;
+            color: white !important;
+        }
+        .naver-logo-text {
+            font-weight: 900;
+            font-family: 'Arial Black', sans-serif;
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        .btn-naver:hover {
+            background-color: #02b350 !important;
+            box-shadow: 0 4px 12px rgba(3, 199, 90, 0.3);
+        }
+
+        /* 카카오 버튼 */
+        .btn-kakao {
+            background-color: #FEE500 !important;
+            color: #3C1E1E !important;
             border: none;
         }
-        .btn-naver:hover { background-color: #02b350; color: white; }
 
-        .btn-google {
-            background-color: #ffffff;
-            color: #757575;
-            border: 1px solid #ddd;
+        .btn-kakao:hover {
+            background-color: #FADA00 !important;
+            color: #3C1E1E;
         }
-        .btn-google:hover { background-color: #f8f9fa; }
+
+        /* 구글 버튼: 화이트 + 테두리 */
+        .btn-google {
+            background-color: #ffffff !important;
+            color: #3c4043 !important;
+            border: 1px solid #dadce0 !important;
+        }
+        .btn-google:hover {
+            background-color: #f8f9fa !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
 
         .login-divider {
             display: flex;
@@ -138,6 +154,10 @@
                    class="btn btn-social btn-google py-3 rounded-pill shadow-sm">
                     <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="18" alt="google">
                     구글로 시작하기
+                </a>
+                <a th:href="@{/oauth2/authorization/kakao}"
+                   class="btn btn-social-signup btn-kakao py-3 rounded-pill shadow-sm">
+                    <i class="bi bi-chat-fill"></i> 카카오로 가입하기
                 </a>
             </div>
             <p>
