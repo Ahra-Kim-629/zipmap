@@ -174,6 +174,7 @@
                         <label for="email" class="form-label">이메일</label>
                         <input type="email" id="email" name="email" class="form-control"
                                placeholder="example@zipmap.com" required>
+                        <div id="emailHelp" class="form-text">example@zipmap.com 형태로 입력해주세요</div>
                     </div>
 
                     <div class="col-12 mb-3" style="position:relative;"><label for="address" class="form-label">주소</label>
@@ -257,17 +258,25 @@
          $('#addressList').hide();
      }
  });
+        //아이디 유효성 검사
+         function validateLoginId(loginId) {
+            // 5~15자, 영문 소문자 + 숫자
+            const idPattern = /^[a-z0-9]{5,15}$/;
+            return idPattern.test(loginId);
+        }
 
- function validateLoginId(loginId) {
-    // 5~15자, 영문 소문자 + 숫자
-    const idPattern = /^[a-z0-9]{5,15}$/;
-    return idPattern.test(loginId);
-}
-
+        //비밀번호 유효성 검사
         function validatePassword(password){
             // 영문 대/소문자, 숫자, 특수문자 포함 8~20자
             const passwordPattern = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?=.*\S+$).{8,20}$/;
             return passwordPattern.test(password);
+        }
+
+        //이메일 유효성 검사
+        function validateEmail(email) {
+        // 영문, 숫자, 특수문자@도메인.최상위도메인 형식을 검사하는 정규식
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailPattern.test(email);
         }
 
         $(document).ready(function() {
@@ -275,6 +284,7 @@
             let isIdChecked = false; //서버 중복확인 통과여부
             let isPasswordValid = false;
             let isPasswordMatch = false;
+            let isEmailValid = false
 
             $('#login_id').on('input', function() {
             const loginId = $(this).val();
@@ -298,7 +308,7 @@
 });
 
             function updateSubmitBtn() {
-                if (isIdValid && isIdChecked && isPasswordValid && isPasswordMatch) {
+                if (isIdValid && isIdChecked && isPasswordValid && isPasswordMatch && isEmailValid) {
                     $('#submitBtn').prop('disabled', false);
                 } else {
                     $('#submitBtn').prop('disabled', true);
@@ -344,6 +354,22 @@
                     .css('color', 'red');
                 return;
             }
+
+            // 이메일 입력 이벤트 리스너
+            $('#email').on('input', function() {
+                const email = $(this).val();
+
+                // 이메일 유효성 검사 수행
+                if (validateEmail(email)) {
+                    // 성공 시 시각적 피드백 (필요 시 안내 문구 요소 추가 가능)
+                    $('#emailHelp').text('올바른 이메일 형식입니다.').css('color', 'green');
+                    isEmailValid = true;
+                } else {
+                    $('#emailHelp').text('올바른 이메일 형식이 아닙니다.').css('color', 'red');
+                    isEmailValid = false;
+                }
+                updateSubmitBtn();
+            });
 
                 $.ajax({
                     url: '/check-id',

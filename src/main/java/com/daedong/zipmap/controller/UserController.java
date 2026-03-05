@@ -219,14 +219,21 @@ public class UserController {
     }
 
     @PostMapping("/users/unregister")
-    public String unregister(@AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr, HttpSession session) {
+    public String unregister(@AuthenticationPrincipal UserPrincipalDetails user,
+                             @RequestParam String password, RedirectAttributes rttr, HttpSession session) {
         try {
-            userService.unregister(user.getUser());
-            rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
+            User findUser = user.getUser();
+            if (!passwordEncoder.matches(password, findUser.getPassword())){
+                rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
+                return "redirect:/users/unregister";
+            }
+
+            userService.unregister(findUser);
             session.invalidate();
+            rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
             return "redirect:/";
         } catch (Exception e) {
-            rttr.addFlashAttribute("error", e.getMessage());
+            rttr.addFlashAttribute("error", "회원 탈퇴 중 오류가 발생했습니다.");
             return "redirect:/users/unregister";
         }
     }
