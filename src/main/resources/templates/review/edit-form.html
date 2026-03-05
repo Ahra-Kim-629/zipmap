@@ -23,13 +23,13 @@
         }
 
         .pros-group .check-item input[type="checkbox"]:checked + label {
-            background-color: #28a745; border-color: #28a745; color: #fff;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+            background-color: #6BC4B8; border-color: #6BC4B8; color: #1a3a37;
+            box-shadow: 0 4px 10px rgba(50, 94, 90, 0.3);
         }
 
         .cons-group .check-item input[type="checkbox"]:checked + label {
-            background-color: #dc3545; border-color: #dc3545; color: #fff;
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+            background-color: #F8C1B3; border-color: #F8C1B3; color: #6a241b;
+            box-shadow: 0 4px 10px rgba(217, 83, 79, 0.3);
         }
 
         /* Summernote 및 모달 커스텀 (작성페이지와 동일) */
@@ -54,18 +54,18 @@
 
         /* ✨ 수정 완료 버튼 (리스트 검색 버튼과 동일한 오렌지색) */
         .btn-submit-orange {
-            background-color: #F97316 !important;
+            background-color: #3f8a7e !important;
             color: #ffffff !important;
             border: none !important;
             transition: background-color 0.2s;
         }
         .btn-submit-orange:hover {
-            background-color: #EA580C !important;
+            background-color: #325e5a !important;
         }
 
         /* ✨ 대표 사진(썸네일) 선택 UI 전용 CSS 추가 */
-        .thumbnail-wrapper { margin-top: 20px; padding: 25px; background: #fffaf6; border-radius: 15px; border: 2px dashed #ffcba4; display: none; }
-        .thumbnail-title { font-size: 1rem; font-weight: 800; color: #d35400; margin-bottom: 15px; }
+        .thumbnail-wrapper { margin-top: 20px; padding: 25px; background: #f6fbfa; border-radius: 15px; border: 2px dashed #6BC4B8; display: none; }
+        .thumbnail-title { font-size: 1rem; font-weight: 800; color: #1a3a37; margin-bottom: 15px; }
         .thumbnail-list { display: flex; gap: 15px; flex-wrap: wrap; }
         .thumb-item { position: relative; width: 130px; height: 130px; border-radius: 12px; overflow: hidden; cursor: pointer; border: 4px solid transparent; transition: all 0.2s; background: #fff; }
         .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
@@ -130,7 +130,7 @@
                     <div class="form-section">
                         <span class="section-label"><i class="bi bi-tags me-2 text-orange"></i>키워드 수정</span>
 
-                        <p class="small fw-bold text-success mb-2">이 집의 장점</p>
+                        <p class="small fw-bold mb-2" style="color: #1a3a37">이 집의 장점</p>
                         <div class="check-group pros-group mb-4">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
@@ -140,7 +140,7 @@
                             </div>
                         </div>
 
-                        <p class="small fw-bold text-danger mb-2">이 집의 단점</p>
+                        <p class="small fw-bold mb-2" style="color: #9c3b2e">이 집의 단점</p>
                         <div class="check-group cons-group">
                             <div th:each="item : ${ {'채광', '난방', '배수', '온수', '수압', '곰팡이', '해충', '소음', '치안', '집주인'} }"
                                  class="check-item">
@@ -173,7 +173,7 @@
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
                         <button type="button" id="submitBtn" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">수정 완료</button>
-                        <a th:href="@{|/review/detail/${reviewDTO.id}|}" class="btn btn-outline-secondary px-5 py-3 rounded-pill bg-white">수정 취소</a>
+                        <a th:href="@{|/review/detail/${reviewDTO.id}|}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">수정 취소</a>
                     </div>
                 </form>
             </div>

@@ -5,7 +5,16 @@
 
 <th:block layout:fragment="css">
     <style>
-        .admin-container { padding: 60px 0; background-color: #f4f7f6; min-height: 80vh; }
+        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
+        body {
+            background-color: #f4f7f6 !important;
+        }
+
+        .admin-container {
+            padding: 60px 0;
+            background-color: #f4f7f6;
+            min-height: calc(100vh - 250px);
+        }
         .admin-title {  font-weight: 800; color: #2c3e50; }
 
         /* 대시보드 카드 스타일 */

@@ -5,7 +5,13 @@
 
 <th:block layout:fragment="css">
     <style>
-        .list-container { padding: 60px 0; background-color: #fdfcf9; }
+        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
+        body {
+            background-color: #f4f7f6 !important;
+        }
+        .list-container { padding: 60px 0;
+            background-color: #f4f7f6;
+            min-height: calc(100vh - 250px); }
         .list-card { background: #fff; padding: 40px; border-radius: 24px; border: none; }
         .table th { font-weight: 600; }
         .cert-thumbnail { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; }
@@ -25,46 +31,46 @@
 
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
-                        <tr>
-                            <th scope="col" class="text-center">인증사진</th>
-                            <th scope="col">제목</th>
-                            <th scope="col">주소</th>
-                            <th scope="col">작성자</th>
-                            <th scope="col" class="text-center">평점</th>
-                            <th scope="col" class="text-center">신청일</th>
-                            <th scope="col" class="text-center">상태</th>
-                            <th scope="col" class="text-center">관리</th>
-                        </tr>
+                    <tr>
+                        <th scope="col" class="text-center">인증사진</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">주소</th>
+                        <th scope="col">작성자</th>
+                        <th scope="col" class="text-center">평점</th>
+                        <th scope="col" class="text-center">신청일</th>
+                        <th scope="col" class="text-center">상태</th>
+                        <th scope="col" class="text-center">관리</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="review : ${reviews.content}" class="review-item">
-                            <td class="text-center">
-                                <div th:if="${review.filePath != null}">
-                                    <img th:src="@{/files/{path}(path=${review.filePath})}"
-                                         class="cert-thumbnail" alt="인증 사진"
-                                         onclick="window.open(this.src)">
-                                </div>
-                                <span th:unless="${review.filePath != null}" class="text-muted small">없음</span>
-                            </td>
-                            <td>
-                                <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}"
-                                   th:text="${review.title}" class="review-title"></a>
-                            </td>
-                            <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-                            <td th:text="${review.loginId}"></td>
-                            <td class="text-center fw-bold" th:text="${review.point}"></td>
-                            <td class="text-center" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}"></td>
-                            <td class="text-center">
-                                <span th:if="${review.reviewStatus?.name() == 'PENDING'}" class="badge bg-warning text-dark">대기중</span>
-                                <span th:if="${review.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인</span>
-                                <span th:if="${review.reviewStatus?.name() == 'BANNED'}" class="badge bg-danger">반려</span>
-                            </td>
-                            <td class="text-center">
-                                <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}" class="btn btn-sm btn-primary">
-                                    확인
-                                </a>
-                            </td>
-                        </tr>
+                    <tr th:each="review : ${reviews.content}" class="review-item">
+                        <td class="text-center">
+                            <div th:if="${review.filePath != null}">
+                                <img th:src="@{/files/{path}(path=${review.filePath})}"
+                                     class="cert-thumbnail" alt="인증 사진"
+                                     onclick="window.open(this.src)">
+                            </div>
+                            <span th:unless="${review.filePath != null}" class="text-muted small">없음</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}"
+                               th:text="${review.title}" class="review-title"></a>
+                        </td>
+                        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+                        <td th:text="${review.loginId}"></td>
+                        <td class="text-center fw-bold" th:text="${review.point}"></td>
+                        <td class="text-center" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}"></td>
+                        <td class="text-center">
+                            <span th:if="${review.reviewStatus?.name() == 'PENDING'}" class="badge bg-warning text-dark">대기중</span>
+                            <span th:if="${review.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인</span>
+                            <span th:if="${review.reviewStatus?.name() == 'BANNED'}" class="badge bg-danger">반려</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}" class="btn btn-sm btn-primary">
+                                확인
+                            </a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
 

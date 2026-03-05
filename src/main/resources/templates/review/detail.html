@@ -13,8 +13,8 @@
 
         /* 별점 및 배지 */
         .star-rating { color: #ffc107; font-size: 1.2rem; font-weight: bold; }
-        .badge-pros { background-color: rgba(40, 167, 69, 0.08); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.15); padding: 5px 12px; }
-        .badge-cons { background-color: rgba(220, 53, 69, 0.08); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.15); padding: 5px 12px; }
+        .badge-pros { background-color: rgba(50, 94, 90, 0.08); color: #325e5a; border: 1px solid rgba(50, 94, 90, 0.15); padding: 5px 12px; }
+        .badge-cons { background-color: rgba(156, 59, 46, 0.08); color: #9c3b2e; border: 1px solid rgba(156, 59, 46, 0.15); padding: 5px 12px; }
 
         /* 이미지 및 본문 줄바꿈 통일 */
         .review-image { width: 100%; border-radius: 16px; transition: transform 0.3s; cursor: zoom-in; border: 1px solid #eee; }
@@ -156,8 +156,8 @@
 
                 <div class="row g-4 mb-5">
                     <div class="col-md-6">
-                        <div class="p-4 rounded-4" style="background-color: #f8fff9; border: 1px solid #e1f5e5;">
-                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-plus-circle-fill me-2"></i>이 집의 장점
+                        <div class="p-4 rounded-4" style="background-color: #F3F8F6; border: 1px solid #6BC4B8;">
+                            <h6 class="fw-bold mb-3" style="color: #1a3a37"><i class="bi bi-plus-circle-fill me-2"></i>이 집의 장점
                             </h6>
                             <div class="d-flex flex-wrap gap-2">
                                 <span th:each="pros : ${reviewDTO.prosList}"
@@ -166,8 +166,8 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="p-4 rounded-4" style="background-color: #fff9f9; border: 1px solid #f5e1e1;">
-                            <h6 class="fw-bold text-danger mb-3"><i class="bi bi-dash-circle-fill me-2"></i>이 집의 단점</h6>
+                        <div class="p-4 rounded-4" style="background-color: #FBF1EC; border: 1px solid #F8C1B3;">
+                            <h6 class="fw-bold mb-3" style="color: #9c3b2e"><i class="bi bi-dash-circle-fill me-2"></i>이 집의 단점</h6>
                             <div class="d-flex flex-wrap gap-2">
                                 <span th:each="cons : ${reviewDTO.consList}"
                                       class="badge badge-cons rounded-pill shadow-sm" th:text="${cons}">단점</span>
