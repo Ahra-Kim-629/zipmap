@@ -264,7 +264,7 @@ public class AdminController {
      */
 
     @GetMapping("/reviews")
-    public String adminReviewList(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String adminReviewList(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(required = false) String searchType,
                                   @RequestParam(required = false) String keyword,
                                   Model model) {

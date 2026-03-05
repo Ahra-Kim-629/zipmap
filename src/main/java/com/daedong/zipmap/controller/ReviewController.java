@@ -231,7 +231,8 @@ public class ReviewController {
 
         // 4. ✨ 리다이렉트 분기 로직 추가
         // 수정 전 상태가 BANNED(인증 반려)였다면 다시 인증 서류 페이지로 보냄
-        if (original.getReviewStatus() != null && "BANNED".equals(original.getReviewStatus().name())) {
+        if (original.getReviewStatus() != null &&
+                ("BANNED".equals(original.getReviewStatus().name()) || "PENDING".equals(original.getReviewStatus().name()))){
             rttr.addFlashAttribute("successMessage", "리뷰 수정 완료! 이제 증빙 서류를 다시 제출해 주세요.");
             return "redirect:/review/certification?reviewId=" + id;
         }

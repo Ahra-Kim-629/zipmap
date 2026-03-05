@@ -136,6 +136,14 @@
                                     </button>
                                 </form>
                             </div>
+                            <div sec:authorize="hasRole('ADMIN')" th:if="${#authentication.name != reviewDTO.loginId}"
+                                 class="d-flex gap-2">
+                                <a th:href="@{/admin/reviews/delete/{id}(id=${reviewDTO.id})}"
+                                   class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm"
+                                   onclick="return confirm('관리자 권한으로 이 리뷰를 삭제하시겠습니까? (복구 불가)')">
+                                    <i class="bi bi-trash3-fill me-1"></i>삭제
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex align-items-center text-muted small mt-2">

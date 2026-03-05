@@ -228,7 +228,7 @@ public class AdminService {
     }
 
     public int countPendingCertifications() {
-        return reviewMapper.countPendingCertifications();
+        return reviewMapper.countBannedReviews();
     }
 
     @Transactional

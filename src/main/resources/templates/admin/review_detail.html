@@ -29,10 +29,31 @@
         /* 기존 스타일 유지 */
         .star-rating { color: #ffc107; font-size: 1.2rem; font-weight: bold; }
         .content-body { line-height: 1.8; color: #444; white-space: pre-wrap; word-wrap: break-word;   /* 긴 단어를 줄바꿈함 */
-    word-break: break-all;  /* 가로폭이 꽉 차면 강제로 줄을 넘김 */
-    overflow-wrap: break-word; /* 표준 속성 */}
+        word-break: break-all;  /* 가로폭이 꽉 차면 강제로 줄을 넘김 */
+        overflow-wrap: break-word; /* 표준 속성 */}
         .badge-pros { background-color: rgba(40, 167, 69, 0.08); color: #28a745; padding: 5px 12px; }
         .badge-cons { background-color: rgba(220, 53, 69, 0.08); color: #dc3545; padding: 5px 12px; }
+
+        /* ✨ 썸머노트 본문 내 이미지 세로 1줄 정렬 및 클릭 커서 추가 */
+        .content-body img {
+            display: block !important;       /* 글자처럼 옆으로 붙지 말고, 블록처럼 혼자 한 줄을 다 차지해라 */
+            max-width: 100% !important;      /* 사진이 너무 크면 창 밖으로 삐져나가지 않게 100%로 맞춰라 */
+            margin: 20px 0 !important;       /* 사진 위아래로 20px 여백을 줘서 답답하지 않게 해라 */
+            border-radius: 8px;              /* 사진 모서리도 살짝 둥글게 */
+            cursor: zoom-in !important;      /* 마우스 올리면 돋보기 모양으로 변경 */
+        }
+
+        /* ✨ 예전에 만든 커스텀 모달(Lightbox) 디자인 */
+        .image-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            z-index: 10000; display: none; align-items: center; justify-content: center;
+        }
+        .image-modal-overlay.show { display: flex; }
+        .image-modal-content { max-width: 90vw; max-height: 90vh; border-radius: 12px; object-fit: contain; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .image-modal-close { position: absolute; top: 25px; right: 35px; color: white; font-size: 2.5rem; cursor: pointer; transition: 0.2s; }
+        .image-modal-close:hover { color: #ffc107; transform: rotate(90deg); }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </th:block>
 
@@ -42,10 +63,9 @@
 
             <div class="cert-verify-section daedong-shadow">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold text-primary m-0"> <!-- 텍스트 색상 파란색으로 변경 -->
+                    <h4 class="fw-bold text-primary m-0">
                         <i class="bi bi-file-earmark-check-fill me-2"></i>실거주 인증 서류 확인
                     </h4>
-                    <!-- 상태에 따른 배지 표시 -->
                     <span th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" class="badge bg-danger">승인 대기 중</span>
                     <span th:if="${reviewDTO.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인됨</span>
                     <span th:if="${reviewDTO.reviewStatus?.name() == 'BANNED'}" class="badge bg-secondary">반려됨</span>
@@ -55,8 +75,7 @@
                     <div class="col-md-7">
                         <div th:if="${reviewDTO.filePath != null}" class="text-center">
                             <img th:src="@{/files/{path}(path=${reviewDTO.filePath})}"
-                                 class="cert-image shadow" alt="임대차계약서"
-                                 onclick="window.open(this.src)">
+                                 class="cert-image shadow" alt="임대차계약서">
                             <p class="mt-2 text-muted small">* 이미지를 클릭하면 크게 볼 수 있습니다.</p>
                         </div>
                         <div th:unless="${reviewDTO.filePath != null}" class="py-5 text-center text-muted">
@@ -121,7 +140,6 @@
                 </div>
 
                 <div class="admin-action-bar d-flex justify-content-center gap-3">
-                    <!-- 승인 버튼 (PENDING 상태일 때만 표시) -->
                     <form th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" th:action="@{/admin/reviews/toggle-status}" method="post">
                         <input type="hidden" name="id" th:value="${reviewDTO.id}">
                         <input type="hidden" name="status" value="ACTIVE">
@@ -130,7 +148,6 @@
                         </button>
                     </form>
 
-                    <!-- 반려 버튼 (PENDING 상태일 때만 표시) -->
                     <button th:if="${reviewDTO.reviewStatus?.name() == 'PENDING'}" type="button" class="btn btn-danger rounded-pill px-5 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal">
                         <i class="bi bi-x-circle me-2"></i>인증 반려
                     </button>
@@ -143,7 +160,6 @@
         </div>
     </div>
 
-    <!-- 반려 사유 입력 모달 -->
     <div class="modal fade" id="rejectModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -161,10 +177,18 @@
             </div>
         </div>
     </div>
+
+    <div id="imageModal" class="image-modal-overlay" onclick="closeImageModal(event)">
+        <i class="bi bi-x-lg image-modal-close" onclick="closeImageModal(event)"></i>
+        <img id="modalImage" class="image-modal-content" src="" alt="확대된 이미지">
+    </div>
+
 </div>
 
 <script layout:fragment="script">
     $(document).ready(function() {
+
+        // 1. 기존 반려 처리 로직
         $("#confirmRejectBtn").click(function() {
             const reviewId = [[${reviewDTO.id}]];
             const message = $("#rejectMessage").val();
@@ -191,6 +215,26 @@
                 }
             });
         });
+
+        // =======================================================
+        // ✨ 2. 사진 클릭 시 예전 커스텀 모달 띄우기
+        // =======================================================
+        $('.cert-image, .content-body img').on('click', function() {
+            const clickedImageSrc = $(this).attr('src');
+            $('#modalImage').attr('src', clickedImageSrc);
+            $('#imageModal').addClass('show');
+            $('body').css('overflow', 'hidden'); // 뒤에 화면 스크롤 안되게 고정
+        });
+
     });
+
+    // ✨ 3. 배경이나 X버튼 누르면 모달 닫는 함수 (ready 밖으로 빼야 함)
+    function closeImageModal(event) {
+        if (event.target.id === 'imageModal' || $(event.target).hasClass('image-modal-close')) {
+            $('#imageModal').removeClass('show');
+            $('#modalImage').attr('src', '');
+            $('body').css('overflow', 'auto'); // 스크롤 원상복구
+        }
+    }
 </script>
 </html>

@@ -229,14 +229,22 @@
         AND target_id = #{id}
     </delete>
 
-    <!-- 내가 쓴 리뷰 조회 -->
+    <!-- 내가 쓴 리뷰 조회  3.5수정 -->
     <select id="findByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
         r.id, r.title, r.content, r.address, r.user_id, r.point, r.review_status, r.created_at, r.updated_at,
         (SELECT c.message
         FROM certification c
         WHERE c.review_id = r.id
-        ORDER BY c.id DESC LIMIT 1) AS message
+        ORDER BY c.id DESC LIMIT 1) AS message,
+
+        (SELECT f.file_path
+        FROM file f
+        JOIN certification c ON f.target_id = c.id
+        WHERE c.review_id = r.id
+        AND f.target_type = 'CERTIFICATION'
+        ORDER BY c.id DESC LIMIT 1) AS filePath
+
         FROM review r
         WHERE r.user_id = #{userId}
         ORDER BY r.id DESC
@@ -317,7 +325,7 @@
         SET review_status = #{status}
         WHERE id = #{reviewId}
     </update>
-    <!-- 관리자 리뷰 실거주인증, PENDING 부분들만 보이게 하기 -->
+    <!-- 관리자 리뷰 실거주인증, PENDING 부분들만 보이게 하기 3.5수정  -->
     <select id="findBannedReviews" resultType="com.daedong.zipmap.domain.ReviewDTO">
         SELECT
         r.id,
@@ -328,8 +336,6 @@
         r.point,
         r.review_status,
         r.created_at,
-<!--        f.file_path AS filePath-->
-<!--        사진이 올라올 때 실거주 인증 사진이 올라오도록 하기 위해서 쿼리문을 수정했습니다 -->
         (SELECT f.file_path
         FROM file f
         JOIN certification c ON f.target_id = c.id
@@ -338,14 +344,25 @@
         ORDER BY c.id DESC LIMIT 1) AS filePath
         FROM review r
         LEFT JOIN user u ON r.user_id = u.id
-<!--        LEFT JOIN file f ON r.id = f.target_id AND f.target_type = 'REVIEW'-->
         WHERE r.review_status = 'PENDING'
+        AND EXISTS (
+        SELECT 1 FROM file f
+        JOIN certification c ON f.target_id = c.id
+        WHERE c.review_id = r.id AND f.target_type = 'CERTIFICATION'
+        )
         ORDER BY r.id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <select id="countBannedReviews" resultType="int">
-        SELECT COUNT(*) FROM review WHERE review_status = 'PENDING'
+        SELECT COUNT(r.id)
+        FROM review r
+        WHERE r.review_status = 'PENDING'
+        AND EXISTS (
+        SELECT 1 FROM file f
+        JOIN certification c ON f.target_id = c.id
+        WHERE c.review_id = r.id AND f.target_type = 'CERTIFICATION'
+        )
     </select>
 
     <update id="updateReviewStatsBatch" parameterType="java.util.List">
