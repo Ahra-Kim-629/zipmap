@@ -93,7 +93,6 @@
         .header-search-input {
             width: 0;
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 20px;
             padding: 0;
             border: none;
@@ -138,6 +137,21 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        .header-search-input {
+        width: 0;
+        opacity: 0;
+        border-radius: 20px;
+        padding: 0;
+        border: none;
+        background-color: #f8f9fa;
+        font-size: 0.9rem;
+    }
+
+        /* 애니메이션 클래스 */
+        .header-search-input.animate {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 
     <!-- 알림 -->
@@ -156,10 +170,16 @@
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
 
-    if (query) {
-            searchInput.classList.add('active');
-            searchInput.value = query; // 기존 검색어를 입력창에 유지 (재검색 편의성)
-            }
+    const isSearchPage = window.location.pathname.startsWith("/search");
+
+    if (isSearchPage && query) {
+        searchInput.classList.add('active');
+        searchInput.value = query;
+    }
+
+    requestAnimationFrame(() => {
+        searchInput.classList.add('animate');
+    });
 
     function handleSearch() {
         const isSearchActive = searchInput.classList.contains('active');
