@@ -1,15 +1,26 @@
 package com.daedong.zipmap.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Value("${file.upload-dir}")
     private String uploadDir; // application.properties의 경로 (예: C:/upload)
+
+    private final SessionCleanInterceptor sessionCleanInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(sessionCleanInterceptor)
+                .addPathPatterns("/**"); // 모든 경로에 대해 인터셉터 작동 (세부 로직은 인터셉터 내부에서 필터링)
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

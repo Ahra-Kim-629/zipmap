@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @Component
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
-    private RequestCache requestCache = new HttpSessionRequestCache();
+    private final RequestCache requestCache = new HttpSessionRequestCache();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
