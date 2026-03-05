@@ -85,12 +85,15 @@
                         <tr th:each="reply : ${list.content}">
                             <td class="text-start ps-4">
 
-                                <a th:href="@{|/${type == 'reviews' ? 'review' : 'post'}/detail/${reply.targetId}?replyId=${reply.id}|}"
+                                <a th:href="@{|/${type == 'reviews' ? 'review' : 'post'}/detail/${reply.targetId}|}"
                                    class="post-link small text-muted"
                                    th:text="${reply.articleTitle}">원문 제목</a>
                             </td>
                             <td class="text-start">
+                                <a th:href="@{|/${type == 'reviews' ? 'review' : 'post'}/detail/${reply.targetId}?replyId=${reply.id}#reply-${reply.id}|}"
+                                   class="post-link block-link">
                                 <span class="comment-content text-truncate-custom" th:text="${reply.content}">댓글 내용</span>
+                                </a>
                             </td>
                             <td class="text-muted small" th:text="${#temporals.format(reply.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
                         </tr>
