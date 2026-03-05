@@ -17,7 +17,10 @@ function initNoticeModal() {
     if (!noticeModal) return;
 
     // '오늘 하루 보지 않기' 쿠키 확인 후 모달 노출
-    if (!getCookie('hideNoticeCarousel')) {
+    const userId = window.currentUserId || 'GUEST';
+    const version = window.noticeVersion || 0;
+    const cookieName = `hideNoticeCarousel_${userId}_v${version}`;
+    if (!getCookie(cookieName)) {
         const modalInstance = new bootstrap.Modal(noticeModal);
         modalInstance.show();
     }
@@ -27,7 +30,7 @@ function initNoticeModal() {
     if (hideCheck) {
         hideCheck.addEventListener('change', function(e) {
             if (e.target.checked) {
-                setCookie('hideNoticeCarousel', 'Y', 1);
+                setCookieUntilMidnight(cookieName, 'Y');
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(noticeModal).hide();
                 }, 500);
@@ -70,9 +73,10 @@ function timeAgo(dateString) {
 /* ==========================================
    3. 쿠키(Cookie) 유틸리티 함수
    ========================================== */
-function setCookie(name, value, days) {
+function setCookieUntilMidnight(name, value) {
     const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    // 오늘 밤 23시 59분 59초로 설정 (자정 초기화 방식)
+    date.setHours(23, 59, 59, 999);
     document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/';
 }
 

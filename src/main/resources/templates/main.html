@@ -4,149 +4,155 @@
       layout:decorate="~{layouts/default}">
 
 <th:block layout:fragment="css">
-  <link rel="stylesheet" th:href="@{/css/frontpage.css}">
+    <link rel="stylesheet" th:href="@{/css/frontpage.css}">
 </th:block>
 
 <div layout:fragment="content">
-  <div class="container mt-3" style="background-color: #f5f4ef;">
-    <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
-    <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
-         th:text="${success}"></div>
-  </div>
-
-  <section class="banner-section">
-    <div class="banner-container">
-      <img th:src="@{/images/banner.png}" alt="대동여집도 메인 배너" class="main-banner-img">
+    <div class="container mt-3" style="background-color: #f5f4ef;">
+        <div th:if="${error}" class="alert alert-danger border-0 small p-2 text-center" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-warning border-0 small p-2 text-center"
+             th:text="${success}"></div>
     </div>
-  </section>
 
-  <th:block th:if="${noticeDTOList != null && noticeDTOList.size() > 0}">
-    <div class="modal fade" id="noticeCarouselModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content daedong-modal-content">
+    <section class="banner-section">
+        <div class="banner-container">
+            <img th:src="@{/images/banner.png}" alt="대동여집도 메인 배너" class="main-banner-img">
+        </div>
+    </section>
 
-          <div class="modal-header daedong-modal-header">
-            <h5 class="modal-title"><i class="bi bi-scroll me-2"></i>대동여집도 소식</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
+    <th:block th:if="${noticeDTOList != null && noticeDTOList.size() > 0}">
+        <div class="modal fade" id="noticeCarouselModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content daedong-modal-content">
 
-          <div class="modal-body p-0">
-            <div id="noticeCarousel" class="carousel slide" data-bs-ride="false">
-              <div class="carousel-indicators">
-                <button th:each="notice, stat : ${noticeDTOList}"
-                        type="button"
-                        data-bs-target="#noticeCarousel"
-                        th:data-bs-slide-to="${stat.index}"
-                        th:classappend="${stat.first} ? 'active'"
-                        aria-current="true"></button>
-              </div>
+                    <div class="modal-header daedong-modal-header">
+                        <h5 class="modal-title"><i class="bi bi-scroll me-2"></i>대동여집도 소식</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
 
-              <div class="carousel-inner">
-                <div th:each="notice, stat : ${noticeDTOList}"
-                     th:classappend="${stat.first} ? 'active'"
-                     class="carousel-item">
-                  <a th:href="${notice.linkUrl}" target="_blank">
-                    <img th:src="@{/files/{name}(name=${notice.filePath})}"
-                         class="d-block w-100" th:alt="${notice.title}">
-                  </a>
-                  <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 py-1">
-                    <p class="small mb-0" th:text="${notice.title}">공지 제목</p>
-                  </div>
+                    <div class="modal-body p-0">
+                        <div id="noticeCarousel" class="carousel slide" data-bs-ride="false">
+                            <div class="carousel-indicators">
+                                <button th:each="notice, stat : ${noticeDTOList}"
+                                        type="button"
+                                        data-bs-target="#noticeCarousel"
+                                        th:data-bs-slide-to="${stat.index}"
+                                        th:classappend="${stat.first} ? 'active'"
+                                        aria-current="true"></button>
+                            </div>
+
+                            <div class="carousel-inner">
+                                <div th:each="notice, stat : ${noticeDTOList}"
+                                     th:classappend="${stat.first} ? 'active'"
+                                     class="carousel-item">
+                                    <a th:href="${notice.linkUrl}" target="_blank">
+                                        <img th:src="@{/files/{name}(name=${notice.filePath})}"
+                                             class="d-block w-100" th:alt="${notice.title}">
+                                    </a>
+                                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 py-1">
+                                        <p class="small mb-0" th:text="${notice.title}">공지 제목</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#noticeCarousel"
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">이전</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#noticeCarousel"
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">다음</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer daedong-modal-footer">
+                        <div class="custom-check">
+                            <label>
+                                <input type="checkbox" id="hideNoticeToday">
+                                <span>오늘 하루 보지 않기</span>
+                            </label>
+                        </div>
+                        <button type="button" class="btn-daedong-close" data-bs-dismiss="modal">닫기</button>
+                    </div>
                 </div>
-              </div>
-
-              <button class="carousel-control-prev" type="button" data-bs-target="#noticeCarousel"
-                      data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">이전</span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#noticeCarousel"
-                      data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">다음</span>
-              </button>
             </div>
-          </div>
+        </div>
+    </th:block>
 
-          <div class="modal-footer daedong-modal-footer">
-            <div class="custom-check">
-              <label>
-                <input type="checkbox" id="hideNoticeToday">
-                <span>오늘 하루 보지 않기</span>
-              </label>
+
+    <main class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h4 class="fw-bold mb-4">최신 방 후기</h4>
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div class="col" th:each="review : ${reviewDTOList}">
+                        <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
+                             style="cursor: pointer;"
+                             th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
+
+                            <img th:if="${review.filePath != null}"
+                                 th:src="${#strings.startsWith(review.filePath, '/files/')} ? ${review.filePath} : @{/files/{path}(path=${review.filePath})}"
+                                 class="card-img-top" style="height:200px; object-fit:cover;" alt="리뷰 사진">
+                            <img th:unless="${review.filePath != null}"
+                                 th:src="@{/images/zipmapThumbnail.png}"
+                                 class="card-img-top" style="height:200px; object-fit:cover;" alt="대동여집도 기본 썸네일">
+                            <div class="card-body">
+                                <span class="badge badge-daedong mb-2" th:text="${review.address}">관악구 봉천동</span>
+                                <h5 class="card-title fw-bold"
+                                    th:text="${review.title}">채광 맛집 분리형 원룸</h5>
+                                <p class="card-text text-muted small ellipsis-2"
+                                   th:text="${review.content.replaceAll('<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>', '').replaceAll('&nbsp;', ' ')}">
+                                    집주인분
+                                    친절하시고 수압 좋습니다...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button type="button" class="btn-daedong-close" data-bs-dismiss="modal">닫기</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </th:block>
+            <div class="col-lg-4">
+                <div class="card daedong-shadow mb-4 border-0">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h5 class="fw-bold mb-0">커뮤니티 활성글</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a th:each="post : ${postDTOList}" th:href="@{/post/detail/{id}(id=${post.id})}"
+                           class="list-group-item list-group-item-action py-3">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h6 class="mb-1 fw-bold"
+                                    th:classappend="${post.category == 'TRADE' ? 'text-orange' : (post.category == 'COMMUNITY' ? 'text-success' : 'text-warning')}"
+                                    th:text="'[' + ${post.category} + ']'">
+                                </h6>
+                                <small class="text-muted text-muted-date" th:data-date="${post.createdAt}">계산
+                                    중...</small>
+                            </div>
 
+                            <div class="d-flex align-items-center mt-1">
+                                <i th:if="${post.likeCount > 10}" class="bi bi-fire hot-trend-icon"></i>
+                                <span class="post-title small fw-bold" th:text="${post.title}">제목</span>
+                                <!--                                <span class="reason-badge" th:if="${post.reasonType == 'CATEGORY_TOP'}">인기</span>-->
+                            </div>
+                        </a>
+                    </div>
+                </div>
 
-
-  <main class="container py-5">
-    <div class="row g-4">
-      <div class="col-lg-8">
-        <h4 class="fw-bold mb-4">최신 방 후기</h4>
-        <div class="row row-cols-1 row-cols-md-2 g-4">
-          <div class="col" th:each="review : ${reviewDTOList}">
-            <div class="card shadow-sm h-100 border-0 rounded-4 overflow-hidden shadow-hover"
-                 style="cursor: pointer;"
-                 th:onclick="|location.href='@{/review/detail/{id}(id=${review.id})}'|">
-
-              <img th:if="${review.filePath != null}"
-                   th:src="${#strings.startsWith(review.filePath, '/files/')} ? ${review.filePath} : @{/files/{path}(path=${review.filePath})}"
-                   class="card-img-top" style="height:200px; object-fit:cover;" alt="리뷰 사진">
-              <img th:unless="${review.filePath != null}"
-                   th:src="@{/images/zipmapThumbnail.png}"
-                   class="card-img-top" style="height:200px; object-fit:cover;" alt="대동여집도 기본 썸네일">
-              <div class="card-body">
-                <span class="badge badge-daedong mb-2" th:text="${review.address}">관악구 봉천동</span>
-                <h5 class="card-title fw-bold"
-                    th:text="${review.title}">채광 맛집 분리형 원룸</h5>
-                <p class="card-text text-muted small ellipsis-2"
-                   th:text="${review.content.replaceAll('<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>', '').replaceAll('&nbsp;', ' ')}">
-                  집주인분
-                  친절하시고 수압 좋습니다...</p>
-              </div>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-orange btn-lg fw-bold py-3" th:href="@{/post/write}">
+                        <i class="bi bi-pencil-square me-2"></i>글쓰기
+                    </a>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="card daedong-shadow mb-4 border-0">
-          <div class="card-header bg-white py-3 border-0">
-            <h5 class="fw-bold mb-0">커뮤니티 활성글</h5>
-          </div>
-          <div class="list-group list-group-flush">
-            <a th:each="post : ${postDTOList}" th:href="@{/post/detail/{id}(id=${post.id})}"
-               class="list-group-item list-group-item-action py-3">
-              <div class="d-flex w-100 justify-content-between align-items-center">
-                <h6 class="mb-1 fw-bold"
-                    th:classappend="${post.category == 'TRADE' ? 'text-orange' : (post.category == 'COMMUNITY' ? 'text-success' : 'text-warning')}"
-                    th:text="'[' + ${post.category} + ']'">
-                </h6>
-                <small class="text-muted text-muted-date" th:data-date="${post.createdAt}">계산
-                  중...</small>
-              </div>
+    </main>
+    <script th:inline="javascript">
+        const noticeVersion = [[${noticeDTOList != null && !noticeDTOList.isEmpty() ?
+                            #strings.listJoin(noticeDTOList.![id], '_') : '0'}]];
 
-              <div class="d-flex align-items-center mt-1">
-                <i th:if="${post.likeCount > 10}" class="bi bi-fire hot-trend-icon"></i>
-                <span class="post-title small fw-bold" th:text="${post.title}">제목</span>
-                <!--                                <span class="reason-badge" th:if="${post.reasonType == 'CATEGORY_TOP'}">인기</span>-->
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <div class="d-grid gap-2">
-          <a class="btn btn-orange btn-lg fw-bold py-3" th:href="@{/post/write}">
-            <i class="bi bi-pencil-square me-2"></i>글쓰기
-          </a>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script th:src="@{/js/frontpage.js}"></script>
+        window.currentUserId = [[${#authentication.principal != 'anonymousUser' ? #authentication.name : 'GUEST'}]];
+        window.noticeVersion = noticeVersion;
+    </script>
+    <script th:src="@{/js/frontpage.js}"></script>
 </div>
 </html>
