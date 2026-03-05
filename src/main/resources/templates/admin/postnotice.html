@@ -6,6 +6,10 @@
 <th:block layout:fragment="css">
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <style>
+        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
+        body {
+            background-color: #f4f7f6 !important;
+        }
         .write-container { padding: 60px 0; background-color: #f4f7f6; }
         .write-card { background: #fff; padding: 40px; border-radius: 20px; border: none; }
         .write-title {  font-weight: 800; color: #3E362E; }
@@ -80,13 +84,13 @@
 
         /* ✨ 등록하기 버튼 (오렌지 단색) */
         .btn-submit-orange {
-            background-color: #F97316 !important;
+            background-color: #3f8a7e !important;
             color: #ffffff !important;
             border: none !important;
             transition: background-color 0.2s;
         }
         .btn-submit-orange:hover {
-            background-color: #EA580C !important;
+            background-color: #325e5a !important;
         }
     </style>
 </th:block>
@@ -125,7 +129,7 @@
 
                     <div class="d-flex gap-3 justify-content-center mt-5">
                         <button type="submit" class="btn btn-submit-orange px-5 py-3 fw-bold rounded-pill shadow-sm">등록하기</button>
-                        <a th:href="@{/admin/posts}" class="btn btn-outline-secondary px-5 py-3 rounded-pill bg-white">취소</a>
+                        <a th:href="@{/admin/posts}" class="btn btn-outline-secondary px-5 py-3 rounded-pill">취소</a>
                     </div>
                 </form>
             </div>

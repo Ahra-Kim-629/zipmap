@@ -102,12 +102,14 @@
         }
 
         .filter-section { border-top: 1px solid #f0f0f0; margin-top: 20px; padding-top: 20px; }
-        .filter-label { font-size: 0.85rem; font-weight: 800; color: #888; margin-right: 20px; padding-top: 8px; min-width: 40px; display: inline-block; }
+        .filter-label-pros { font-size: 1rem; font-weight: 800; color: #325e5a; margin-right: 20px; padding-top: 8px; min-width: 40px; display: inline-block; }
+        .filter-label-cons { font-size: 1rem; font-weight: 800; color: #9c3b2e; margin-right: 20px; padding-top: 8px; min-width: 40px; display: inline-block; }
         .chip-checkbox { display: inline-block; margin: 0 6px 8px 0; }
         .chip-checkbox input[type="checkbox"] { display: none; }
         .chip-checkbox span { display: inline-block; padding: 8px 18px; background: #ffffff; border: 1px solid #e9ecef; border-radius: 30px; font-size: 0.85rem; font-weight: 600; color: #555; cursor: pointer; transition: all 0.2s; }
         .chip-checkbox span:hover { border-color: #ced4da; background: #f8f9fa; }
-        .chip-checkbox input[type="checkbox"]:checked + span { background: var(--main-orange); border-color: var(--main-orange); color: #ffffff; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3); }
+        .pros-group .chip-checkbox input[type="checkbox"]:checked + span { background: #6bc4b8; border-color: #6bc4b8; color: #1a3a37; box-shadow: 0 4px 10px rgba(50, 94, 90, 0.3); }
+        .cons-group .chip-checkbox input[type="checkbox"]:checked + span { background: #F8C1B3; border-color: #F8C1B3; color: #6a241b; box-shadow: 0 4px 10px rgba(217, 83, 79, 0.3); }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .section-title { font-size: 1.4rem; font-weight: 800; color: #222; margin: 0; }
@@ -160,8 +162,8 @@
 
         .pagination-container { margin-top: 60px; display: none; }
         .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .page-item.active .page-link { background-color: var(--main-orange); border-color: var(--main-orange); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); }
+        .page-item.active .page-link { background-color: #3f8a7e !important; border-color: #F97316 !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3); }
+        .page-link:hover:not(.active) { background-color: #325e5a; transform: translateY(-2px); color: #ffffff; }
 
         /* =========================================================
            ✨ 완벽하게 개선된 AI 버튼형 모달창 전용 UI
@@ -312,6 +314,13 @@
                             <button type="button" id="btnSaveKeyword" class="btn btn-primary shadow-sm">
                                 <i class="bi bi-check2-circle me-1"></i> 알림 받기 설정
                             </button>
+                            <div class="mt-2 px-1">
+                                <p class="text-muted mb-0" style="font-size: 0.75rem; line-height: 1.5;">
+                                    <i class="bi bi-info-circle-fill me-1"></i>
+                                    지역명은 이름만, (ex. 화곡동 → <strong>화곡</strong>)<br>
+                                    상세주소는 <strong>구주소와 신주소 모두</strong> 설정하면 더 정확한 알림이 가능합니다.
+                                </p>
+                            </div>
                         </div>
 
                         <div id="alreadySubscribed" style="display:none;">
@@ -325,16 +334,16 @@
 
 
                     <div class="filter-section">
-                        <div class="d-flex align-items-start mb-2">
-                            <span class="filter-label">장점</span>
+                        <div class="d-flex align-items-start mb-2 pros-group">
+                            <span class="filter-label-pros">장점</span>
                             <div class="d-flex flex-wrap">
                                 <label th:each="p : ${prosList}" class="chip-checkbox">
                                     <input type="checkbox" name="pros" th:value="${p}" th:checked="${pros != null && pros.contains(p)}"> <span th:text="${p}"></span>
                                 </label>
                             </div>
                         </div>
-                        <div class="d-flex align-items-start">
-                            <span class="filter-label">단점</span>
+                        <div class="d-flex align-items-start cons-group">
+                            <span class="filter-label-cons">단점</span>
                             <div class="d-flex flex-wrap">
                                 <label th:each="c : ${consList}" class="chip-checkbox">
                                     <input type="checkbox" name="cons" th:value="${c}" th:checked="${cons != null && cons.contains(c)}"> <span th:text="${c}"></span>

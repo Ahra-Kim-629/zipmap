@@ -5,7 +5,11 @@
 
 <th:block layout:fragment="css">
     <style>
-        .admin-content { padding: 40px 0; background-color: #f4f7f6; min-height: 90vh; }
+        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
+        body {
+            background-color: #f4f7f6 !important;
+        }
+        .admin-content { padding: 40px 0; background-color: #f4f7f6; min-height: calc(100vh - 250px); }
         .table-card { background: white; border-radius: 15px; border: none; overflow: hidden; }
 
         /* 테이블 스타일 커스텀 */
