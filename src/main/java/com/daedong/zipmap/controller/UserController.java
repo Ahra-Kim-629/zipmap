@@ -67,6 +67,7 @@ public class UserController {
     @GetMapping("/login")
     public String login(@RequestParam(value = "prevPage", required = false) String prevPage,
                         HttpServletRequest request, Model model) {
+        // 세션이 없을 수도 있으므로 false 로 호출
         HttpSession session = request.getSession(false);
         if (session != null) {
             // 2. Handler에서 세션에 저장한 에러 메시지를 꺼냄
@@ -77,16 +78,33 @@ public class UserController {
 
                 // 4. 메시지를 한 번 보여준 후 세션에서 제거 (새로고침 시 계속 뜨는 현상 방지)
                 session.removeAttribute("errorMessage");
-
-                return "/users/login-form";
             }
         }
 
-        // 폼에 숨겨진 입력값으로 넣기 위해 모델에 담습니다.
-        if (prevPage != null && !prevPage.isEmpty()) {
-            // 세션에 "prevPage"라는 이름으로 저장 (OAuth2 인증 후에도 유지됨)
-            session.setAttribute("prevPage", prevPage);
+        // 값 저장을 위해 세션 강제 호출 (없으면 생성)
+        session = request.getSession(true);
+
+        // 시큐리티가 강제로 로그인창으로 보낸 경우
+        if (session.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null) {
+            // prevPage를 비워둠
+            session.removeAttribute("prevPage");
+        } else {
+            // 좋아요 싫어요 버튼을 눌러서 로그인창으로 넘어온 경우
+            if (prevPage != null && !prevPage.isEmpty()) {
+                // 세션에 prevPage 라는 이름으로 직전 페이지를 저장 (OAuth2 인증 후에도 유지됨)
+                session.setAttribute("prevPage", prevPage);
+            } else {
+                // 헤더의 일반 로그인 버튼을 눌러 파라미터 없이 접근한 경우
+                // 브라우저가 제공하는 '이전 페이지 주소(Referer)'를 꺼내서 확인
+                String referer = request.getHeader("Referer");
+
+                // 이전 페이지가 존재하고, 로그인 실패로 인한 새로고침이 아니며, 회원가입/비밀번호 찾기 페이지가 아닐 때만 저장
+                if (referer != null && !referer.contains("/login") && !referer.contains("/signUp") && !referer.contains("/users/find")) {
+                    session.setAttribute("prevPage", referer);
+                }
+            }
         }
+
         return "/users/login-form";
     }
 
