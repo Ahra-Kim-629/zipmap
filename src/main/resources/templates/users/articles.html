@@ -90,12 +90,12 @@
                         </td>
                         <td>
                             <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'ACTIVE'}" class="badge bg-success">승인완료</span>
-                            <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'PENDING'}" class="badge bg-warning text-dark">인증대기</span>
+                            <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'PENDING' and review.filePath != null}" class="badge bg-warning text-dark">인증대기</span>
+                            <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'PENDING' and review.filePath == null}" class="badge bg-secondary">사진미등록</span>
                             <span th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'BANNED'}" class="badge bg-danger">인증반려</span>
                         </td>
                         <td>
                             <div th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'BANNED'}">
-                                <!-- 반려 사유 보기 버튼 -->
                                 <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 mb-1"
                                         style="font-size: 0.65rem;"
                                         th:onclick="showRejectReason([[${review.message}]])">
@@ -107,7 +107,15 @@
                                     재인증하기
                                 </a>
                             </div>
-                            <span th:unless="${review.reviewStatus != null and review.reviewStatus.name() == 'BANNED'}" class="text-muted">-</span>
+
+                            <div th:if="${review.reviewStatus != null and review.reviewStatus.name() == 'PENDING' and review.filePath == null}">
+                                <a th:href="@{|/review/edit/${review.id}|}"
+                                   class="btn btn-sm btn-outline-danger rounded-pill px-2" style="font-size: 0.65rem;">
+                                    재인증하기
+                                </a>
+                            </div>
+
+                            <span th:unless="${review.reviewStatus != null and (review.reviewStatus.name() == 'BANNED' or (review.reviewStatus.name() == 'PENDING' and review.filePath == null))}" class="text-muted">-</span>
                         </td>
                     </tr>
 

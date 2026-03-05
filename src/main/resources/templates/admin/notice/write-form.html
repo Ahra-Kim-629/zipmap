@@ -42,7 +42,7 @@
                     <p class="text-muted small">메인 화면 접속 시 정중앙에 나타날 팝업 공지를 설정합니다.</p>
                 </div>
 
-                <form th:action="@{/admin/notice/write}" method="post" enctype="multipart/form-data">
+                <form id="noticeForm" th:action="@{/admin/notice/write}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                     <div class="form-section">
@@ -102,7 +102,7 @@
                                     <span class="input-group-text bg-white border-end-0"><i
                                             class="bi bi-calendar-check"></i></span>
                                     <input type="text" id="startDate" name="startDate"
-                                           class="form-control border-start-0" placeholder="시작 날짜와 시간" required>
+                                           class="form-control border-start-0" placeholder="시작 날짜와 시간" required >
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -133,35 +133,34 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 
     <script th:inline="javascript">
+        let startPicker;
+        let endPicker;
+
         $(document).ready(function() {
             const commonConfig = {
                 locale: "ko",
                 minDate: "today",
-                altInput: true,
-                altFormat: "Y-m-d", // 사용자에게 보이는 형식
+                allowInput: true // ✨ 핵심 마법의 1줄: 달력의 readonly 잠금을 풀어서, 브라우저 순정 말풍선이 작동하게 만듭니다!
             };
 
-            // 시작일 설정
-            const startPicker = flatpickr("#startDate", {
+            startPicker = flatpickr("#startDate", {
                 ...commonConfig,
                 onChange: function(selectedDates, dateStr) {
-                    // 시작일이 선택되면 종료일의 최소 날짜(minDate)를 시작일로 제한
                     endPicker.set("minDate", dateStr);
                 }
             });
 
-            // 종료일 설정
-            const endPicker = flatpickr("#endDate", {
+            endPicker = flatpickr("#endDate", {
                 ...commonConfig,
                 onChange: function(selectedDates, dateStr) {
-                    // 종료일이 선택되면 시작일의 최대 날짜(maxDate)를 종료일로 제한
                     startPicker.set("maxDate", dateStr);
                 }
             });
         });
 
         // 이미지 미리보기 및 확장자 철벽 방어
-        function previewImage(input) {
+         function previewImage(input) {
+
             const preview = document.getElementById('imagePreview');
 
             if (input.files && input.files[0]) {
