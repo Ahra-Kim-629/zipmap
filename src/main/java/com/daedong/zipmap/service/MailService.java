@@ -20,7 +20,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
         helper.setTo(email);
-        helper.setSubject("[SeoulRoom] 비밀번호 재설정을 위한 안내 메일입니다.");
+        helper.setSubject("[대동여집도] 비밀번호 재설정을 위한 안내 메일입니다.");
 
         // HTML 이메일 본문 디자인
         String content = "<div style=\"margin: 0; padding: 0; background-color: #f6fbfa; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;\">"
