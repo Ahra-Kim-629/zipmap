@@ -296,6 +296,7 @@ public class AdminController {
     @PostMapping("/reviews/toggle-status")
     public String toggleReviewStatus(@RequestParam("id") Long id,
                                      @RequestParam("status") String status,
+                                     @RequestParam(value = "page", defaultValue = "0") int page,
                                      RedirectAttributes rttr) {
         try {
             // 서비스의 토글 로직 실행
@@ -306,7 +307,7 @@ public class AdminController {
         }
 
         // 처리가 끝나면보고 있던 페이지(인증 목록)로 리다이렉트
-        return "redirect:/admin/certification/list";
+        return "redirect:/admin/reviews?page=" + page;
     }
 
     // 리뷰 글 등록시 실거주인증 사진을 같이 보게 하기 위한 기능 추가
