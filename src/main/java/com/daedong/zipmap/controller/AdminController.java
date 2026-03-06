@@ -110,6 +110,12 @@ public class AdminController {
     @PostMapping("/notice/edit/{id}")
     public String editNotice(@PathVariable("id") Long id, Notice notice,
                              MultipartFile imageFile, RedirectAttributes rttr) {
+
+        if (notice.getPriority() < 0) {
+            rttr.addFlashAttribute("error", "우선순위는 0 이상의 숫자만 입력 가능합니다.");
+            return "redirect:/admin/notice/list";
+        }
+        
         try {
             adminService.updateNotice(id, notice, imageFile);
             rttr.addFlashAttribute("message", "공지사항이 수정되었습니다.");
@@ -209,11 +215,10 @@ public class AdminController {
     public String toggleStatus(@RequestParam("id") Long id,
                                @RequestParam("status") String status,
                                RedirectAttributes rttr) {
-        postService.togglePostStatus(id,status); //adminService.togglePostStatus(id, status); 를 변경
+        postService.togglePostStatus(id, status); //adminService.togglePostStatus(id, status); 를 변경
         rttr.addFlashAttribute("message", "게시글 상태가 성공적으로 변경되었습니다.");
         return "redirect:/admin/posts";
     }
-
 
 
     // POSTNOTICE : 게시글에 공지사항 등록 기능
@@ -223,6 +228,7 @@ public class AdminController {
         // templates/admin/postnotice.html 로 이동 (파일 위치 확인하세요!)
         return "admin/postnotice";
     }
+
     // POSTNOTICE : 게시글에 공지사항 등록 기능 ( 이미 POSTSERVICE로 이동을 함 )
     @PostMapping("/postnotice")
     public String writePostNotice(@AuthenticationPrincipal UserPrincipalDetails user, Post post, RedirectAttributes rttr) {
@@ -236,7 +242,7 @@ public class AdminController {
 
             // ★ 2. 핵심 해결책: 비어있는 location에 기본값 넣어주기
             // DB 테이블 설정에 따라 'ALL' 또는 '서울' 등 적절한 값을 넣어주세요.
-            if (post.getLocation() == null ) {
+            if (post.getLocation() == null) {
                 post.setLocation(Location.ALL);
             }
 
@@ -343,6 +349,7 @@ public class AdminController {
         model.addAttribute("currentFilter", reportStatus);
         return "admin/report/list";
     }
+
     // Report -> 신고 글을 삭제하는 방법
     @GetMapping("/report/delete/{id}")
     public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
@@ -354,6 +361,7 @@ public class AdminController {
         }
         return "redirect:/admin/report/list";
     }
+
     // 사용자 신고 기능 , 신고 글을 읽음 처리 , 읽지 않음 처리 확인하는 기능
     @GetMapping("/report/pending-reports")
     @ResponseBody
@@ -401,6 +409,7 @@ public class AdminController {
         }
         return redirectUrl;
     }
+
     // 리뷰 실거주 인증 반려 사유 메시지 저장
     @PostMapping("/reviews/update-status")
     @ResponseBody
@@ -431,6 +440,7 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
         }
     }
+
     // 클래스 상단에 @RequestMapping("/admin")이 있으므로
     @PostMapping("/reviews/reject") // 실제 주소는 /admin/reviews/reject가 됩니다.
     @ResponseBody

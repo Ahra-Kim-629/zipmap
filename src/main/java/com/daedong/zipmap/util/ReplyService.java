@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,8 +25,23 @@ public class ReplyService {
     }
 
     // 댓글 수정
-    public void updateReply(Reply reply) {
+    @Transactional
+    public Reply updateReply(Long id, String content, Long currentUserId) {
+        Reply reply = replyMapper.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("댓글이 없습니다."));
+
+        if (!reply.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("내용이 비어있습니다.");
+        }
+
+        reply.setContent(content);
         replyMapper.updateReply(reply);
+
+        return reply;
     }
 
     // 댓글 삭제
@@ -53,8 +69,13 @@ public class ReplyService {
         int total = replyMapper.countByTargetTypeAndUserId(targetType, userId);
         return new PageImpl<>(content, pageable, total);
     }
+
     public List<ReplyDTO> getReplies(String targetType, Long targetId, int page, int size) {
         int offset = page * size;
         return replyMapper.findRepliesWithPaging(targetType, targetId, size, offset);
+    }
+
+    public Reply getReplyById(Long id) {
+        return replyMapper.findById(id).orElseThrow(() -> new NoSuchElementException("해당 댓글이 존재하지 않습니다."));
     }
 }
