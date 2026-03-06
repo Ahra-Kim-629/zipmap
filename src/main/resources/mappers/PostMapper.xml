@@ -21,10 +21,10 @@
         <where>
             AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
             <if test="category != null and category != ''">
-                AND p.category = #{category.name}
+                AND p.category = #{category}
             </if>
             <if test="location != null and location != ''">
-                AND p.location = #{location.name}
+                AND p.location = #{location}
             </if>
             <if test="keyword != null and keyword != ''">
                 <choose>

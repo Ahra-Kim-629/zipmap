@@ -119,6 +119,7 @@
                     <div class="row g-2">
                         <div class="col-md-2">
                             <select name="category" class="form-select form-control">
+                                <option value="" th:selected="${category == ''}">카테고리</option>
                                 <option value="NOTICE" th:selected="${category == 'NOTICE'}">공지사항</option>
                                 <option value="FREE" th:selected="${category == 'FREE'}">자유</option>
                                 <option value="GROUP" th:selected="${category == 'GROUP'}">공구</option>

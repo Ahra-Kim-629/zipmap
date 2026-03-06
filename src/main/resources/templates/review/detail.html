@@ -271,34 +271,28 @@
     </div>
 </div>
 
+<script th:inline="javascript" th:if="${errorMessage}">
+    alert([[${errorMessage}]]);
+</script>
+
+<script th:inline="javascript" th:if="${successMessage}">
+    alert([[${successMessage}]]);
+</script>
+
 <script th:inline="javascript" layout:fragment="script">
     /* 1. 데이터 설정: 타임리프가 객체나 문자열을 자바스크립트에 맞게 변환합니다. */
     const targetId = [[${reviewDTO?.id}]];
-    const currentUserName = /*[[${#authentication != null ? #authentication.name : null}]]*/ null;
-    const csrfToken = [[${_csrf.token}]];
-    const csrfParameterName = [[${_csrf.parameterName}]];
-    const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
+const currentUserName = /*[[${#authentication != null ? #authentication.name : null}]]*/ null;    // [중요] CSRF 토큰: POST 요청(삭제 등)을 할 때 세션 유실(자동 로그아웃)을 막아줍니다.
+const csrfToken = [[${_csrf.token}]];
+const csrfParameterName = [[${_csrf.parameterName}]];
+const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
 
     let currentPage = 0;
     let isLoading = false;
     let isLastPage = false;
-    let hasFocusedReply = false; // 포커스 완료 여부 상태값
 
     $(document).ready(function() {
         console.log("엔진 가동: targetId =", targetId);
-
-        // 🌟 화면이 모두 그려진 후(0.1초 뒤)에 메시지 알림 띄우기
-        setTimeout(() => {
-            const errorMessage = [[${errorMessage}]];
-            const successMessage = [[${successMessage}]];
-
-            if (errorMessage) {
-                alert(errorMessage);
-            }
-            if (successMessage) {
-                alert(successMessage);
-            }
-        }, 100);
 
         // 1. 현장 실사 사진 클릭 이벤트
         $('.content-body, .photo-track').on('click', 'img', function() {
@@ -334,7 +328,7 @@
     });
 
     // ==========================================
-    //  함수 정의
+    //  함수 정의 (ready 밖으로 뺌)
     // ==========================================
 
     function fetchReplies() {
@@ -353,42 +347,25 @@
             },
             success: function(replies) {
                 console.log("받은 댓글 데이터:", replies);
-
                 if (replies && replies.length > 0) {
-                    // 댓글 렌더링
                     replies.forEach(reply => {
                         $("#reply-container").append(renderReply(reply));
                     });
 
-                    // 페이지 번호 증가 및 마지막 페이지 체크
+                    // [추가] URL에 replyId가 있다면 해당 댓글로 포커싱
+                    const focusReplyId = urlParams.get('replyId');
+                    if (focusReplyId && !$(".reply-focus").length) {
+                        const $target = $("#reply-" + focusReplyId);
+                        $target[0].scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                        $target.addClass("reply-focus");
+                    }
+
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
-
-                    // [핵심] 특정 댓글 포커싱 로직 (재귀 호출 포함)
-                    const focusReplyId = urlParams.get('replyId');
-
-                    if (focusReplyId && !hasFocusedReply) {
-                        const $target = $("#reply-" + focusReplyId);
-
-                        // 1. 방어적 프로그래밍: 화면에 요소가 렌더링 되었는지 검증
-                        if ($target.length > 0) {
-                            $target[0].scrollIntoView({
-                                behavior: "smooth",
-                                block: "center"
-                            });
-
-                            $target.addClass("reply-focus");
-                            setTimeout(() => $target.removeClass("reply-focus"), 2000);
-
-                            hasFocusedReply = true; // 찾았으므로 플래그 상태 변경
-
-                        // 2. 현재 페이지엔 없지만, 뒤에 더 가져올 댓글이 남아 있다면 재귀 호출
-                        } else if (!isLastPage) {
-                            isLoading = false; // Lock 해제
-                            fetchReplies();    // 스스로를 다시 호출 (재귀)
-                            return;
-                        }
-                    }
                 } else {
                     isLastPage = true;
                 }
@@ -397,11 +374,8 @@
                 console.error("댓글 로드 실패! 상태코드:", xhr.status);
             },
             complete: function() {
-                // 재귀 호출 중이 아닐 때만 로딩 스피너를 숨김
-                if (!isLoading || isLastPage || hasFocusedReply) {
-                    isLoading = false;
-                    $("#reply-loader").hide();
-                }
+                isLoading = false;
+                $("#reply-loader").hide();
             }
         });
     }
@@ -434,6 +408,8 @@
                     <form action="/reply/edit" method="post">
                         <input type="hidden" name="${csrfParameterName}" value="${csrfToken}">
                         <input type="hidden" name="id" value="${reply.id}">
+                        <input type="hidden" name="targetType" value="review">
+                        <input type="hidden" name="targetId" value="${targetId}">
                         <textarea name="content" class="form-control border-0 mb-2" rows="2" style="resize:none;">${reply.content}</textarea>
                         <div class="text-end">
                             <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
@@ -475,50 +451,50 @@
     }
 
     function handleReaction(type) {
-        // 1. 로그인 체크 (익명 사용자 확인)
-        if (currentUserName === null || currentUserName === 'anonymousUser' || currentUserName === "") {
-            if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
-                const currentPath = window.location.pathname + window.location.search;
-                location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
-            }
-            return;
+    // 1. 로그인 체크 (익명 사용자 확인)
+    if (currentUserName === null || currentUserName === 'anonymousUser' || currentUserName === "") {
+        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+            const currentPath = window.location.pathname + window.location.search;
+            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
         }
-
-        // 2. 비동기 요청 전송
-        $.ajax({
-            url: "/reaction",
-            type: "POST",
-            data: {
-                targetType: 'review', // 게시글과 구분되는 'review' 타입
-                targetId: targetId,
-                type: type,
-                [csrfParameterName]: csrfToken
-            },
-            success: function(res) {
-                // 서버에서 보낸 최신 카운트 반영 (id="like-count" 대상)
-                $("#like-count").text(res.likeCount);
-
-                // 하트 아이콘 및 버튼 스타일 변경
-                const $likeBtn = $("#like-button");
-                const $icon = $likeBtn.find("i");
-
-                if (res.currentReaction === 1) {
-                    $likeBtn.addClass("active");
-                    $icon.removeClass("bi-heart").addClass("bi-heart-fill");
-                } else {
-                    $likeBtn.removeClass("active");
-                    $icon.removeClass("bi-heart-fill").addClass("bi-heart");
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 401) {
-                    alert("로그인이 필요합니다.");
-                    location.href = "/login";
-                } else {
-                    alert("처리 중 오류가 발생했습니다.");
-                }
-            }
-        });
+        return;
     }
+
+    // 2. 비동기 요청 전송
+    $.ajax({
+        url: "/reaction",
+        type: "POST",
+        data: {
+            targetType: 'review', // 게시글과 구분되는 'review' 타입
+            targetId: targetId,
+            type: type,
+            [csrfParameterName]: csrfToken
+        },
+        success: function(res) {
+            // 서버에서 보낸 최신 카운트 반영 (id="like-count" 대상)
+            $("#like-count").text(res.likeCount);
+
+            // 하트 아이콘 및 버튼 스타일 변경
+            const $likeBtn = $("#like-button");
+            const $icon = $likeBtn.find("i");
+
+            if (res.currentReaction === 1) {
+                $likeBtn.addClass("active");
+                $icon.removeClass("bi-heart").addClass("bi-heart-fill");
+            } else {
+                $likeBtn.removeClass("active");
+                $icon.removeClass("bi-heart-fill").addClass("bi-heart");
+            }
+        },
+        error: function(xhr) {
+            if (xhr.status === 401) {
+                alert("로그인이 필요합니다.");
+                location.href = "/login";
+            } else {
+                alert("처리 중 오류가 발생했습니다.");
+            }
+        }
+    });
+}
 </script>
 </html>

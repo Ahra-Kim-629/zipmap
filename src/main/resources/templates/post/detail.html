@@ -123,14 +123,14 @@
                                 th:classappend="${postDTO.reaction == 1} ? 'btn-like-active' : ''"
                                 th:onclick="|handleReaction(1)|">
                             <i class="bi bi-hand-thumbs-up-fill me-2"></i>좋아요 <span id="like-count"
-                                th:text="${postDTO.likeCount}">0</span>
+                                                                                    th:text="${postDTO.likeCount}">0</span>
                         </button>
 
                         <button type="button" class="btn-dislike" id="dislike-button"
                                 th:classappend="${postDTO.reaction == -1} ? 'btn-dislike-active' : ''"
                                 th:onclick="|handleReaction(-1)|">
                             <i class="bi bi-hand-thumbs-down-fill me-2"></i>싫어요 <span id="dislike-count"
-                                th:text="${postDTO.dislikeCount}">0</span>
+                                                                                      th:text="${postDTO.dislikeCount}">0</span>
                         </button>
                     </div>
                     <a th:href="@{/post}" class="btn btn-outline-dark rounded-pill px-4 btn-sm">
@@ -189,13 +189,13 @@
 
 <script layout:fragment="script">
     // 1. 전역 변수 설정
-    let currentPage = 0;
-    let isLoading = false;
-    let isLastPage = false;
-    let hasFocusedReply = false; // 포커스 처리 완료 여부 플래그
-    const targetId = [[${postDTO.id}]];
-    const currentUserName = "[[${#authentication.name}]]";
-    const urlParams = new URLSearchParams(window.location.search);
+    let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
+    let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)
+    let isLastPage = false;   // 더 이상 가져올 댓글이 없는지 확인
+    let hasFocusedReply = false;
+    const targetId = [[${postDTO.id}]]; // 현재 보고 있는 게시글의 번호
+    const currentUserName = "[[${#authentication.name}]]"; // 로그인한 사용자의 이름
+    const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
     const focusReplyId = urlParams.get("replyId");
     const csrfParameterName = "[[${_csrf.parameterName}]]";
     const csrfToken = "[[${_csrf.token}]]";
@@ -206,7 +206,7 @@
         // 초기 댓글 로드
         fetchReplies();
 
-        // 무한 스크롤 설정
+        // 무한 스크롤 설정: 바닥에 닿으면 다음 댓글을 가져옵니다.
         $(window).scroll(function() {
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
                 if (!isLoading && !isLastPage) {
@@ -215,10 +215,12 @@
             }
         });
 
-        // AI 요약 버튼 클릭 이벤트
+        // [핵심 기능] AI 요약 버튼 클릭 이벤트
         $("#btn-ai-summary").click(function() {
+            // 팝업창(모달) 객체 생성
             const summaryModal = new bootstrap.Modal(document.getElementById('aiSummaryModal'));
 
+            // 팝업창에 "요리 중(분석 중)"이라는 메시지를 먼저 띄웁니다.
             $("#ai-summary-content").html(`
                 <div class="text-center p-3">
                     <div class="spinner-border text-primary" role="status"></div>
@@ -227,80 +229,68 @@
             `);
             summaryModal.show();
 
+            // 서버 지배인(Controller)에게 요약 요청을 보냅니다.
             $.ajax({
                 url: "/post/summarize-detail/" + targetId,
                 type: "GET",
                 success: function(res) {
+                    // 성공하면 AI가 보내준 따끈따끈한 요약 텍스트를 팝업창에 넣습니다.
                     $("#ai-summary-content").html(res);
                 },
                 error: function() {
+                    // 실패하면 에러 메시지를 보여줍니다.
                     $("#ai-summary-content").html('<p class="text-danger text-center">요약에 실패했습니다. 다시 시도해 주세요.</p>');
                 }
             });
         });
     }); // $(document).ready 끝
 
-    // ==========================================
-    // [핵심] 서버에서 댓글 데이터를 가져오는 함수 (재귀 호출 포함)
-    // ==========================================
+    // [창고지기] 서버에서 댓글 데이터를 가져오는 함수
     function fetchReplies() {
-        // 이미 로딩 중이거나 더 이상 가져올 댓글이 없으면 서버에 요청하지 않음
-        if (isLoading || isLastPage) return;
-
         isLoading = true;
         $("#reply-loader").show();
-
         $.ajax({
             url: "/reply/list",
             type: "GET",
             data: { targetType: 'post', targetId: targetId, page: currentPage },
             success: function(replies) {
                 if (replies && replies.length > 0) {
-                    // 1. 가져온 댓글들을 화면에 렌더링
-                    replies.forEach(reply => {
-                        $("#reply-container").append(renderReply(reply));
-                    });
+                    replies.forEach(reply => { $("#reply-container").append(renderReply(reply)); });
+                    tryFocusReply();
 
-                    // 2. 페이지 번호 증가 및 마지막 페이지 여부 체크
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
-
-                    // 3. 특정 댓글 포커싱 및 재귀 호출 로직
-                    if (focusReplyId && !hasFocusedReply) {
-                        const target = document.getElementById("reply-" + focusReplyId);
-
-                        if (target) {
-                            // 화면에 존재하면 부드럽게 스크롤
-                            target.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center"
-                            });
-
-                            target.classList.add("reply-focus");
-                            setTimeout(() => { target.classList.remove("reply-focus"); }, 2000);
-
-                            hasFocusedReply = true; // 플래그 상태 변경 완료
-
-                        } else if (!isLastPage) {
-                            // 화면에 없지만 다음 페이지가 남아있다면 스스로 다시 호출 (재귀)
-                            isLoading = false;
-                            fetchReplies();
-                            return;
-                        }
-                    }
-                } else {
-                    isLastPage = true;
-                }
+                } else { isLastPage = true; }
             },
-            complete: function() {
-                // 재귀 호출이 진행 중일 때는 로딩 스피너를 유지
-                if (!isLoading || isLastPage || hasFocusedReply) {
-                    isLoading = false;
-                    $("#reply-loader").hide();
-                }
-            }
+            complete: function() { isLoading = false; $("#reply-loader").hide(); }
         });
     }
+
+    function tryFocusReply() {
+
+    // 이미 실행했으면 종료
+    if (hasFocusedReply) return;
+
+    if (!focusReplyId) return;
+
+    const target = document.getElementById("reply-" + focusReplyId);
+
+    if (target) {
+
+        target.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+        target.classList.add("reply-focus");
+
+        setTimeout(() => {
+            target.classList.remove("reply-focus");
+        }, 2000);
+
+        hasFocusedReply = true; // 다시 실행되지 않게 차단
+    }
+}
 
     // [접시 닦기] 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
     function renderReply(reply) {
@@ -323,7 +313,7 @@
             <div class="reply-item shadow-sm" id="reply-${reply.id}">
                 <div id="display-${reply.id}">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="${authorClass}">${authorName}</span>
+                        <span class="${authorClass}}">${authorName}</span>
                         ${btnHtml}
                     </div>
                     <p class="mb-0 text-secondary small">${reply.content}</p>
@@ -332,6 +322,8 @@
                     <form action="/reply/edit" method="post">
                         <input type="hidden" name="${csrfParameterName}" value="${csrfToken}"/>
                         <input type="hidden" name="id" value="${reply.id}">
+                        <input type="hidden" name="targetType" value="post">
+                        <input type="hidden" name="targetId" value="${targetId}">
                         <textarea name="content" class="form-control border-0 mb-2" rows="2" style="resize:none;">${reply.content}</textarea>
                         <div class="text-end">
                             <button type="submit" class="btn btn-orange btn-sm rounded-pill px-3">저장</button>
@@ -355,40 +347,47 @@
     }
 
     function handleReaction(type) {
-        if (currentUserName === 'anonymousUser' || !currentUserName) {
-            if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
-                const currentPath = window.location.pathname + window.location.search;
-                location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
-            }
-            return;
+    // 로그인이 안 되어 있다면 로그인 페이지로 유도 (Spring Security 연동 시)
+    if (currentUserName === 'anonymousUser' || !currentUserName) {
+        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+            // 현재 페이지의 전체 경로(쿼리 스트링 포함)를 가져옵니다.
+            const currentPath = window.location.pathname + window.location.search;
+
+            // 로그인 페이지로 보내되, 돌아올 주소를 파라미터로 붙입니다.
+            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
         }
-
-        $.ajax({
-            url: "/reaction",
-            type: "POST",
-            data: {
-                targetType: 'post',
-                targetId: targetId,
-                type: type,
-                [csrfParameterName]: csrfToken
-            },
-            success: function(res) {
-                $("#like-count").text(res.likeCount);
-                $("#dislike-count").text(res.dislikeCount);
-
-                $("#like-button").removeClass("btn-like-active");
-                $("#dislike-button").removeClass("btn-dislike-active");
-
-                if (res.currentReaction === 1) {
-                    $("#like-button").addClass("btn-like-active");
-                } else if (res.currentReaction === -1) {
-                    $("#dislike-button").addClass("btn-dislike-active");
-                }
-            },
-            error: function(err) {
-                alert("처리 중 오류가 발생했습니다.");
-            }
-        });
+        return;
     }
+
+    $.ajax({
+        url: "/reaction",
+        type: "POST",
+        data: {
+            targetType: 'post',
+            targetId: targetId,
+            type: type,
+            // CSRF 토큰을 데이터에 포함 (Security 설정에 따라 헤더에 넣을 수도 있음)
+            [csrfParameterName]: csrfToken
+        },
+        success: function(res) {
+            // 1. 숫자 업데이트
+            $("#like-count").text(res.likeCount);
+            $("#dislike-count").text(res.dislikeCount);
+
+            // 2. 버튼 스타일 초기화 후 활성화 상태 적용
+            $("#like-button").removeClass("btn-like-active");
+            $("#dislike-button").removeClass("btn-dislike-active");
+
+            if (res.currentReaction === 1) {
+                $("#like-button").addClass("btn-like-active");
+            } else if (res.currentReaction === -1) {
+                $("#dislike-button").addClass("btn-dislike-active");
+            }
+        },
+        error: function(err) {
+            alert("처리 중 오류가 발생했습니다.");
+        }
+    });
+}
 </script>
 </html>
