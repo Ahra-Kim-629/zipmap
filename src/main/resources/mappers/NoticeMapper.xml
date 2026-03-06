@@ -13,6 +13,22 @@
         ORDER BY status DESC, priority DESC, created_at DESC
     </select>
 
+    <select id="findNoticeAllWithPaging" resultType="com.daedong.zipmap.domain.NoticeDTO">
+        SELECT
+        n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,
+        n.updated_at
+        FROM notice n
+        LEFT JOIN file f ON n.id = f.target_id AND f.target_type = 'NOTICE'
+        ORDER BY status DESC, priority DESC, created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countAllNotices" resultType="int">
+        SELECT COUNT(id) FROM notice
+    </select>
+
+
+
     <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.NoticeDTO">
         SELECT
         n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,

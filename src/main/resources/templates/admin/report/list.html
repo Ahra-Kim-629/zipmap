@@ -3,13 +3,23 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
 
+<th:block layout:fragment="css">
+  <style>
+    .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+    .pagination { display: flex; list-style: none; padding-left: 0; }
+    .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
+    .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
+    .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
+    .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+  </style>
+</th:block>
+
 <div layout:fragment="content">
   <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mb-0">🚨 신고 내역 관리</h2>
       <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
     </div>
-    <!-- 신고 글을 전체 목록 / 처리완료된 글만 / 안읽음 글만 나누게 해서 보게 하는 기능 -->
     <div class="d-flex justify-content-end mb-3">
       <div class="btn-group" role="group">
         <a th:href="@{/admin/report/list}"
@@ -27,35 +37,31 @@
           <thead class="table-light">
           <tr>
             <th>번호</th>
-            <th>유형</th> <!-- 게시글/리뷰 구분 -->
+            <th>유형</th>
             <th>바로가기</th>
             <th>신고자</th>
             <th>사유</th>
             <th>상태</th>
             <th>날짜</th>
-            <th>관리</th> <!-- 상세보기 -> 관리로 변경 -->
+            <th>관리</th>
           </tr>
           </thead>
           <tbody>
-          <tr th:each="report : ${reports}">
+          <tr th:each="report : ${reports.content}">
             <td th:text="${report.id}"></td>
             <td>
               <span class="badge bg-secondary" th:if="${report.targetType == 'POST'}">게시글</span>
               <span class="badge bg-info" th:if="${report.targetType == 'REVIEW'}">리뷰</span>
             </td>
             <td>
-              <!-- 게시글인 경우 -->
               <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-primary" target="_blank">
                 게시글 보기 <i class="bi bi-box-arrow-up-right"></i>
               </a>
-              <!-- 리뷰인 경우 -->
               <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-info" target="_blank">
                 리뷰 보기 <i class="bi bi-box-arrow-up-right"></i>
               </a>
             </td>
-            <td th:text="${report.reporterName}"></td> <!-- 신고자 이름 표시 -->
-            <td>
-              <!-- 신고 사유 한글 변환 -->
+            <td th:text="${report.reporterName}"></td> <td>
               <span th:switch="${report.reason}">
                 <span th:case="'SPAM'">스팸/홍보</span>
                 <span th:case="'ABUSE'">욕설/비하</span>
@@ -63,28 +69,24 @@
                 <span th:case="'ETC'">기타</span>
                 <span th:case="*" th:text="${report.reason}"></span>
               </span>
-            </td>
-            <!-- 상태 (Status) 처리 완료 / 안 읽음 부분 처리 -->
+          </td>
             <td>
-              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter})}"
+              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter}, page=${reports.number+1})}"
                  style="text-decoration: none;">
-    <span class="badge shadow-sm"
-          th:classappend="${report.reportStatus.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-          th:text="${report.reportStatus.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
-          style="cursor: pointer;">
-    </span>
+                <span class="badge shadow-sm"
+                      th:classappend="${report.reportStatus.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
+                      th:text="${report.reportStatus.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
+                      style="cursor: pointer;">
+                </span>
               </a>
             </td>
-            <!-- 신고 등록일,시간 날짜 표시 -->
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td>
               <div class="d-flex gap-2 justify-content-center">
-                <!-- 상세보기 모달 트리거 버튼 -->
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" th:data-bs-target="'#reportModal' + ${report.id}">
                   내용 보기
                 </button>
 
-                <!-- 삭제 버튼 추가 -->
                 <a th:href="@{/admin/report/delete/{id}(id=${report.id})}"
                    class="btn btn-sm btn-danger"
                    onclick="return confirm('정말 삭제하시겠습니까?');">
@@ -92,7 +94,6 @@
                 </a>
               </div>
 
-              <!-- 모달 -->
               <div class="modal fade" th:id="'reportModal' + ${report.id}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                   <div class="modal-content">
@@ -130,13 +131,42 @@
               </div>
             </td>
           </tr>
-          <tr th:if="${#lists.isEmpty(reports)}">
-            <td colspan="8">신고 내역이 없습니다.</td>
+          <tr th:if="${reports == null or reports.empty}">
+            <td colspan="8" class="py-5 text-muted fw-bold">신고 내역이 없습니다.</td>
           </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <nav id="paginationContainer" class="pagination-container" th:if="${reports != null and reports.totalPages > 0}">
+      <ul class="pagination" th:with="
+            currentPage=${reports.number + 1},
+            blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+
+        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/report/list(page=${blockStart - 1}, reportStatus=${currentFilter})}">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+
+        <li class="page-item"
+            th:each="page : ${#numbers.sequence(1, reports.totalPages)}"
+            th:if="${page >= blockStart and page < blockStart + 5}"
+            th:classappend="${page == currentPage} ? 'active'">
+          <a class="page-link"
+             th:href="@{/admin/report/list(page=${page}, reportStatus=${currentFilter})}"
+             th:text="${page}"></a>
+        </li>
+
+        <li class="page-item" th:classappend="${blockStart + 4 >= reports.totalPages} ? 'disabled'">
+          <a class="page-link" th:href="@{/admin/report/list(page=${blockStart + 5}, reportStatus=${currentFilter})}">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
   </div>
 </div>
 </html>

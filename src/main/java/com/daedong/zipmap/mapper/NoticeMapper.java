@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Notice;
 import com.daedong.zipmap.domain.NoticeDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,4 +22,7 @@ public interface NoticeMapper {
     NoticeDTO findNoticeById(Long id);
 
     void deleteNoticeById(Long id);
+
+    List<NoticeDTO> findNoticeAllWithPaging(@Param("pageSize") int pageSize, @Param("offset") int offset);
+    int countAllNotices();
 }

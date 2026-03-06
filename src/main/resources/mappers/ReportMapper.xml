@@ -27,6 +27,33 @@
         ORDER BY r.created_at DESC
     </select>
 
+    <select id="selectAllReportsWithPaging" resultType="com.daedong.zipmap.domain.ReportDTO">
+        SELECT
+        r.id, r.target_type, r.target_id, r.user_id, u.login_id AS reporterName, r.reason,
+        r.content, r.report_status, r.created_at, r.updated_at, f.file_path
+        FROM report r
+        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN file f ON f.target_id = r.id AND f.target_type = 'REPORT'
+        <where>
+            <if test="reportStatus != null and reportStatus != ''">
+                AND r.report_status = #{reportStatus}
+            </if>
+        </where>
+        ORDER BY r.created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countAllReportsWithFilter" resultType="int">
+        SELECT COUNT(r.id)
+        FROM report r
+        <where>
+            <if test="reportStatus != null and reportStatus != ''">
+                AND r.report_status = #{reportStatus}
+            </if>
+        </where>
+    </select>
+
+
     <delete id="deleteReport">
         DELETE FROM report WHERE id = #{id}
     </delete>

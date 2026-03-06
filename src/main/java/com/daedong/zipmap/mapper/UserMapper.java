@@ -3,6 +3,7 @@ package com.daedong.zipmap.mapper;
 import com.daedong.zipmap.domain.Token;
 import com.daedong.zipmap.domain.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,5 +35,9 @@ public interface UserMapper {
     Token selectValidToken(String token);
 
     void updateToken(Token tokenData);
+
+    List<User> findAllUsersForAdmin(@Param("pageSize") int pageSize, @Param("offset") int offset);
+
+    int countAllUsersForAdmin();
 
 }

@@ -52,12 +52,13 @@ public class AdminController {
      ====================================================================================================================
      */
 
+    //  페이징이 적용된 공지사항 리스트
     @GetMapping("/notice/list")
-    public String noticeList(Model model) {
-        // 전체 게시판 게시글 리스트
-        List<NoticeDTO> noticeDTOList = adminService.getNoticeAll();
+    public String noticeList(@PageableDefault(size = 8, sort = "priority", direction = Sort.Direction.DESC) Pageable pageable,
+                             Model model) {
 
-        model.addAttribute("notices", noticeDTOList);
+        Page<NoticeDTO> notices = adminService.getNoticeAll(pageable);
+        model.addAttribute("notices", notices);
 
         return "admin/notice/list";
     }
@@ -138,11 +139,12 @@ public class AdminController {
     ====================================================================================================================
      */
     // admin/members 회원 전체 리스트 가져오기
+    // admin/members 회원 리스트 (페이징 적용)
     @GetMapping("/members")
-    public String userList(Model model) {
-        // 'UserService'가 아니라 주입받은 변수 'userService'입니다!
-        List<User> userList = userService.findAllUsers(); // USERservice에서 하는 것이 관심사 분리를 하는게 좋을 거 같아서 이동
-        model.addAttribute("userList", userList);
+    public String userList(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                           Model model) {
+        Page<User> users = userService.findAllUsers(pageable);
+        model.addAttribute("users", users); //  HTML에서 받을 이름 'users'로 변경!
 
         return "admin/members";
     }
@@ -166,7 +168,7 @@ public class AdminController {
      */
     // 이 부분은 POSTSERVICE 랑 겹치다 보니 POSTSERVICE 로 이동 예정
     @GetMapping("/posts")
-    public String list(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String list(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                        @RequestParam(required = false) String searchType,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) String category,
@@ -264,7 +266,7 @@ public class AdminController {
      */
 
     @GetMapping("/reviews")
-    public String adminReviewList(@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public String adminReviewList(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                   @RequestParam(required = false) String searchType,
                                   @RequestParam(required = false) String keyword,
                                   Model model) {
@@ -307,7 +309,7 @@ public class AdminController {
     // 리뷰 등록하면 기본적으로 PENDING으로 가는데 , 이를 인증을 하면 공개됨
     @GetMapping("/certification/list")
     public String reviewCertificationList(Model model,
-                                          @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+                                          @PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         // AdminService를 통해 BANNED 리뷰만 가져옴
         Page<ReviewDTO> reviews = adminService.getPendingCertifications(pageable);
@@ -337,12 +339,23 @@ public class AdminController {
     ====================================================================================================================
      */
     // Report -> 신고한 리스트를 나오게 하는 법
+    // ✨ 페이징이 적용된 신고 리스트
     @GetMapping("/report/list")
-    public String adminReportList(@RequestParam(value = "reportStatus", required = false) String reportStatus, Model model) {
-        model.addAttribute("reports", reportService.findAllReports(reportStatus));
-        model.addAttribute("currentFilter", reportStatus);
+    public String adminReportList(
+            @RequestParam(value = "reportStatus", required = false) String reportStatus,
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
+
+        // 페이징 처리된 결과를 받아옵니다
+        Page<ReportDTO> reports = reportService.findAllReportsWithPaging(reportStatus, pageable);
+
+        model.addAttribute("reports", reports);
+        model.addAttribute("currentFilter", reportStatus); // 필터 탭 유지를 위한 값 전달
+
         return "admin/report/list";
     }
+
+
     // Report -> 신고 글을 삭제하는 방법
     @GetMapping("/report/delete/{id}")
     public String deleteReport(@PathVariable("id") Long id, RedirectAttributes rttr) {
@@ -386,18 +399,20 @@ public class AdminController {
     @GetMapping("/report/toggleStatus/{id}")
     public String toggleReportStatus(@PathVariable("id") Long id,
                                      @RequestParam(value = "currentFilter", required = false) String currentFilter,
+                                     @RequestParam(value = "page", defaultValue = "0") int page, // ✨ 화면에서 보낸 페이지 번호 받기
                                      RedirectAttributes rttr) {
         try {
-            // 서비스의 토글 로직 호출
             reportService.toggleReportStatus(id);
         } catch (Exception e) {
             rttr.addFlashAttribute("error", "상태 변경 중 오류가 발생했습니다.");
         }
 
-        // 처리가 끝나면 원래 보고 있던 필터 조건을 유지하며 목록으로 돌아감
-        String redirectUrl = "redirect:/admin/report/list";
+        // ✨ 1. 리다이렉트 할 때 현재 페이지 번호(?page=X)를 무조건 달아줍니다.
+        String redirectUrl = "redirect:/admin/report/list?page=" + page;
+
+        // ✨ 2. 필터 상태가 있다면 뒤에 이어서(&reportStatus=X) 붙여줍니다. (파라미터명 버그 수정)
         if (currentFilter != null && !currentFilter.isEmpty()) {
-            redirectUrl += "?status=" + currentFilter;
+            redirectUrl += "&reportStatus=" + currentFilter;
         }
         return redirectUrl;
     }

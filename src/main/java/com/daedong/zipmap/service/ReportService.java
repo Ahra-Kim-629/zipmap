@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -106,6 +112,27 @@ public class ReportService {
         return reportMapper.selectAllReports(null);
         // null을 보내면 MyBatis XML의 <if test="status != null"> 조건에 걸리지 않아 전체가 조회됩니다.
     }
+
+    // ✨ 신고 리스트 페이징 처리 (어드민 리스트용)
+    @Transactional(readOnly = true)
+    public Page<ReportDTO> findAllReportsWithPaging(String status, Pageable pageable) {
+        // 1. 현재 페이지에 해당하는 8개만 가져오기
+        List<ReportDTO> content = reportMapper.selectAllReportsWithPaging(
+                status,
+                pageable.getPageSize(),
+                (int) pageable.getOffset()
+        );
+
+        // 2. 전체 신고글이 몇 개인지 카운트하기 (필터 조건 포함)
+        int total = reportMapper.countAllReportsWithFilter(status);
+
+        // 3. 페이지 객체로 예쁘게 포장해서 리턴
+        return new PageImpl<>(content, pageable, total);
+    }
+
+
+
+
 
     @Transactional
     public void updateReportStatus(Long id, String status) {

@@ -11,6 +11,14 @@
         .cert-thumbnail { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; }
         .review-title { font-weight: bold; text-decoration: none; color: #333; }
         .review-title:hover { color: #0d6efd; }
+
+        /* ✨ 페이징 디자인 (완벽 통일) */
+        .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+        .pagination { display: flex; list-style: none; padding-left: 0; }
+        .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
+        .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
+        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
+        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
     </style>
 </th:block>
 
@@ -69,19 +77,34 @@
                 </table>
 
                 <!-- 페이징 -->
-                <nav th:if="${reviews.totalPages > 0}" aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/certification/list(page=${reviews.number-1})}">&laquo;</a>
+                <nav id="paginationContainer" class="pagination-container" th:if="${reviews != null and reviews.totalPages > 0}">
+                    <ul class="pagination" th:with="
+                        currentPage=${reviews.number + 1},
+                        blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+
+                        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/certification/list(page=${blockStart - 1})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
                         </li>
-                        <li class="page-item" th:each="page: ${#numbers.sequence(0, reviews.totalPages-1)}" th:classappend="${page == reviews.number} ? 'active'">
-                            <a class="page-link" th:href="@{/admin/certification/list(page=${page})}" th:text="${page+1}"></a>
+
+                        <li class="page-item"
+                            th:each="page : ${#numbers.sequence(1, reviews.totalPages)}"
+                            th:if="${page >= blockStart and page < blockStart + 5}"
+                            th:classappend="${page == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/certification/list(page=${page})}"
+                               th:text="${page}"></a>
                         </li>
-                        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/certification/list(page=${reviews.number+1})}">&raquo;</a>
+
+                        <li class="page-item" th:classappend="${blockStart + 4 >= reviews.totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/certification/list(page=${blockStart + 5})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
                         </li>
                     </ul>
                 </nav>
+
             </div>
         </div>
     </div>
