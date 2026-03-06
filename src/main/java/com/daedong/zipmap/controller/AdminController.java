@@ -115,7 +115,7 @@ public class AdminController {
             rttr.addFlashAttribute("error", "우선순위는 0 이상의 숫자만 입력 가능합니다.");
             return "redirect:/admin/notice/list";
         }
-        
+
         try {
             adminService.updateNotice(id, notice, imageFile);
             rttr.addFlashAttribute("message", "공지사항이 수정되었습니다.");

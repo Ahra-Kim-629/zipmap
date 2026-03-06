@@ -4,7 +4,16 @@
 
 <mapper namespace="com.daedong.zipmap.mapper.ReportMapper">
 
-    <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO" useGeneratedKeys="true" keyProperty="id">
+    <select id="countReportByUserAndTarget" resultType="int">
+        SELECT COUNT(*)
+        FROM report
+        WHERE user_id = #{userId}
+        AND target_type = #{targetType}
+        AND target_id = #{targetId}
+    </select>
+
+    <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO report (
         target_id, target_type, user_id, reason, content, report_status, created_at
         ) VALUES (

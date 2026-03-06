@@ -25,6 +25,11 @@ public class ReportService {
     private final ReportMapper reportMapper;
     private final FileUtilService fileUtilService; // 공용 파일 유틸리티 주입
 
+    public boolean hasUserAlreadyReported(Long userId, String targetType, Long targetId) {
+        int count = reportMapper.countReportByUserAndTarget(userId, targetType.toUpperCase(), targetId);
+        return count > 0;
+    }
+
     @Transactional
     public void saveReport(ReportDTO reportDTO, MultipartFile file) {
         // 1. 파일 업로드 처리 (외부 경로 사용으로 로그아웃 방지)
@@ -82,7 +87,7 @@ public class ReportService {
 
         String uuid = UUID.randomUUID().toString();
         String savedFileName = uuid + "_" + file.getOriginalFilename();
-        
+
         // Path 객체를 사용하여 경로 문제 방지
         Path savePath = Paths.get(uploadPath, savedFileName);
 
