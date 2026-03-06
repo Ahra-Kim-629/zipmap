@@ -54,10 +54,8 @@ public class WebSecurityConfig {
                         // 신고 기능은 로그인한 누구나 가능하도록 설정 (403 에러 해결)
                         .requestMatchers("/report/**").authenticated()
 
-
-                        // 밑에 코드와 중복
                         .requestMatchers("/find/**", "/users/**",
-                                "/review/**").hasRole("USER")
+                                "/review/**", "/reaction").hasRole("USER")
 
                         // [추가] 댓글 기능은 로그인한 유저라면 누구나 접근 가능하도록 명시
                         .requestMatchers("/reply/**").authenticated()

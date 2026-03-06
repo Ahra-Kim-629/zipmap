@@ -1,7 +1,6 @@
 package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.ReportDTO;
-import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,14 @@ public class ReportController {
     @GetMapping("/report/write/{targetType}/{targetId}")
     public String reportForm(@PathVariable("targetType") String targetType,
                              @PathVariable("targetId") Long targetId,
-                             Model model){
+                             @AuthenticationPrincipal UserPrincipalDetails user,
+                             Model model, RedirectAttributes rttr) {
+
+        if (reportService.hasUserAlreadyReported(user.getUser().getId(), targetType, targetId)) {
+            rttr.addFlashAttribute("errorMessage", "이미 신고한 항목입니다.");
+            return "redirect:/" + targetType.toLowerCase() + "/detail/" + targetId;
+        }
+
         log.info("신고 페이지 이동 - 유형: {}, 번호: {}", targetType, targetId);
 
         ReportDTO reportDTO = new ReportDTO();
@@ -39,10 +45,12 @@ public class ReportController {
     @PostMapping("/report/submit")
     public String submitReport(@ModelAttribute ReportDTO reportDTO,
                                @RequestParam(value = "reportFile", required = false) MultipartFile file,
-                               @AuthenticationPrincipal UserPrincipalDetails user) {
+                               @AuthenticationPrincipal UserPrincipalDetails user,
+                               RedirectAttributes rttr) {
 
-        if (user == null) {
-            return "redirect:/login";
+        if (reportService.hasUserAlreadyReported(user.getUser().getId(), reportDTO.getTargetType(), reportDTO.getTargetId())) {
+            rttr.addFlashAttribute("errorMessage", "이미 신고가 접수된 항목입니다.");
+            return "redirect:/" + reportDTO.getTargetType().toLowerCase() + "/detail/" + reportDTO.getTargetId();
         }
 
         log.info("신고 접수 - 유형: {}, ID: {}", reportDTO.getTargetType(), reportDTO.getTargetId());

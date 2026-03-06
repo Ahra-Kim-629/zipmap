@@ -2,7 +2,6 @@ package com.daedong.zipmap.controller;
 
 import com.daedong.zipmap.domain.Reply;
 import com.daedong.zipmap.domain.ReplyDTO;
-import com.daedong.zipmap.domain.User;
 import com.daedong.zipmap.domain.UserPrincipalDetails;
 import com.daedong.zipmap.util.ReplyService;
 import lombok.RequiredArgsConstructor;
@@ -49,12 +48,25 @@ public class ReplyController {
         return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
     }
 
-    // 댓글 수정
     @PostMapping("/edit")
-    public String edit(Reply reply) {
-        replyService.updateReply(reply);
+    public String edit(Long id, String content,
+                       @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
+        try {
+            // 수정 성공 시 반환된 reply 객체 활용
+            Reply reply = replyService.updateReply(id, content, user.getUser().getId());
+            rttr.addFlashAttribute("message", "수정되었습니다.");
+            return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
 
-        return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
+        } catch (AccessDeniedException | IllegalArgumentException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+            // 예외 발생 시에도 안전하게 해당 게시물로 돌아가기 위해 다시 조회
+            Reply reply = replyService.getReplyById(id);
+            return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
+
+        } catch (NoSuchElementException e) {
+            rttr.addFlashAttribute("error", e.getMessage());
+            return "redirect:/";
+        }
     }
 
     // 댓글 삭제
@@ -64,6 +76,7 @@ public class ReplyController {
                          @RequestParam Long targetId,
                          @AuthenticationPrincipal UserPrincipalDetails user,
                          RedirectAttributes rttr) {
+
         try {
             // 서비스에 댓글 ID와 현재 로그인한 유저의 ID를 함께 전달
             replyService.deleteReply(id, user.getUser().getId());
@@ -79,6 +92,7 @@ public class ReplyController {
         // 상세 페이지로 다시 리다이렉트
         return "redirect:/" + targetType + "/detail/" + targetId;
     }
+
     @GetMapping("/list") // 전체 주소: /reply/list
     @ResponseBody        // 중요: HTML 페이지가 아닌 '데이터'만 보낸다는 뜻
     public List<ReplyDTO> getReplyList(
