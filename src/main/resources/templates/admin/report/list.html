@@ -5,168 +5,203 @@
 
 <th:block layout:fragment="css">
   <style>
-    .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+    /* [1] 배경 및 전체 레이아웃 */
+    body { background-color: #f4f7f6 !important; }
+    .admin-content { padding: 40px 0; min-height: calc(100vh - 250px); }
+
+    /* [2] 메인 카드 컨테이너 (실거주 인증 테마) */
+    .list-card {
+        background: #fff; padding: 40px; border-radius: 24px; border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    /* [3] 테이블 디자인 (행 구분선 + 움직임 없는 Hover) */
+    .table-responsive { overflow-x: auto; }
+    .table { min-width: 1100px; border-collapse: collapse; margin-top: 20px; }
+
+    .table thead th {
+        background-color: #f8f9fa !important; color: #6c757d;
+        font-size: 0.9rem; font-weight: 600; padding: 15px;
+        border-bottom: 1px solid #eee; text-align: center;
+    }
+
+    .table tbody tr { background-color: #fff; transition: background-color 0.2s ease; }
+    .table tbody tr:hover { background-color: #f8f9fa !important; }
+
+    .table td {
+        vertical-align: middle; padding: 18px 15px;
+        border-bottom: 1px solid #f1f1f1; text-align: center;
+    }
+
+    /* [4] 버튼 및 배지 스타일 (민트/초록 테마) */
+    .btn-theme { background-color: #3f8a7e; color: white; border: none; transition: 0.3s; }
+    .btn-theme:hover { background-color: #325e5a; color: white; }
+
+    /* 버튼 규격 통일 (공지등록과 관리자홈 버튼 크기 맞춤) */
+        .btn-fixed-size {
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            font-weight: 600;
+        }
+
+    /* 필터 버튼 그룹 스타일 */
+    .filter-group .btn { border-radius: 50px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; }
+    .btn-check-active { background-color: #3f8a7e !important; color: white !important; border: none !important; }
+
+    /* 상태 배지 */
+    .badge-pending { background-color: #ffd166; color: #333; } /* 확인 안 함 - 노랑 */
+    .badge-confirmed { background-color: #6BC4B8; color: #333; } /* 확인됨 - 민트 */
+
+    /* [5] 페이징 디자인 (민트/초록 테마) */
+    .pagination-container { margin-top: 40px; display: flex; justify-content: center; }
     .pagination { display: flex; list-style: none; padding-left: 0; }
-    .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
-    .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-    .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
-    .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+    .page-link {
+        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        color: #555; border: none; margin: 0 4px; border-radius: 12px !important;
+        font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        text-decoration: none;
+    }
+    .page-item.active .page-link {
+        background-color: #3f8a7e !important; border: none !important;
+        color: white !important; box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
+    }
+    .page-link:hover:not(.active) { background-color: #325e5a; transform: translateY(-2px); color: #fff; }
   </style>
 </th:block>
 
 <div layout:fragment="content">
-  <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0">🚨 신고 내역 관리</h2>
-      <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
-    </div>
-    <div class="d-flex justify-content-end mb-3">
-      <div class="btn-group" role="group">
-        <a th:href="@{/admin/report/list}"
-           class="btn btn-sm" th:classappend="${currentFilter == null ? 'btn-dark' : 'btn-outline-dark'}">전체</a>
-        <a th:href="@{/admin/report/list(reportStatus='PENDING')}"
-           class="btn btn-sm" th:classappend="${currentFilter == 'PENDING' ? 'btn-warning' : 'btn-outline-warning'}">확인 안 함</a>
-        <a th:href="@{/admin/report/list(reportStatus='CONFIRMED')}"
-           class="btn btn-sm" th:classappend="${currentFilter == 'CONFIRMED' ? 'btn-success' : 'btn-outline-success'}">확인함</a>
-      </div>
-    </div>
+  <div class="admin-content">
+    <div class="container">
+      <div class="list-card daedong-shadow">
 
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <table class="table table-hover text-center align-middle">
-          <thead class="table-light">
-          <tr>
-            <th>번호</th>
-            <th>유형</th>
-            <th>바로가기</th>
-            <th>신고자</th>
-            <th>사유</th>
-            <th>상태</th>
-            <th>날짜</th>
-            <th>관리</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="report : ${reports.content}">
-            <td th:text="${report.id}"></td>
-            <td>
-              <span class="badge bg-secondary" th:if="${report.targetType == 'POST'}">게시글</span>
-              <span class="badge bg-info" th:if="${report.targetType == 'REVIEW'}">리뷰</span>
-            </td>
-            <td>
-              <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-primary" target="_blank">
-                게시글 보기 <i class="bi bi-box-arrow-up-right"></i>
-              </a>
-              <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-info" target="_blank">
-                리뷰 보기 <i class="bi bi-box-arrow-up-right"></i>
-              </a>
-            </td>
-            <td th:text="${report.reporterName}"></td> <td>
-              <span th:switch="${report.reason}">
-                <span th:case="'SPAM'">스팸/홍보</span>
-                <span th:case="'ABUSE'">욕설/비하</span>
-                <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠</span>
-                <span th:case="'ETC'">기타</span>
-                <span th:case="*" th:text="${report.reason}"></span>
-              </span>
-          </td>
-            <td>
-              <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter}, page=${reports.number+1})}"
-                 style="text-decoration: none;">
-                <span class="badge shadow-sm"
-                      th:classappend="${report.reportStatus.name() == 'PENDING' ? 'bg-warning' : 'bg-success'}"
-                      th:text="${report.reportStatus.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"
-                      style="cursor: pointer;">
-                </span>
-              </a>
-            </td>
-            <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-            <td>
-              <div class="d-flex gap-2 justify-content-center">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" th:data-bs-target="'#reportModal' + ${report.id}">
-                  내용 보기
-                </button>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-exclamation-octagon-fill me-2" style="color: #3f8a7e;"></i>신고 내역 관리
+          </h2>
+          <a th:href="@{/admin}" class="btn btn-outline-secondary btn-fixed-size rounded-pill shadow-sm">
+            <i class="bi bi-house-door me-1"></i> 관리자 홈
+          </a>
+        </div>
 
-                <a th:href="@{/admin/report/delete/{id}(id=${report.id})}"
-                   class="btn btn-sm btn-danger"
-                   onclick="return confirm('정말 삭제하시겠습니까?');">
-                  삭제
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="btn-group p-1 bg-light rounded-pill border filter-group">
+            <a th:href="@{/admin/report/list}"
+               class="btn btn-sm" th:classappend="${currentFilter == null ? 'btn-check-active' : 'text-muted'}">전체</a>
+            <a th:href="@{/admin/report/list(reportStatus='PENDING')}"
+               class="btn btn-sm" th:classappend="${currentFilter == 'PENDING' ? 'btn-check-active' : 'text-muted'}">확인 안 함</a>
+            <a th:href="@{/admin/report/list(reportStatus='CONFIRMED')}"
+               class="btn btn-sm" th:classappend="${currentFilter == 'CONFIRMED' ? 'btn-check-active' : 'text-muted'}">확인함</a>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+            <tr>
+              <th style="width: 7%;">번호</th>
+              <th style="width: 8%;">유형</th>
+              <th style="width: 12%;">바로가기</th>
+              <th style="width: 12%;">신고자</th>
+              <th style="width: 18%;">사유</th>
+              <th style="width: 12%;">상태</th>
+              <th style="width: 16%;">날짜</th>
+              <th style="width: 15%;">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report : ${reports.content}">
+              <td th:text="${report.id}" class="text-muted small"></td>
+              <td>
+                <span class="badge bg-light text-dark border" th:if="${report.targetType == 'POST'}">게시글</span>
+                <span class="badge bg-light text-info border border-info" th:if="${report.targetType == 'REVIEW'}">리뷰</span>
+              </td>
+              <td>
+                <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-primary rounded-pill px-3" target="_blank">
+                  보기 <i class="bi bi-box-arrow-up-right small"></i>
                 </a>
-              </div>
+                <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-info rounded-pill px-3" target="_blank">
+                  보기 <i class="bi bi-box-arrow-up-right small"></i>
+                </a>
+              </td>
+              <td th:text="${report.reporterName}" class="fw-bold"></td>
+              <td>
+                                    <span class="small" th:switch="${report.reason}">
+                                        <span th:case="'SPAM'">스팸/홍보</span>
+                                        <span th:case="'ABUSE'">욕설/비하</span>
+                                        <span th:case="'INAPPROPRIATE'">부적절 콘텐츠</span>
+                                        <span th:case="'ETC'">기타</span>
+                                        <span th:case="*" th:text="${report.reason}"></span>
+                                    </span>
+              </td>
+              <td>
+                <a th:href="@{/admin/report/toggleStatus/{id}(id=${report.id}, currentFilter=${currentFilter}, page=${reports.number+1})}" style="text-decoration: none;">
+                                        <span class="status-badge"
+                                              th:classappend="${report.reportStatus.name() == 'PENDING' ? 'badge-pending' : 'badge-confirmed'}"
+                                              th:text="${report.reportStatus.name() == 'PENDING' ? '확인 안 함' : '확인됨'}"></span>
+                </a>
+              </td>
+              <td class="text-muted small" th:text="${#temporals.format(report.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
+              <td>
+                <div class="d-flex gap-2 justify-content-center">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" th:data-bs-target="'#reportModal' + ${report.id}">내용</button>
+                  <a th:href="@{/admin/report/delete/{id}(id=${report.id})}" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                </div>
 
-              <div class="modal fade" th:id="'reportModal' + ${report.id}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title">신고 상세 내용</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-start">
-                      <p><strong>신고 대상:</strong> <span th:text="${report.targetType == 'POST' ? '게시글' : '리뷰'}"></span></p>
-                      <p><strong>신고 사유:</strong>
-                        <span th:switch="${report.reason}">
-                          <span th:case="'SPAM'">스팸/영리목적 홍보</span>
-                          <span th:case="'ABUSE'">욕설/비하발언/인신공격</span>
-                          <span th:case="'INAPPROPRIATE'">부적절한 콘텐츠 (음란물/도박)</span>
-                          <span th:case="'ETC'">기타</span>
-                          <span th:case="*" th:text="${report.reason}"></span>
-                        </span>
-                      </p>
-                      <p><strong>상세 내용:</strong></p>
-                      <div class="p-3 bg-light rounded mb-3" th:text="${report.content}" style="white-space: pre-wrap;"></div>
-
-                      <div th:if="${report.filePath != null}">
-                        <p><strong>첨부 파일:</strong></p>
-                        <img th:src="|/files/${report.filePath}|"
-                             class="img-fluid rounded"
-                             alt="증거 사진"
-                             style="max-height: 400px; width: auto;">
+                <div class="modal fade" th:id="'reportModal' + ${report.id}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                      <div class="modal-header bg-light border-0 px-4">
+                        <h5 class="modal-title fw-bold">신고 상세 내용</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                      <div class="modal-body text-start p-4">
+                        <p class="mb-2"><strong>신고 대상:</strong> <span class="badge bg-light text-dark border" th:text="${report.targetType == 'POST' ? '게시글' : '리뷰'}"></span></p>
+                        <p class="mb-4"><strong>신고 사유:</strong> <span class="text-danger" th:text="${report.reason}"></span></p>
+                        <p class="fw-bold mb-2">상세 내용:</p>
+                        <div class="p-3 bg-light rounded-3 mb-3 small" th:text="${report.content}" style="white-space: pre-wrap; min-height: 100px;"></div>
+                        <div th:if="${report.filePath != null}">
+                          <p class="fw-bold mb-2">증거 사진:</p>
+                          <img th:src="|/files/${report.filePath}|" class="img-fluid rounded-3 shadow-sm" alt="증거 사진">
+                        </div>
+                      </div>
+                      <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-modal="modal">닫기</button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-          <tr th:if="${reports == null or reports.empty}">
-            <td colspan="8" class="py-5 text-muted fw-bold">신고 내역이 없습니다.</td>
-          </tr>
-          </tbody>
-        </table>
+              </td>
+            </tr>
+            <tr th:if="${reports.empty}">
+              <td colspan="8" class="py-5 text-muted fw-bold">신고 내역이 없습니다.</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <nav id="paginationContainer" class="pagination-container" th:if="${reports.totalPages > 0}">
+          <ul class="pagination" th:with="
+                        currentPage=${reports.number + 1},
+                        blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+            <li class="page-item" th:classappend="${reports.first} ? 'disabled'">
+              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart - 2}, reportStatus=${currentFilter})}"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            <li class="page-item" th:each="p : ${#numbers.sequence(1, reports.totalPages)}"
+                th:if="${p >= blockStart and p < blockStart + 5}"
+                th:classappend="${p == currentPage} ? 'active'">
+              <a class="page-link" th:href="@{/admin/report/list(page=${p - 1}, reportStatus=${currentFilter})}" th:text="${p}"></a>
+            </li>
+            <li class="page-item" th:classappend="${blockStart + 4 >= reports.totalPages} ? 'disabled'">
+              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart + 4}, reportStatus=${currentFilter})}"><i class="bi bi-chevron-right"></i></a>
+            </li>
+          </ul>
+        </nav>
+
       </div>
     </div>
-
-    <nav id="paginationContainer" class="pagination-container" th:if="${reports != null and reports.totalPages > 0}">
-      <ul class="pagination" th:with="
-            currentPage=${reports.number + 1},
-            blockStart=${(currentPage - 1) div 5 * 5 + 1}">
-
-        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
-          <a class="page-link" th:href="@{/admin/report/list(page=${blockStart - 1}, reportStatus=${currentFilter})}">
-            <i class="bi bi-chevron-left"></i>
-          </a>
-        </li>
-
-        <li class="page-item"
-            th:each="page : ${#numbers.sequence(1, reports.totalPages)}"
-            th:if="${page >= blockStart and page < blockStart + 5}"
-            th:classappend="${page == currentPage} ? 'active'">
-          <a class="page-link"
-             th:href="@{/admin/report/list(page=${page}, reportStatus=${currentFilter})}"
-             th:text="${page}"></a>
-        </li>
-
-        <li class="page-item" th:classappend="${blockStart + 4 >= reports.totalPages} ? 'disabled'">
-          <a class="page-link" th:href="@{/admin/report/list(page=${blockStart + 5}, reportStatus=${currentFilter})}">
-            <i class="bi bi-chevron-right"></i>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
   </div>
 </div>
 </html>
