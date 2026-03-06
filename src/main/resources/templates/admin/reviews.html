@@ -47,11 +47,32 @@
             background-color: #f8f9fa !important;
         }
 
+        .table td:last-child div {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap; /* 화면이 좁아져도 아래로 떨어지지 않게 함 */
+        }
+
         .table td {
+            max-width: 300px;       /* 너무 넓어지는 것 방지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             vertical-align: middle;
             padding: 20px 15px;
             border: none !important;
             text-align: center;
+        }
+
+        /* [추가] 버튼 내부 텍스트가 줄바꿈되지 않도록 고정 */
+        .btn-theme,
+        .btn-delete-custom,
+        .table .btn-secondary {
+            white-space: nowrap;    /* 텍스트가 두 줄이 되는 것을 방지 */
+            flex-shrink: 0;         /* 공간이 부족해도 버튼 크기가 줄어들지 않게 함 */
+            min-width: fit-content; /* 내용물에 맞게 최소 너비 확보 */
         }
 
         /* [4] 버튼 스타일 (민트/초록 테마 통일) */
@@ -146,11 +167,11 @@
                                         <input type="hidden" name="id" th:value="${review.id}">
                                         <input type="hidden" name="status" th:value="${review.reviewStatus == 'ACTIVE' ? 'BANNED' : 'ACTIVE'}">
 
-                                        <button type="submit" th:if="${review.reviewStatus == 'ACTIVE'}"
+                                        <button type="submit" th:if="${review.reviewStatus.name == 'ACTIVE'}"
                                                 class="btn-theme">
                                             숨기기
                                         </button>
-                                        <button type="submit" th:if="${review.reviewStatus == 'BANNED'}"
+                                        <button type="submit" th:if="${review.reviewStatus.name == 'BANNED'}"
                                                 class="btn btn-secondary rounded-pill px-3" style="font-size: 0.85rem; font-weight: 600;">
                                             노출하기
                                         </button>

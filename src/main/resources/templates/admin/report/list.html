@@ -119,10 +119,10 @@
                 <span class="badge bg-light text-info border border-info" th:if="${report.targetType == 'REVIEW'}">리뷰</span>
               </td>
               <td>
-                <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-primary rounded-pill px-3" target="_blank">
+                <a th:if="${report.targetType == 'POST'}" th:href="@{/post/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-secondary rounded-pill px-3" target="_blank">
                   보기 <i class="bi bi-box-arrow-up-right small"></i>
                 </a>
-                <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-info rounded-pill px-3" target="_blank">
+                <a th:if="${report.targetType == 'REVIEW'}" th:href="@{/review/detail/{id}(id=${report.targetId})}" class="btn btn-sm btn-outline-secondary rounded-pill px-3" target="_blank">
                   보기 <i class="bi bi-box-arrow-up-right small"></i>
                 </a>
               </td>
