@@ -169,7 +169,7 @@
                         totalPages=${(totalCount + size - 1) / size}">
 
                         <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart - 2}, category=${category})}">
+                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart - 1}, category=${category})}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
@@ -178,11 +178,11 @@
                             th:each="p : ${#numbers.sequence(1, totalPages)}"
                             th:if="${p >= blockStart and p < blockStart + 5}"
                             th:classappend="${p == currentPage} ? 'active'">
-                            <a class="page-link" th:href="@{/admin/posts(page=${p - 1}, category=${category})}" th:text="${p}"></a>
+                            <a class="page-link" th:href="@{/admin/posts(page=${p}, category=${category})}" th:text="${p}"></a>
                         </li>
 
                         <li class="page-item" th:classappend="${blockStart + 4 >= totalPages} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart + 4}, category=${category})}">
+                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart + 5}, category=${category})}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>

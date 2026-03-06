@@ -167,29 +167,36 @@
                                 </div>
                             </td>
                         </tr>
+
+                        <tr th:if="${notices == null or notices.empty}">
+                            <td colspan="7" class="py-5 text-center text-muted fw-bold">등록된 공지사항이 없습니다.</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <nav id="paginationContainer" class="pagination-container" th:if="${notices.totalPages > 0}">
+                <nav id="paginationContainer" class="pagination-container" th:if="${notices != null and notices.totalPages > 0}">
                     <ul class="pagination" th:with="
-                        currentPage=${notices.number + 1},
-                        blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+                    currentPage=${notices.number + 1},
+                    blockStart=${(currentPage - 1) div 5 * 5 + 1}">
 
-                        <li class="page-item" th:classappend="${notices.first} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/notice/list(page=${notices.number - 1})}">
+                        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart - 1})}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
 
-                        <li class="page-item" th:each="p : ${#numbers.sequence(1, notices.totalPages)}"
-                            th:if="${p >= blockStart and p < blockStart + 5}"
-                            th:classappend="${p == currentPage} ? 'active'">
-                            <a class="page-link" th:href="@{/admin/notice/list(page=${p - 1})}" th:text="${p}"></a>
+                        <li class="page-item"
+                            th:each="page : ${#numbers.sequence(1, notices.totalPages)}"
+                            th:if="${page >= blockStart and page < blockStart + 5}"
+                            th:classappend="${page == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/notice/list(page=${page})}"
+                               th:text="${page}"></a>
                         </li>
 
-                        <li class="page-item" th:classappend="${notices.last} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/notice/list(page=${notices.number + 1})}">
+                        <li class="page-item" th:classappend="${blockStart + 4 >= notices.totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart + 5})}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>

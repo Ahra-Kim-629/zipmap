@@ -174,7 +174,7 @@
                         blockStart=${(currentPage - 1) div 5 * 5 + 1}">
 
                         <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/reviews(page=${blockStart - 2}, searchType=${searchType}, keyword=${keyword})}">
+                            <a class="page-link" th:href="@{/admin/reviews(page=${blockStart - 1}, searchType=${searchType}, keyword=${keyword})}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
@@ -184,12 +184,12 @@
                             th:if="${p >= blockStart and p < blockStart + 5}"
                             th:classappend="${p == currentPage} ? 'active'">
                             <a class="page-link"
-                               th:href="@{/admin/reviews(page=${p - 1}, searchType=${searchType}, keyword=${keyword})}"
+                               th:href="@{/admin/reviews(page=${p}, searchType=${searchType}, keyword=${keyword})}"
                                th:text="${p}"></a>
                         </li>
 
                         <li class="page-item" th:classappend="${blockStart + 4 >= reviews.totalPages} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/reviews(page=${blockStart + 4}, searchType=${searchType}, keyword=${keyword})}">
+                            <a class="page-link" th:href="@{/admin/reviews(page=${blockStart + 5}, searchType=${searchType}, keyword=${keyword})}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>

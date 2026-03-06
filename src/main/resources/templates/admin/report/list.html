@@ -182,20 +182,30 @@
           </table>
         </div>
 
-        <nav id="paginationContainer" class="pagination-container" th:if="${reports.totalPages > 0}">
+        <nav id="paginationContainer" class="pagination-container" th:if="${reports != null and reports.totalPages > 0}">
           <ul class="pagination" th:with="
-                        currentPage=${reports.number + 1},
-                        blockStart=${(currentPage - 1) div 5 * 5 + 1}">
-            <li class="page-item" th:classappend="${reports.first} ? 'disabled'">
-              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart - 2}, reportStatus=${currentFilter})}"><i class="bi bi-chevron-left"></i></a>
+            currentPage=${reports.number + 1},
+            blockStart=${(currentPage - 1) div 5 * 5 + 1}">
+
+            <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart - 1}, reportStatus=${currentFilter})}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
             </li>
-            <li class="page-item" th:each="p : ${#numbers.sequence(1, reports.totalPages)}"
-                th:if="${p >= blockStart and p < blockStart + 5}"
-                th:classappend="${p == currentPage} ? 'active'">
-              <a class="page-link" th:href="@{/admin/report/list(page=${p - 1}, reportStatus=${currentFilter})}" th:text="${p}"></a>
+
+            <li class="page-item"
+                th:each="page : ${#numbers.sequence(1, reports.totalPages)}"
+                th:if="${page >= blockStart and page < blockStart + 5}"
+                th:classappend="${page == currentPage} ? 'active'">
+              <a class="page-link"
+                 th:href="@{/admin/report/list(page=${page}, reportStatus=${currentFilter})}"
+                 th:text="${page}"></a>
             </li>
+
             <li class="page-item" th:classappend="${blockStart + 4 >= reports.totalPages} ? 'disabled'">
-              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart + 4}, reportStatus=${currentFilter})}"><i class="bi bi-chevron-right"></i></a>
+              <a class="page-link" th:href="@{/admin/report/list(page=${blockStart + 5}, reportStatus=${currentFilter})}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
             </li>
           </ul>
         </nav>
