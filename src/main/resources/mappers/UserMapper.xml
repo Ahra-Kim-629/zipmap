@@ -72,10 +72,17 @@
         WHERE id = #{id}
     </delete>
 
-    <!-- 회원 전체 목록 가져오게 하는 쿼리 2026.02.11 종빈 수정 -->
-    <select id="findAllUsers" resultType="com.daedong.zipmap.domain.User">
+    <select id="findAllUsersForAdmin" resultType="com.daedong.zipmap.domain.User">
         SELECT
         id, login_id, name, gender, email, address, role, account_status, created_at, updated_at
+        FROM user
+        WHERE role != 'ADMIN'
+        ORDER BY id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countAllUsersForAdmin" resultType="int">
+        SELECT COUNT(id)
         FROM user
         WHERE role != 'ADMIN'
     </select>

@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -115,10 +119,19 @@ public class UserService implements UserDetailsService {
         userMapper.update(user);
     }
 
-    // 전체 회원 리스트 가져오기
-    @Transactional
-    public List<User> findAllUsers() {
-        return userMapper.findAllUsers();
+    // 전체 회원 리스트 (페이징 처리)
+    @Transactional(readOnly = true)
+    public Page<User> findAllUsers(Pageable pageable) {
+        // 1. 현재 페이지에 해당하는 데이터만 가져옴
+        List<User> content = userMapper.findAllUsersForAdmin(
+                pageable.getPageSize(),
+                (int) pageable.getOffset()
+        );
+
+        // 2. 전체 회원이 몇 명인지 개수를 가져옴
+        int total = userMapper.countAllUsersForAdmin();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     //회원 Role 기능 수정

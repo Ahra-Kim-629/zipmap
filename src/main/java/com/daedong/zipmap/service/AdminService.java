@@ -26,8 +26,20 @@ public class AdminService {
     private final FileMapper fileMapper;
     private final AlarmService alarmService;
 
-    public List<NoticeDTO> getNoticeAll() {
-        return noticeMapper.findNoticeAll();
+    //  공지사항 리스트 페이징 처리
+    @Transactional(readOnly = true)
+    public Page<NoticeDTO> getNoticeAll(Pageable pageable) {
+        // 1. 현재 페이지에 해당하는 8개만 쏙 빼오기
+        List<NoticeDTO> content = noticeMapper.findNoticeAllWithPaging(
+                pageable.getPageSize(),
+                (int) pageable.getOffset()
+        );
+
+        // 2. 전체 공지사항이 몇 개인지 카운트하기
+        int total = noticeMapper.countAllNotices();
+
+        // 3. 페이지 객체로 예쁘게 포장해서 리턴
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Transactional

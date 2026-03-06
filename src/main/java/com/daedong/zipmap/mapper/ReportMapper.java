@@ -27,5 +27,7 @@ public interface ReportMapper {
 
     int countPendingReports();
 
+    List<ReportDTO> selectAllReportsWithPaging(@Param("reportStatus") String reportStatus, @Param("pageSize") int pageSize, @Param("offset") int offset);
 
+    int countAllReportsWithFilter(@Param("reportStatus") String reportStatus);
 }
