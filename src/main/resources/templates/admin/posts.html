@@ -5,174 +5,190 @@
 
 <th:block layout:fragment="css">
     <style>
-        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
-        body {
-            background-color: #f4f7f6 !important;
-        }
-        /* 공지사항 관리 페이지의 디자인 테마 적용 */
-        .admin-container { padding: 40px 0; background-color: #f4f7f6; }
-        .board-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .table td { vertical-align: middle; }
+        /* [1] 배경 및 전체 레이아웃 */
+        body { background-color: #f4f7f6 !important; }
+        .admin-container { padding: 40px 0; }
 
-        /* 링크 및 텍스트 스타일 */
+        /* [2] 메인 카드 컨테이너 (모든 요소를 감싸는 흰색 판) */
+        .list-card {
+            background: #fff; padding: 40px; border-radius: 24px; border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* [3] 테이블 디자인 (행 구분선 + 움직임 없는 Hover) */
+        .table-responsive { overflow-x: auto; }
+        .table { min-width: 1000px; border-collapse: collapse; margin-top: 20px; }
+        .table thead th {
+            background-color: #f8f9fa !important; color: #6c757d;
+            font-size: 0.9rem; font-weight: 600; padding: 15px;
+            border-bottom: 1px solid #eee; text-align: center;
+        }
+
+        .table tbody tr { background-color: #fff; transition: background-color 0.2s ease; }
+        .table tbody tr:hover { background-color: #f8f9fa !important; }
+
+        .table td {
+            vertical-align: middle; padding: 18px 15px;
+            border-bottom: 1px solid #f1f1f1; text-align: center;
+        }
+
+        /* [4] 링크 및 텍스트 스타일 */
         .post-link { text-decoration: none; color: #333; font-weight: 600; transition: 0.2s; }
-        .post-link:hover { color: #e67e22; text-decoration: underline; }
+        .post-link:hover { color: #3f8a7e; text-decoration: underline; }
 
-        .text-truncate {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
+        /* [5] 버튼 스타일 통일 (크기 및 색상) */
+        .btn-theme { background-color: #3f8a7e; color: white; border: none; transition: 0.3s; }
+        .btn-theme:hover { background-color: #325e5a; color: white; }
+
+        /* 버튼 규격 통일 (공지등록과 관리자홈 버튼 크기 맞춤) */
+        .btn-fixed-size {
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            font-weight: 600;
         }
 
-        /* 상태 토글 스위치 (주황색 테마) */
-        .form-check-input { cursor: pointer; width: 2.5em; height: 1.25em; }
+        /* 상태 토글 스위치 */
         .form-check-input:checked { background-color: #3f8a7e !important; border-color: #3f8a7e !important; }
 
-        /* 버튼 스타일 */
-        .btn-orange { background-color: #3f8a7e; color: white; border: none; }
-        .btn-orange:hover { background-color: #325e5a; color: white; }
-
         /* 배지 스타일 */
-        .badge-notice { background-color: #f4a261; color: white; font-size: 0.75rem; padding: 4px 8px; }
-        .badge-banned { background-color: #ffebee; color: #c62828; font-size: 0.75rem; }
+        .badge-notice { background-color: #ffd166; color: #333; font-size: 0.75rem; padding: 4px 10px; }
+        .badge-banned { background-color: #faa089; color: #333; font-size: 0.75rem; padding: 4px 10px; }
 
-        /* ✨ 페이징 디자인 (리뷰 페이지와 완벽 통일) */
-        .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+        /* [6] 페이징 디자인 (민트/초록 테마) */
+        .pagination-container { margin-top: 40px; display: flex; justify-content: center; }
         .pagination { display: flex; list-style: none; padding-left: 0; }
-        .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
-        .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
-        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+        .page-link {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            color: #555; border: none; margin: 0 4px; border-radius: 12px !important;
+            font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .page-item.active .page-link {
+            background-color: #3f8a7e !important; border: none !important;
+            color: white !important; box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
+        }
+        .page-link:hover:not(.active) { background-color: #325e5a; transform: translateY(-2px); color: #fff; }
+        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; }
     </style>
 </th:block>
 
 <div layout:fragment="content">
     <div class="admin-container">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-                <div>
-                    <h2 class="fw-bold mb-1">게시글 관리</h2>
-                    <p class="text-muted small mb-0">커뮤니티 콘텐츠의 노출 상태를 제어하고 관리합니다.</p>
-                </div>
-                <div class="d-flex gap-2 align-items-center">
-                    <a th:href="@{/admin/postnotice}" class="btn btn-orange btn-sm px-4 fw-bold rounded-pill">
-                        <i class="bi bi-pencil-fill me-1"></i> 커뮤니티 공지 등록
-                    </a>
-                    <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
-                </div>
-            </div>
+            <div class="list-card daedong-shadow">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="btn-group p-1 bg-white rounded-pill shadow-sm border">
-                    <a th:href="@{/admin/posts(category='')}"
-                       class="btn btn-sm rounded-pill px-4"
-                       th:classappend="${category == null || category == ''} ? 'btn-orange' : 'text-muted'">전체</a>
-                    <a th:href="@{/admin/posts(category='NOTICE')}"
-                       class="btn btn-sm rounded-pill px-4"
-                       th:classappend="${category == 'NOTICE'} ? 'btn-orange' : 'text-muted'">공지사항</a>
-<!--                    <a th:href="@{/admin/posts(category='COMMUNITY')}"-->
-<!--                       class="btn btn-sm rounded-pill px-4"-->
-<!--                       th:classappend="${category == 'COMMUNITY'} ? 'btn-orange' : 'text-muted'">일반 게시글</a>-->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">게시글 관리</h2>
+                        <p class="text-muted small mb-0">커뮤니티 콘텐츠의 노출 상태를 제어하고 관리합니다.</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <a th:href="@{/admin/postnotice}" class="btn btn-theme btn-fixed-size rounded-pill">
+                            <i class="bi bi-pencil-fill me-1"></i> 공지 등록
+                        </a>
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-house-door me-1"></i>관리자 홈
+                        </a>
+                    </div>
                 </div>
 
-                <div class="small text-muted">
-                    총 <span class="fw-bold text-dark" th:text="${totalCount}">0</span>건의 게시글
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="btn-group p-1 bg-light rounded-pill border">
+                        <a th:href="@{/admin/posts(category='')}"
+                           class="btn btn-sm rounded-pill px-4"
+                           th:classappend="${category == null || category == ''} ? 'btn-theme' : 'text-muted'">전체</a>
+                        <a th:href="@{/admin/posts(category='NOTICE')}"
+                           class="btn btn-sm rounded-pill px-4"
+                           th:classappend="${category == 'NOTICE'} ? 'btn-theme' : 'text-muted'">공지사항</a>
+                    </div>
+                    <div class="small text-muted">
+                        총 <span class="fw-bold text-dark" th:text="${totalCount}">0</span>건의 게시글
+                    </div>
                 </div>
-            </div>
 
-            <div th:if="${message}" class="alert alert-primary border-0 rounded-3 small py-2 mb-3 shadow-sm" th:text="${message}"></div>
-            <div th:if="${error}" class="alert alert-danger border-0 rounded-3 small py-2 mb-3 shadow-sm" th:text="${error}"></div>
+                <div th:if="${message}" class="alert alert-primary border-0 rounded-3 small py-2 mb-3 shadow-sm" th:text="${message}"></div>
 
-            <div class="board-table-card daedong-shadow">
-                <table class="table mb-0 text-center">
-                    <thead class="table-light">
-                    <tr>
-                        <th style="width: 7%;">ID</th>
-                        <th style="width: 40%;">제목</th>
-                        <th style="width: 12%;">작성자</th>
-                        <th style="width: 15%;">작성일</th>
-                        <th style="width: 8%;">좋아요</th>
-                        <th style="width: 10%;">노출여부</th>
-                        <th style="width: 8%;">관리</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="post : ${posts}">
-                        <td class="text-muted" th:text="${post.id}">536</td>
-                        <td class="text-start ps-4">
-                            <div class="d-flex align-items-center">
-                                <span th:if="${post.category == 'NOTICE'}" class="badge badge-notice rounded-pill me-2">공지</span>
-                                <a th:href="@{/post/detail/{id}(id=${post.id})}"
-                                   class="post-link text-truncate"
-                                   style="max-width: 350px;"
-                                   th:title="${post.title}"
-                                   th:text="${post.title}">안녕하세요</a>
-                                <span th:if="${post.postStatus.name() == 'BANNED'}" class="badge badge-banned ms-2">숨김됨</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="small fw-bold" th:text="${post.loginId}">admin</span>
-                        </td>
-                        <td class="text-muted small" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">
-                            2026-02-26 15:19
-                        </td>
-                        <td>
-                            <span class="small fw-bold text-primary" th:text="${post.likeCount}">0</span>
-                        </td>
-                        <td>
-                            <div class="form-check form-switch d-inline-block">
-                                <input class="form-check-input" type="checkbox"
-                                       th:checked="${post.postStatus.name() == 'ACTIVE'}"
-                                       th:onchange="togglePostStatus([[${post.id}]], [[${post.postStatus}]])">
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn-group shadow-sm">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                        <tr>
+                            <th style="width: 7%;">ID</th>
+                            <th style="width: 40%;">제목</th>
+                            <th style="width: 12%;">작성자</th>
+                            <th style="width: 15%;">작성일</th>
+                            <th style="width: 8%;">좋아요</th>
+                            <th style="width: 10%;">노출여부</th>
+                            <th style="width: 8%;">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="post : ${posts}">
+                            <td class="text-muted small" th:text="${post.id}"></td>
+                            <td class="text-start ps-4">
+                                <div class="d-flex align-items-center">
+                                    <span th:if="${post.category == 'NOTICE'}" class="badge badge-notice rounded-pill me-2">공지</span>
+                                    <a th:href="@{/post/detail/{id}(id=${post.id})}"
+                                       class="post-link text-truncate"
+                                       style="max-width: 350px;"
+                                       th:text="${post.title}"></a>
+                                    <span th:if="${post.postStatus.name() == 'BANNED'}" class="badge badge-banned rounded-pill ms-2">숨김</span>
+                                </div>
+                            </td>
+                            <td><span class="small fw-bold" th:text="${post.loginId}"></span></td>
+                            <td class="text-muted small" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td><span class="small fw-bold text-primary" th:text="${post.likeCount}"></span></td>
+                            <td>
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox"
+                                           th:checked="${post.postStatus.name() == 'ACTIVE'}"
+                                           th:onchange="togglePostStatus([[${post.id}]], [[${post.postStatus}]])">
+                                </div>
+                            </td>
+                            <td>
                                 <a th:href="@{/admin/posts/delete/{id}(id=${post.id})}"
-                                   class="btn btn-sm btn-outline-danger"
+                                   class="btn btn-sm btn-outline-danger border-0"
                                    onclick="return confirm('영구 삭제하시겠습니까?')">
                                     <i class="bi bi-trash"></i>
                                 </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr th:if="${posts.empty}">
-                        <td colspan="7" class="py-5 text-muted">등록된 게시글이 없습니다.</td>
-                    </tr>
-                    </tbody>
-                </table>
+                            </td>
+                        </tr>
+                        <tr th:if="${posts.empty}">
+                            <td colspan="7" class="py-5 text-muted">등록된 게시글이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav id="paginationContainer" class="pagination-container" th:if="${totalCount > 0}">
+                    <ul class="pagination" th:with="
+                        currentPage=${page + 1},
+                        blockStart=${(currentPage - 1) div 5 * 5 + 1},
+                        totalPages=${(totalCount + size - 1) / size}">
+
+                        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart - 1}, category=${category})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item"
+                            th:each="p : ${#numbers.sequence(1, totalPages)}"
+                            th:if="${p >= blockStart and p < blockStart + 5}"
+                            th:classappend="${p == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/posts(page=${p}, category=${category})}" th:text="${p}"></a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${blockStart + 4 >= totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/posts(page=${blockStart + 5}, category=${category})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-
-            <nav id="paginationContainer" class="pagination-container" th:if="${totalCount > 0}">
-                <ul class="pagination" th:with="
-                    currentPage=${page + 1},
-                    blockStart=${(currentPage - 1) div 5 * 5 + 1},
-                    totalPages=${(totalCount + size - 1) / size}">
-
-                    <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/posts(page=${blockStart - 1}, category=${category}, searchType=${searchType}, keyword=${keyword})}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
-
-                    <li class="page-item"
-                        th:each="p : ${#numbers.sequence(1, totalPages)}"
-                        th:if="${p >= blockStart and p < blockStart + 5}"
-                        th:classappend="${p == currentPage} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/posts(page=${p}, category=${category}, searchType=${searchType}, keyword=${keyword})}"
-                           th:text="${p}"></a>
-                    </li>
-
-                    <li class="page-item" th:classappend="${blockStart + 4 >= totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/posts(page=${blockStart + 5}, category=${category}, searchType=${searchType}, keyword=${keyword})}">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
         </div>
     </div>
 </div>

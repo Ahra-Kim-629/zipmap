@@ -6,7 +6,12 @@
 <th:block layout:fragment="css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        .admin-container { padding: 60px 0; background-color: #fdfcf9; min-height: 90vh; }
+        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
+        body {
+            background-color: #f4f7f6 !important;
+        }
+
+        .admin-container { padding: 60px 0; min-height: 90vh; }
         .notice-card { max-width: 750px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 20px; border: none; }
         .page-title {  font-weight: 800; color: #3E362E; }
 

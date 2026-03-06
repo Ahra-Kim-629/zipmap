@@ -9,6 +9,46 @@
         body {
             background-color: #f4f7f6 !important;
         }
+
+        /* 1. 테이블이 너무 작아지지 않게 감싸는 그릇에 스크롤 생성 */
+        .table-responsive {
+            overflow-x: auto; /* 화면이 좁아지면 가로 스크롤바가 생기게 함 */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 2. 테이블 자체의 디자인 정리 */
+        .table {
+            min-width: 1000px; /* 테이블의 최소 너비를 고정해서 내용이 찌그러지는 걸 방지 */
+            border-collapse: separate;
+            border-spacing: 0 10px; /* 줄 사이의 간격을 살짝 벌려 쾌적하게 만듦 */
+        }
+
+        .table thead th {
+            border-top: none;
+            border-bottom: 2px solid #e9ecef;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .table tbody tr {
+            background-color: #fff;
+            transition: all 0.2s; /* 마우스를 올렸을 때 부드럽게 변하도록 함 */
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* 3. 텍스트가 너무 길어질 때 처리 (주소 등) */
+        .text-truncate-custom {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 글자가 넘치면 '...'으로 표시 */
+        }
+
         .list-container { padding: 60px 0;
             background-color: #f4f7f6;
             min-height: calc(100vh - 250px); }
@@ -16,15 +56,25 @@
         .table th { font-weight: 600; }
         .cert-thumbnail { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; }
         .review-title { font-weight: bold; text-decoration: none; color: #333; }
-        .review-title:hover { color: #0d6efd; }
+        .review-title:hover { color: #3f8a7e; }
+        .btn-sm { background-color: #3f8a7e; color: #fff; }
+        .btn-sm:hover { background-color: #325e5a; color: #fff; }
 
-        /* ✨ 페이징 디자인 (완벽 통일) */
-        .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+        /* [5] 페이징 디자인 (민트/초록 테마) */
+        .pagination-container { margin-top: 40px; display: flex; justify-content: center; }
         .pagination { display: flex; list-style: none; padding-left: 0; }
-        .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
-        .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
-        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+        .page-link {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            color: #555; border: none; margin: 0 4px; border-radius: 12px !important;
+            font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .page-item.active .page-link {
+            background-color: #3f8a7e !important; border: none !important;
+            color: white !important; box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
+        }
+        .page-link:hover:not(.active) { background-color: #325e5a; transform: translateY(-2px); color: #fff; }
+        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; }
     </style>
 </th:block>
 
@@ -34,53 +84,57 @@
             <div class="list-card daedong-shadow">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="fw-bold">실거주 인증 관리</h2>
-                    <a th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill">관리자 홈</a>
+                    <a th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-house-door me-1"></i>관리자 홈
+                    </a>
                 </div>
 
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="text-center">인증사진</th>
-                        <th scope="col">제목</th>
-                        <th scope="col">주소</th>
-                        <th scope="col">작성자</th>
-                        <th scope="col" class="text-center">평점</th>
-                        <th scope="col" class="text-center">신청일</th>
-                        <th scope="col" class="text-center">상태</th>
-                        <th scope="col" class="text-center">관리</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="review : ${reviews.content}" class="review-item">
-                        <td class="text-center">
-                            <div th:if="${review.filePath != null}">
-                                <img th:src="@{/files/{path}(path=${review.filePath})}"
-                                     class="cert-thumbnail" alt="인증 사진"
-                                     onclick="window.open(this.src)">
-                            </div>
-                            <span th:unless="${review.filePath != null}" class="text-muted small">없음</span>
-                        </td>
-                        <td>
-                            <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}"
-                               th:text="${review.title}" class="review-title"></a>
-                        </td>
-                        <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
-                        <td th:text="${review.loginId}"></td>
-                        <td class="text-center fw-bold" th:text="${review.point}"></td>
-                        <td class="text-center" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}"></td>
-                        <td class="text-center">
-                            <span th:if="${review.reviewStatus?.name() == 'PENDING'}" class="badge bg-warning text-dark">대기중</span>
-                            <span th:if="${review.reviewStatus?.name() == 'ACTIVE'}" class="badge bg-success">승인</span>
-                            <span th:if="${review.reviewStatus?.name() == 'BANNED'}" class="badge bg-danger">반려</span>
-                        </td>
-                        <td class="text-center">
-                            <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}" class="btn btn-sm btn-primary">
-                                확인
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="text-center">인증사진</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">주소</th>
+                            <th scope="col">작성자</th>
+                            <th scope="col" class="text-center">평점</th>
+                            <th scope="col" class="text-center">신청일</th>
+                            <th scope="col" class="text-center">상태</th>
+                            <th scope="col" class="text-center">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="review : ${reviews.content}" class="review-item">
+                            <td class="text-center">
+                                <div th:if="${review.filePath != null}">
+                                    <img th:src="@{/files/{path}(path=${review.filePath})}"
+                                         class="cert-thumbnail" alt="인증 사진"
+                                         onclick="window.open(this.src)">
+                                </div>
+                                <span th:unless="${review.filePath != null}" class="text-muted small">없음</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}"
+                                   th:text="${review.title}" class="review-title"></a>
+                            </td>
+                            <td th:text="${review.address != null && review.address.contains('동 ') ? review.address.substring(0, review.address.indexOf('동 ') + 1) : review.address}"></td>
+                            <td th:text="${review.loginId}"></td>
+                            <td class="text-center fw-bold" th:text="${review.point}"></td>
+                            <td class="text-center" th:text="${#temporals.format(review.createdAt, 'yy-MM-dd')}"></td>
+                            <td class="text-center">
+                                <span th:if="${review.reviewStatus?.name() == 'PENDING'}" class="badge text-dark" style="background-color: #ffd166">대기중</span>
+                                <span th:if="${review.reviewStatus?.name() == 'ACTIVE'}" class="badge text-dark" style="background-color: #6BC4B8">승인</span>
+                                <span th:if="${review.reviewStatus?.name() == 'BANNED'}" class="badge text-dark" style="background-color: #faa089">반려</span>
+                            </td>
+                            <td class="text-center">
+                                <a th:href="@{/admin/certification/confirm/{id}(id=${review.id})}" class="btn btn-sm">
+                                    확인
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- 페이징 -->
                 <nav id="paginationContainer" class="pagination-container" th:if="${reviews != null and reviews.totalPages > 0}">
@@ -110,7 +164,6 @@
                         </li>
                     </ul>
                 </nav>
-
             </div>
         </div>
     </div>

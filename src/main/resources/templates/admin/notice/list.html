@@ -5,198 +5,203 @@
 
 <th:block layout:fragment="css">
     <style>
-        .board-container { padding: 40px 0; background-color: #fdfcf9; }
-        .board-table-card { background: white; border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .table td { vertical-align: middle; }
+        /* [1] 배경 및 전체 레이아웃 */
+        body { background-color: #f4f7f6 !important; }
+        .board-container { padding: 40px 0; min-height: calc(100vh - 250px); }
 
-        /* 썸네일 스타일 */
-        .thumb-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
-        .thumb-preview:hover { transform: scale(1.1); }
-
-        /* 상태 토글 스위치 */
-        .form-check-input { cursor: pointer; width: 2.5em; height: 1.25em; }
-        .form-check-input:checked { background-color: #3f8a7e; border-color: #3f8a7e; }
-
-        /* 기간 배지 */
-        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; }
-        .badge-active { background-color: #e3f2fd; color: #0d47a1; }
-        .badge-wait { background-color: #f5f5f5; color: #616161; }
-        .badge-end { background-color: #ffebee; color: #c62828; }
-
-        .btn-orange { background-color: #e67e22; color: white; border: none; }
-        .btn-orange:hover { background-color: #d35400; color: white; }
-
-        .text-truncate {
-            white-space: nowrap;      /* 줄바꿈 방지 */
-            overflow: hidden;         /* 영역을 벗어나는 부분 숨김 */
-            text-overflow: ellipsis;  /* 벗어나는 부분에 ... 표시 */
-            display: block;           /* inline 요소(<a>, <span>)일 경우 필수 */
+        /* [2] 메인 카드 컨테이너 (흰색 도화지 레이아웃) */
+        .list-card {
+            background: #fff; padding: 40px; border-radius: 24px; border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* ✨ 페이징 디자인 (완벽 통일) */
-        .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+        /* [3] 테이블 디자인 (실거주 인증 관리와 동일한 간격 및 hover) */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table { min-width: 1100px; border-collapse: collapse; margin-top: 20px; }
+
+        .table thead th {
+            background-color: #f8f9fa !important; color: #6c757d;
+            font-size: 0.9rem; font-weight: 600; padding: 15px;
+            border-bottom: 1px solid #eee; text-align: center;
+        }
+
+        /* 행(Row): 색상만 변경하고 움직임 제거 */
+        .table tbody tr { background-color: #fff; transition: background-color 0.2s ease; }
+        .table tbody tr:hover { background-color: #f8f9fa !important; }
+
+        .table td {
+            vertical-align: middle; padding: 18px 15px;
+            border-bottom: 1px solid #f1f1f1; text-align: center;
+        }
+
+        /* 썸네일 스타일 */
+        .thumb-preview { width: 60px; height: 45px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid #eee; transition: 0.2s; }
+        .thumb-preview:hover { transform: scale(1.05); }
+
+        /* [4] 버튼 및 배지 스타일 (민트/초록 테마) */
+        .btn-theme { background-color: #3f8a7e; color: white; border: none; transition: 0.3s; }
+        .btn-theme:hover { background-color: #325e5a; color: white; }
+
+        /* 버튼 규격 통일 (공지등록과 관리자홈 버튼 크기 맞춤) */
+        .btn-fixed-size {
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            font-weight: 600;
+        }
+
+        /* 상태 토글 스위치 */
+        .form-check-input { cursor: pointer; }
+        .form-check-input:checked { background-color: #3f8a7e !important; border-color: #3f8a7e !important; }
+
+        /* 기간 배지 컬러링 */
+        .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+        .badge-active { background-color: #6BC4B8; color: #333; } /* 진행중 */
+        .badge-wait { background-color: #ffd166; color: #333; }   /* 대기 */
+        .badge-end { background-color: #faa089; color: #333; }    /* 종료 */
+
+        /* [5] 페이징 디자인 (민트/초록 테마) */
+        .pagination-container { margin-top: 40px; display: flex; justify-content: center; }
         .pagination { display: flex; list-style: none; padding-left: 0; }
-        .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
-        .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
-        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+        .page-link {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            color: #555; border: none; margin: 0 4px; border-radius: 12px !important;
+            font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .page-item.active .page-link {
+            background-color: #3f8a7e !important; border: none !important;
+            color: white !important; box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
+        }
+        .page-link:hover:not(.active) { background-color: #325e5a; transform: translateY(-2px); color: #fff; }
+        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; }
     </style>
 </th:block>
 
 <div layout:fragment="content">
     <div class="board-container">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-                <div>
-                    <h2 class="fw-bold mb-1">공지사항 관리</h2>
-                    <p class="text-muted small mb-0">노출 기간 및 활성 상태를 제어합니다.</p>
+            <div class="list-card daedong-shadow">
+
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <h2 class="fw-bold mb-1">공지사항 관리</h2>
+                        <p class="text-muted small mb-0">노출 기간 및 활성 상태를 제어합니다.</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <a th:href="@{/admin/notice/write}" class="btn btn-theme btn-fixed-size rounded-pill">
+                            <i class="bi bi-pencil-fill me-1"></i> 신규 등록
+                        </a>
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-house-door me-1"></i>관리자 홈
+                        </a>
+                    </div>
                 </div>
-                <div class="d-flex gap-2 align-items-center">
-                    <a th:href="@{/admin/notice/write}" class="btn btn-orange btn-sm px-4 fw-bold rounded-pill">
-                        <i class="bi bi-pencil-fill me-1"></i> 신규 등록
-                    </a>
-                    <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
-                </div>
-            </div>
 
-            <div class="board-table-card daedong-shadow">
-                <table class="table mb-0 text-center">
-                    <thead class="table-light">
-                    <tr>
-                        <th style="width: 5%;">ID</th>
-                        <th style="width: 10%;">이미지</th>
-                        <th style="width: 10%;">우선순위</th>
-                        <th style="width: 20%;">제목/링크</th>
-                        <th style="width: 20%;">노출 기간</th>
-                        <th style="width: 10%;">노출여부</th>
-                        <th style="width: 15%;">관리</th>
-                    </tr>
-                    </thead>
+                <div class="table-responsive">
+                    <table class="table mb-0 text-center">
+                        <thead>
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 10%;">이미지</th>
+                            <th style="width: 10%;">우선순위</th>
+                            <th style="width: 20%;">제목/링크</th>
+                            <th style="width: 20%;">노출 기간</th>
+                            <th style="width: 10%;">노출여부</th>
+                            <th style="width: 15%;">관리</th>
+                        </tr>
+                        </thead>
 
-                    <tbody>
-                    <tr th:each="notice : ${notices.content}">
-                        <td th:text="${notice.id}">101</td>
+                        <tbody>
+                        <tr th:each="notice : ${notices.content}">
+                            <td th:text="${notice.id}" class="text-muted small"></td>
 
-                        <td>
-                            <img th:if="${notice.filePath != null}"
-                                 th:src="@{/files/{name}(name=${notice.filePath})}"
-                                 class="thumb-preview shadow-sm"
-                                 th:data-file="${notice.filePath}"
-                                 onclick="openImageModal(this.getAttribute('data-file'))">
-                            <span th:unless="${notice.filePath != null}" class="text-muted small">-</span>
-                        </td>
-                        <td>
-                            <span class="badge rounded-pill bg-light text-dark border fw-bold"
-                                  th:text="${notice.priority}"
-                                  style="min-width: 40px;">0</span>
-                        </td>
-                        <td class="text-start">
-                            <div class="fw-bold text-truncate"
-                                 style="max-width: 200px; display: block;"
-                                 th:title="${notice.title}"
-                                 th:text="${notice.title}">
-                                여기에 아주 긴 공지사항 제목이 들어갑니다.
-                            </div>
-                            <a th:if="${notice.linkUrl != null}" th:href="${notice.linkUrl}" target="_blank"
-                               class="small text-primary text-decoration-none">
-                                <i class="bi bi-link-45deg"></i> 바로가기
-                            </a>
-                        </td>
+                            <td>
+                                <img th:if="${notice.filePath != null}"
+                                     th:src="@{/files/{name}(name=${notice.filePath})}"
+                                     class="thumb-preview shadow-sm"
+                                     th:data-file="${notice.filePath}"
+                                     onclick="openImageModal(this.getAttribute('data-file'))">
+                                <span th:unless="${notice.filePath != null}" class="text-muted small">-</span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border fw-bold px-3" th:text="${notice.priority}"></span>
+                            </td>
+                            <td class="text-start">
+                                <div class="fw-bold text-truncate mb-1" style="max-width: 200px;" th:text="${notice.title}"></div>
+                                <a th:if="${notice.linkUrl != null}" th:href="${notice.linkUrl}" target="_blank" class="small text-primary text-decoration-none">
+                                    <i class="bi bi-link-45deg"></i> 바로가기
+                                </a>
+                            </td>
 
-                        <td th:id="'status-container-' + ${notice.id}">
-                            <div class="small">
-                                <span th:text="${notice.startDate}">2024-01-01</span> ~
-                                <span th:text="${notice.endDate}">2024-12-31</span>
-                            </div>
-                            <th:block th:with="today=${T(java.time.LocalDate).now()}">
-                                <span th:if="${notice.status == 'N'}"
-                                      class="status-badge bg-secondary text-white">꺼짐</span>
-                                <th:block th:unless="${notice.status == 'N'}">
-                                    <span th:if="${today.isBefore(notice.startDate)}"
-                                          class="status-badge badge-wait">대기</span>
-                                    <span th:if="${!today.isBefore(notice.startDate) && !today.isAfter(notice.endDate)}"
-                                          class="status-badge badge-active">진행중</span>
-                                    <span th:if="${today.isAfter(notice.endDate)}"
-                                          class="status-badge badge-end">종료</span>
+                            <td th:id="'status-container-' + ${notice.id}">
+                                <div class="small text-muted mb-1">
+                                    <span th:text="${notice.startDate}"></span> ~ <span th:text="${notice.endDate}"></span>
+                                </div>
+                                <th:block th:with="today=${T(java.time.LocalDate).now()}">
+                                    <span th:if="${notice.status == 'N'}" class="status-badge bg-secondary text-white">꺼짐</span>
+                                    <th:block th:unless="${notice.status == 'N'}">
+                                        <span th:if="${today.isBefore(notice.startDate)}" class="status-badge badge-wait">대기</span>
+                                        <span th:if="${!today.isBefore(notice.startDate) && !today.isAfter(notice.endDate)}" class="status-badge badge-active">진행중</span>
+                                        <span th:if="${today.isAfter(notice.endDate)}" class="status-badge badge-end">종료</span>
+                                    </th:block>
                                 </th:block>
-                            </th:block>
-                        </td>
+                            </td>
 
-                        <td>
-                            <div class="form-check form-switch d-inline-block">
-                                <input class="form-check-input" type="checkbox"
-                                       th:checked="${notice.status == 'Y'}"
-                                       th:onchange="toggleStatus([[${notice.id}]], this.checked)">
-                            </div>
-                        </td>
+                            <td>
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox"
+                                           th:checked="${notice.status == 'Y'}"
+                                           th:onchange="toggleStatus([[${notice.id}]], this.checked)">
+                                </div>
+                            </td>
 
-                        <td>
-                            <div class="btn-group shadow-sm">
-                                <form th:action="@{/admin/notice/delete/{id}(id=${notice.id})}" method="post"
-                                      class="m-0 d-inline-flex">
-                                    <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a th:href="@{/admin/notice/edit/{id}(id=${notice.id})}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">수정</a>
+                                    <form th:action="@{/admin/notice/delete/{id}(id=${notice.id})}" method="post" class="m-0">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('삭제할까요?')">삭제</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
 
-                                    <button type="submit"
-                                            class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('삭제할까요?')" style="line-height: 1;"><i
-                                            class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                        <tr th:if="${notices == null or notices.empty}">
+                            <td colspan="7" class="py-5 text-center text-muted fw-bold">등록된 공지사항이 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                    <tr th:if="${notices == null or notices.empty}">
-                        <td colspan="7" class="py-5 text-center text-muted fw-bold">등록된 공지사항이 없습니다.</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <nav id="paginationContainer" class="pagination-container" th:if="${notices != null and notices.totalPages > 0}">
-                <ul class="pagination" th:with="
+                <nav id="paginationContainer" class="pagination-container" th:if="${notices != null and notices.totalPages > 0}">
+                    <ul class="pagination" th:with="
                     currentPage=${notices.number + 1},
                     blockStart=${(currentPage - 1) div 5 * 5 + 1}">
 
-                    <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart - 1})}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
+                        <li class="page-item" th:classappend="${blockStart == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart - 1})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
 
-                    <li class="page-item"
-                        th:each="page : ${#numbers.sequence(1, notices.totalPages)}"
-                        th:if="${page >= blockStart and page < blockStart + 5}"
-                        th:classappend="${page == currentPage} ? 'active'">
-                        <a class="page-link"
-                           th:href="@{/admin/notice/list(page=${page})}"
-                           th:text="${page}"></a>
-                    </li>
+                        <li class="page-item"
+                            th:each="page : ${#numbers.sequence(1, notices.totalPages)}"
+                            th:if="${page >= blockStart and page < blockStart + 5}"
+                            th:classappend="${page == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/notice/list(page=${page})}"
+                               th:text="${page}"></a>
+                        </li>
 
-                    <li class="page-item" th:classappend="${blockStart + 4 >= notices.totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart + 5})}">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-        </div>
-    </div>
-
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title fw-bold">이미지 미리보기</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-0">
-                    <img src="" id="modalImage" class="img-fluid" style="max-height: 80vh;" alt="공지 이미지">
-                </div>
+                        <li class="page-item" th:classappend="${blockStart + 4 >= notices.totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/notice/list(page=${blockStart + 5})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

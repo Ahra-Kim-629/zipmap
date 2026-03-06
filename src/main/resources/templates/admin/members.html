@@ -5,50 +5,106 @@
 
 <th:block layout:fragment="css">
     <style>
-        /* 관리자 페이지 본문 전체의 배경색을 강제로 지정 */
-        body {
-            background-color: #f4f7f6 !important;
+        /* 1. 배경 및 전체 컨테이너 */
+        body { background-color: #f4f7f6 !important; }
+        .admin-content { padding: 40px 0; min-height: calc(100vh - 250px); }
+
+        /* 2. 메인 카드 (제목부터 페이징까지 감싸는 흰색 판) */
+        .list-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        .admin-content { padding: 40px 0; background-color: #f4f7f6; min-height: calc(100vh - 250px); }
-        .table-card { background: white; border-radius: 15px; border: none; overflow: hidden; }
 
-        /* 테이블 스타일 커스텀 */
-        .table thead { background-color: #343a40; color: white; }
-        .table th { font-size: 0.85rem; font-weight: 600; padding: 15px; border: none; }
-        .table td { vertical-align: middle; font-size: 0.9rem; padding: 12px; border-bottom: 1px solid #f1f1f1; }
+        /* 3. 테이블 디자인 (실거주 인증 관리 스타일과 100% 통일) */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table {
+            min-width: 1100px;
+            border-collapse: collapse; /* 실거주 인증 페이지처럼 선으로 구분 */
+            margin-top: 20px;
+        }
 
-        /* 권한 및 상태 배지 스타일 */
-        .role-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; }
-        .role-admin { background-color: #e8f5e9; color: #2e7d32; }
-        .role-user { background-color: #e3f2fd; color: #1565c0; }
+        /* 헤더 스타일 */
+        .table thead th {
+            background-color: #f8f9fa !important;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
 
-        .status-active { color: #28a745; font-weight: bold; }
-        .status-banned { color: #dc3545; font-weight: bold; }
+        /* 행(Row) 스타일: 마우스 올렸을 때 색상만 변경 (움직임 제거) */
+        .table tbody tr {
+            background-color: #fff;
+            transition: background-color 0.2s ease;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa !important;
+            /* transform 제거됨 */
+        }
 
-        .form-select-sm { font-size: 0.8rem; border-radius: 6px; border: 1px solid #ddd; }
-        .btn-update { font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
+        .table td {
+            vertical-align: middle;
+            padding: 18px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            text-align: center;
+        }
 
-        /*  페이징 디자인 (리뷰 페이지와 완벽 통일) */
-        .pagination-container { margin-top: 40px; display: flex; justify-content: center; padding-bottom: 20px; }
+        /* 4. 버튼 및 요소 스타일 */
+        .btn-sm-custom {
+            background-color: #3f8a7e;
+            color: #fff;
+            border-radius: 50px;
+            padding: 6px 16px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .btn-sm-custom:hover { background-color: #325e5a; color: #fff; }
+
+        /* 5. 페이징 디자인 (민트/초록 테마) */
+        .pagination-container { margin-top: 40px; display: flex; justify-content: center; }
         .pagination { display: flex; list-style: none; padding-left: 0; }
-        .page-link { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #555; border: none; margin: 0 4px; border-radius: 12px !important; font-weight: 700; transition: 0.2s; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
-        .page-item.active .page-link { background-color: var(--main-orange, #ff7e00); border-color: var(--main-orange, #ff7e00); color: white; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
-        .page-link:hover:not(.active) { background-color: #f8f9fa; transform: translateY(-2px); color: #333; }
-        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; box-shadow: none; }
+        .page-link {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            color: #555; border: none; margin: 0 4px; border-radius: 12px !important;
+            font-weight: 700; transition: all 0.2s ease; background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none;
+        }
+        .page-item.active .page-link {
+            background-color: #3f8a7e !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(63, 138, 126, 0.3);
+        }
+        .page-link:hover:not(.active) {
+            background-color: #325e5a;
+            transform: translateY(-2px);
+            color: #fff;
+        }
+        .page-item.disabled .page-link { color: #ccc; pointer-events: none; background-color: #fcfcfc; }
     </style>
 </th:block>
 
 <div layout:fragment="content">
     <div class="admin-content">
         <div class="container">
-            <div class="container-fluid px-4">
-                <div class="d-flex justify-content-between align-items-end mb-4">
-                    <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-people-fill me-2"></i>회원 관리</h2>
-                    <a th:href="@{/admin}" class="btn btn-outline-dark btn-sm rounded-pill px-3">관리자 홈</a>
+            <div class="list-card daedong-shadow">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-people-fill me-2" style="color: #3f8a7e;"></i>회원 관리
+                    </h2>
+                    <a th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-house-door me-1"></i>관리자 홈
+                    </a>
                 </div>
 
-                <div class="table-card daedong-shadow">
-                    <table class="table table-hover mb-0 text-center">
+                <div class="table-responsive">
+                    <table class="table align-middle">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -56,54 +112,36 @@
                             <th>성별</th>
                             <th>이메일</th>
                             <th>주소</th>
-                            <th>상태 관리</th>
+                            <th style="width: 200px;">상태 관리</th>
                             <th>가입일</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="user : ${users.content}">
-                            <td class="text-muted" th:text="${user.id}">1</td>
-
+                            <td class="text-muted small" th:text="${user.id}"></td>
                             <td>
-                                <div class="fw-bold" th:text="${user.loginId}">user01</div>
-                                <div class="small text-muted" th:text="${user.name}">홍길동</div>
+                                <div class="fw-bold" th:text="${user.loginId}"></div>
+                                <div class="small text-muted" th:text="${user.name}"></div>
                             </td>
-
+                            <td th:text="${#strings.toString(user.gender) == 'M' ? '남성' : '여성'}"></td>
+                            <td class="small text-muted" th:text="${user.email}"></td>
+                            <td class="text-start small">
+                                    <span class="d-inline-block text-truncate" style="max-width: 150px;"
+                                          th:text="${user.address}" th:title="${user.address}"></span>
+                            </td>
                             <td>
-                                <span class="small" th:text="${#strings.toString(user.gender) == 'M' ? '남성' : '여성'}">성별</span>
-                            </td>
-
-                            <td>
-                                <div class="small text-muted"><i class="bi bi-envelope me-1"></i> <span
-                                        th:text="${user.email}">mail@test.com</span></div>
-                            </td>
-
-                            <td class="text-start">
-                            <span class="small text-truncate d-inline-block" style="max-width: 150px;"
-                                  th:text="${user.address}" th:title="${user.address}">주소 정보</span>
-                            </td>
-
-                            <td class="p-0">
-                                <form th:action="@{/admin/updateStatus}" method="post"
-                                      class="d-flex align-items-center justify-content-center gap-2 p-2">
+                                <form th:action="@{/admin/updateStatus}" method="post" class="d-flex gap-2 justify-content-center">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <input type="hidden" name="id" th:value="${user.id}">
-
-                                    <select name="accountStatus" class="form-select form-select-sm"
-                                            th:classappend="${user.accountStatus == 'ACTIVE' ? 'status-active' : (user.accountStatus == 'BANNED' ? 'status-banned' : '')}"
-                                            style="width: 100px;">
+                                    <select name="accountStatus" class="form-select form-select-sm shadow-sm" style="width: 100px; border-radius: 8px;">
                                         <option value="ACTIVE" th:selected="${user.accountStatus?.name() == 'ACTIVE'}">ACTIVE</option>
                                         <option value="PENDING" th:selected="${user.accountStatus?.name() == 'PENDING'}">PENDING</option>
                                         <option value="BANNED" th:selected="${user.accountStatus?.name() == 'BANNED'}">BANNED</option>
                                     </select>
-
-                                    <button type="submit" class="btn btn-warning btn-sm btn-update rounded-3 px-3">변경</button>
+                                    <button type="submit" class="btn-sm-custom">변경</button>
                                 </form>
                             </td>
-
-                            <td class="text-muted small" th:text="${#temporals.format(user.createdAt, 'yyyy.MM.dd')}">
-                                2024.01.01
-                            </td>
+                            <td class="text-muted small" th:text="${#temporals.format(user.createdAt, 'yyyy.MM.dd')}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -140,9 +178,9 @@
                         </li>
                     </ul>
                 </nav>
-
-            </div>
-        </div>
+            </div> </div>
     </div>
 </div>
+
+<th:block layout:fragment="script"></th:block>
 </html>
