@@ -257,10 +257,12 @@
         const endDateText = $container.find('.small span:last').text();   // 종료일 텍스트 추출
 
         const today = new Date();
-        today.setHours(0,0,0,0); // 시간 제외 날짜만 비교
-
         const start = new Date(startDateText);
         const end = new Date(endDateText);
+
+        today.setHours(0,0,0,0); // 시간 제외 날짜만 비교
+        start.setHours(0,0,0,0); // 시간 제외 날짜만 비교
+        end.setHours(0,0,0,0);
 
         // 배지 HTML 생성 (이전의 th:block 로직을 JS로 재현)
         let badgeHtml = '';
