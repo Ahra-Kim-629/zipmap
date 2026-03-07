@@ -103,7 +103,6 @@
 
                 <div class="content-body mb-5" th:utext="${postDTO.content}"></div>
 
-                <!-- 첨부파일 리스트 (이미지 미리보기 포함) -->
                 <div th:if="${not #lists.isEmpty(postDTO.fileList)}" class="file-section mb-5">
                     <h6 class="fw-bold mb-3 small"><i class="bi bi-paperclip me-2 text-orange"></i>첨부파일</h6>
                     <ul class="list-unstyled mb-0">
@@ -159,9 +158,7 @@
                         <span class="text-orange" th:text="${postDTO.replyList != null ? postDTO.replyList.size() : 0}">0</span>
                     </h5>
 
-                    <!-- 무한 스크롤 댓글 컨테이너 -->
                     <div id="reply-container"></div>
-                    <!-- 로딩 스피너 -->
                     <div id="reply-loader" class="text-center my-3" style="display:none;">
                         <div class="spinner-border text-orange" role="status"></div>
                     </div>
@@ -169,6 +166,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="aiSummaryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
@@ -187,40 +185,56 @@
     </div>
 </div>
 
-<script layout:fragment="script">
-    // 1. 전역 변수 설정
-    let currentPage = 0;      // 현재 몇 번째 댓글 페이지인지 기록
-    let isLoading = false;    // 지금 데이터를 가져오는 중인지 확인 (중복 요청 방지)
-    let isLastPage = false;   // 더 이상 가져올 댓글이 없는지 확인
+<script th:inline="javascript" layout:fragment="script">
+    /*<![CDATA[*/
+
+    // 1. 전역 변수 설정 (Thymeleaf 안전 탐색 및 매핑 적용)
+    let currentPage = 0;
+    let isLoading = false;
+    let isLastPage = false;
     let hasFocusedReply = false;
-    const targetId = [[${postDTO.id}]]; // 현재 보고 있는 게시글의 번호
-    const currentUserName = "[[${#authentication.name}]]"; // 로그인한 사용자의 이름
-    const urlParams = new URLSearchParams(window.location.search); // URL 파라미터 확인용
+    const targetId = [[${postDTO?.id}]];
+    const currentUserName = /*[[${#authentication != null ? #authentication.name : null}]]*/ null;
+    const urlParams = new URLSearchParams(window.location.search);
     const focusReplyId = urlParams.get("replyId");
-    const csrfParameterName = "[[${_csrf.parameterName}]]";
-    const csrfToken = "[[${_csrf.token}]]";
+    const csrfParameterName = [[${_csrf.parameterName}]];
+    const csrfToken = [[${_csrf.token}]];
 
     $(document).ready(function() {
-        // [홀 서빙 시작] 페이지가 열리자마자 실행되는 기능들입니다.
+
+        /* 알림 메시지 처리 (첫 번째 코드 참고) */
+        const flashError = [[${errorMessage}]];
+        const flashSuccess = [[${successMessage}]];
+
+        if (flashError) {
+            alert(flashError);
+        }
+        if (flashSuccess) {
+            alert(flashSuccess);
+        }
+        if (urlParams.get('success') === 'report') {
+            alert("신고가 정상적으로 접수되었습니다.");
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
 
         // 초기 댓글 로드
-        fetchReplies();
+        if (targetId) {
+            fetchReplies();
+        }
 
-        // 무한 스크롤 설정: 바닥에 닿으면 다음 댓글을 가져옵니다.
-        $(window).scroll(function() {
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
+        // 무한 스크롤 설정 (첫 번째 코드와 동일한 높이 조건 적용)
+        $(window).on('scroll', function() {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 250) {
                 if (!isLoading && !isLastPage) {
                     fetchReplies();
                 }
             }
         });
 
-        // [핵심 기능] AI 요약 버튼 클릭 이벤트
+        // AI 요약 버튼 클릭 이벤트
         $("#btn-ai-summary").click(function() {
-            // 팝업창(모달) 객체 생성
             const summaryModal = new bootstrap.Modal(document.getElementById('aiSummaryModal'));
 
-            // 팝업창에 "요리 중(분석 중)"이라는 메시지를 먼저 띄웁니다.
             $("#ai-summary-content").html(`
                 <div class="text-center p-3">
                     <div class="spinner-border text-primary" role="status"></div>
@@ -229,26 +243,26 @@
             `);
             summaryModal.show();
 
-            // 서버 지배인(Controller)에게 요약 요청을 보냅니다.
             $.ajax({
                 url: "/post/summarize-detail/" + targetId,
                 type: "GET",
                 success: function(res) {
-                    // 성공하면 AI가 보내준 따끈따끈한 요약 텍스트를 팝업창에 넣습니다.
                     $("#ai-summary-content").html(res);
                 },
                 error: function() {
-                    // 실패하면 에러 메시지를 보여줍니다.
                     $("#ai-summary-content").html('<p class="text-danger text-center">요약에 실패했습니다. 다시 시도해 주세요.</p>');
                 }
             });
         });
     }); // $(document).ready 끝
 
-    // [창고지기] 서버에서 댓글 데이터를 가져오는 함수
+    // 서버에서 댓글 데이터를 가져오는 함수
     function fetchReplies() {
+        if (isLoading || isLastPage) return;
+
         isLoading = true;
         $("#reply-loader").show();
+
         $.ajax({
             url: "/reply/list",
             type: "GET",
@@ -260,43 +274,44 @@
 
                     currentPage++;
                     if (replies.length < 10) isLastPage = true;
-                } else { isLastPage = true; }
+                } else {
+                    isLastPage = true;
+                }
             },
-            complete: function() { isLoading = false; $("#reply-loader").hide(); }
+            complete: function() {
+                isLoading = false;
+                $("#reply-loader").hide();
+            }
         });
     }
 
     function tryFocusReply() {
+        if (hasFocusedReply || !focusReplyId) return;
 
-    // 이미 실행했으면 종료
-    if (hasFocusedReply) return;
+        const target = document.getElementById("reply-" + focusReplyId);
 
-    if (!focusReplyId) return;
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
 
-    const target = document.getElementById("reply-" + focusReplyId);
+            target.classList.add("reply-focus");
 
-    if (target) {
+            setTimeout(() => {
+                target.classList.remove("reply-focus");
+            }, 2000);
 
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-
-        target.classList.add("reply-focus");
-
-        setTimeout(() => {
-            target.classList.remove("reply-focus");
-        }, 2000);
-
-        hasFocusedReply = true; // 다시 실행되지 않게 차단
+            hasFocusedReply = true;
+        }
     }
-}
 
-    // [접시 닦기] 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
+    // 가져온 댓글 데이터를 예쁜 HTML 모양으로 만드는 함수
     function renderReply(reply) {
-        const isOwner = (currentUserName === reply.loginId);
+        const isOwner = (currentUserName !== null && currentUserName === reply.loginId);
         const authorName = reply.loginId ? reply.loginId : '탈퇴한 회원';
         const authorClass = reply.loginId ? 'reply-author' : 'reply-author text-muted small';
+
         let btnHtml = isOwner ? `
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none border-0" onclick="toggleEditForm(${reply.id})" style="line-height: 1;">수정</button>
@@ -313,7 +328,7 @@
             <div class="reply-item shadow-sm" id="reply-${reply.id}">
                 <div id="display-${reply.id}">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="${authorClass}}">${authorName}</span>
+                        <span class="${authorClass}">${authorName}</span>
                         ${btnHtml}
                     </div>
                     <p class="mb-0 text-secondary small">${reply.content}</p>
@@ -347,47 +362,47 @@
     }
 
     function handleReaction(type) {
-    // 로그인이 안 되어 있다면 로그인 페이지로 유도 (Spring Security 연동 시)
-    if (currentUserName === 'anonymousUser' || !currentUserName) {
-        if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
-            // 현재 페이지의 전체 경로(쿼리 스트링 포함)를 가져옵니다.
-            const currentPath = window.location.pathname + window.location.search;
-
-            // 로그인 페이지로 보내되, 돌아올 주소를 파라미터로 붙입니다.
-            location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
+        if (currentUserName === null || currentUserName === 'anonymousUser' || currentUserName === "") {
+            if (confirm("로그인이 필요한 기능입니다. 로그인하시겠습니까?")) {
+                const currentPath = window.location.pathname + window.location.search;
+                location.href = "/login?prevPage=" + encodeURIComponent(currentPath);
+            }
+            return;
         }
-        return;
+
+        $.ajax({
+            url: "/reaction",
+            type: "POST",
+            data: {
+                targetType: 'post',
+                targetId: targetId,
+                type: type,
+                [csrfParameterName]: csrfToken
+            },
+            success: function(res) {
+                $("#like-count").text(res.likeCount);
+                $("#dislike-count").text(res.dislikeCount);
+
+                $("#like-button").removeClass("btn-like-active");
+                $("#dislike-button").removeClass("btn-dislike-active");
+
+                if (res.currentReaction === 1) {
+                    $("#like-button").addClass("btn-like-active");
+                } else if (res.currentReaction === -1) {
+                    $("#dislike-button").addClass("btn-dislike-active");
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    alert("로그인이 필요합니다.");
+                    location.href = "/login";
+                } else {
+                    alert("처리 중 오류가 발생했습니다.");
+                }
+            }
+        });
     }
 
-    $.ajax({
-        url: "/reaction",
-        type: "POST",
-        data: {
-            targetType: 'post',
-            targetId: targetId,
-            type: type,
-            // CSRF 토큰을 데이터에 포함 (Security 설정에 따라 헤더에 넣을 수도 있음)
-            [csrfParameterName]: csrfToken
-        },
-        success: function(res) {
-            // 1. 숫자 업데이트
-            $("#like-count").text(res.likeCount);
-            $("#dislike-count").text(res.dislikeCount);
-
-            // 2. 버튼 스타일 초기화 후 활성화 상태 적용
-            $("#like-button").removeClass("btn-like-active");
-            $("#dislike-button").removeClass("btn-dislike-active");
-
-            if (res.currentReaction === 1) {
-                $("#like-button").addClass("btn-like-active");
-            } else if (res.currentReaction === -1) {
-                $("#dislike-button").addClass("btn-dislike-active");
-            }
-        },
-        error: function(err) {
-            alert("처리 중 오류가 발생했습니다.");
-        }
-    });
-}
+    /*]]>*/
 </script>
 </html>
