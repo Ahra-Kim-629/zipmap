@@ -465,7 +465,7 @@
     $(document).ready(function() {
 
         // 로그인 사용자 확인 (타임리프 문법)
-        const loginUserId = "[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.user.id : ''}]]";
+        const loginUserId = "[[${#authentication.principal != 'anonymousUser' ? #authentication.principal.member.id : ''}]]";
         // 서버에서 보낸 내 구독 목록
         const myExistingKeywords = /*[[${myKeywords}]]*/ [] || [];
         // 새로 저장할 키워드

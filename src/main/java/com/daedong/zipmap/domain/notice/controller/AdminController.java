@@ -1,10 +1,10 @@
-package com.daedong.zipmap.domain.admin.controller;
+package com.daedong.zipmap.domain.notice.controller;
 
-import com.daedong.zipmap.domain.admin.entity.Notice;
-import com.daedong.zipmap.domain.admin.dto.NoticeDTO;
-import com.daedong.zipmap.domain.admin.service.AdminService;
-import com.daedong.zipmap.domain.member.entity.User;
-import com.daedong.zipmap.domain.member.service.UserService;
+import com.daedong.zipmap.domain.notice.entity.Notice;
+import com.daedong.zipmap.domain.notice.dto.NoticeDTO;
+import com.daedong.zipmap.domain.notice.service.AdminService;
+import com.daedong.zipmap.domain.member.entity.Member;
+import com.daedong.zipmap.domain.member.service.MemberService;
 import com.daedong.zipmap.domain.post.entity.Post;
 import com.daedong.zipmap.domain.post.enums.Category;
 import com.daedong.zipmap.domain.post.enums.Location;
@@ -40,7 +40,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
-    private final UserService userService;
+    private final MemberService memberService;
     private final AdminService adminService;
     private final ReviewService reviewService;
     private final FileUtilService fileUtilService;
@@ -161,7 +161,7 @@ public class AdminController {
     @GetMapping("/members")
     public String userList(@PageableDefault(size = 8, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                            Model model) {
-        Page<User> users = userService.findAllUsers(pageable);
+        Page<Member> users = memberService.findAllUsers(pageable);
         model.addAttribute("users", users); //  HTML에서 받을 이름 'users'로 변경!
 
         return "admin/members";
@@ -174,7 +174,7 @@ public class AdminController {
                                @RequestParam("accountStatus") String status) {
 
         // 두 정보를 모두 포함해서 업데이트를 실행합니다.
-        userService.updateAccountStatus(id, status);
+        memberService.updateAccountStatus(id, status);
 
         return "redirect:/admin/members";
     }
@@ -248,7 +248,7 @@ public class AdminController {
     public String writePostNotice(@AuthenticationPrincipal UserPrincipalDetails user, Post post, RedirectAttributes rttr) {
         try {
             // 1. 작성자를 관리자 ID로 설정
-            post.setUserId(user.getUser().getId());
+            post.setUserId(user.getMember().getId());
 
             // 2. 공지사항임을 표시 (isNotice 필드를 1로 설정)
             // ※ Post 도메인에 isNotice 필드가 반드시 있어야 합니다.

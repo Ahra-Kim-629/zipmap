@@ -1,7 +1,7 @@
 package com.daedong.zipmap.domain.member.entity;
 
 import com.daedong.zipmap.global.common.enums.Status;
-import com.daedong.zipmap.domain.member.enums.UserRole;
+import com.daedong.zipmap.domain.member.enums.MemberRole;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Data
-public class User implements UserDetails {
+public class Member implements UserDetails {
     private long id;
     private String loginId;
     private String password;
@@ -25,7 +25,7 @@ public class User implements UserDetails {
     //private String role;
     //private String accountStatus;
 
-    private UserRole role;
+    private MemberRole role;
     private Status accountStatus;
 
     private LocalDateTime createdAt;

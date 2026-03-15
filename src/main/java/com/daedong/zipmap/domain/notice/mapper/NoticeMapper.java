@@ -1,7 +1,7 @@
-package com.daedong.zipmap.domain.admin.mapper;
+package com.daedong.zipmap.domain.notice.mapper;
 
-import com.daedong.zipmap.domain.admin.entity.Notice;
-import com.daedong.zipmap.domain.admin.dto.NoticeDTO;
+import com.daedong.zipmap.domain.notice.entity.Notice;
+import com.daedong.zipmap.domain.notice.dto.NoticeDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

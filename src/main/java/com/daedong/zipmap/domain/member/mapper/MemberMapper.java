@@ -1,7 +1,7 @@
 package com.daedong.zipmap.domain.member.mapper;
 
+import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.domain.member.entity.Token;
-import com.daedong.zipmap.domain.member.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,26 +9,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Mapper
-public interface UserMapper {
-    Optional<User> findByNameAndEmail(String name, String email);
+public interface MemberMapper {
+    Optional<Member> findByNameAndEmail(String name, String email);
 
-    Optional<User> findById(long id);
+    Optional<Member> findById(long id);
 
-    User findByLoginId(String loginId);
+    Member findByLoginId(String loginId);
 
-    void save(User user);
+    void save(Member member);
 
-    User findByLoginIdAndNameAndEmail(String loginId, String name, String email);
+    Member findByLoginIdAndNameAndEmail(String loginId, String name, String email);
 
-    void delete(User user);
+    void delete(Member member);
 
-    void update(User user);
+    void update(Member member);
 
     // 추가: 모든 유저 리스트를 가져오는 메서드 2026.02.11 종빈 생성
-    List<User> findAllUsers();
+    List<Member> findAllUsers();
 
     // 추가: 관리자 전용 수정 메서드(Status , Role 만 수정 하도록 하는 기능)
-    void updateUserStatusAndRole(User user);
+    void updateUserStatusAndRole(Member member);
 
     void insertToken(Token token);
 
@@ -36,7 +36,7 @@ public interface UserMapper {
 
     void updateToken(Token tokenData);
 
-    List<User> findAllUsersForAdmin(@Param("pageSize") int pageSize, @Param("offset") int offset);
+    List<Member> findAllUsersForAdmin(@Param("pageSize") int pageSize, @Param("offset") int offset);
 
     int countAllUsersForAdmin();
 

@@ -4,7 +4,7 @@ import com.daedong.zipmap.domain.post.dto.PostDTO;
 import com.daedong.zipmap.domain.interaction.reaction.entity.Reaction;
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
 import com.daedong.zipmap.domain.interaction.reaction.mapper.ReactionMapper;
-import com.daedong.zipmap.domain.interaction.common.StatsUtil;
+import com.daedong.zipmap.domain.interaction.common.InteractionStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReactionService {
     private final ReactionMapper reactionMapper;
-    private final StatsUtil statsUtil;
+    private final InteractionStatsService interactionStatsService;
 
     @Transactional
     public Map<String, Object> save(Reaction reaction) {
@@ -31,20 +31,20 @@ public class ReactionService {
         if (existingLike == null) {
             // 있던 반응 없으면 저장
             reactionMapper.save(reaction);
-            statsUtil.updateReactionCount(reaction.getTargetType(), reaction.getTargetId(), reaction.getType());
+            interactionStatsService.updateReactionCount(reaction.getTargetType(), reaction.getTargetId(), reaction.getType());
             currentReaction = reaction.getType();
         } else {
             // 있던 반응 있으면
             if (existingLike.getType() == reaction.getType()) {
                 // 리뷰의 반응이라면 다시 눌렀을때 '취소'처리
                 reactionMapper.delete(existingLike.getId());
-                statsUtil.updateReactionCount(reaction.getTargetType(), reaction.getTargetId(), -reaction.getType());
+                interactionStatsService.updateReactionCount(reaction.getTargetType(), reaction.getTargetId(), -reaction.getType());
                 currentReaction = 0;
             } else if (reaction.getTargetType().equals("post")) {
                 // 포스트의 반응이라면
                 reactionMapper.update(existingLike.getId(), reaction.getType()); // DB 수정
                 // 차이만큼 반영
-                statsUtil.updateReactionCount("post", reaction.getTargetId(), reaction.getType() - existingLike.getType());
+                interactionStatsService.updateReactionCount("post", reaction.getTargetId(), reaction.getType() - existingLike.getType());
                 currentReaction = reaction.getType();
             }
         }

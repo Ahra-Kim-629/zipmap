@@ -8,7 +8,7 @@
         p.id, p.title, p.content, p.user_id, p.category, p.location, p.like_count, p.view_count, p.post_status,
         p.created_at, p.updated_at, u1.login_id as login_id
         FROM post p
-        LEFT JOIN user u1 ON p.user_id = u1.id
+        LEFT JOIN member u1 ON p.user_id = u1.id
         WHERE p.id = #{id}
     </select>
 
@@ -17,7 +17,7 @@
         p.*,
         u.login_id as loginId
         FROM POST p
-        LEFT JOIN user u ON p.user_id = u.id
+        LEFT JOIN member u ON p.user_id = u.id
         <where>
             AND p.post_status = 'ACTIVE' <!-- 추가 : 포스트 스테이터스가 ACTIVE인 것만 조회 -->
             <if test="category != null and category != ''">
@@ -114,7 +114,7 @@
         r.created_at as createdAt,
         r.updated_at as updatedAt
         FROM reply r
-        JOIN user u ON r.user_id = u.id
+        JOIN member u ON r.user_id = u.id
         WHERE r.id = #{id}
     </select>
 
@@ -141,7 +141,7 @@
         SELECT
         p.*,
         u.login_id as loginId FROM post p
-        LEFT JOIN user u ON p.user_id = u.id
+        LEFT JOIN member u ON p.user_id = u.id
         <where>
             <if test="category != null and category != ''">AND p.category = #{category}</if>
             <if test="location != null and location != ''">AND p.location = #{location}</if>

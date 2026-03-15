@@ -1,4 +1,4 @@
-package com.daedong.zipmap.domain.review.entity;
+package com.daedong.zipmap.domain.crimestats.entity;
 
 import lombok.Data;
 

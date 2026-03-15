@@ -1,6 +1,6 @@
 package com.daedong.zipmap.domain.subscription.service;
 
-import com.daedong.zipmap.domain.member.entity.User;
+import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -28,8 +28,8 @@ public class MyAlarmHandler extends TextWebSocketHandler {
             UserPrincipalDetails details = (UserPrincipalDetails) auth.getPrincipal();
 
             // User 정보의 ID
-            User user = details.getUser();
-            String userId = String.valueOf(user.getId());
+            Member member = details.getMember();
+            String userId = String.valueOf(member.getId());
 
             userSessions.put(userId, session);
         } else {

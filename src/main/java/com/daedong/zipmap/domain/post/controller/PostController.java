@@ -76,7 +76,7 @@ public class PostController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "post");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getMember().getId(), "post");
             model.addAttribute("myKeywords", myKeywords);
         }
 
@@ -106,7 +106,7 @@ public class PostController {
     @PostMapping("/write")
     public String write(@AuthenticationPrincipal UserPrincipalDetails user, Post post, @RequestParam(value = "file", required = false) MultipartFile file, RedirectAttributes rttr) {
         try {
-            post.setUserId(user.getUser().getId());
+            post.setUserId(user.getMember().getId());
 
             Long savedId = postService.write(post);
 
@@ -153,7 +153,7 @@ public class PostController {
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user, Model model, RedirectAttributes rttr) {
         PostDTO postDTO = postService.getPostDetail(id);
-        if (!postDTO.getUserId().equals(user.getUser().getId())) {
+        if (!postDTO.getUserId().equals(user.getMember().getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/post";
         }
@@ -169,7 +169,7 @@ public class PostController {
             String newContent = fileUtilService.updateImagesFromContent(post.getContent(), "POST", id);
 
             post.setId(id);
-            post.setUserId(user.getUser().getId());
+            post.setUserId(user.getMember().getId());
             post.setContent(newContent); // 경로 보정된 내용 넣기
 
             postService.update(post);
@@ -185,7 +185,7 @@ public class PostController {
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
         PostDTO postDTO = postService.getPostDetail(id);
-        if (!postDTO.getUserId().equals(user.getUser().getId())) {
+        if (!postDTO.getUserId().equals(user.getMember().getId())) {
             rttr.addFlashAttribute("message", "권한이 없습니다.");
             return "redirect:/post";
         }

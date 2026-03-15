@@ -7,7 +7,7 @@
     <select id="countTotal" resultType="int">
         SELECT COUNT(r.id)
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         <where>
             AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
@@ -72,7 +72,7 @@
         ) AS filePath
 
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         <where>
             AND r.review_status = 'ACTIVE' <!-- ACTIVE인것만 보이게 하기 -->
             <if test="keyword != null and keyword != ''">
@@ -184,7 +184,7 @@
 
 
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         WHERE r.id = #{id}
     </select>
 
@@ -268,7 +268,7 @@
         ) AS filePath
 
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         WHERE r.review_status = 'ACTIVE'
         ORDER BY r.created_at DESC
         LIMIT 4
@@ -286,7 +286,7 @@
         r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status, r.like_count,
         r.view_count, r.created_at, r.updated_at
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         <where>
             <if test="keyword != null and keyword != ''">
                 <choose>
@@ -343,7 +343,7 @@
         AND f.target_type = 'CERTIFICATION'
         ORDER BY c.id DESC LIMIT 1) AS filePath
         FROM review r
-        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN member u ON r.user_id = u.id
         WHERE r.review_status = 'PENDING'
         AND EXISTS (
         SELECT 1 FROM file f

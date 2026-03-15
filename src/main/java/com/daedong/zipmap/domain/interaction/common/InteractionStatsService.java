@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StatsUtil {
+public class InteractionStatsService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final PostMapper postMapper;

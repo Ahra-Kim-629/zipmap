@@ -27,7 +27,7 @@ public class ReplyController {
                         RedirectAttributes rttr) {
 
         // 1. 유저 정보 체크
-        if (user == null || user.getUser() == null) {
+        if (user == null || user.getMember() == null) {
             rttr.addFlashAttribute("error", "로그인 세션이 만료되었습니다.");
             return "redirect:/login";
         }
@@ -41,7 +41,7 @@ public class ReplyController {
         }
         */
 
-        reply.setUserId(user.getUser().getId());
+        reply.setUserId(user.getMember().getId());
         replyService.saveReply(reply);
 
         // 3. 리다이렉트: 성공 시 해당 상세 페이지로 다시 보냄
@@ -53,7 +53,7 @@ public class ReplyController {
                        @AuthenticationPrincipal UserPrincipalDetails user, RedirectAttributes rttr) {
         try {
             // 수정 성공 시 반환된 reply 객체 활용
-            Reply reply = replyService.updateReply(id, content, user.getUser().getId());
+            Reply reply = replyService.updateReply(id, content, user.getMember().getId());
             rttr.addFlashAttribute("message", "수정되었습니다.");
             return "redirect:/" + reply.getTargetType().toLowerCase() + "/detail/" + reply.getTargetId();
 
@@ -79,7 +79,7 @@ public class ReplyController {
 
         try {
             // 서비스에 댓글 ID와 현재 로그인한 유저의 ID를 함께 전달
-            replyService.deleteReply(id, user.getUser().getId());
+            replyService.deleteReply(id, user.getMember().getId());
             rttr.addFlashAttribute("message", "댓글이 삭제되었습니다.");
         } catch (NoSuchElementException e) {
             rttr.addFlashAttribute("error", "이미 삭제된 댓글입니다.");

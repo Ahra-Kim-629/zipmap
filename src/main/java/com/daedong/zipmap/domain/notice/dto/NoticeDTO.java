@@ -1,4 +1,4 @@
-package com.daedong.zipmap.domain.admin.dto;
+package com.daedong.zipmap.domain.notice.dto;
 
 import lombok.Data;
 

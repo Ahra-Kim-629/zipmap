@@ -38,7 +38,7 @@
                     <div class="mypage-card daedong-shadow">
                         <h3 class="section-title">회원 정보 수정</h3>
 
-                        <form th:action="@{/users/mypage}" th:method="post" th:object="${user}">
+                        <form th:action="@{/users/mypage}" th:method="post" th:object="${member}">
                             <input type="hidden" th:field="*{id}"/>
 
                             <div class="row g-3">

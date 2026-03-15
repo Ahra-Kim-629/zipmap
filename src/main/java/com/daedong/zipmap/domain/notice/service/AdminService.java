@@ -1,8 +1,8 @@
-package com.daedong.zipmap.domain.admin.service;
+package com.daedong.zipmap.domain.notice.service;
 
-import com.daedong.zipmap.domain.admin.entity.Notice;
-import com.daedong.zipmap.domain.admin.dto.NoticeDTO;
-import com.daedong.zipmap.domain.admin.mapper.NoticeMapper;
+import com.daedong.zipmap.domain.notice.entity.Notice;
+import com.daedong.zipmap.domain.notice.dto.NoticeDTO;
+import com.daedong.zipmap.domain.notice.mapper.NoticeMapper;
 import com.daedong.zipmap.domain.post.mapper.PostMapper;
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
 import com.daedong.zipmap.domain.review.mapper.ReviewMapper;

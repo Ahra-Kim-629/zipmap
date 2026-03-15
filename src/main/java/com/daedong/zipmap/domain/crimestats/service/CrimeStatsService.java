@@ -1,7 +1,7 @@
-package com.daedong.zipmap.domain.review.service;
+package com.daedong.zipmap.domain.crimestats.service;
 
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
-import com.daedong.zipmap.domain.review.entity.CrimeStats;
+import com.daedong.zipmap.domain.crimestats.entity.CrimeStats;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

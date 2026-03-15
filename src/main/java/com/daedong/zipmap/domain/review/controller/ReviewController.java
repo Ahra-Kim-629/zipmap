@@ -87,7 +87,7 @@ public class ReviewController {
 
         // 로그인한 사용자의 구독 목록
         if (user != null) {
-            List<String> myKeywords = subscriptionService.getMyKeywords(user.getUser().getId(), "review");
+            List<String> myKeywords = subscriptionService.getMyKeywords(user.getMember().getId(), "review");
             model.addAttribute("myKeywords", myKeywords);
         }
 
@@ -103,8 +103,8 @@ public class ReviewController {
 
         Integer isLiked = null;
         // [수정 포인트] user가 null인지 먼저 확인하여 NullPointerException 방지
-        if (user != null && user.getUser() != null) {
-            isLiked = reactionService.getReactionByUserId(user.getUser().getId(), id, "review");
+        if (user != null && user.getMember() != null) {
+            isLiked = reactionService.getReactionByUserId(user.getMember().getId(), id, "review");
         }
 
         model.addAttribute("reviewDTO", reviewDTO); // 여기서 객체 이름이 'reviewDTO'인 것을 기억하세요.
@@ -126,7 +126,7 @@ public class ReviewController {
                         @RequestParam("prosList") List<String> prosList,
                         @RequestParam("consList") List<String> consList,
                         @AuthenticationPrincipal UserPrincipalDetails user) throws IOException {
-        review.setUserId(user.getUser().getId());
+        review.setUserId(user.getMember().getId());
 
         long savedId = reviewService.write(review, prosList, consList);
 
@@ -140,7 +140,7 @@ public class ReviewController {
                                     @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
             // 1. 기존 유저 정보 및 리뷰 ID 담기
-            model.addAttribute("user", user.getUser());
+            model.addAttribute("user", user.getMember());
             model.addAttribute("reviewId", reviewId);
 
             // 2. ✨ 가장 안전한 방법: 리뷰 상세를 통째로 가져오지 말고 필요한 '사유'만 별도로 조회
@@ -179,7 +179,7 @@ public class ReviewController {
         try {
             // 1. UserService에 만든 파일 저장 로직을 실행.
             // (파일을 하드디스크에 저장하고 DB에 기록하는 기능)
-            reviewService.registerCertification(user.getUser(), file, reviewId);
+            reviewService.registerCertification(user.getMember(), file, reviewId);
 
             // 2. 성공 메시지를 담아서 마이페이지로 보냄.
             rttr.addFlashAttribute("message", "인증 신청 완료! 관리자 승인 후 리뷰가 공개됩니다.");
@@ -203,7 +203,7 @@ public class ReviewController {
                        @AuthenticationPrincipal UserPrincipalDetails user,
                        RedirectAttributes rttr) {
         ReviewDTO reviewDTO = reviewService.getReviewDetail(id);
-        if (reviewDTO.getUserId() != user.getUser().getId()) {
+        if (reviewDTO.getUserId() != user.getMember().getId()) {
             rttr.addFlashAttribute("errorMessage", "본인이 작성한 글만 수정할 수 있습니다.");
             return "redirect:/review/detail/" + id;
         }
@@ -221,7 +221,7 @@ public class ReviewController {
         //1. 기존 데이터 조회 ( 권한 확인 및 상태 체크용도로 사용 )
         ReviewDTO original = reviewService.getReviewDetail(id);
         //2. 권한 체크
-        if (original.getUserId() != user.getUser().getId()) {
+        if (original.getUserId() != user.getMember().getId()) {
             rttr.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
             return "redirect:/review/detail/" + id;
         }
@@ -248,7 +248,7 @@ public class ReviewController {
     @PreAuthorize("isAuthenticated()")
     public String delete(@PathVariable Long id, @AuthenticationPrincipal UserPrincipalDetails user) {
         ReviewDTO original = reviewService.getReviewDetail(id);
-        if (original.getUserId() != user.getUser().getId()) {
+        if (original.getUserId() != user.getMember().getId()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제 권한이 없습니다.");
         }
 

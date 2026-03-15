@@ -25,7 +25,7 @@ public class ReactionRestController {
         Reaction reaction = new Reaction();
         reaction.setTargetType(targetType);
         reaction.setTargetId(targetId);
-        reaction.setUserId(user.getUser().getId());
+        reaction.setUserId(user.getMember().getId());
         reaction.setType(type);
 
         Map<String, Object> result = reactionService.save(reaction);

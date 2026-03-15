@@ -26,7 +26,7 @@ public class ReportController {
                              @AuthenticationPrincipal UserPrincipalDetails user,
                              Model model, RedirectAttributes rttr) {
 
-        if (reportService.hasUserAlreadyReported(user.getUser().getId(), targetType, targetId)) {
+        if (reportService.hasUserAlreadyReported(user.getMember().getId(), targetType, targetId)) {
             rttr.addFlashAttribute("errorMessage", "이미 신고한 항목입니다.");
             return "redirect:/" + targetType.toLowerCase() + "/detail/" + targetId;
         }
@@ -48,14 +48,14 @@ public class ReportController {
                                @AuthenticationPrincipal UserPrincipalDetails user,
                                RedirectAttributes rttr) {
 
-        if (reportService.hasUserAlreadyReported(user.getUser().getId(), reportDTO.getTargetType(), reportDTO.getTargetId())) {
+        if (reportService.hasUserAlreadyReported(user.getMember().getId(), reportDTO.getTargetType(), reportDTO.getTargetId())) {
             rttr.addFlashAttribute("errorMessage", "이미 신고가 접수된 항목입니다.");
             return "redirect:/" + reportDTO.getTargetType().toLowerCase() + "/detail/" + reportDTO.getTargetId();
         }
 
         log.info("신고 접수 - 유형: {}, ID: {}", reportDTO.getTargetType(), reportDTO.getTargetId());
 
-        reportDTO.setUserId(user.getUser().getId());
+        reportDTO.setUserId(user.getMember().getId());
         reportService.saveReport(reportDTO, file);
 
         // 리다이렉트 경로 분기

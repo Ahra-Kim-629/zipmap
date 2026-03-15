@@ -1,6 +1,6 @@
 package com.daedong.zipmap.global.security.auth;
 
-import com.daedong.zipmap.domain.member.entity.User;
+import com.daedong.zipmap.domain.member.entity.Member;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,17 +11,17 @@ import java.util.Map;
 
 @Data
 public class UserPrincipalDetails implements UserDetails, OAuth2User {
-    private User user;
+    private Member member;
     private Map<String, Object> attributes;
 
     // 일반 로그인
-    public UserPrincipalDetails(User user) {
-        this.user = user;
+    public UserPrincipalDetails(Member member) {
+        this.member = member;
     }
 
     // OAuth 로그인
-    public UserPrincipalDetails(User user, Map<String, Object> attributes) {
-        this.user = user;
+    public UserPrincipalDetails(Member member, Map<String, Object> attributes) {
+        this.member = member;
         this.attributes = attributes;
     }
 
@@ -32,45 +32,45 @@ public class UserPrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getAuthorities();
+        return member.getAuthorities();
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return member.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getLoginId();
+        return member.getLoginId();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return user.isAccountNonExpired();
+        return member.isAccountNonExpired();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return user.isAccountNonLocked();
+        return member.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return user.isCredentialsNonExpired();
+        return member.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return user.isEnabled();
+        return member.isEnabled();
     }
 
     @Override
     public String getName() {
-        return user.getName(); // 혹은 attributes.get("sub") 등
+        return member.getName(); // 혹은 attributes.get("sub") 등
     }
 
     public Long getId() {
-        return this.user.getId();
+        return this.member.getId();
     }
 }

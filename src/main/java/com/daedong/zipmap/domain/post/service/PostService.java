@@ -10,7 +10,7 @@ import com.daedong.zipmap.global.file.service.FileUtilService;
 import com.daedong.zipmap.global.util.NetworkUtil;
 import com.daedong.zipmap.domain.interaction.reaction.service.ReactionService;
 import com.daedong.zipmap.domain.interaction.reply.service.ReplyService;
-import com.daedong.zipmap.domain.interaction.common.StatsUtil;
+import com.daedong.zipmap.domain.interaction.common.InteractionStatsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
     private final PostMapper postMapper;
-    private final StatsUtil statsUtil;
+    private final InteractionStatsService interactionStatsService;
     private final FileUtilService fileUtilService;
     private final ReplyService replyService;
     private final ReactionService reactionService;
@@ -52,7 +52,7 @@ public class PostService {
 
             // 예외 처리를 추가하여 Redis 장애가 게시글 조회를 막지 않도록 보호
             try {
-                statsUtil.updateViewCount("post", id, identifier);
+                interactionStatsService.updateViewCount("post", id, identifier);
             } catch (Exception e) {
                 System.out.println("Redis 카운트 증가 실패 (게시글 ID: {" + id + "}): {" + e.getMessage() + "}");
             }
@@ -130,7 +130,7 @@ public class PostService {
 
     @Cacheable(value = "mainPostList")
     public List<PostDTO> getMainpagePost() {
-        List<Long> topPostIdList = statsUtil.getTopPostIds(5);
+        List<Long> topPostIdList = interactionStatsService.getTopPostIds(5);
 
         if (topPostIdList == null || topPostIdList.isEmpty()) {
             return new ArrayList<>(); // 빈 리스트 반환하여 쿼리 실행 방지

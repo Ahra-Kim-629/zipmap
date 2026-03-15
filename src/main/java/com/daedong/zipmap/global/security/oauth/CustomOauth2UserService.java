@@ -1,10 +1,10 @@
 package com.daedong.zipmap.global.security.oauth;
 
 import com.daedong.zipmap.global.common.enums.Status;
-import com.daedong.zipmap.domain.member.entity.User;
+import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;
-import com.daedong.zipmap.domain.member.enums.UserRole;
-import com.daedong.zipmap.domain.member.mapper.UserMapper;
+import com.daedong.zipmap.domain.member.enums.MemberRole;
+import com.daedong.zipmap.domain.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
-    private final UserMapper userMapper;
+    private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -46,15 +46,15 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String name = oAuth2UserInfo.getProviderName();
         String gender = "";
 
-        User userEntity = userMapper.findByLoginId(loginId);
+        Member memberEntity = memberMapper.findByLoginId(loginId);
 
-        if (userEntity == null) {
-            userEntity = new User();
-            userEntity.setLoginId(loginId);
-            userEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-            userEntity.setName((name != null && !name.isEmpty()) ? name : provider + "_" + loginId);
-            userEntity.setEmail((email != null && !email.isEmpty()) ? email : provider + "_" + loginId + "@" + provider + ".com");
-            userEntity.setGender(
+        if (memberEntity == null) {
+            memberEntity = new Member();
+            memberEntity.setLoginId(loginId);
+            memberEntity.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            memberEntity.setName((name != null && !name.isEmpty()) ? name : provider + "_" + loginId);
+            memberEntity.setEmail((email != null && !email.isEmpty()) ? email : provider + "_" + loginId + "@" + provider + ".com");
+            memberEntity.setGender(
                     (gender != null && !gender.isEmpty())
                             ? gender.charAt(0)
                             : 'M'
@@ -63,12 +63,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             // userEntity.setRole("WRITER");
             // userEntity.setAccountStatus("ACTIVE");
 
-            userEntity.setRole(UserRole.USER);         //  Enum으로 변경
-            userEntity.setAccountStatus(Status.ACTIVE);  //  Enum으로 변경
-            userMapper.save(userEntity);
+            memberEntity.setRole(MemberRole.USER);         //  Enum으로 변경
+            memberEntity.setAccountStatus(Status.ACTIVE);  //  Enum으로 변경
+            memberMapper.save(memberEntity);
         }
 
-        return new UserPrincipalDetails(userEntity, oAuth2User.getAttributes());
+        return new UserPrincipalDetails(memberEntity, oAuth2User.getAttributes());
     }
 
 }

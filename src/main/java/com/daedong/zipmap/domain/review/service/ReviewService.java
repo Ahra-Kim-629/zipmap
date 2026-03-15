@@ -1,7 +1,8 @@
 package com.daedong.zipmap.domain.review.service;
 
+import com.daedong.zipmap.domain.crimestats.service.CrimeStatsService;
 import com.daedong.zipmap.domain.interaction.reaction.service.ReactionService;
-import com.daedong.zipmap.domain.member.entity.User;
+import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
 import com.daedong.zipmap.domain.review.entity.Certification;
 import com.daedong.zipmap.domain.review.entity.Review;
@@ -13,7 +14,7 @@ import com.daedong.zipmap.domain.review.mapper.ReviewMapper;
 import com.daedong.zipmap.global.file.service.FileUtilService;
 import com.daedong.zipmap.global.util.NetworkUtil;
 import com.daedong.zipmap.domain.interaction.reply.service.ReplyService;
-import com.daedong.zipmap.domain.interaction.common.StatsUtil;
+import com.daedong.zipmap.domain.interaction.common.InteractionStatsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
@@ -38,7 +39,7 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
     private final FileMapper fileMapper;
     private final FileUtilService fileUtilService;
-    private final StatsUtil statsUtil;
+    private final InteractionStatsService interactionStatsService;
     private final ReactionService reactionService;
     private final ReplyService replyService;
     private final CrimeStatsService crimeStatsService;
@@ -110,7 +111,7 @@ public class ReviewService {
     private void handleViewCount(ReviewDTO reviewDTO, HttpServletRequest request, UserDetails userDetails) {
         String identifier = (userDetails != null) ? userDetails.getUsername() : NetworkUtil.getClientIp(request);
         try {
-            statsUtil.updateViewCount("review", reviewDTO.getId(), identifier);
+            interactionStatsService.updateViewCount("review", reviewDTO.getId(), identifier);
         } catch (Exception e) {
             System.out.println("Redis 조회수 증가 실패 : " + e.getMessage());
         }
@@ -253,7 +254,7 @@ public class ReviewService {
 
     // 실거주 인증
     @Transactional
-    public void registerCertification(User user, MultipartFile image, Long reviewId) throws IOException {
+    public void registerCertification(Member member, MultipartFile image, Long reviewId) throws IOException {
 
         // 1. 파일 유효성 검사
         if (image == null || image.isEmpty()) {
@@ -262,7 +263,7 @@ public class ReviewService {
 
         // 2. 새로운 인증 정보 저장
         Certification cert = new Certification();
-        cert.setUserId(user.getId());
+        cert.setUserId(member.getId());
         cert.setReviewId(reviewId);
 
         // 2/24 추가: 인증 객체에도 초기 상태값을 명시적으로 세팅해 줍니다!

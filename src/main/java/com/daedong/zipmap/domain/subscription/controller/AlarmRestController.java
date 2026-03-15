@@ -33,8 +33,8 @@ public class AlarmRestController {
             return 0;
         }
 
-        System.out.println("로그인 유저 ID: " + user.getUser().getId());
-        return alarmService.getUnreadCount(user.getUser().getId());
+        System.out.println("로그인 유저 ID: " + user.getMember().getId());
+        return alarmService.getUnreadCount(user.getMember().getId());
     }
 
     @DeleteMapping("/delete/{id}")

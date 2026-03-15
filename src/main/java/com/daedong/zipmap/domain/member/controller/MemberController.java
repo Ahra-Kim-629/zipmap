@@ -1,9 +1,9 @@
 package com.daedong.zipmap.domain.member.controller;
 
 import com.daedong.zipmap.domain.interaction.reaction.service.ReactionService;
+import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.domain.member.entity.Token;
-import com.daedong.zipmap.domain.member.entity.User;
-import com.daedong.zipmap.domain.member.service.UserService;
+import com.daedong.zipmap.domain.member.service.MemberService;
 import com.daedong.zipmap.domain.post.dto.PostDTO;
 import com.daedong.zipmap.domain.interaction.reply.dto.ReplyDTO;
 import com.daedong.zipmap.domain.post.service.PostService;
@@ -39,7 +39,7 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
-    private final UserService userService;
+    private final MemberService memberService;
     private final PostService postService;
     private final ReviewService reviewService;
     private final ReplyService replyService;
@@ -54,9 +54,9 @@ public class MemberController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(User user, RedirectAttributes rttr) {
+    public String signUp(Member member, RedirectAttributes rttr) {
         try {
-            userService.signUp(user);
+            memberService.signUp(member);
             rttr.addFlashAttribute("success", "회원가입이 완료되었습니다.");
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -68,7 +68,7 @@ public class MemberController {
     @GetMapping("/check-id")
     @ResponseBody
     public ResponseEntity<Map<String, Boolean>> checkId(@RequestParam String loginId) {
-        boolean isDuplicate = userService.isLoginIdDuplicate(loginId);
+        boolean isDuplicate = memberService.isLoginIdDuplicate(loginId);
         Map<String, Boolean> response = new HashMap<>();
         response.put("isDuplicate", isDuplicate);
         return ResponseEntity.ok(response);
@@ -126,8 +126,8 @@ public class MemberController {
     @PostMapping("/users/find/id")
     public String findId(String name, String email, RedirectAttributes rttr) {
         try {
-            User user = userService.findByNameAndEmail(name, email);
-            rttr.addFlashAttribute("success", "찾으시는 아이디는 " + user.getLoginId() + " 입니다.");
+            Member member = memberService.findByNameAndEmail(name, email);
+            rttr.addFlashAttribute("success", "찾으시는 아이디는 " + member.getLoginId() + " 입니다.");
             return "redirect:/login";
         } catch (Exception e) {
             rttr.addFlashAttribute("error", e.getMessage());
@@ -144,7 +144,7 @@ public class MemberController {
     public String findPassword(@RequestParam String loginId, String name, String email, RedirectAttributes rttr, HttpServletRequest request) {
         String clientIp = NetworkUtil.getClientIp(request);
         try {
-            userService.passwordReset(loginId, name, email, clientIp);
+            memberService.passwordReset(loginId, name, email, clientIp);
             rttr.addFlashAttribute("success", "비밀번호 재설정 메일을 발송했습니다.");
             return "redirect:/login";
         } catch (RuntimeException e) {
@@ -158,7 +158,7 @@ public class MemberController {
 
     @GetMapping("/users/reset-password")
     public String resetPassword(@RequestParam String token, Model model) {
-        Token tokenData = userService.selectValidToken(token);
+        Token tokenData = memberService.selectValidToken(token);
         if (tokenData == null) {
             model.addAttribute("error", "유효하지 않은 링크입니다.");
             return "redirect:/";
@@ -172,7 +172,7 @@ public class MemberController {
     public String resetPassword(@RequestParam String token, String newPassword, RedirectAttributes rttr, HttpServletRequest request) {
         String usedIp = NetworkUtil.getClientIp(request);
         try {
-            userService.confirmReset(token, newPassword, usedIp);
+            memberService.confirmReset(token, newPassword, usedIp);
             rttr.addFlashAttribute("success", "비밀번호가 재설정되었습니다.");
             return "redirect:/login";
         } catch (RuntimeException e) {
@@ -187,10 +187,10 @@ public class MemberController {
     @GetMapping("/users/mypage")
     public String mypage(Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
-            model.addAttribute("user", user.getUser());
+            model.addAttribute("user", user.getMember());
 
             // 이 사용자의 알림 목록 가져와서 화면에 보내기
-            List<AlarmDTO> alarmList = alarmService.getAlarmList(user.getUser().getId());
+            List<AlarmDTO> alarmList = alarmService.getAlarmList(user.getMember().getId());
             model.addAttribute("alarmList", alarmList);
         } catch (Exception e) {
             return "redirect:/";
@@ -205,14 +205,14 @@ public class MemberController {
                          @RequestParam(required = false) String password_confirm,
                          RedirectAttributes rttr) {
         try {
-            User findUser = userService.findByLoginId(user.getUsername());
+            Member findMember = memberService.findByLoginId(user.getUsername());
 
             if (new_password != null && !new_password.isEmpty()) {
                 if (current_password == null || current_password.isEmpty()) {
                     rttr.addFlashAttribute("error", "현재 비밀번호를 입력해주세요.");
                     return "redirect:/users/mypage";
                 }
-                if (!passwordEncoder.matches(current_password, findUser.getPassword())) {
+                if (!passwordEncoder.matches(current_password, findMember.getPassword())) {
                     rttr.addFlashAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
@@ -221,11 +221,11 @@ public class MemberController {
                     rttr.addFlashAttribute("error", "새 비밀번호가 일치하지 않습니다.");
                     return "redirect:/users/mypage";
                 }
-                findUser.setPassword(passwordEncoder.encode(new_password));
+                findMember.setPassword(passwordEncoder.encode(new_password));
 
             }
 
-            userService.update(findUser);
+            memberService.update(findMember);
 
             rttr.addFlashAttribute("success", "회원 정보 수정이 완료되었습니다.");
             return "redirect:/";
@@ -239,7 +239,7 @@ public class MemberController {
     @GetMapping("/users/unregister")
     public String unregister(Model model, @AuthenticationPrincipal UserPrincipalDetails user) {
         try {
-            model.addAttribute("user", user.getUser());
+            model.addAttribute("user", user.getMember());
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -250,13 +250,13 @@ public class MemberController {
     public String unregister(@AuthenticationPrincipal UserPrincipalDetails user,
                              @RequestParam String password, RedirectAttributes rttr, HttpSession session) {
         try {
-            User findUser = user.getUser();
-            if (!passwordEncoder.matches(password, findUser.getPassword())){
+            Member findMember = user.getMember();
+            if (!passwordEncoder.matches(password, findMember.getPassword())){
                 rttr.addFlashAttribute("error", "비밀번호가 일치하지 않습니다.");
                 return "redirect:/users/unregister";
             }
 
-            userService.unregister(findUser);
+            memberService.unregister(findMember);
             session.invalidate();
             rttr.addFlashAttribute("success", "회원 탈퇴가 완료되었습니다.");
             return "redirect:/";
@@ -274,11 +274,11 @@ public class MemberController {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviewList = reviewService.getMyReviews(user.getUser().getId(), pageable);
+            Page<ReviewDTO> reviewList = reviewService.getMyReviews(user.getMember().getId(), pageable);
             model.addAttribute("reviews", reviewList);
             model.addAttribute("posts", Page.empty(pageable));
         } else if ("posts".equals(type)) {
-            Page<PostDTO> postList = postService.getMyPosts(user.getUser().getId(), pageable);
+            Page<PostDTO> postList = postService.getMyPosts(user.getMember().getId(), pageable);
             model.addAttribute("posts", postList);
             model.addAttribute("reviews", Page.empty(pageable));
         }
@@ -295,11 +295,11 @@ public class MemberController {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReplyDTO> reviewReplyList = replyService.findByTargetTypeAndUserId("review", user.getUser().getId(), pageable);
+            Page<ReplyDTO> reviewReplyList = replyService.findByTargetTypeAndUserId("review", user.getMember().getId(), pageable);
             model.addAttribute("reviewReplies", reviewReplyList);
             model.addAttribute("postReplies", Page.empty(pageable));
         } else {
-            Page<ReplyDTO> postReplies = replyService.findByTargetTypeAndUserId("post", user.getUser().getId(), pageable);
+            Page<ReplyDTO> postReplies = replyService.findByTargetTypeAndUserId("post", user.getMember().getId(), pageable);
             model.addAttribute("postReplies", postReplies);
             model.addAttribute("reviewReplyList", Page.empty(pageable));
         }
@@ -315,11 +315,11 @@ public class MemberController {
         model.addAttribute("type", type);
 
         if ("reviews".equals(type)) {
-            Page<ReviewDTO> reviewList = reactionService.getLikedReviews(user.getUser().getId(), pageable);
+            Page<ReviewDTO> reviewList = reactionService.getLikedReviews(user.getMember().getId(), pageable);
             model.addAttribute("reviews", reviewList);
             model.addAttribute("posts", Page.empty(pageable));
         } else if ("posts".equals(type)) {
-            Page<PostDTO> postList = reactionService.getLikedPosts(user.getUser().getId(), pageable);
+            Page<PostDTO> postList = reactionService.getLikedPosts(user.getMember().getId(), pageable);
             model.addAttribute("posts", postList);
             model.addAttribute("reviews", Page.empty(pageable));
         }

@@ -1,4 +1,4 @@
-package com.daedong.zipmap.domain.admin.entity;
+package com.daedong.zipmap.domain.notice.entity;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;

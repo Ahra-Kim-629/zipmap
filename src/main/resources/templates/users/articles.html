@@ -121,7 +121,7 @@
 
                     <tr th:if="${reviews == null or reviews.empty}">
                         <td colspan="6" class="py-5 text-center text-muted">
-                            조회된 리뷰가 없습니다. (유저 ID: <span sec:authentication="principal.user.id"></span>)
+                            조회된 리뷰가 없습니다. (유저 ID: <span sec:authentication="principal.member.id"></span>)
                         </td>
                     </tr>
                     </tbody>
