@@ -1,6 +1,6 @@
-package com.daedong.zipmap.domain.subscription.mapper;
+package com.daedong.zipmap.domain.alarm.mapper;
 
-import com.daedong.zipmap.domain.subscription.dto.AlarmDTO;
+import com.daedong.zipmap.domain.alarm.dto.AlarmDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

@@ -1,7 +1,7 @@
-package com.daedong.zipmap.domain.subscription.controller;
+package com.daedong.zipmap.domain.alarm.controller;
 
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;
-import com.daedong.zipmap.domain.subscription.service.AlarmService;
+import com.daedong.zipmap.domain.alarm.service.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

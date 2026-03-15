@@ -1,9 +1,9 @@
-package com.daedong.zipmap.domain.subscription.service;
+package com.daedong.zipmap.domain.alarm.service;
 
-import com.daedong.zipmap.domain.subscription.dto.AlarmDTO;
+import com.daedong.zipmap.domain.alarm.dto.AlarmDTO;
 import com.daedong.zipmap.domain.post.entity.Post;
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
-import com.daedong.zipmap.domain.subscription.mapper.AlarmMapper;
+import com.daedong.zipmap.domain.alarm.mapper.AlarmMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

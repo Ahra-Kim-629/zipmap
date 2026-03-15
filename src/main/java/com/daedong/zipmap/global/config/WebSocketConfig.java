@@ -1,6 +1,6 @@
 package com.daedong.zipmap.global.config;
 
-import com.daedong.zipmap.domain.subscription.service.MyAlarmHandler;
+import com.daedong.zipmap.domain.alarm.service.MyAlarmHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

@@ -4,7 +4,7 @@ import com.daedong.zipmap.domain.interaction.reaction.service.ReactionService;
 import com.daedong.zipmap.domain.post.entity.Post;
 import com.daedong.zipmap.domain.post.dto.PostDTO;
 import com.daedong.zipmap.domain.post.service.PostService;
-import com.daedong.zipmap.domain.subscription.service.AlarmService;
+import com.daedong.zipmap.domain.alarm.service.AlarmService;
 import com.daedong.zipmap.domain.subscription.service.SubscriptionService;
 import com.daedong.zipmap.global.gemini.GeminiService;
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;

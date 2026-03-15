@@ -2,7 +2,7 @@ package com.daedong.zipmap.domain.post.service;
 
 import com.daedong.zipmap.domain.post.entity.Post;
 import com.daedong.zipmap.domain.post.dto.PostDTO;
-import com.daedong.zipmap.domain.subscription.service.AlarmService;
+import com.daedong.zipmap.domain.alarm.service.AlarmService;
 import com.daedong.zipmap.global.common.enums.Status;
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;
 import com.daedong.zipmap.domain.post.mapper.PostMapper;

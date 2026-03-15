@@ -9,7 +9,7 @@ import com.daedong.zipmap.domain.review.mapper.ReviewMapper;
 import com.daedong.zipmap.global.common.enums.Status;
 import com.daedong.zipmap.global.file.entity.File;
 import com.daedong.zipmap.global.file.mapper.FileMapper;
-import com.daedong.zipmap.domain.subscription.service.AlarmService;
+import com.daedong.zipmap.domain.alarm.service.AlarmService;
 import com.daedong.zipmap.global.file.service.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;

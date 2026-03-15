@@ -1,4 +1,4 @@
-package com.daedong.zipmap.domain.subscription.service;
+package com.daedong.zipmap.domain.alarm.service;
 
 import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.global.security.auth.UserPrincipalDetails;
