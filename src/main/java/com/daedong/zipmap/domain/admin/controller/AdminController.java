@@ -1,8 +1,8 @@
-package com.daedong.zipmap.domain.notice.controller;
+package com.daedong.zipmap.domain.admin.controller;
 
 import com.daedong.zipmap.domain.notice.entity.Notice;
 import com.daedong.zipmap.domain.notice.dto.NoticeDTO;
-import com.daedong.zipmap.domain.notice.service.AdminService;
+import com.daedong.zipmap.domain.admin.service.AdminService;
 import com.daedong.zipmap.domain.member.entity.Member;
 import com.daedong.zipmap.domain.member.service.MemberService;
 import com.daedong.zipmap.domain.post.entity.Post;

@@ -1,4 +1,4 @@
-package com.daedong.zipmap.domain.notice.service;
+package com.daedong.zipmap.domain.admin.service;
 
 import com.daedong.zipmap.domain.notice.entity.Notice;
 import com.daedong.zipmap.domain.notice.dto.NoticeDTO;

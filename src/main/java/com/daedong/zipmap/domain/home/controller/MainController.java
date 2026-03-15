@@ -3,7 +3,7 @@ package com.daedong.zipmap.domain.home.controller;
 import com.daedong.zipmap.domain.notice.dto.NoticeDTO;
 import com.daedong.zipmap.domain.post.dto.PostDTO;
 import com.daedong.zipmap.domain.review.dto.ReviewDTO;
-import com.daedong.zipmap.domain.notice.service.AdminService;
+import com.daedong.zipmap.domain.admin.service.AdminService;
 import com.daedong.zipmap.domain.post.service.PostService;
 import com.daedong.zipmap.domain.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
