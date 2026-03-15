@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.ReviewMapper">
+<mapper namespace="com.daedong.zipmap.domain.review.mapper.ReviewMapper">
     <select id="countTotal" resultType="int">
         SELECT COUNT(id)
         FROM review
@@ -23,7 +23,7 @@
         </where>
     </select>
 
-    <select id="findAll" resultType="com.daedong.zipmap.domain.Review">
+    <select id="findAll" resultType="com.daedong.zipmap.domain.review.entity.Review">
         SELECT id, title, content, address, user_id, point, review_status, created_at
         FROM review
         <where>

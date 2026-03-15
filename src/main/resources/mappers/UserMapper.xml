@@ -2,16 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.UserMapper">
+<mapper namespace="com.daedong.zipmap.domain.member.mapper.UserMapper">
 
-    <select id="findByNameAndEmail" resultType="com.daedong.zipmap.domain.User">
+    <select id="findByNameAndEmail" resultType="com.daedong.zipmap.domain.member.entity.User">
         SELECT
         id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE name = #{name} AND email = #{email}
     </select>
 
-    <select id="findByLoginId" resultType="com.daedong.zipmap.domain.User">
+    <select id="findByLoginId" resultType="com.daedong.zipmap.domain.member.entity.User">
         SELECT
         id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
@@ -31,14 +31,14 @@
 
     </insert>
 
-    <select id="findById" resultType="com.daedong.zipmap.domain.User">
+    <select id="findById" resultType="com.daedong.zipmap.domain.member.entity.User">
         SELECT
         id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
         WHERE id = #{id}
     </select>
 
-    <select id="findByLoginIdAndNameAndEmail" resultType="com.daedong.zipmap.domain.User">
+    <select id="findByLoginIdAndNameAndEmail" resultType="com.daedong.zipmap.domain.member.entity.User">
         SELECT
         id, login_id, password, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
@@ -72,7 +72,7 @@
         WHERE id = #{id}
     </delete>
 
-    <select id="findAllUsersForAdmin" resultType="com.daedong.zipmap.domain.User">
+    <select id="findAllUsersForAdmin" resultType="com.daedong.zipmap.domain.member.entity.User">
         SELECT
         id, login_id, name, gender, email, address, role, account_status, created_at, updated_at
         FROM user
@@ -88,7 +88,7 @@
     </select>
 
     <!-- 회원 계정 상태 수정 기능을 위한 쿼리 2026.02.11 종빈 수정 -->
-    <update id="updateUserStatusAndRole" parameterType="com.daedong.zipmap.domain.User">
+    <update id="updateUserStatusAndRole" parameterType="com.daedong.zipmap.domain.member.entity.User">
         UPDATE user
         <set>
             <if test="role != null">role = #{role},</if>
@@ -98,19 +98,19 @@
         WHERE id = #{id}
     </update>
 
-    <insert id="insertToken" parameterType="com.daedong.zipmap.domain.Token">
+    <insert id="insertToken" parameterType="com.daedong.zipmap.domain.member.entity.Token">
         INSERT INTO token (user_id, token, created_at, expired_at, requested_ip)
         VALUES (#{userId}, #{token}, #{createdAt}, #{expiredAt}, #{requestedIp})
     </insert>
 
-    <select id="selectValidToken" resultType="com.daedong.zipmap.domain.Token">
+    <select id="selectValidToken" resultType="com.daedong.zipmap.domain.member.entity.Token">
         SELECT
         id, user_id, token, created_at, expired_at, used_yn, requested_ip, used_ip
         FROM token
         WHERE token = #{token} AND used_yn = 'N' AND expired_at > NOW()
     </select>
 
-    <update id="updateToken" parameterType="com.daedong.zipmap.domain.Token">
+    <update id="updateToken" parameterType="com.daedong.zipmap.domain.member.entity.Token">
         UPDATE token
         SET used_yn = #{usedYn},
         used_ip = #{usedIp}

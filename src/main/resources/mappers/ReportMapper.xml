@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.ReportMapper">
+<mapper namespace="com.daedong.zipmap.domain.report.mapper.ReportMapper">
 
     <select id="countReportByUserAndTarget" resultType="int">
         SELECT COUNT(*)
@@ -12,7 +12,7 @@
         AND target_id = #{targetId}
     </select>
 
-    <insert id="insertReport" parameterType="com.daedong.zipmap.domain.ReportDTO" useGeneratedKeys="true"
+    <insert id="insertReport" parameterType="com.daedong.zipmap.domain.report.dto.ReportDTO" useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO report (
         target_id, target_type, user_id, reason, content, report_status, created_at
@@ -21,7 +21,7 @@
         )
     </insert>
 
-    <select id="selectAllReports" resultType="com.daedong.zipmap.domain.ReportDTO">
+    <select id="selectAllReports" resultType="com.daedong.zipmap.domain.report.dto.ReportDTO">
         SELECT
         r.id, r.target_type, r.target_id, r.user_id, u.login_id AS reporterName, r.reason,
         r.content, r.report_status, r.created_at, r.updated_at, f.file_path
@@ -36,7 +36,7 @@
         ORDER BY r.created_at DESC
     </select>
 
-    <select id="selectAllReportsWithPaging" resultType="com.daedong.zipmap.domain.ReportDTO">
+    <select id="selectAllReportsWithPaging" resultType="com.daedong.zipmap.domain.report.dto.ReportDTO">
         SELECT
         r.id, r.target_type, r.target_id, r.user_id, u.login_id AS reporterName, r.reason,
         r.content, r.report_status, r.created_at, r.updated_at, f.file_path
@@ -75,7 +75,7 @@
         UPDATE report SET report_status = #{reportStatus} WHERE id = #{id}
     </update>
 
-    <select id="selectReportById" resultType="com.daedong.zipmap.domain.ReportDTO">
+    <select id="selectReportById" resultType="com.daedong.zipmap.domain.report.dto.ReportDTO">
         SELECT
         r.id, r.report_status, r.target_type, r.target_id
         FROM report r

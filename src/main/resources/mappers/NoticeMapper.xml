@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.NoticeMapper">
+<mapper namespace="com.daedong.zipmap.domain.admin.mapper.NoticeMapper">
 
-    <select id="findNoticeAll" resultType="com.daedong.zipmap.domain.NoticeDTO">
+    <select id="findNoticeAll" resultType="com.daedong.zipmap.domain.admin.dto.NoticeDTO">
         SELECT
         n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,
         n.updated_at
@@ -13,7 +13,7 @@
         ORDER BY status DESC, priority DESC, created_at DESC
     </select>
 
-    <select id="findNoticeAllWithPaging" resultType="com.daedong.zipmap.domain.NoticeDTO">
+    <select id="findNoticeAllWithPaging" resultType="com.daedong.zipmap.domain.admin.dto.NoticeDTO">
         SELECT
         n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,
         n.updated_at
@@ -29,7 +29,7 @@
 
 
 
-    <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.NoticeDTO">
+    <select id="findCurrentNoticeList" resultType="com.daedong.zipmap.domain.admin.dto.NoticeDTO">
         SELECT
         n.id, n.title, f.file_path, n.link_url, n.status, n.start_date, n.end_date, n.priority, n.created_at,
         n.updated_at
@@ -39,7 +39,7 @@
         ORDER BY priority DESC, id DESC
     </select>
 
-    <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.Notice"
+    <insert id="insertNotice" parameterType="com.daedong.zipmap.domain.admin.entity.Notice"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO notice
         (title, link_url, status, start_date, end_date, priority, created_at, updated_at)
@@ -48,7 +48,7 @@
         NOW())
     </insert>
 
-    <update id="updateNotice" parameterType="com.daedong.zipmap.domain.Notice">
+    <update id="updateNotice" parameterType="com.daedong.zipmap.domain.admin.entity.Notice">
         UPDATE notice
         SET title = #{title}, link_url = #{linkUrl},
         status = #{status}, start_date = #{startDate}, end_date = #{endDate},
@@ -62,7 +62,7 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findNoticeById" resultType="com.daedong.zipmap.domain.NoticeDTO">
+    <select id="findNoticeById" resultType="com.daedong.zipmap.domain.admin.dto.NoticeDTO">
         SELECT
         n.id, n.title, n.link_url, n.status, n.start_date, n.end_date, n.priority,
         n.created_at, n.updated_at, f.file_path

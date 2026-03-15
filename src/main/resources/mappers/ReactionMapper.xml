@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.ReactionMapper">
+<mapper namespace="com.daedong.zipmap.domain.interaction.reaction.mapper.ReactionMapper">
 
     <!-- 기존 반응 있는지 확인 -->
-    <select id="findByUserAndTarget" resultType="com.daedong.zipmap.domain.Reaction">
+    <select id="findByUserAndTarget" resultType="com.daedong.zipmap.domain.interaction.reaction.entity.Reaction">
         SELECT *
         FROM reaction
         WHERE user_id = #{userId}
@@ -14,7 +14,7 @@
     </select>
 
     <!-- 반응 저장 -->
-    <insert id="save" parameterType="com.daedong.zipmap.domain.Reaction">
+    <insert id="save" parameterType="com.daedong.zipmap.domain.interaction.reaction.entity.Reaction">
         INSERT INTO reaction
         (target_type, target_id, user_id, type, created_at, updated_at)
         VALUES
@@ -50,7 +50,7 @@
     </select>
 
     <!-- 내가 좋아요한 리뷰 조회 -->
-    <select id="findLikedReviewsByUserId" resultType="com.daedong.zipmap.domain.ReviewDTO">
+    <select id="findLikedReviewsByUserId" resultType="com.daedong.zipmap.domain.review.dto.ReviewDTO">
         SELECT
             r.id, r.title, r.content, r.address, r.user_id, u.login_id AS loginId, r.point, r.review_status,
             r.view_count, r.created_at, r.updated_at,
@@ -79,7 +79,7 @@
     </select>
 
     <!-- 내가 좋아요한 게시글 조회 -->
-    <select id="findLikedPostsByUserId" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findLikedPostsByUserId" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
             p.id, p.title, p.content, p.user_id, p.category, p.location, p.view_count, p.post_status,
             p.created_at, p.updated_at, u.login_id as loginId,

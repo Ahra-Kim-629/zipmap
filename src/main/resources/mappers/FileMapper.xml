@@ -2,17 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.FileMapper">
+<mapper namespace="com.daedong.zipmap.global.file.mapper.FileMapper">
 
     <!--  REVIEW 아이도 리뷰파일 조회 -->
-    <!--    <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--    <select id="findFilesByReviewId" resultType="com.daedong.zipmap.domain_sub.ReviewFile">-->
     <!--        SELECT-->
     <!--        id, review_id, file_path, created_at, updated_at-->
     <!--        FROM review_file-->
     <!--        WHERE review_id = #{id}-->
     <!--    </select>-->
 
-    <!--    <select id="findByPostId" resultType="com.daedong.zipmap.domain.PostFile">-->
+    <!--    <select id="findByPostId" resultType="com.daedong.zipmap.domain_sub.PostFile">-->
     <!--        SELECT-->
     <!--        id, post_id, file_path, created_at, updated_at-->
     <!--        FROM post_file-->
@@ -20,7 +20,7 @@
     <!--    </select>-->
 
     <!--    &lt;!&ndash; REVIEW 파일 저장 &ndash;&gt;-->
-    <!--    <insert id="saveReviewFile" parameterType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--    <insert id="saveReviewFile" parameterType="com.daedong.zipmap.domain_sub.ReviewFile">-->
     <!--        INSERT INTO review_file-->
     <!--        (review_id, file_path)-->
     <!--        VALUES-->
@@ -28,7 +28,7 @@
     <!--    </insert>-->
 
     <!--    &lt;!&ndash;  REVIEW 파일 조회 &ndash;&gt;-->
-    <!--    <select id="getFileById" resultType="com.daedong.zipmap.domain.ReviewFile">-->
+    <!--    <select id="getFileById" resultType="com.daedong.zipmap.domain_sub.ReviewFile">-->
     <!--        SELECT id, review_id, file_path, created_at, updated_at-->
     <!--        FROM review_file-->
     <!--        WHERE id = #{fileId}-->
@@ -52,7 +52,7 @@
 
     <!--    &lt;!&ndash; 여기부터 코드 추가 수정필요    &ndash;&gt;-->
 
-    <insert id="insertFile" parameterType="com.daedong.zipmap.domain.File"
+    <insert id="insertFile" parameterType="com.daedong.zipmap.global.file.entity.File"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO file
         (target_type, target_id, file_path, file_size)
@@ -60,7 +60,7 @@
         (#{targetType}, #{targetId}, #{filePath}, #{fileSize})
     </insert>
 
-    <select id="findAllByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.File">
+    <select id="findAllByTargetTypeAndTargetId" resultType="com.daedong.zipmap.global.file.entity.File">
         SELECT
         id, target_type, target_id, file_path, file_size, created_at, updated_at
         FROM file
@@ -68,13 +68,13 @@
         AND target_id = #{targetId}
     </select>
 
-    <select id="findAttachments" resultType="com.daedong.zipmap.domain.File">
+    <select id="findAttachments" resultType="com.daedong.zipmap.global.file.entity.File">
         SELECT * FROM file_attachment
         WHERE target_type = #{targetType}
         AND target_id = #{targetId}
     </select>
 
-    <select id="findAttachmentById" resultType="com.daedong.zipmap.domain.File">
+    <select id="findAttachmentById" resultType="com.daedong.zipmap.global.file.entity.File">
         SELECT * FROM file_attachment WHERE id = #{id}
     </select>
 
@@ -88,7 +88,7 @@
         AND target_id = #{targetId}
     </delete>
 
-    <select id="findFileListByTargetTypeAndTargetId" resultType="com.daedong.zipmap.domain.File">
+    <select id="findFileListByTargetTypeAndTargetId" resultType="com.daedong.zipmap.global.file.entity.File">
         SELECT
         id, target_type, target_id, file_path, file_size, created_at, updated_at
         FROM file

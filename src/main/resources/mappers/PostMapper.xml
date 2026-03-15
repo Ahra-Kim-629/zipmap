@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.daedong.zipmap.mapper.PostMapper">
-    <select id="findById" resultType="com.daedong.zipmap.domain.PostDTO">
+<mapper namespace="com.daedong.zipmap.domain.post.mapper.PostMapper">
+    <select id="findById" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         p.id, p.title, p.content, p.user_id, p.category, p.location, p.like_count, p.view_count, p.post_status,
         p.created_at, p.updated_at, u1.login_id as login_id
@@ -12,7 +12,7 @@
         WHERE p.id = #{id}
     </select>
 
-    <select id="findAll" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findAll" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         p.*,
         u.login_id as loginId
@@ -61,7 +61,7 @@
         </where>
     </select>
 
-    <select id="findAllByIdList" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findAllByIdList" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         id, title, content, user_id,
         IF(category IS NULL OR category = '', 'FREE', category) as category,
@@ -92,7 +92,7 @@
         </where>
     </select>
 
-    <insert id="insertPost" parameterType="com.daedong.zipmap.domain.Post"
+    <insert id="insertPost" parameterType="com.daedong.zipmap.domain.post.entity.Post"
             useGeneratedKeys="true" keyProperty="id">
         INSERT INTO post (
         title, content, user_id, category, location,
@@ -104,7 +104,7 @@
         )
     </insert>
 
-    <select id="findReplyById" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findReplyById" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         r.id,
         r.post_id as postId,
@@ -125,7 +125,7 @@
         WHERE id = #{id}
     </update>
 
-    <update id="updatePost" parameterType="com.daedong.zipmap.domain.Post">
+    <update id="updatePost" parameterType="com.daedong.zipmap.domain.post.entity.Post">
         UPDATE post
         SET title = #{title},
         content = #{content},
@@ -137,7 +137,7 @@
         DELETE FROM post WHERE id = #{id}
     </delete>
 
-    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="adminFindAll" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         p.*,
         u.login_id as loginId FROM post p
@@ -205,7 +205,7 @@
 
 
 <!--    내가 쓴 글 조회-->
-    <select id="findByUserId" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findByUserId" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         SELECT
         id, title, content, category, location, like_count, view_count, post_status, created_at, updated_at
         FROM post
@@ -222,7 +222,7 @@
     </select>
 
     <!-- 내가 쓴 댓글 조회 -->
-    <!--    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain.PostReply">-->
+    <!--    <select id="findRepliesByUserId" resultType="com.daedong.zipmap.domain_sub.PostReply">-->
     <!--        SELECT r.id, r.post_id, r.user_id, r.content, r.created_at, r.updated_at, p.title as postTitle-->
     <!--        FROM post_reply r-->
     <!--        JOIN post p ON r.post_id = p.id-->
@@ -236,7 +236,7 @@
     <!--        WHERE user_id = #{userId}-->
     <!--    </select>-->
 
-    <select id="findMainpagePost" resultType="com.daedong.zipmap.domain.PostDTO">
+    <select id="findMainpagePost" resultType="com.daedong.zipmap.domain.post.dto.PostDTO">
         <![CDATA[
     SELECT DISTINCT
         id, title, content, category, created_at, likeCount, reasonType, score
@@ -300,7 +300,7 @@
         LIMIT 100
     </select>
 
-    <select id="findByKeywordPosts" resultType="com.daedong.zipmap.domain.PostDTO" parameterType="string">
+    <select id="findByKeywordPosts" resultType="com.daedong.zipmap.domain.post.dto.PostDTO" parameterType="string">
         SELECT id, title, content, category, location, created_at AS createdAt, like_count AS likeCount
         FROM post
         WHERE post_status = 'ACTIVE'
