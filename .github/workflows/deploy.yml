@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   EB_APPLICATION_NAME: zipmap
-  EB_ENVIRONMENT_NAME: zipmap-prod
+  EB_ENVIRONMENT_NAME: zipmap
   S3_BUCKET: zipmap-deploy-artifacts-arakim
 
 jobs:
